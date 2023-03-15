@@ -1,0 +1,41 @@
+server:
+  port: 8082
+#
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  #db
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      username: root
+      password: roots
+      connection-timeout: 60000
+      maximum-pool-size: 50
+      minimum-idle: 10
+      idle-timeout: 10000
+      data-source-properties:
+          cachePrepStmts: true
+          prepStmtCacheSize: 250
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+    url: jdbc:mariadb://localhost:3309/coffies?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+
+#Thyemleaf
+    thymeleaf:
+      cache: false
+      check-template-location: true
+      mode: HTML
+      prefix: file:src/main/resources/templates/
+      suffix: .html
+      encoding: UTF-8
+      servlet:
+        content-type: text/html
+
+      #devtool ??
+      devtools:
+        livereload:
+          enabled: true
+        remote:
+          restart:
+            enabled: true
