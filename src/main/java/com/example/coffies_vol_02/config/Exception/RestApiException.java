@@ -7,4 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RestApiException extends RuntimeException {
     private final ErrorDto errorDto;
+
+    public RestApiException(String message,ERRORCODE errorDto){
+        super(message);
+        this.errorDto = errorDto;
+    }
 }
