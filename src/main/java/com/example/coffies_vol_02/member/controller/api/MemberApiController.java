@@ -36,20 +36,20 @@ public class MemberApiController {
     }
 
     @PutMapping("/memberUpdate/{id}")
-    public ResponseEntity<?>memberUpdate(@PathVariable Integer userIdx, @RequestBody MemberDto.MemberCreateDto dto){
+    public ResponseEntity<?>memberUpdate(@PathVariable("id") Integer userIdx, @RequestBody MemberDto.MemberCreateDto dto){
         int UpdateResult = memberService.memberUpdate(userIdx,dto);
         return new ResponseEntity<>(UpdateResult,HttpStatus.OK);
     }
 
     @DeleteMapping("/memberDelete/{id}")
-    public ResponseEntity<?>memberDelete(@PathVariable Integer userIdx){
+    public ResponseEntity<?>memberDelete(@PathVariable("id") Integer userIdx){
         memberService.memberDelete(userIdx);
         return new ResponseEntity<>("Delete O.K",HttpStatus.OK);
     }
 
     @GetMapping("/findid/{name}/{email}")
     public ResponseEntity<?>findUserID(@PathVariable(value = "name") String userName,@PathVariable("email") String userEmail){
-        String findUser =memberService.findByMemberNameAndUserEmail(userName,userEmail);
+        String findUser =memberService.findByMembernameAndUseremail(userName,userEmail);
         return new ResponseEntity<>(findUser,HttpStatus.OK);
     }
 
@@ -59,14 +59,14 @@ public class MemberApiController {
         return new ResponseEntity<>(result,HttpStatus.OK);
     }
 
-    @GetMapping("/idduplicated/{email}")
+    @GetMapping("/emailduplicated/{email}")
     public ResponseEntity<?>userEmailDuplicated(@PathVariable("email")String userEmail){
         Boolean result = memberService.existByUserEmail(userEmail);
         return new ResponseEntity<>(result,HttpStatus.OK);
     }
 
     @PutMapping("/newpassword/{id}")
-    public ResponseEntity<?>passwordChange(@PathVariable("id")Integer id,MemberDto.MemberCreateDto dto){
+    public ResponseEntity<?>passwordChange(@PathVariable("id")Integer id,@RequestBody MemberDto.MemberCreateDto dto){
         int updateResult = memberService.updatePassword(id,dto);
         return new ResponseEntity<>(updateResult,HttpStatus.OK);
     }

@@ -11,7 +11,9 @@ public class MemberDto {
 
     @Setter
     @Getter
+    @Builder
     @ToString
+    @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberCreateDto{
         private Integer id;
@@ -20,28 +22,11 @@ public class MemberDto {
         private String memberName;
         private String userPhone;
         private String userGender;
-        private String userAge;
+        private Integer userAge;
         private String userEmail;
         private String userAddr1;
         private String userAddr2;
         private Role role;
-        public Member toEntity(){
-            return Member
-                    .builder()
-                    .id(id)
-                    .userId(userId)
-                    .password(password)
-                    .memberName(memberName)
-                    .userAge(userAge)
-                    .userPhone(userPhone)
-                    .userGender(userGender)
-                    .userEmail(userEmail)
-                    .userAddr1(userAddr1)
-                    .userAddr2(userAddr2)
-                    .userEmail(userEmail)
-                    .role(Role.ROLE_USER)
-                    .build();
-        }
     }
 
     @Getter
@@ -54,7 +39,7 @@ public class MemberDto {
         private String memberName;
         private String userPhone;
         private String userGender;
-        private String userAge;
+        private Integer userAge;
         private String userEmail;
         private String userAddr1;
         private String userAddr2;
@@ -66,7 +51,7 @@ public class MemberDto {
         @Builder
         public MemberResponseDto(
                 Integer id,String userId,String password,String memberName,String userPhone,
-                String userGender,String userAge,String userEmail,String userAddr1,String userAddr2,
+                String userGender,Integer userAge,String userEmail,String userAddr1,String userAddr2,
                 Role role, LocalDateTime createdTime,LocalDateTime updatedTime){
             this.id = id;
             this.userId = userId;

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
@@ -25,12 +26,17 @@ import static org.mockito.BDDMockito.then;
 
 @SpringBootTest
 public class MemberServiceTest {
+
     @InjectMocks
     private MemberService memberService;
+
     @Mock
     private MemberRepository memberRepository;
+
     Member member;
+
     MemberDto.MemberResponseDto responseDto;
+
     @BeforeEach
     public void init(){
         member = memberDto();
@@ -72,7 +78,7 @@ public class MemberServiceTest {
         dto.setUserGender(memberDto().getUserGender());
         dto.setUserEmail(memberDto().getUserEmail());
         dto.setUserPhone(memberDto().getUserPhone());
-        dto.setRole(memberDto().getRole());
+        dto.setRole(Role.ROLE_ADMIN);
         dto.setUserAddr1(memberDto().getUserAddr1());
         dto.setUserAddr2(memberDto().getUserAddr2());
         dto.setUserId(memberDto().getUserId());
@@ -81,7 +87,6 @@ public class MemberServiceTest {
 
         int result = memberService.memberSave(dto);
 
-        then(memberService.memberSave(dto));
         assertThat(result).isEqualTo(1);
     }
 
@@ -159,9 +164,9 @@ public class MemberServiceTest {
         String userEmail = member.getUserEmail();
 
         given(memberRepository.findByMemberNameAndUserEmail(userName,userEmail)).willReturn(Optional.of(member));
-        String userId =memberService.findByMemberNameAndUserEmail(userName,userEmail);
+        String userId =memberService.findByMembernameAndUseremail(userName,userEmail);
 
-        then(memberService.findByMemberNameAndUserEmail(userName,userEmail));
+        then(memberService.findByMembernameAndUseremail(userName,userEmail));
         assertThat(userId).isEqualTo(member.getUserId());
     }
     @Test
@@ -189,6 +194,7 @@ public class MemberServiceTest {
                 .memberName("userName")
                 .userEmail("well414965@gmail.com")
                 .userPhone("010-9999-9999")
+                .userAge(20)
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")

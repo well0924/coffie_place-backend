@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.member.service;
 import com.example.coffies_vol_02.config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.config.Exception.RestApiException;
 import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
@@ -59,7 +60,7 @@ public class MemberService {
                 .memberName(findMemberById.getMemberName())
                 .userId(findMemberById.getUserId())
                 .password(findMemberById.getPassword())
-                .userPhone(findMemberById.getUserAge())
+                .userPhone(findMemberById.getUserPhone())
                 .userEmail(findMemberById.getUserEmail())
                 .userAge(findMemberById.getUserAge())
                 .userGender(findMemberById.getUserGender())
@@ -77,7 +78,19 @@ public class MemberService {
      */
     @Transactional
     public Integer memberSave(MemberDto.MemberCreateDto memberCreateDto){
-        Member member = memberCreateDto.toEntity();
+        Member member = Member
+                .builder()
+                .id(memberCreateDto.getId())
+                .userId(memberCreateDto.getUserId())
+                .password(memberCreateDto.getPassword())
+                .memberName(memberCreateDto.getMemberName())
+                .userPhone(memberCreateDto.getUserPhone())
+                .userGender(memberCreateDto.getUserGender())
+                .userEmail(memberCreateDto.getUserEmail())
+                .userAddr1(memberCreateDto.getUserAddr1())
+                .userAddr2(memberCreateDto.getUserAddr2())
+                .role(Role.ROLE_USER)
+                .build();
         memberRepository.save(member);
         return member.getId();
     }
@@ -88,7 +101,8 @@ public class MemberService {
     @Transactional
     public Integer memberUpdate(Integer id,MemberDto.MemberCreateDto memberCreateDto){
         //회원 조회
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
+        Optional<Member>detail = Optional
+                .ofNullable(memberRepository.findById(id).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
         Member member = detail.get();
         member.updateMember(memberCreateDto);
         int result = member.getId();
@@ -126,7 +140,7 @@ public class MemberService {
      *
      */
     @Transactional(readOnly = true)
-    public String findByMemberNameAndUserEmail(String membername, String userEmail){
+    public String findByMembernameAndUseremail(String membername, String userEmail){
         Optional<Member> member = memberRepository.findByMemberNameAndUserEmail(membername, userEmail);
         Member detail = member.get();
         return detail.getUserId();
