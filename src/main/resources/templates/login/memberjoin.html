@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회원가입 화면</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-3"></div>
+		<div class="col-sm-6">
+			<div class="card shadow">
+				<div class="card-header">
+					회원가입 
+				</div>
+				<div class="card-body">
+					<form action="" method="post">
+						<div class="form-group">
+							<label for="user_id">아이디</label>
+							<div class="input-group">
+								<input type="text" id="user_id" name="userId" class="form-control"/>
+								<div class="input-group-append">
+									<button type="button" class="btn btn-primary" onclick="idcheck()">중복확인</button>
+								</div>
+							</div>
+							<div id="msg"></div>
+						</div>
+						<div id="valid_userId"></div>
+						<div class="form-group">
+							<label for="user_pw">비밀번호</label>
+							<input type="password" id="user_pw" name="userPw" class="form-control" autocomplete="off"/>
+							<label for="user_pw_check">비밀번호 확인</label>
+							<input type="password" id="user_pw_check" class="form-control" onchange="pwcheck()" autocomplete="off"/>
+							<!-- 확인창 -->
+							<div id="pwcheck"></div>
+						</div>
+						<div id="valid_userPw"></div>
+						<div class="form-group">
+							<label for="user_name">이름</label>
+							<input type="text" id="user_name" name="userName" class="form-control"/>
+						</div>
+						<div id="valid_userName"></div>
+						<div class="form-group">
+							<label for="user_name">나이</label>
+							<input type="text" id="user_age" name="userAge" class="form-control"/>
+						</div>
+						<div id="valid_userAge"></div>
+						<div class="form-group">
+							<label for="user_gender">성별</label>
+							</br>
+							<div class="form-check form-check-inline">
+							  <label class="form-check-label" for="inlineCheckbox1">남성</label>
+							  <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="userGender" value="남성" onclick="checkvalid(this)">
+							</div>
+							<div class="form-check form-check-inline">
+							  <label class="form-check-label" for="inlineCheckbox2">여성</label>
+							  <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="userGender" value="여성" onclick="checkvalid(this)">
+							</div>
+						</div>
+						<div id="valid_userGender"></div>
+						<div class="form-group">
+							<label for="user_email">이메일</label>
+							<div class="input-group">
+								<input type="text" id="user_email" name="userEmail" class="form-control"/>
+							</div>
+						</div>
+						<div id="valid_userEmail"></div>
+						<!-- 이메일 인증부분 -->
+<!-- 						<div class="mail_check_wrap" style=display:inline;> -->
+<!-- 							인증번호 입력 박스 -->
+<!-- 							<div class="form-group" id="mail_check_input_box_false"> -->
+<!-- 								인증번호 입력칸 -->
+<!-- 								<input class="mail_check_input" placeholder="인증번호"  disabled="disabled"> -->
+<!-- 								<button type="button" class="btn btn-default" id="mail_check_button">인증번호</button> -->
+<!-- 							</div> -->
+<!-- 							<div class="btn btn-default" id="mail_check_button"> -->
+<!-- 							</div> -->
+<!-- 							<div class="claerify"></div> -->
+<!-- 							<span id="mail_check_input_box_warn"></span> -->
+<!-- 						</div> -->
+						<!-- 인증 end -->
+						<div class="form-group">
+							<label for="user_phone">전화번호</label>
+							<input type="text" id="user_phone" name="userPhone" class="form-control"/>
+						</div>
+						<div id="valid_userPhone"></div>
+						<div class="form-group">
+							<label style="display: block;" >주소</label>
+							<input class="form-control" style="width: 70%; display: inline;" placeholder="도로명 주소" name="userAddr1" id="signUpUserPostNo" type="text" readonly="readonly">
+							<button type="button" class="btn btn-default" onclick="AddressCode();">
+							<i class="fa fa-search"></i> 주소찾기</button>
+						</div>
+						<div class="form-group">
+							<input class="form-control" style="top: 5px;" placeholder="상세 주소" name="userAddr2" id="signUpUserAddress" type="text"/>
+						</div>
+						<div id="valid_userAddr1"></div>
+						<div class="form-group">
+							<div class="text-right">
+								<button type="button" class="btn btn-primary" onclick="memberjoin()">회원가입</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-3"></div>
+	</div>
+</div>
+<script type="text/javascript">
+//아이디 중복 검사 o.k
+function idcheck(){
+	var id = $('#user_id').val();
+	
+	$.ajax({
+		url:'/api/login/idcheck/'+id,
+		type:'get',
+		dataType:'json',
+		contentType:"application/json; charset=UTF-8"
+	}).done(function(resp){
+		console.log(resp);
+		if(resp.data == 1){
+			document.getElementById('msg').innerHTML = '</br>아이디가 중복!';
+			document.getElementById('msg').style.color='red';
+		}else{
+			document.getElementById('msg').innerHTML = '</br>사용가능한 아이디입니다.';
+			document.getElementById('msg').style.color='blue';
+		}
+	});
+}
+
+//비밀번호 재확인 o.k
+function pwcheck(){
+	let pwd = document.getElementById('user_pw').value;
+	let pwdcheck = document.getElementById('user_pw_check').value;
+	
+	console.log(pwd);
+	console.log(pwdcheck);
+
+	if(pwd.trim() == pwdcheck.trim()){
+		document.getElementById('pwcheck').innerHTML="비밀번호가 일치합니다.";
+		document.getElementById('pwcheck').style.color='blue';
+	}else{
+		document.getElementById('pwcheck').innerHTML="비밀번호가 일치하지 않습니다.";
+		document.getElementById('pwcheck').style.color='red';
+	}
+}
+
+//성별체크박스 중복 o.k
+function checkvalid(chk){
+	var gendercheck = document.getElementsByName('userGender');
+	for(var i=0; i<gendercheck.length; i++){
+	     if(gendercheck[i] != chk){
+	    	 gendercheck[i].checked = false;
+	     }
+	}	
+}
+
+var code = '';
+$("#mail_check_button").click(function(){
+	//이메일 값
+	var email = $('#user_email').val();
+	//인증번호 입력란
+	var checkbox = $('.mail_check_input');
+	//인증번호 입력 박스
+	var boxwrap = $('.mail_check_input_box');
+	
+	$.ajax({
+		
+		type:"GET",
+		url:"/api/login/emailsend?userEmail=" + email
+	}).done(function(data){
+		console.log(data);
+		checkbox.attr("disabled",false);
+		boxwrap.attr("id","mail_check_input_box_true");
+		code = data;
+	});
+	alert("인증번호를 보냈습니다.");
+});
+
+//인증번호 비교
+$(".mail_check_input").blur(function(){
+	
+	var inputCode = $(".mail_check_input").val();
+	var checkResult = $("#mail_check_input_box_warn");
+	
+	if(inputCode == code){
+		checkResult.html("인증번호가 일치합니다.");
+		checkResult.attr("class","correct");
+	}else{
+		checkResult.html("인증번호를 다시 확인해주세요.");
+		checkResult.attr("class","incorrect");
+	}
+});
+
+//주소api기능o.k
+function AddressCode(){
+	new daum.Postcode({
+       oncomplete: function(data) {
+           //주소
+       	var addr = ''+extraName;
+           var extraName = '';
+         	
+        	//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+           if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+               addr = data.roadAddress;
+           } else { // 사용자가 지번 주소를 선택했을 경우(J)
+               addr = data.jibunAddress;
+           }
+
+           // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+           if(data.userSelectedType === 'R'){
+               // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+               // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+               if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                   extraName += data.bname;
+               }
+               // 건물명이 있고, 공동주택일 경우 추가한다.
+               if(data.buildingName !== '' && data.apartment === 'Y'){
+                   extraName += (extraName !== '' ? ', ' + data.buildingName : data.buildingName);
+               }
+               // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+               if(extraName !== ''){
+                   extraName = ' (' + extraName + ')';
+               }
+                // 조합된 참고항목을 해당 필드에 넣는다.
+                document.getElementById("signUpUserPostNo").value = extraName;
+           } else {
+                document.getElementById("signUpUserPostNo").value = '';
+           }
+
+        	document.getElementById("signUpUserPostNo").value = addr;
+        	console.log(addr);
+       }
+   }).open();	
+}
+//회원가입 기능o.k
+function memberjoin(){
+	
+	var id = $('#user_id').val();
+	var pw = $('#user_pw').val();
+	var name = $('#user_name').val();
+	var age = $('#user_age').val();
+	var gender = $('input[name=userGender]:checked').val();
+	var email = $('#user_email').val();
+	var phone = $('#user_phone').val();
+	var addr1 = $('#signUpUserPostNo').val();
+	var addr2 = $('#signUpUserAddress').val();
+		
+	var dateform={
+			
+		userId :id,
+		userPw :pw,
+		userName : name,
+		userAge : age,
+		userGender : gender,
+		userEmail : email,
+		userPhone : phone,
+		userAddr1 : addr1,
+		userAddr2 : addr2
+	};
+	
+	$.ajax({
+		url:'/api/login/memberjoin',
+		type:'post',
+		data: JSON.stringify(dateform),
+		dataType:'json',
+		contentType:'application/json; charset=utf-8'
+	}).done(function(resp){
+		
+		if(resp.status==200){
+			
+			alert('회원가입이 되었습니다.');
+			location.href='/page/main/mainpage';	
+		}
+		
+		if(resp.status==400){
+			
+			if(resp.data.hasOwnProperty('valid_userId')){
+				$('#valid_userId').text(resp.data.valid_userId);
+				$('#valid_userId').css('color','red');
+			}else{
+				$('#valid_userId').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userPw')){
+				$('#valid_userPw').text(resp.data.valid_userPw);
+				$('#valid_userPw').css('color','red');
+			}else{
+				$('#valid_userPw').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userName')){
+				$('#valid_userName').text(resp.data.valid_userName);
+				$('#valid_userName').css('color','red');
+			}else{
+				$('#valid_userName').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userGender')){
+				$('#valid_userGender').text(resp.data.valid_userGender);
+				$('#valid_userGender').css('color','red');
+			}else{
+				$('#valid_userGender').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userEmail')){
+				$('#valid_userEmail').text(resp.data.valid_userEmail);
+				$('#valid_userEmail').css('color','red');
+			}else{
+				$('#valid_userEmail').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userPhone')){
+				$('#valid_userPhone').text(resp.data.valid_userPhone);
+				$('#valid_userPhone').css('color','red');
+			}else{
+				$('#valid_userPhone').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_userAddr1')){
+				$('#valid_userAddr1').text(resp.data.valid_userAddr1);
+				$('#valid_userAddr1').css('color','red');
+			}else{
+				$('#valid_userAddr1').text('');
+			}
+		}
+	});
+}
+</script>
+</th:block>
+</body>
+</html>
+
+
+
+
+
+
+
+

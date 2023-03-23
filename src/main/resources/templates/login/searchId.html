@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html 
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>회원 아이디 및 비밀번호 찾기</title>
+<!-- Bootstrap CDN -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="card shadow">
+				<div class="card-header">
+					회원 아이디 찾기
+				</div>
+				<div class="card-body">
+					<h3>아이디 찾기</h3>
+					<form action="">
+						<div class="form-group">
+							<label for="user_name">이름</label>
+							<input type="text" id="user_name" name="userName" class="form-control" onblur="validation(this)"/>
+						</div>
+						<div class="form-group">
+							<label for="user_email">이메일</label>
+							<input type="text" id="user_email" name="userEmail" class="form-control" onblur="validemail(this)"/>
+						</div>
+						<div class="form-group text-right">
+							<button type="button" class="btn btn-primary" onclick="findId()">아이디 찾기</button>
+						</div>
+						<div class="form-group">
+							<div id="msg"></div>
+						</div>
+					</form>		
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6">
+			<div class="card shadow">
+				<div class="card-header">
+					회원 비밀번호 찾기
+				</div>
+				<div class="card-body">
+					<h3>비밀번호 찾기</h3>
+					<form action="" id="finaPw">
+						<div class="form-group">
+							<label for="user_id">아이디</label>
+							<input type="text" id="user_id" name="userId" class="form-control" onblur="validid(this)"/>
+						</div>
+						<div class="form-group">
+							<label for="find_email">이메일</label>
+							<input type="text" id="find_email" name="userEmail" class="form-control"/>
+						</div>
+						<div class="form-group text-right">
+							<button type="button" class="btn btn-primary" onclick="changepwd()">비밀번호 변경</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+//name유효성 검사o.k
+function validation(name){	
+	var name = document.getElementById('user_name').value;
+	
+	if(name.trim().length==0){
+		alert('이름을 입력해주세요.');
+		return false;
+	}
+	return true;
+}
+//id유효성검사 o.k
+function validid(id){
+	var id = document.getElementById('user_id').value;
+	
+	if(id.trim().length==0){
+		alert('아이디를 입력해주세요.');
+		return false;
+	}
+	return true;
+}
+//이메일 형식 체크o.k
+function validemail(useremail){
+	//이메일 입력값
+	var useremail = document.getElementById('user_email').value;
+	//이메일 양식 확인하는 정규식
+	var regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+	
+	//형식검사
+	if(useremail.trim().length == 0){
+		alert('이메일을 입력해주세요.');
+		return false;
+	}
+	
+	if(!regEmail.test(useremail)){
+		alert('이메일 형식이 아닙니다.');
+		return false;
+	}
+	return true;
+}
+
+//아이디 찾기 o.k
+function findId(){
+	let name = $('#user_name').val();
+	let email  = $('#user_email').val();
+	var dataform = {
+			userName : name, 
+			userEmail : email		
+	}
+		$.ajax({
+			url:'/api/login/idsearch/'+name+'/'+email,
+			type:'get',
+			dataType:'json',
+			contentType:'application/json; charset=UTF-8',
+		}).done(function(resp){
+			console.log(resp);
+			console.log(resp.userId);
+			console.log(name);
+			
+			if(resp.userName == name){
+				document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.userId+'입니다.';
+				document.getElementById('msg').style.color='blue';	
+			}
+		}).fail(function(error){
+			console.log(error);
+			document.getElementById('msg').innerHTML = '</br>찾으시는 아이디가 없거나 이름을 잘못 입력하셨습니다.';
+			document.getElementById('msg').style.color='red';
+		});
+		
+}
+
+function changepwd(){
+	location.href='/page/login/pwdchange';
+}
+</script>
+</th:block>
+</body>
+</html>
