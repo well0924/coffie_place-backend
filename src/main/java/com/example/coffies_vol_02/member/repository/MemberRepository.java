@@ -17,4 +17,6 @@ public interface MemberRepository extends JpaRepository<Member,Integer> {
     Boolean existsByUserEmail(String userEmail);
     //아이디 찾기
     Optional<Member> findByMemberNameAndUserEmail(String membername, String useremail);
+    //시큐리티 로그인
+    Optional<Member>findByUserId(String userId);
 }
