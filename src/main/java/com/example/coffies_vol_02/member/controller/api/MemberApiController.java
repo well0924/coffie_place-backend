@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,7 +33,7 @@ public class MemberApiController {
     }
 
     @PostMapping("/memberjoin")
-    public CommonResponse<?>memberJoin(@Valid @RequestBody MemberDto.MemberCreateDto dto){
+    public CommonResponse<?>memberJoin(@Valid @RequestBody MemberDto.MemberCreateDto dto, BindingResult bindingResult){
         int JoinResult = memberService.memberSave(dto);
         return new CommonResponse<>(HttpStatus.OK.value(),JoinResult);
     }
