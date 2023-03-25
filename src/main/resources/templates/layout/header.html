@@ -26,20 +26,14 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 		</ul>
 		
 		<ul class="navbar-nav ml-auto">
-			<li class="nav-item" sec:authorize-expr="isAuthenticated()">
-				<a class="nav-link">[[${#authentication.authorities}]]  [[${#authentication.name}]]님</a>
+			<li class="nav-item">
+				<a th:href="@{/page/login/loginPage}" class="nav-link">로그인</a>
 			</li>
-			<li class="nav-item" sec:authorize-expr="!isAuthenticated()">
-				<a th:href="@{/page/login/loginpage}" class="nav-link">로그인</a>
-			</li>
-			<li class="nav-item" sec:authorize-expr="!isAuthenticated()">
+			<li class="nav-item">
 				<a th:href="@{/page/login/memberjoin}" class="nav-link">회원가입</a>
 			</li>
-			<li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+			<li class="nav-item">
 				<a th:href="@{/page/admin/adminlist}" class="nav-link">관리자페이지</a>
-			</li>
-			<li class="nav-item" sec:authorize="hasAnyRole('ROLE_USER','ROLE_ADMIN')">
-				<a th:href="@{'/page/mypage/page/'+${#authentication.name}}" class="nav-link">마이페이지</a>
 			</li>
 			<li class="nav-item">
 				<a th:href="@{/logout}" class="nav-link">로그아웃</a>

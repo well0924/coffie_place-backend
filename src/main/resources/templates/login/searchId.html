@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html 
+<html lang=""
 xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
@@ -69,81 +68,7 @@ layout:decorate="~{layout/leafframe}">
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-//name유효성 검사o.k
-function validation(name){	
-	var name = document.getElementById('user_name').value;
-	
-	if(name.trim().length==0){
-		alert('이름을 입력해주세요.');
-		return false;
-	}
-	return true;
-}
-//id유효성검사 o.k
-function validid(id){
-	var id = document.getElementById('user_id').value;
-	
-	if(id.trim().length==0){
-		alert('아이디를 입력해주세요.');
-		return false;
-	}
-	return true;
-}
-//이메일 형식 체크o.k
-function validemail(useremail){
-	//이메일 입력값
-	var useremail = document.getElementById('user_email').value;
-	//이메일 양식 확인하는 정규식
-	var regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
-	
-	//형식검사
-	if(useremail.trim().length == 0){
-		alert('이메일을 입력해주세요.');
-		return false;
-	}
-	
-	if(!regEmail.test(useremail)){
-		alert('이메일 형식이 아닙니다.');
-		return false;
-	}
-	return true;
-}
-
-//아이디 찾기 o.k
-function findId(){
-	let name = $('#user_name').val();
-	let email  = $('#user_email').val();
-	var dataform = {
-			userName : name, 
-			userEmail : email		
-	}
-		$.ajax({
-			url:'/api/login/idsearch/'+name+'/'+email,
-			type:'get',
-			dataType:'json',
-			contentType:'application/json; charset=UTF-8',
-		}).done(function(resp){
-			console.log(resp);
-			console.log(resp.userId);
-			console.log(name);
-			
-			if(resp.userName == name){
-				document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.userId+'입니다.';
-				document.getElementById('msg').style.color='blue';	
-			}
-		}).fail(function(error){
-			console.log(error);
-			document.getElementById('msg').innerHTML = '</br>찾으시는 아이디가 없거나 이름을 잘못 입력하셨습니다.';
-			document.getElementById('msg').style.color='red';
-		});
-		
-}
-
-function changepwd(){
-	location.href='/page/login/pwdchange';
-}
-</script>
+<script type="text/javascript" th:src="@{/js/member/searchId.js}"></script>
 </th:block>
 </body>
 </html>
