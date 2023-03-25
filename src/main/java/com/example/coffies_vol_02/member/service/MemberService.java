@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.member.service;
 
 import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.RestApiException;
+import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.MemberDto;
@@ -26,9 +26,9 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Page<MemberDto.MemberResponseDto> findAll(Pageable pageable){
         Page<Member>list = memberRepository.findAll(pageable);
-        //회원이 없는 경우
+
         if(list.isEmpty()){
-            throw new RestApiException(ERRORCODE.NOT_FOUND_MEMBER);
+            throw new CustomExceptionHandler(ERRORCODE.NOT_MEMBER);
         }
 
         return list.map(member->new MemberDto.MemberResponseDto(
@@ -52,7 +52,7 @@ public class MemberService {
      */
     @Transactional(readOnly = true)
     public MemberDto.MemberResponseDto findMemberById(Integer id){
-        Member findMemberById = memberRepository.findById(id).orElseThrow(()->new RestApiException(ERRORCODE.NOT_FOUND_MEMBER));
+        Member findMemberById = memberRepository.findById(id).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
 
         return MemberDto.MemberResponseDto
                 .builder()
@@ -78,6 +78,7 @@ public class MemberService {
      */
     @Transactional
     public Integer memberSave(MemberDto.MemberCreateDto memberCreateDto){
+
         Member member = Member
                 .builder()
                 .id(memberCreateDto.getId())
@@ -86,12 +87,15 @@ public class MemberService {
                 .memberName(memberCreateDto.getMemberName())
                 .userPhone(memberCreateDto.getUserPhone())
                 .userGender(memberCreateDto.getUserGender())
+                .userAge(memberCreateDto.getUserAge())
                 .userEmail(memberCreateDto.getUserEmail())
                 .userAddr1(memberCreateDto.getUserAddr1())
                 .userAddr2(memberCreateDto.getUserAddr2())
                 .role(Role.ROLE_USER)
                 .build();
+
         memberRepository.save(member);
+
         return member.getId();
     }
     /*
@@ -102,8 +106,11 @@ public class MemberService {
     public Integer memberUpdate(Integer id,MemberDto.MemberCreateDto memberCreateDto){
         //회원 조회
         Optional<Member>detail = Optional
-                .ofNullable(memberRepository.findById(id).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = detail.get();
+                .ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+        Member member = null;
+        if(detail.isPresent()){
+            member = detail.get();
+        }
         member.updateMember(memberCreateDto);
         int result = member.getId();
 
@@ -115,8 +122,11 @@ public class MemberService {
      */
     @Transactional
     public void memberDelete(Integer id){
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = detail.get();
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+        Member member = null;
+        if(detail.isPresent()){
+            member = detail.get();
+        }
         memberRepository.deleteById(member.getId());
     }
     /*
@@ -127,6 +137,7 @@ public class MemberService {
     public Boolean existsByUserId(String userId){
         return memberRepository.existsByUserId(userId);
     }
+
     /*
      * 회원 이메일 중복처리
      *
@@ -135,6 +146,7 @@ public class MemberService {
     public Boolean existByUserEmail(String userEmail){
         return memberRepository.existsByUserEmail(userEmail);
     }
+
     /*
      * 회원 아이디 찾기
      *
@@ -142,8 +154,13 @@ public class MemberService {
     @Transactional(readOnly = true)
     public String findByMembernameAndUseremail(String membername, String userEmail){
         Optional<Member> member = memberRepository.findByMemberNameAndUserEmail(membername, userEmail);
-        Member detail = member.get();
-        return detail.getUserId();
+        Member detail = null;
+
+        if(member.isPresent()){
+            detail = member.get();
+        }
+        String userid = detail.getUserId();
+        return userid;
     }
 
     /*
@@ -152,17 +169,15 @@ public class MemberService {
      */
     @Transactional
     public Integer updatePassword(Integer id, MemberDto.MemberCreateDto dto){
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
-
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         detail.ifPresent(member -> {
             if(dto.getPassword()!=null){
                 detail.get().setPassword(dto.getPassword());
             }
             memberRepository.save(member);
         });
-
-        return detail.get().getId();
+        int updateResult = detail.get().getId();
+        return updateResult;
     }
-
 
 }
