@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.RestApiException;
+import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.MemberDto;
@@ -12,8 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -33,6 +33,8 @@ public class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     Member member;
 
     MemberDto.MemberResponseDto responseDto;
@@ -41,6 +43,11 @@ public class MemberServiceTest {
     public void init(){
         member = memberDto();
         responseDto = responseDto();
+    }
+    @Test
+    @DisplayName("회원 목록(페이징)")
+    public void memberList(){
+
     }
     @Test
     @DisplayName("회원 단일 조회")
@@ -62,7 +69,7 @@ public class MemberServiceTest {
             Optional<Member>detail = Optional
                     .ofNullable(
                             memberRepository.findById(0)
-                                    .orElseThrow(()->new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
+                                    .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         });
     }
 
@@ -95,11 +102,13 @@ public class MemberServiceTest {
     public void memberUpdateTest(){
         //given
         given(memberRepository.findById(1)).willReturn(Optional.of(member));
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
+
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+
         Member member = detail.get();
 
         MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
-        dto.setId(member.getId());
+
         dto.setMemberName("update name");
         dto.setUserId("test update");
         dto.setRole(Role.ROLE_ADMIN);
@@ -173,7 +182,7 @@ public class MemberServiceTest {
     @DisplayName("회원 비밀번호 변경")
     public void memberPasswordChangeTest(){
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new RestApiException(ERRORCODE.NOT_FOUND_MEMBER)));
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         Member member = detail.get();
         String changepassword = "4567";
 
@@ -190,11 +199,11 @@ public class MemberServiceTest {
                 .builder()
                 .id(1)
                 .userId("well4149")
-                .password("1234")
+                .password(bCryptPasswordEncoder.encode("qwer4149!!"))
                 .memberName("userName")
                 .userEmail("well414965@gmail.com")
                 .userPhone("010-9999-9999")
-                .userAge(20)
+                .userAge("20")
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
@@ -207,7 +216,7 @@ public class MemberServiceTest {
                 .builder()
                 .id(1)
                 .userId("well4149")
-                .password("1234")
+                .password(member.getPassword())
                 .memberName("userName")
                 .userEmail("well414965@gmail.com")
                 .userPhone("010-9999-9999")

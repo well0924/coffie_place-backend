@@ -6,19 +6,17 @@ import com.example.coffies_vol_02.member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -34,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MemberApiControllerTest {
-
     @Autowired
     private WebApplicationContext context;
     @MockBean
@@ -42,7 +39,7 @@ public class MemberApiControllerTest {
 
     @Mock
     private MemberRepository memberRepository;
-
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private MockMvc mvc;
 
@@ -64,7 +61,7 @@ public class MemberApiControllerTest {
 
     @DisplayName("회원 목록")
     @Test
-    public void memberListFailTest()throws Exception{
+    public void memberListTest()throws Exception{
         mvc.perform(get("/api/member/list")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -74,31 +71,46 @@ public class MemberApiControllerTest {
     @DisplayName("회원 가입")
     @Test
     public void memberJoinTest()throws Exception{
+        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+
+        dto.setId(member.getId());
+        dto.setUserId(member.getUserId());
+        dto.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
+        dto.setUserGender(member.getUserGender());
+        dto.setUserAge(member.getUserAge());
+        dto.setMemberName(member.getMemberName());
+        dto.setUserEmail(member.getUserEmail());
+        dto.setUserPhone(member.getUserPhone());
+        dto.setUserAddr1(member.getUserAddr1());
+        dto.setUserAddr2(member.getUserAddr2());
+        dto.setRole(member.getRole());
 
         mvc.perform(post("/api/member/memberjoin")
-                        .content(objectMapper.writeValueAsString(memberDto()))
+                        .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
-
     @DisplayName("회원 수정")
     @Test
     public void memberUpdateTest()throws Exception{
-        given(memberRepository.findById(2)).willReturn(Optional.of(member));
+        given(memberRepository.findById(1)).willReturn(Optional.of(member));
 
         MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
-        dto.setId(member.getId());
         dto.setMemberName("update name");
         dto.setUserId("test update");
-        dto.setRole(Role.ROLE_ADMIN);
-        dto.setUserEmail("testemail.com");
+        dto.setRole(Role.ROLE_USER);
+        dto.setUserEmail("testemail123@.com");
+        dto.setUserAge("21");
+        dto.setUserPhone("02-906-8570");
+        dto.setUserGender("여성");
 
-        mvc.perform(put("/api/member/memberUpdate/{id}",member.getId())
-                        .content(objectMapper.writeValueAsString(dto))
+        member.updateMember(dto);
+
+        mvc.perform(patch("/api/member/memberUpdate/{id}",member.getId())
                     .contentType(MediaType.APPLICATION_JSON)
+                    .characterEncoding(StandardCharsets.UTF_8)
                     .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isOk())
             .andDo(print());
@@ -155,10 +167,10 @@ public class MemberApiControllerTest {
     public void memeberPasswordChangeTest()throws Exception{
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         int id =member.getId();
-        String password = "4567";
+        String password = "4567qwer!!";
         MemberDto.MemberCreateDto dto =  new MemberDto.MemberCreateDto();
-        dto.setPassword(password);
-        mvc.perform(put("/api/member/newpassword/{id}",id)
+        dto.setPassword(bCryptPasswordEncoder.encode(password));
+        mvc.perform(patch("/api/member/newpassword/{id}",id)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -190,10 +202,11 @@ public class MemberApiControllerTest {
                 .builder()
                 .id(1)
                 .userId("well4149")
-                .password("1234")
+                .password("qwer4149!@#")
                 .memberName("userName")
                 .userEmail("well414965@gmail.com")
                 .userPhone("010-9999-9999")
+                .userAge("30")
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")

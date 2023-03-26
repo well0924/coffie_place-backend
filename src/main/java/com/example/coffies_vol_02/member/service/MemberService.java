@@ -9,6 +9,7 @@ import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /*
     * 회원 목록
@@ -83,7 +86,7 @@ public class MemberService {
                 .builder()
                 .id(memberCreateDto.getId())
                 .userId(memberCreateDto.getUserId())
-                .password(memberCreateDto.getPassword())
+                .password(bCryptPasswordEncoder.encode(memberCreateDto.getPassword()))
                 .memberName(memberCreateDto.getMemberName())
                 .userPhone(memberCreateDto.getUserPhone())
                 .userGender(memberCreateDto.getUserGender())
@@ -108,6 +111,7 @@ public class MemberService {
         Optional<Member>detail = Optional
                 .ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         Member member = null;
+
         if(detail.isPresent()){
             member = detail.get();
         }
@@ -172,7 +176,7 @@ public class MemberService {
         Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         detail.ifPresent(member -> {
             if(dto.getPassword()!=null){
-                detail.get().setPassword(dto.getPassword());
+                detail.get().setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
             }
             memberRepository.save(member);
         });
