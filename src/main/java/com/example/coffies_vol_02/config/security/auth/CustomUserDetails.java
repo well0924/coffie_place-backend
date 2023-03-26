@@ -21,8 +21,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collectors = new ArrayList<>();
+        log.info("CustomUserDetail....");
 
+        Collection<GrantedAuthority> collectors = new ArrayList<>();
         collectors.add(()-> member.getRole().getValue());
         return collectors;
     }
@@ -39,12 +40,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override

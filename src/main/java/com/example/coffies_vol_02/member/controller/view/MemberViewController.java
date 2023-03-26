@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -23,9 +24,14 @@ public class MemberViewController {
     }
 
     @GetMapping("/loginPage")
-    public ModelAndView loginPage(){
+    public ModelAndView loginPage(@RequestParam(value="error",required = false) String error,@RequestParam(value="exception",required = false) String exception){
         ModelAndView mv = new ModelAndView();
+
+        mv.addObject("error", error);
+        mv.addObject("exception", exception);
+
         mv.setViewName("/login/loginpage");
+
         return mv;
     }
 
@@ -39,13 +45,16 @@ public class MemberViewController {
     @GetMapping("/modify/{id}")
     public ModelAndView memberModifyPage(@PathVariable("id")Integer useridx){
         ModelAndView mv = new ModelAndView();
+
         MemberDto.MemberResponseDto dto = null;
+
         try {
             dto = memberService.findMemberById(useridx);
         }catch (Exception e){
             e.printStackTrace();
         }
-        mv.addObject("",dto);
+
+        mv.addObject("detail",dto);
         mv.setViewName("/login/membermodify");
         return mv;
     }

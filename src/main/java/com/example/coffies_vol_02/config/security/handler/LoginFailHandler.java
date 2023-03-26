@@ -17,7 +17,7 @@ import java.net.URLEncoder;
 
 @Log4j2
 @Component
-public class LogoutFailHandler  extends SimpleUrlAuthenticationFailureHandler {
+public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
