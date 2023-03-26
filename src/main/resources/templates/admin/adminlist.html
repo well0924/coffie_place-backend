@@ -25,7 +25,7 @@ layout:decorate="~{layout/leafframe}">
 			<option th:value="N">이름</option>
 			<option th:value="E">이메일</option>
 		</select>
-		<input type="text" class="form-control" id="autocomplete" name="keyword"placeholder="회원명을 입력해주세요.">
+		<input type="text" class="form-control" id="autocompleteText" name="userId"placeholder="회원아이디를 입력해주세요.">
 		<button class="btn btn-sm btn-primary" id="btnSearch">검색</button>
 	</div>
 	<!-- search end -->
@@ -53,16 +53,16 @@ layout:decorate="~{layout/leafframe}">
 					</a>	
 				</td>
 				<td class="text-center d-none d-md-table-cell">
-					[[${member.userName}]]
+					[[${member.memberName}]]
 				</td>
 				<td class="text-center d-none d-md-table-cell">
 					[[${member.userEmail}]]
 				</td>
 				<td class="text-center d-none d-md-table-cell">
-					[[${member.userAuth}]]
+					[[${member.role}]]
 				</td>
 				<td class="text-center d-none d-md-table-cell">
-					[[${member.createdAt}]]
+					[[${member.createdTime}]]
 				</td>
 			</tr>
 			<tr th:unless="${not #lists.isEmpty(memberlist)}">
@@ -71,22 +71,31 @@ layout:decorate="~{layout/leafframe}">
 		</tbody>
 	</table>
 	<!--paging -->
-	<div class="d-none d-md-block">
-		<ul class="pagination justify-content-center">
-			<li class="page-item" th:if="${prev} == true">
-				<a th:href="@{/admin/listpage(page=${startPage}-1,perPageNum=${paging.cri.perPageNum})}" class="page-link">이전</a>
-			</li>
-			<li class="page-item" th:each="idx,iterStat : ${#numbers.sequence(paging.startPage,paging.endPage)}" th:classappend="${paging.cri.page}==${idx} ? active : null">
-				<a th:href="@{/admin/listpage(page=${idx},perPageNum=${paging.cri.perPageNum})}" class="page-link" th:text="${idx}"></a>
-			</li>
-			<li class="page-item" th:if="${paging.next}== true and ${paging.endPage > 0}">
-				<a th:href="@{/admin/listpage(page=${paging.endPage}+1,perPageNum=${paging.cri.perPageNum})}" class="page-link">다음</a>
-			</li>
-		</ul>
+	<div th:if="${!memberlist.isEmpty()}">
+		<nav th:with="pageNumber = ${memberlist.pageable.pageNumber},
+                pageSize = ${memberlist.pageable.pageSize},
+                totalPages = ${memberlist.totalPages},
+                startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
+                tempEndPage = ${startPage + pageSize - 1},
+                endPage = (${tempEndPage < totalPages ? tempEndPage : totalPages})">
+		<div class="d-none d-md-block">
+			<ul class="pagination justify-content-center">
+				<li class="page-item" th:classappend="${memberlist.first} ? 'disabled'">
+					<a th:href="${memberlist.first} ? '#' : @{/page/admin/adminlist(page=${pageNumber-1})}" class="page-link">이전</a>
+				</li>
+				<li class="page-item" th:each="page: ${#numbers.sequence(startPage, endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
+					<a th:href="@{/page/admin/adminlist(page=${page - 1})}" class="page-link">[[${page}]]</a>
+				</li>
+				<li class="page-item" th:classappend="${memberlist.last}? 'disabled'">
+					<a th:href="@{/page/admin/adminlist(page=${pageNumber+1})}" class="page-link">다음</a>
+				</li>
+			</ul>
+		</div>
+		</nav>
 	</div>
 	<!--paging end-->
 </div>
-<script type="text/javascript" th:src="@{/js/admin/adminlist.js}">
-</script>
+<script type="text/javascript" th:src="@{/js/admin/adminlist.js}"></script>
+</th:block>
 </body>
 </html>

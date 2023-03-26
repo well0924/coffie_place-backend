@@ -19,7 +19,7 @@ public class AdminController {
     private final MemberService memberService;
 
     @GetMapping("/adminlist")
-    public ModelAndView adminListPage(@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+    public ModelAndView adminListPage(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 10) Pageable pageable){
         ModelAndView mv = new ModelAndView();
         Page<MemberDto.MemberResponseDto> memberList = memberService.findAll(pageable);
 

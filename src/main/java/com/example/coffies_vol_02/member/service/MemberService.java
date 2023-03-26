@@ -7,12 +7,20 @@ import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -184,4 +192,25 @@ public class MemberService {
         return updateResult;
     }
 
+    /*
+    *  회원 이름 자동완성기능
+    *
+    */
+    public JSONArray autoSearch(String searchVal) throws JSONException {
+        JSONArray arrayObj = new JSONArray();
+        JSONObject jsonObj = null;
+        ArrayList<String> resultlist = new ArrayList<>();
+
+        List<Member>list = memberRepository.findByUserIdStartsWith(searchVal, Sort.by(Sort.Direction.DESC, "userId"));
+        for (Member member:list){
+            String str = member.getUserId();
+            resultlist.add(str);
+        }
+        for(String str : resultlist){
+            jsonObj = new JSONObject();
+            jsonObj.put("data",str);
+            arrayObj.put(jsonObj);
+        }
+        return arrayObj;
+    }
 }
