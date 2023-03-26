@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html 
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<meta charset="UTF-8">
+<title>관리자 페이지</title>
+</head>
+<body>
+<!-- 헤더부분 -->
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;">가게목록</button>
+	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;">가게등록</button>
+	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;">선택삭제</button>
+	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;">공지글 작성</button>
+	<!-- search start -->
+	<div class="form-inline" style="display: flex; justify-content: center;">
+		<select name="searchType" class="form-control" id="searchType">
+			<option>-----------</option>
+			<option th:value="all">전체보기</option>
+			<option th:value="I">아이디</option>
+			<option th:value="N">이름</option>
+			<option th:value="E">이메일</option>
+		</select>
+		<input type="text" class="form-control" id="autocomplete" name="keyword"placeholder="회원명을 입력해주세요.">
+		<button class="btn btn-sm btn-primary" id="btnSearch">검색</button>
+	</div>
+	<!-- search end -->
+	<table class="table table-hover" id='board_list'>
+		<thead>
+			<tr>
+				<th class="text-center d-none d-md-table-cell">
+					<input id="allCheckBox" type="checkbox" onclick="allChecked(this)">
+				</th>
+				<th class="text-center d-none d-md-table-cell">아이디</th>
+				<th class="text-center d-none d-md-table-cell">이름</th>
+				<th class="text-center d-none d-md-table-cell">이메일</th>
+				<th class="text-center d-none d-md-table-cell">등급</th>
+				<th class="text-center d-none d-md-table-cell">등록일</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="member : ${memberlist}"> 
+				<td class="text-center d-none d-md-table-cell">
+					<input type="checkbox" class="chk" name="cchk" onclick="cchkClicked()" th:value="${member.userId}">
+				</td>
+				<td class="text-center d-none d-md-table-cell">
+					<a th:href="@{'/page/login/membermodify/'+${member.userId}}">
+						[[${member.userId}]]
+					</a>	
+				</td>
+				<td class="text-center d-none d-md-table-cell">
+					[[${member.userName}]]
+				</td>
+				<td class="text-center d-none d-md-table-cell">
+					[[${member.userEmail}]]
+				</td>
+				<td class="text-center d-none d-md-table-cell">
+					[[${member.userAuth}]]
+				</td>
+				<td class="text-center d-none d-md-table-cell">
+					[[${member.createdAt}]]
+				</td>
+			</tr>
+			<tr th:unless="${not #lists.isEmpty(memberlist)}">
+				<td>조회된 회원이 없습니다.</td>
+			</tr>
+		</tbody>
+	</table>
+	<!--paging -->
+	<div class="d-none d-md-block">
+		<ul class="pagination justify-content-center">
+			<li class="page-item" th:if="${prev} == true">
+				<a th:href="@{/admin/listpage(page=${startPage}-1,perPageNum=${paging.cri.perPageNum})}" class="page-link">이전</a>
+			</li>
+			<li class="page-item" th:each="idx,iterStat : ${#numbers.sequence(paging.startPage,paging.endPage)}" th:classappend="${paging.cri.page}==${idx} ? active : null">
+				<a th:href="@{/admin/listpage(page=${idx},perPageNum=${paging.cri.perPageNum})}" class="page-link" th:text="${idx}"></a>
+			</li>
+			<li class="page-item" th:if="${paging.next}== true and ${paging.endPage > 0}">
+				<a th:href="@{/admin/listpage(page=${paging.endPage}+1,perPageNum=${paging.cri.perPageNum})}" class="page-link">다음</a>
+			</li>
+		</ul>
+	</div>
+	<!--paging end-->
+</div>
+<script type="text/javascript" th:src="@{/js/admin/adminlist.js}">
+</script>
+</body>
+</html>

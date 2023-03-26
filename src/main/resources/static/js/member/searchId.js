@@ -55,8 +55,8 @@ function findId(){
     }).always(function(resp){
         console.log(resp.responseText);
 
-        if(resp.responseText != null){
-            document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.responseText+'입니다.';
+        if(resp.data != null){
+            document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.data+'입니다.';
             document.getElementById('msg').style.color='blue';
         }else{
             document.getElementById('msg').innerHTML = '</br>찾으시는 아이디가 없거나 이름을 잘못 입력하셨습니다.';

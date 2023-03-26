@@ -12,8 +12,7 @@ function idcheck(){
         dataType:'json',
         contentType:"application/json; charset=UTF-8"
     }).done(function(resp){
-        console.log(resp);
-        if(resp == true){
+        if(resp.data == true){
             document.getElementById('msg').innerHTML = '</br>아이디가 중복!';
             document.getElementById('msg').style.color='red';
         }else{
@@ -25,6 +24,7 @@ function idcheck(){
 
 //비밀번호 재확인 o.k
 function pwcheck(){
+
     let pwd = document.getElementById('user_pw').value;
     let pwdcheck = document.getElementById('user_pw_check').value;
 
@@ -55,8 +55,8 @@ function AddressCode(){
     new daum.Postcode({
         oncomplete: function(data) {
             //주소
-            var extraName = '';
-            var addr = ''+ extraName;
+            let extraName = '';
+            let addr = ''+ extraName;
 
             //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
             if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
@@ -105,7 +105,6 @@ function memberjoin(){
     let addr2 = $('#signUpUserAddress').val();
 
     const dateForm={
-
         userId :id,
         password :pw,
         memberName : name,
@@ -125,7 +124,46 @@ function memberjoin(){
         contentType:'application/json; charset=utf-8'
     }).always(function(resp){
         console.log(resp);
-        alert("회원 가입이 되었습니다.");
-        location.href='/page/login/loginPage';
+        if(resp.status ==200){
+            alert("회원 가입이 되었습니다.");
+            location.href='/page/login/loginPage';
+        }
+        if(resp.status ==400){
+            if(resp.data.hasOwnProperty('valid_userId')){
+                $('#valid_userId').text(resp.data.valid_userId).css('color','red');
+            }else{
+                $('#valid_userId').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userPw')){
+                $('#valid_userPw').text(resp.data.valid_userPw).css('color','red');
+            }else{
+                $('#valid_userPw').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userName')){
+                $('#valid_userName').text(resp.data.valid_userName).css('color','red');
+            }else{
+                $('#valid_userName').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userGender')){
+                $('#valid_userGender').text(resp.data.valid_userGender).css('color','red');
+            }else{
+                $('#valid_userGender').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userEmail')){
+                $('#valid_userEmail').text(resp.data.valid_userEmail).css('color','red');
+            }else{
+                $('#valid_userEmail').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userPhone')){
+                $('#valid_userPhone').text(resp.data.valid_userPhone).css('color','red');
+            }else{
+                $('#valid_userPhone').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userAddr1')){
+                $('#valid_userAddr1').text(resp.data.valid_userAddr1).css('color','red');
+            }else{
+                $('#valid_userAddr1').text('');
+            }
+        }
     });
 }
