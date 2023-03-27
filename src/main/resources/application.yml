@@ -4,6 +4,9 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   #db
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
