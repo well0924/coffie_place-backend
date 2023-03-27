@@ -17,10 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -57,6 +55,7 @@ public class MemberService {
                 member.getCreatedTime(),
                 member.getUpdatedTime()));
     }
+
     /*
      * 회원 단일 조회
      *
@@ -85,7 +84,7 @@ public class MemberService {
 
     /*
      * 회원가입기능
-     *
+     * @param :
      */
     @Transactional
     public Integer memberSave(MemberDto.MemberCreateDto memberCreateDto){
@@ -117,7 +116,10 @@ public class MemberService {
     public Integer memberUpdate(Integer id,MemberDto.MemberCreateDto memberCreateDto){
         //회원 조회
         Optional<Member>detail = Optional
-                .ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+                .ofNullable(
+                        memberRepository
+                                .findById(id)
+                                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         Member member = null;
 
         if(detail.isPresent()){
@@ -196,6 +198,7 @@ public class MemberService {
     *  회원 이름 자동완성기능
     *
     */
+    @Transactional
     public JSONArray autoSearch(String searchVal) throws JSONException {
         JSONArray arrayObj = new JSONArray();
         JSONObject jsonObj = null;
@@ -212,5 +215,11 @@ public class MemberService {
             arrayObj.put(jsonObj);
         }
         return arrayObj;
+    }
+    @Transactional
+    public void selectMemberDelete(List<String>ids){
+        for(int i=0;i<ids.size();i++){
+            memberRepository.deleteAllByUserId(ids);
+        }
     }
 }
