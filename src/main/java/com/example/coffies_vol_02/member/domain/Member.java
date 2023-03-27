@@ -5,7 +5,6 @@ import com.example.coffies_vol_02.member.domain.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,6 +26,7 @@ public class Member extends BaseTime {
     private String userAddr2;
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @Builder
     public Member(Integer id,String userId,String password,String memberName,String userPhone,String userGender,String userAge,String userEmail,String userAddr1,String userAddr2,Role role){
         this.id = id;

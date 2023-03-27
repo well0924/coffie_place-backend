@@ -216,6 +216,9 @@ public class MemberService {
         }
         return arrayObj;
     }
+    /*
+    *  회원 선택 삭제
+    */
     @Transactional
     public void selectMemberDelete(List<String>ids){
         for(int i=0;i<ids.size();i++){
