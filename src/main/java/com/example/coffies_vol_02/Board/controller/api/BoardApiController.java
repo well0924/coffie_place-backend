@@ -28,7 +28,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @GetMapping("/board/{id}")
+    @GetMapping("/{id}")
     public CommonResponse<?>boardDetail(@PathVariable("id") Integer boardId){
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
