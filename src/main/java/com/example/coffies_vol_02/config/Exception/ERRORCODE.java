@@ -13,7 +13,8 @@ public enum ERRORCODE{
     INTERNAL_SERVER_ERROR(500,"서버 에러입니다."),
     BOARD_NOT_FOUND(404,"게시글이 없습니다."),
     BOARD_NOT_LIST(400,"게시글이 없습니다."),
-    NOT_AUTH(401,"권한이 없습니다.ㄴ");
+    NOT_AUTH(401,"권한이 없습니다."),
+    NOT_REPLY(404,"댓글이 없습니다.");
     private final Integer httpStatus;
     private final String message;
 }

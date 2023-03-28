@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.Board.domain;
 
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
+import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.Builder;
@@ -9,11 +10,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor
+@Table(name = "tbl_board")
 public class Board extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +31,9 @@ public class Board extends BaseTime {
     @JoinColumn(name = "useridx")
     @ToString.Exclude
     private Member member;
+    @OneToMany(mappedBy = "board",cascade = CascadeType.ALL,orphanRemoval = true)
+    @ToString.Exclude
+    private List<Comment>commentList = new ArrayList<>();
 
     @Builder
     public Board(Integer id, String boardContents, String boardTitle, Integer readCount, Integer passWd, String fileGroupId, Member member){
