@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.Board.domain;
 
+import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.Builder;
@@ -38,6 +39,15 @@ public class Board extends BaseTime {
         this.passWd = passWd;
         this.fileGroupId = fileGroupId;
         this.member = member;
+    }
+
+    public void countUp() {
+        this.readCount ++;
+    }
+
+    public void boardUpdate(BoardDto.BoardRequestDto dto){
+        this.boardTitle = dto.getBoardTitle();
+        this.boardContents = dto.getBoardContents();
     }
 
 }
