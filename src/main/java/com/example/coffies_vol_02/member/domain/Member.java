@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @ToString
 @NoArgsConstructor
+@Table(name = "tbl_user")
 public class Member extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,4 +56,5 @@ public class Member extends BaseTime {
         this.userAddr1 = memberCreateDto.getUserAddr1();
         this.userAddr2 = memberCreateDto.getUserAddr2();
     }
+
 }
