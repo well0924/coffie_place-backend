@@ -52,8 +52,6 @@ public class CommentService {
                 .board(boarddetail.get())
                 .replyWriter(member.getUserId())
                 .replyContents(dto.getReplyContents())
-                .replyPoint(dto.getReplyPoint())
-                .replyLike(dto.getReplyLike())
                 .build();
 
         commentRepository.save(comment);
