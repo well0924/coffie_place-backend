@@ -12,7 +12,6 @@ import java.util.Collection;
 @Log4j2
 @Getter
 public class CustomUserDetails implements UserDetails {
-    private static final long serialVersionUID = 1L;
     private Member member;
 
     public CustomUserDetails(Member member){

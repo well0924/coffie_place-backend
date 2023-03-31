@@ -1,12 +1,15 @@
 package com.example.coffies_vol_02.member.controller.api;
 
 import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,16 +21,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 
-@Api(tags = "member api controller")
 @Log4j2
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/member")
 public class MemberApiController {
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/list")
     public CommonResponse<?> memberList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
@@ -85,14 +89,25 @@ public class MemberApiController {
     @GetMapping("/autocompetekeyword")
     public void memberNameAutoComplete(HttpServletRequest request, HttpServletResponse response)throws Exception{
         String searchValue = request.getParameter("searchValue");
-        JSONArray arrayObj = memberService.autoSearch(searchValue);
+        JSONArray arrayObj = new JSONArray();
+        JSONObject jsonObj = null;
+        ArrayList<String> resultlist = new ArrayList<>();
 
-        log.info(arrayObj);
+        List<Member>list = memberRepository.findByUserIdStartsWith(searchValue, Sort.by(Sort.Direction.DESC, "userId"));
+        for (Member member:list){
+            String str = member.getUserId();
+            resultlist.add(str);
+        }
+        for(String str : resultlist){
+            jsonObj = new JSONObject();
+            jsonObj.put("data",str);
+            arrayObj.put(jsonObj);
+        }
 
         response.setCharacterEncoding("UTF-8");
 
         PrintWriter pw = response.getWriter();
-        pw.print(arrayObj);
+        pw.print(jsonObj);
         pw.flush();
         pw.close();
     }

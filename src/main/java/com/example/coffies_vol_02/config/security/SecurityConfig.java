@@ -4,7 +4,6 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
 import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
 import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +43,8 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().antMatchers("/images/**", "/js/**","/font/**", "/webfonts/**", "/main/**", "/webjars/**", "/dist/**", "/plugins/**", "/css/**","/favicon.ico");
+        return (web) -> web.ignoring()
+                .antMatchers("/images/**", "/js/**","/font/**", "/webfonts/**", "/main/**", "/webjars/**", "/dist/**", "/plugins/**", "/css/**","/favicon.ico");
     }
 
     @Bean
@@ -54,7 +54,6 @@ public class SecurityConfig {
         provider.setPasswordEncoder(bCryptPasswordEncoder());
         return provider;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -64,22 +63,25 @@ public class SecurityConfig {
             //csrf 토큰 비활성화
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/**").permitAll()//테스트
-            .and()
+            .antMatchers("/**").permitAll()
+            .anyRequest().authenticated();//테스트
+
+        http
             .formLogin()
             .loginPage("/page/member/loginPage")
-            .loginProcessingUrl("/loginProc")
             .usernameParameter("userId")
             .passwordParameter("password")
+            .loginProcessingUrl("/login/action")
             .successHandler(loginSuccessHandler)
-            .failureHandler(loginFailHandler).permitAll();
+            .failureHandler(loginFailHandler);
 
         http
             .logout()
             .logoutUrl("/logout")
-            .logoutSuccessUrl("/page/member/loginPage")
+            .logoutSuccessUrl("/page/login/loginPage")
             .invalidateHttpSession(true)
             .deleteCookies("JESSIONID");
+
         return http.build();
     }
 

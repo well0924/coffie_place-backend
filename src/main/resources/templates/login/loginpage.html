@@ -4,7 +4,6 @@
 xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
@@ -22,7 +21,7 @@ layout:decorate="~{layout/leafframe}">
 					로그인 
 				</div>
 				<div class="card-body">
-					<form th:action="@{/loginProc}" method="post">
+					<form th:action="@{/login/action}" method="post">
 						<div class="form-group">
 							<label for="user_id">아이디</label>
 							<input type="text" id="user_id" name="userId" class="form-control"/>
@@ -36,9 +35,6 @@ layout:decorate="~{layout/leafframe}">
 							<button type="submit" class="btn btn-primary">로그인</button>
 							<a th:href="@{/page/login/memberjoin}" class="btn btn-danger">회원가입</a>
 						</div>
-						<div th:if="error">
-   							<p id="valid" style="color: red; font-size:12px;"><a th:text="${exception}"></a></p>
-						</div>
 					</form>
 				</div>
 			</div>
@@ -47,22 +43,6 @@ layout:decorate="~{layout/leafframe}">
 	</div>
 </div>
 </th:block>
-<script type="text/javascript">
-let id = $('#user_id').val();
-let pw = $('#user_pw').val();
-
-function validation(){
-	if(id.trim().length == null){
-		alert('아이디를 입력해 주세요.');
-		return false;
-	}
-	if(pw.trim().length==null){
-		alert('비밀번호를 입력해 주세요.');
-		return false;
-	}
-	return true;
-}
-</script>
 </body>
 </html>
 
