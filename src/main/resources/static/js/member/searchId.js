@@ -4,24 +4,21 @@
 
 //name유효성 검사o.k
 function validation(){
-    let name = document.getElementById('user_name').value;
-
-    if(name.trim().length==0){
-        alert('이름을 입력해주세요.');
-        return false;
-    }
-    return true;
-}
-//id유효성검사 o.k
-function validid(){
     let id = document.getElementById('user_id').value;
+    let name = document.getElementById('user_name').value;
 
     if(id.trim().length==0){
         alert('아이디를 입력해주세요.');
         return false;
     }
+    if(name.trim().length==0){
+        alert('이름을 입력해주세요.');
+        return false;
+    }
+
     return true;
 }
+
 //이메일 형식 체크o.k
 function validemail(){
     //이메일 입력값
@@ -46,24 +43,24 @@ function validemail(){
 function findId(){
     let name = $('#user_name').val();
     let email  = $('#user_email').val();
+    if(validation()&&validemail()){
+        $.ajax({
+            url:'/api/member/findid/'+name+'/'+email,
+            type:'get',
+            dataType:'json',
+            contentType:'application/json; charset=UTF-8'
+        }).always(function(resp){
+            console.log(resp.data);
 
-    $.ajax({
-        url:'/api/member/findid/'+name+'/'+email,
-        type:'get',
-        dataType:'json',
-        contentType:'application/json; charset=UTF-8'
-    }).always(function(resp){
-        console.log(resp.responseText);
-
-        if(resp.data != null){
-            document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.data+'입니다.';
-            document.getElementById('msg').style.color='blue';
-        }else{
-            document.getElementById('msg').innerHTML = '</br>찾으시는 아이디가 없거나 이름을 잘못 입력하셨습니다.';
-            document.getElementById('msg').style.color='red';
-        }
-    });
-
+            if(resp.data != null){
+                document.getElementById('msg').innerHTML = '</br> 찾으시는 아이디는'+resp.data+'입니다.';
+                document.getElementById('msg').style.color='blue';
+            }else{
+                document.getElementById('msg').innerHTML = '</br>찾으시는 아이디가 없거나 이름을 잘못 입력하셨습니다.';
+                document.getElementById('msg').style.color='red';
+            }
+        });
+    }
 }
 
 function changepwd(){
