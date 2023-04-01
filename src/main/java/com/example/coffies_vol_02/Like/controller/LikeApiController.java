@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.Like.controller;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Like.service.LikeService;
 import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
@@ -40,6 +39,5 @@ public class LikeApiController {
         }
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
-
 
 }

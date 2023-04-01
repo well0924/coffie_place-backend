@@ -51,4 +51,6 @@ public class BoardApiController {
         boardService.BoardDelete(boardId,customUserDetails.getMember());
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
+
+
 }

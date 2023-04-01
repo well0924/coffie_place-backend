@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
@@ -16,9 +17,10 @@ import java.util.Map;
 @Log4j2
 @Aspect
 @Component
+@Configuration
 public class ValidationAspect {
     @Around("execution(* com.example.coffies_vol_02.*..*ApiController.*(..))")
-    public Object apiAdvice(ProceedingJoinPoint proceedingjoinpoint)throws Throwable{
+    public Object apiValidationAdvice(ProceedingJoinPoint proceedingjoinpoint)throws Throwable{
 
         String typeName = proceedingjoinpoint.getSignature().getDeclaringTypeName();
         String name = proceedingjoinpoint.getSignature().getName();
@@ -39,11 +41,12 @@ public class ValidationAspect {
 
                         errorMap.put(validationkey, error.getDefaultMessage());
                     }
-
                     return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(),errorMap);
                 }
             }
         }
         return proceedingjoinpoint.proceed();
     }
+
+
 }

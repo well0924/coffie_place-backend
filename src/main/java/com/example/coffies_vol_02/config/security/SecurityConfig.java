@@ -63,15 +63,21 @@ public class SecurityConfig {
             //csrf 토큰 비활성화
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/**").permitAll()
-            .anyRequest().authenticated();//테스트
+            .antMatchers("/api/member/selectdelete","/api/member/autocompetekeyword").hasRole("ADMIN")
+            .antMatchers(
+                    "/page/login/loginPage",
+                    "/page/login/memberjoin",
+                    "/page/login/tmpid",
+                    "/api/member/**").permitAll()
+            .antMatchers("/api/board/**","/api/comment/**","/api/like/**").hasAnyRole("ADMIN","USER")
+            .anyRequest().authenticated();
 
         http
             .formLogin()
-            .loginPage("/page/member/loginPage")
+            .loginPage("/page/login/loginPage")
             .usernameParameter("userId")
             .passwordParameter("password")
-            .loginProcessingUrl("/login/action")
+            .loginProcessingUrl("/login/action").permitAll()
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailHandler);
 
@@ -84,6 +90,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
 }

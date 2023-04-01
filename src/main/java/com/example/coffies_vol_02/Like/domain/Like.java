@@ -2,10 +2,7 @@ package com.example.coffies_vol_02.Like.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.member.domain.Member;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

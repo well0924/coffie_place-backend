@@ -15,8 +15,6 @@ public class CommentDto {
     public static class CommentRequestDto{
         private String replyWriter;
         private String replyContents;
-        private Integer replyPoint;
-        private Integer replyLike;
     }
     @Getter
     @ToString
