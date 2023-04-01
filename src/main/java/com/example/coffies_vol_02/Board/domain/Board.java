@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.Board.domain;
 
+import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Like.domain.Like;
@@ -53,6 +54,10 @@ public class Board extends BaseTime {
     @OneToMany(mappedBy = "board",cascade = CascadeType.ALL)
     private Set<Like> likes = new HashSet<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "board",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Attach>attachList = new ArrayList<>();
+
     @Builder
     public Board(Integer id, String boardContents, String boardTitle, Integer readCount, Integer passWd, String fileGroupId, Member member){
         this.id = id;
@@ -81,5 +86,12 @@ public class Board extends BaseTime {
 
     public void decreaseLikeCount(){
         this.liked -=1;
+    }
+
+    public void addAttach(Attach attachFile){
+        this.attachList.add(attachFile);
+        if(attachFile.getBoard()!=this){
+            attachFile.setBoard(this);
+        }
     }
 }
