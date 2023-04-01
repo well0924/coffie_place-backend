@@ -7,7 +7,7 @@ $(document).ready(function() {
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8',
                 data: {searchValue: request.term}
-            }).always(function (result) {
+            }).done(function (result) {
                 console.log(result);
                 response(
                     $.map(result, function (item) {

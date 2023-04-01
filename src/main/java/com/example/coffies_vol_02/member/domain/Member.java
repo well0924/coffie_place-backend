@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.member.domain.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter

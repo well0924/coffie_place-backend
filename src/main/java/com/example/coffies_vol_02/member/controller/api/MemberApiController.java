@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class MemberApiController {
     }
 
     @GetMapping("/findid/{user_name}/{user_email}")
-    public CommonResponse<?>findUserID(@PathVariable(value = "user_name") String userName,@PathVariable("user_email") String userEmail){
+    public CommonResponse<?>findUserID(@PathVariable(value = "user_name")String userName, @PathVariable("user_email")String userEmail){
         String findUser =memberService.findByMembernameAndUseremail(userName,userEmail);
         return new CommonResponse<>(HttpStatus.OK.value(),findUser);
     }
@@ -89,25 +90,12 @@ public class MemberApiController {
     @GetMapping("/autocompetekeyword")
     public void memberNameAutoComplete(HttpServletRequest request, HttpServletResponse response)throws Exception{
         String searchValue = request.getParameter("searchValue");
-        JSONArray arrayObj = new JSONArray();
-        JSONObject jsonObj = null;
-        ArrayList<String> resultlist = new ArrayList<>();
 
-        List<Member>list = memberRepository.findByUserIdStartsWith(searchValue, Sort.by(Sort.Direction.DESC, "userId"));
-        for (Member member:list){
-            String str = member.getUserId();
-            resultlist.add(str);
-        }
-        for(String str : resultlist){
-            jsonObj = new JSONObject();
-            jsonObj.put("data",str);
-            arrayObj.put(jsonObj);
-        }
-
+        JSONArray jsonArray = (JSONArray) memberService.autoSearch(searchValue);
         response.setCharacterEncoding("UTF-8");
 
         PrintWriter pw = response.getWriter();
-        pw.print(jsonObj);
+        pw.print(jsonArray);
         pw.flush();
         pw.close();
     }

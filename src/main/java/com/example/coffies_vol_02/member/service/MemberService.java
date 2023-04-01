@@ -197,8 +197,8 @@ public class MemberService {
     *  회원 이름 자동완성기능
     *
     */
-    /*@Transactional
-    public void autoSearch(String searchVal) throws Exception {
+    @Transactional
+    public Object autoSearch(String searchVal) throws Exception {
         JSONArray arrayObj = new JSONArray();
         JSONObject jsonObj = null;
         ArrayList<String> resultlist = new ArrayList<>();
@@ -213,7 +213,9 @@ public class MemberService {
             jsonObj.put("data",str);
             arrayObj.put(jsonObj);
         }
-    }*/
+        return arrayObj;
+    }
+
     /*
     *  회원 선택 삭제
     */

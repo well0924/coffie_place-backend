@@ -7,6 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,18 +16,27 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member,Integer> {
     //페이징 목록
     Page<Member> findAll(Pageable pageable);
+
     //아이디 중복처리
     Boolean existsByUserId(String userId);
+
     //이메일 중복처리
     Boolean existsByUserEmail(String userEmail);
+
     //아이디 찾기
     Optional<Member> findByMemberNameAndUserEmail(String membername, String useremail);
+
     //시큐리티 로그인
     Optional<Member>findByUserId(String userId);
+
     //회원 이름 자동완성기능
     List<Member>findByUserIdStartsWith(String searchVal, Sort sort);
+    @Query("SELECT m.userId FROM Member m where m.userId like %:searchVal%")
+    List<String>Search(@Param("searchVal") String searchVal);
     //회원 선택삭제
+    @Transactional
     @Modifying
     @Query("delete from Member m where m.userId in :ids")
     void deleteAllByUserId(List<String>ids);
+
 }

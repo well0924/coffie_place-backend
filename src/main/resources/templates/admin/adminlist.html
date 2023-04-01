@@ -48,7 +48,7 @@ layout:decorate="~{layout/leafframe}">
 					<input type="checkbox" class="chk" name="cchk" onclick="cchkClicked()" th:value="${member.userId}">
 				</td>
 				<td class="text-center d-none d-md-table-cell">
-					<a th:href="@{'/page/login/membermodify/'+${member.userId}}">
+					<a th:href="@{'/page/login/modify/'+${member.id}}">
 						[[${member.userId}]]
 					</a>	
 				</td>
