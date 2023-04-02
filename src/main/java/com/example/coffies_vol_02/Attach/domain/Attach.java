@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.Attach.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.config.BaseTime;
+import com.example.coffies_vol_02.Config.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 @Getter
 @Entity
+@Table(name="tbl_file")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Attach extends BaseTime {
@@ -17,10 +18,11 @@ public class Attach extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(nullable = false)
-    private String originFileName;
+    private String originFileName; //원본 파일명
     @Column(nullable = false)
     private String filePath;  // 파일 저장 경로
-    private Long fileSize;
+    private Long fileSize; // 파일 크기
+
     //게시판
     @ManyToOne
     @JoinColumn(name = "board_id")
