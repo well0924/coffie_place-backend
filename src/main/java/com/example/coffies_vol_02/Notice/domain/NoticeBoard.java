@@ -44,4 +44,11 @@ public class NoticeBoard extends BaseTime {
         this.isFixed = dto.getIsFixed();
         this.noticeTitle = dto.getNoticeTitle();
     }
+
+    public void addAttach(Attach attachFile){
+        this.attachList.add(attachFile);
+        if(attachFile.getNoticeBoard()!=this){
+            attachFile.setNoticeBoard(this);
+        }
+    }
 }

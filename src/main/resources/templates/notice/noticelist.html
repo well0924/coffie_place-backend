@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>공지 게시판 목록</title>
+<style type="text/css">
+/* 게시판 검색 기능 css(자유게시판,공지게시판,관리자 페이지,관리자 가게페이지) */
+div.col-lg-12{
+	display: flex;
+}
+/*페이징*/
+ul.list-group list-group-flush{
+   list-style:none;
+}
+/*검색부분*/
+div#searchbar.row{
+	clear:right;
+	width:500px; 
+	margin:auto; 
+	margin-bottom: 10px;
+}
+/*검색부분*/
+select#searchType{
+	height:31px;
+	margin-right: 10px;
+}
+/*검색부분*/
+button#btnSearch.btn.btn-sm.btn-primary{
+	height:31px;
+	width:100px;
+	margin-left: 10px;
+}
+/*검색부분*/
+button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
+	margin-bottom: 10px;
+}
+
+</style>
+</head>
+<body>
+<th:block layout:fragment="content">
+<!-- 게시글 리스트 -->
+<div class="container" style="margin-top:100px">
+	<div class="card shadow">
+		<div class="card-body">
+			<h4 class="card-title" style="text-align: center;">공지게시판</h4>
+			<table class="table table-hover" id='notice_list'>
+				<thead>
+					<tr>
+						<th class="text-center d-none d-md-table-cell">글번호</th>
+						<th class="text-center d-none d-md-table-cell">카테고리</th>
+						<th class="w-50">제목</th>
+						<th class="text-center d-none d-md-table-cell">작성자</th>
+						<th class="text-center d-none d-md-table-cell">작성날짜</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${list.noticeFixed.toString().equals('Y')}" th:each="list : ${noticelist}">
+						<td class="text-center d-none d-md-table-cell"><strong>[[${list.id}]]</strong></td>
+						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeGroup}]]</strong></td>
+						<td><a th:href="@{'/page/notice/noticedetail/'+ ${list.noticeId}}"><strong>[[${list.noticeTitle}]]</strong></a></td>
+						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeAuthor}]]</strong></td>
+						<td class="text-center d-none d-md-table-cell"><strong>[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</strong></td>
+					</tr>
+					<tr th:if="${list.noticeFixed.toString().equals('N')}" th:each="list : ${noticeList}">
+						<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
+						<td class="text-center d-none d-md-table-cell">[[${list.noticeGroup}]]</td>
+						<td><a th:href="@{'/page/notice/noticedetail/'+ ${list.id}}">[[${list.noticeTitle}]]</a></td>
+						<td class="text-center d-none d-md-table-cell">[[${list.noticeAuthor}]]</td>
+						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>	
+					</tr>
+					<tr th:unless="${not #lists.isEmpty(noticelist)}">
+						<td>조회된 게시글이 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+			<!--paging -->
+			<div th:if="${!noticelist.isEmpty()}">
+				<nav th:with="pageNumber = ${noticelist.pageable.pageNumber},
+				pageSize = ${noticelist.pageable.pageSize},
+				totalPages= ${noticelist.totalPages},
+				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
+				tempEndPage=${startPage+pageSize - 1},
+				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
+					<div class="d-none d-md-block">
+						<ul class="pagination justify-content-center">
+							<li class="page-item" th:classappend="${noticelist.first}?'disabled'">
+								<a class="page-link" th:href="${noticelist.first}? '#' : @{/page/notice/list(page=${pageNumber-1})}">이전</a>
+							</li>
+							<li class="page-item" th:each="page: ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
+								<a class="page-link">[[${page}]]</a>
+							</li>
+							<li class="page-item" th:classappend="${noticelist.last}?'disabled'">
+								<a class="page-link" th:href="@{/page/notice/list(page=${pageNumber+1})}">다음</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+			<!--paging end-->
+			<div class="text-right">
+				<a th:href="@{/page/notice/noticeinsert}" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">글쓰기</a>
+			</div>
+			<!-- search start -->
+			<div class="row" style="clear:right;width:500px;margin:auto">
+			<div class="col-lg-12">
+				<select name="searchType" id="searchType">
+					<option th:value="Nall">전체보기</option>
+					<option th:value="NT">제목</option>
+					<option th:value="NC">내용</option>
+					<option th:value="NF">고정여부</option>
+					<option th:value="NW">작성자</option>
+					<option th:value="NTC">제목과 내용</option>
+				</select>
+				<input type="text" class="form-control form-control-sm" name="keyword" id="keyword">
+				<button class="btn btn-sm btn-primary" name="btnSearch" id="btnSearch">검색</button>
+			</div>
+			</div>
+			<!-- search end -->
+		</div>
+	</div>
+</div>
+</th:block>
+</body>
+</html>

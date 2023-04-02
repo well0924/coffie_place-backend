@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>공지게시글 작성</title>
+<!-- 게시판 목록 css -->
+<link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1>게시글 작성</h1>
+			<div class="card shadow">
+				<div class="card-body">
+					<form action=""  id="boardform" enctype="multipart/form-data">
+						<input type="hidden" id="noticeAuthor" name="noticeAuthor" class="form-control" th:value="${#authentication.name}"/>
+						<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${file_group_id}">
+						<div class="row">
+							<div class="col">
+								<label for="noticeGroup">게시글 카테고리</label>
+								<select name="noticeGroup" id ="noticeGroup">
+									<option>카테고리 그룹</option>
+									<option th:value="공지게시판">공지게시판</option>
+									<option th:value="자유게시판">자유게시판</option>
+								</select>
+								<div id="valid_noticeGroup"></div>
+							</div>
+							<div class="col">
+								<label for="isFixed">고정글 여부</label>
+								<select name="noticeFixed" id ="isFixed">
+									<option>고정글 여부</option>
+									<option th:value="Y">Y</option>
+									<option th:value="N">N</option>
+								</select>
+								<div id="valid_noticeFixed"></div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="noticeTitle">제목</label>
+							<input type="text" id="noticeTitle" name="noticeTitle" class="form-control"/>
+						</div>
+						<div id="valid_noticeTitle"></div>
+						<div class="form-group">
+							<label for="noticeContent">내용</label>
+							<textarea id="noticeContent" name="noticeContents" class="form-control" rows="10" style="resize:none"></textarea>
+						</div>
+						<div id="valid_noticeContents"></div>
+						<div class="form-group">
+							<label for="addfile">첨부 파일</label>
+							<input type="file" id="addfile" name="file" class="form-control" multiple="multiple"/>
+						</div>
+						<div class="form-group">
+							<div class="text-right">
+								<a href="/page/notice/noticelist" class="btn btn-primary">목록</a>
+								<button type="button" class="btn btn-primary" onclick="noticewrite()">작성하기</button>
+							</div>
+						</div>
+						<div id="valid_file"></div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+//에디터
+$(document).ready(function () { 
+	$('#noticeContent').summernote({
+       placeholder: '내용을 작성하세요',
+       height: 400,
+       maxHeight: 400,
+       codeviewFilter: false,
+       codeviewIframeFilter: true,
+       popover:{
+       	image:[],
+       	link:[],
+       	air:[]
+       },
+       focus: true,
+       callbacks :{
+       	sendImage: function(files){
+       		console.log(files)
+					sendFile(file[0], this);
+       	}
+       }
+   });
+		let filegroupid = $('#fileGroupId').val();
+		console.log(filegroupid);
+});
+
+//에디터 이미지 업로드 기능o.k
+function sendImage(file,el){
+	var formdate = new FormData();
+	formdate.append('file',file);
+	formdate.append('fileGroupId',$('#fileGroupId').val());
+	
+	$.ajax({
+		url:'api/board/el/upload',
+		type:'post',
+		data: formdate,
+		processData: false,
+		contentType : false,
+		cache:false,
+		enctype: 'multipart/form-data',	
+	}).done(function(resp){
+		console.log(resp);
+		$(el).summernote('insertImage',data.url,function($image){
+			$image.css('width',"25%")
+		});
+	});	
+}
+
+function fileCheck(){
+	
+	var filecount =6;
+	var inputFiles = $("input[name='file']");
+	var files = inputFiles[0].files;
+	
+	if(files.length > filecount){
+		$('#valid_file').text('파일은 6개까지입니다.');
+		$('#valid_file').css('color','red');
+		return false;
+	}
+
+	if(inputFiles != null){
+		for(var i =0; i<files.length; i++){
+			console.log(files[i]);
+			formdate.append("file",files[i]);
+		}	
+	}
+	
+	if(inputFiles == null){
+		noticewrite();
+	}
+}
+//공지게시글 작성
+function noticewrite(){
+	
+	let title=$('#noticeTitle').val();
+	let author=$('#noticeAuthor').val();
+	let contents=$('#noticeContent').val();
+	let category=$('#noticeGroup').val();
+	let fixed=$('#isFixed').val();
+	let fileid=$('#fileGroupId').val();
+		
+	var formdate = new FormData();
+		
+	formdate.append("noticeGroup",category);
+	formdate.append("noticeFixed",fixed);
+	formdate.append("noticeTitle",title);
+	formdate.append("noticeAuthor",author);
+	formdate.append("noticeContents",contents);
+	formdate.append("fileGroupId",fileid);
+	
+	if(fileCheck()){
+		$.ajax({
+			url:'/api/notice/write',
+			type:'post',
+			data:formdate,
+			processData: false,
+			contentType : false,
+			cache:false,
+			enctype: 'multipart/form-data',
+		}).done(function(resp){
+			if(resp.status==200){
+				console.log(resp);
+				alert('글이 작성 되었습니다.');
+				location.href='/page/notice/noticelist';	
+			}
+			if(resp.status==400){
+				if(resp.data.hasOwnProperty('valid_noticeGroup')){
+					$('#valid_noticeGroup').text(resp.data.valid_noticeGroup);
+					$('#valid_noticeGroup').css('color','red');
+				}else{
+					$('#valid_noticeGroup').text('');
+				}
+				if(resp.data.hasOwnProperty('valid_noticeFixed')){
+					$('#valid_noticeFixed').text(resp.data.valid_noticeFixed);
+					$('#valid_noticeFixed').css('color','red');
+				}else{
+					$('#valid_noticeFixed').text('');
+				}
+				if(resp.data.hasOwnProperty('valid_noticeTitle')){
+					$('#valid_noticeTitle').text(resp.data.valid_noticeTitle);
+					$('#valid_noticeTitle').css('color','red');
+				}else{
+					$('#valid_noticeTitle').text('');
+				}
+				if(resp.data.hasOwnProperty('valid_noticeContents')){
+					$('#valid_noticeContents').text(resp.data.valid_noticeContents);
+					$('#valid_noticeContents').css('color','red');
+				}else{
+					$('#valid_noticeContents').text('');
+				}
+			}
+		});				
+	}	
+}
+</script>
+</th:block>
+</body>
+</html>

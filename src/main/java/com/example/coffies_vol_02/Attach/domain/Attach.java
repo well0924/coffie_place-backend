@@ -28,16 +28,19 @@ public class Attach extends BaseTime {
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+
     //공지 게시판
     @ManyToOne
     @JoinColumn(name = "notice_id")
     private NoticeBoard noticeBoard;
+
     @Builder
     public Attach(String originFileName, String filePath, Long fileSize){
         this.originFileName = originFileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
     }
+
     //첨부파일 관련 메서드
     public void setBoard(Board board){
         this.board = board;
@@ -45,6 +48,13 @@ public class Attach extends BaseTime {
         if(!board.getAttachList().contains(this)){
             // 파일 추가
             board.getAttachList().add(this);
+        }
+    }
+
+    public void setNoticeBoard(NoticeBoard noticeBoard){
+        this.noticeBoard = noticeBoard;
+        if(noticeBoard.getAttachList().contains(this)){
+            noticeBoard.getAttachList().add(this);
         }
     }
 }
