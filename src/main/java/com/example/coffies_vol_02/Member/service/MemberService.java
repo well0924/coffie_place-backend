@@ -1,14 +1,13 @@
-package com.example.coffies_vol_02.member.service;
+package com.example.coffies_vol_02.Member.service;
 
-import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
+import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.Role;
+import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

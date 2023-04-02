@@ -1,11 +1,10 @@
-package com.example.coffies_vol_02.member.domain;
+package com.example.coffies_vol_02.Member.domain;
 
-import com.example.coffies_vol_02.config.BaseTime;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

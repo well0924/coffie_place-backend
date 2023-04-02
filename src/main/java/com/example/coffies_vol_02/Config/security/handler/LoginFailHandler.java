@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.security.handler;
+package com.example.coffies_vol_02.Config.security.handler;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;

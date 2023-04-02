@@ -34,6 +34,7 @@ public class BoardDto {
         private String boardAuthor;
         private Integer readCount;
         private Integer passWd;
+        private Integer liked;
         private String fileGroupId;
         private LocalDateTime createdTime;
         private LocalDateTime updatedTime;

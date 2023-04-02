@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.Commnet.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.config.BaseTime;
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.*;
 
 import javax.persistence.*;

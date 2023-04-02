@@ -1,5 +1,6 @@
-package com.example.coffies_vol_02.config;
+package com.example.coffies_vol_02.Config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,12 @@ import java.util.logging.Filter;
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
+    @Value("/istatic/images/")
+    private String imgStatic;
+
+    @Value("${server.file.upload}")
+    private String imgPath;
+
     @Bean
     public Filter characterEncodingFilter() {
         CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();

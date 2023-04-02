@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.Exception;
+package com.example.coffies_vol_02.Config.Exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,8 @@ public enum ERRORCODE{
     BOARD_NOT_LIST(400,"게시글이 없습니다."),
     NOT_AUTH(401,"권한이 없습니다."),
     NOT_REPLY(404,"댓글이 없습니다."),
-    LIKE_NOT_FOUND(404,"좋아요가 없습니다.");
+    LIKE_NOT_FOUND(404,"좋아요가 없습니다."),
+    NOT_MATCH_PASSWORD(400,"비밀번호가 일치하지 않습니다.");
     private final Integer httpStatus;
     private final String message;
 }

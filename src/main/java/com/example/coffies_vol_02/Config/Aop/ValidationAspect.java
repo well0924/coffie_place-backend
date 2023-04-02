@@ -1,6 +1,6 @@
-package com.example.coffies_vol_02.config.Aop;
+package com.example.coffies_vol_02.Config.Aop;
 
-import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

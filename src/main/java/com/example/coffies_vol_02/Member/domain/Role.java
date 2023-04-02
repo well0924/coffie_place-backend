@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.member.domain;
+package com.example.coffies_vol_02.Member.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

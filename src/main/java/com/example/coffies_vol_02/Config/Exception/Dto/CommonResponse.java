@@ -1,8 +1,7 @@
-package com.example.coffies_vol_02.config.Exception.Dto;
+package com.example.coffies_vol_02.Config.Exception.Dto;
 
 import lombok.*;
 
-import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 
 @Setter

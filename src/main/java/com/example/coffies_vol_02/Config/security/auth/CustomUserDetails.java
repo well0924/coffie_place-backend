@@ -1,6 +1,6 @@
-package com.example.coffies_vol_02.config.security.auth;
+package com.example.coffies_vol_02.Config.security.auth;
 
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;

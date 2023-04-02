@@ -1,15 +1,11 @@
-package com.example.coffies_vol_02.member.controller.api;
+package com.example.coffies_vol_02.Member.controller.api;
 
-import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.member.repository.MemberRepository;
-import com.example.coffies_vol_02.member.service.MemberService;
-import io.swagger.annotations.Api;
+import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,7 +26,6 @@ import java.util.List;
 @RequestMapping("/api/member")
 public class MemberApiController {
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @GetMapping("/list")
     public CommonResponse<?> memberList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){

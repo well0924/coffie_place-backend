@@ -1,9 +1,9 @@
-package com.example.coffies_vol_02.config.security.auth;
+package com.example.coffies_vol_02.Config.security.auth;
 
-import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
+import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Member.domain.Member;
+import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;

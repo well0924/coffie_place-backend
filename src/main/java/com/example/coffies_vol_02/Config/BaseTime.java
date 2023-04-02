@@ -1,7 +1,6 @@
-package com.example.coffies_vol_02.config;
+package com.example.coffies_vol_02.Config;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

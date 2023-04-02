@@ -1,9 +1,8 @@
-package com.example.coffies_vol_02.config.Exception.Dto;
+package com.example.coffies_vol_02.Config.Exception.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @Builder

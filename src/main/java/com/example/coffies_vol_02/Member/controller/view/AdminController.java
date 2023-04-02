@@ -1,7 +1,7 @@
-package com.example.coffies_vol_02.member.controller.view;
+package com.example.coffies_vol_02.Member.controller.view;
 
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.member.service.MemberService;
+import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,7 @@ public class AdminController {
     @GetMapping("/adminlist")
     public ModelAndView adminListPage(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 10) Pageable pageable){
         ModelAndView mv = new ModelAndView();
+
         Page<MemberDto.MemberResponseDto> memberList = memberService.findAll(pageable);
 
         mv.addObject("memberlist",memberList);

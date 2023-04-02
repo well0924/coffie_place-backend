@@ -1,15 +1,13 @@
 package com.example.coffies_vol_02.Commnet.service;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Board.service.BoardService;
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
+import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

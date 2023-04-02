@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.Like.repository;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Like.domain.Like;
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,6 +1,6 @@
-package com.example.coffies_vol_02.member.repository;
+package com.example.coffies_vol_02.Member.repository;
 
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,6 +33,7 @@ public interface MemberRepository extends JpaRepository<Member,Integer> {
     List<Member>findByUserIdStartsWith(String searchVal, Sort sort);
     @Query("SELECT m.userId FROM Member m where m.userId like %:searchVal%")
     List<String>Search(@Param("searchVal") String searchVal);
+
     //회원 선택삭제
     @Transactional
     @Modifying

@@ -1,8 +1,8 @@
-package com.example.coffies_vol_02.config.security;
+package com.example.coffies_vol_02.Config.security;
 
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
-import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
-import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
+import com.example.coffies_vol_02.Config.security.auth.CustomUserDetailService;
+import com.example.coffies_vol_02.Config.security.handler.LoginFailHandler;
+import com.example.coffies_vol_02.Config.security.handler.LoginSuccessHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -27,10 +27,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER)
 public class SecurityConfig {
-
     private final CustomUserDetailService customUserDetailService;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailHandler loginFailHandler;
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -54,6 +54,20 @@ public class SecurityConfig {
         provider.setPasswordEncoder(bCryptPasswordEncoder());
         return provider;
     }
+    private static final String[] PERMIT_URL_ARRAY = {
+            /* swagger v2 */
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            /* swagger v3 */
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -64,12 +78,9 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/api/member/selectdelete","/api/member/autocompetekeyword").hasRole("ADMIN")
-            .antMatchers(
-                    "/page/login/loginPage",
-                    "/page/login/memberjoin",
-                    "/page/login/tmpid",
-                    "/api/member/**").permitAll()
+            .antMatchers("/page/login/loginPage", "/page/login/memberjoin", "/page/login/tmpid", "/api/member/**","/page/board/*").permitAll()
             .antMatchers("/api/board/**","/api/comment/**","/api/like/**").hasAnyRole("ADMIN","USER")
+            .antMatchers(PERMIT_URL_ARRAY).permitAll()
             .anyRequest().authenticated();
 
         http
@@ -86,7 +97,7 @@ public class SecurityConfig {
             .logoutUrl("/logout")
             .logoutSuccessUrl("/page/login/loginPage")
             .invalidateHttpSession(true)
-            .deleteCookies("JESSIONID");
+            .deleteCookies("JSESSIONID");
 
         return http.build();
     }

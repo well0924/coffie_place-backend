@@ -1,7 +1,7 @@
-package com.example.coffies_vol_02.member.controller.view;
+package com.example.coffies_vol_02.Member.controller.view;
 
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.member.service.MemberService;
+import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +18,16 @@ public class MemberViewController {
 
     @GetMapping("/memberjoin")
     public ModelAndView memberJoinPage(){
+
         ModelAndView mv = new ModelAndView();
+
         mv.setViewName("/login/memberjoin");
+
         return mv;
     }
 
     @GetMapping("/loginPage")
-    public ModelAndView loginPage(@RequestParam(value="error",required = false) String error,@RequestParam(value="exception",required = false) String exception){
+    public ModelAndView loginPage(@RequestParam(value="error",required = false)String error,@RequestParam(value="exception",required = false) String exception){
         ModelAndView mv = new ModelAndView();
 
         mv.addObject("error", error);
@@ -38,7 +41,9 @@ public class MemberViewController {
     @GetMapping("/tmpid")
     public ModelAndView findIdPage(){
         ModelAndView mv = new ModelAndView();
+
         mv.setViewName("/login/searchId");
+
         return mv;
     }
 
@@ -48,14 +53,15 @@ public class MemberViewController {
 
         MemberDto.MemberResponseDto dto = null;
 
-        try {
+        try{
             dto = memberService.findMemberById(useridx);
-        }catch (Exception e){
+        }catch(Exception e){
             e.printStackTrace();
         }
 
         mv.addObject("detail",dto);
         mv.setViewName("/login/membermodify");
+
         return mv;
     }
 }

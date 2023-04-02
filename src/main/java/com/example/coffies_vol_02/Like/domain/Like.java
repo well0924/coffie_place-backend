@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.Like.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

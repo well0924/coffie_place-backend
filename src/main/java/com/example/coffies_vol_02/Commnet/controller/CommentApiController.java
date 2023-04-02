@@ -2,8 +2,8 @@ package com.example.coffies_vol_02.Commnet.controller;
 
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.service.CommentService;
-import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

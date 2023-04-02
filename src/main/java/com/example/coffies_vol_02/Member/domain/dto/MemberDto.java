@@ -1,6 +1,6 @@
-package com.example.coffies_vol_02.member.domain.dto;
+package com.example.coffies_vol_02.Member.domain.dto;
 
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.Member.domain.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 

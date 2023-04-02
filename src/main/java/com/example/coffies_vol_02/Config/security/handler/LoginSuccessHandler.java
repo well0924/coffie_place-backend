@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.security.handler;
+package com.example.coffies_vol_02.Config.security.handler;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
