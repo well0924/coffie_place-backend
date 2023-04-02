@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Attach.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,10 @@ public class Attach extends BaseTime {
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+    //공지 게시판
+    @ManyToOne
+    @JoinColumn(name = "notice_id")
+    private NoticeBoard noticeBoard;
     @Builder
     public Attach(String originFileName, String filePath, Long fileSize){
         this.originFileName = originFileName;
