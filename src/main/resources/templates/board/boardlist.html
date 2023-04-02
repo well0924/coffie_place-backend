@@ -60,11 +60,11 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 				</thead>
 				<tbody>
 					<tr th:if="${not #lists.isEmpty(boardlist)}" th:each="list : ${boardlist}">
-						<td class="text-center d-none d-md-table-cell">[[${list.boardId}]]</td>
-						<td><a th:href="@{'/page/board/detail/'+ ${list.boardId}}">[[${list.boardTitle}]]</a></td>
+						<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
+						<td><a th:href="@{'/page/board/detail/'+ ${list.id}}">[[${list.boardTitle}]]</a></td>
 						<td class="text-center d-none d-md-table-cell">[[${list.boardAuthor}]]</td>
 						<th class="text-center d-none d-md-table-cell">[[${list.readCount}]]</th>
-						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>
+						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 						
 					</tr>
 					<tr th:unless="${not #lists.isEmpty(boardlist)}">
@@ -79,8 +79,7 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 			<div class="d-none d-md-block">
 				<ul class="pagination justify-content-center">
 					<li class="page-item">
-						<a th:href="">
-						class="page-link">이전</a>
+						<a class="page-link">이전</a>
 					</li>			
 					<li class="page-item">
 						<a class="page-link"></a>

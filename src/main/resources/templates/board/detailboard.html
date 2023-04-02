@@ -20,35 +20,35 @@ layout:decorate="~{layout/leafframe}">
 			<h1>게시글 열람</h1>
 			<div class="card shadow">
 				<div class="card-body">
-					<input type="hidden" id="board_id" name="boardId">
+					<input type="hidden" id="board_id" name="id">
 					<input type="hidden" id="pwd" name="passWd">
 					<input type="hidden" id="fileGroupId" name="fileGroupId">
 					<div class="form-group">
 						<label for="board_subject">제목</label>
-						<input type="text" id="board_subject" name="boardTitle" class="form-control" disabled="disabled"/>
+						<input type="text" id="board_subject" name="boardTitle" class="form-control" th:value="${detail.boardTitle}" disabled="disabled"/>
 					</div>
 					<div class="form-group">
 						<label for="board_writer">작성자</label>
-						<input type="text" id="board_writer" name="boardAuthor" class="form-control" disabled="disabled"/>
+						<input type="text" id="board_writer" name="boardAuthor" class="form-control" th:value="${detail.boardAuthor}" disabled="disabled"/>
 					</div>
 					<div class="form-group">
 						<label for="board_date">작성날짜</label>
-						<input type="text" id="board_date" name="createdAt" class="form-control" disabled="disabled"/>
+						<input type="text" id="board_date" name="createdAt" class="form-control" th:value="${detail.createdTime}" disabled="disabled"/>
 					</div>                                           
 					<div class="form-group">
 						<label for="board_content">내용</label>
-						<p></p>
+						<p>[[${detail.boardContent}]]</p>
 					</div>
 					<div class="form-group">
 						<label for="board_content">조회수</label>
-						<input id="board_content" name="readCount" class="form-control" rows="10" style="resize:none" disabled="disabled">
+						<input id="board_content" name="readCount" class="form-control" rows="10" style="resize:none" th:value="${detail.readCount}" disabled="disabled">
 					</div>
 					<div class="form-group">
 						<label>첨부 파일</label>
 						<!-- 첨부파일 -->
 						<th:block>
 							</br>
-							<a th:href="@{/api/file/boarddownload(boardId=${detail.boardId})}">
+							<a th:href="@{/api/file/boarddownload(boardId=${detail.id})}">
 								<span id="files" name="originName"></span>
 							</a>
 						</th:block>
