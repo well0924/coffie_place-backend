@@ -72,7 +72,7 @@ public class Board extends BaseTime {
     }
 
     public void countUp() {
-        this.readCount ++;
+        ++this.readCount;
     }
 
     public void boardUpdate(BoardDto.BoardRequestDto dto){

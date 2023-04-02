@@ -13,8 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/board")
@@ -35,19 +37,27 @@ public class BoardApiController {
     }
 
     @PostMapping("/write")
-    public CommonResponse<?>boardWrite(@Valid @RequestBody BoardDto.BoardRequestDto dto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        int WriteResult = boardService.boardSave(dto,customUserDetails.getMember());
+    public CommonResponse<?>boardWrite(@Valid @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
+                                       BindingResult bindingResult,
+                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                       @RequestPart(value = "files",required = false) List<MultipartFile>files) throws Exception {
+
+        int WriteResult = boardService.boardSave(dto,customUserDetails.getMember(),files);
+
         return new CommonResponse<>(HttpStatus.OK.value(),WriteResult);
     }
 
     @PatchMapping("/update/{board_id}")
-    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,@Valid @RequestBody BoardDto.BoardRequestDto dto, BindingResult bindingResult,@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        int UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember());
+    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,@Valid @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
+                                        BindingResult bindingResult,
+                                        @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                        @RequestPart(value = "files",required = false) List<MultipartFile>files) throws Exception {
+        int UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),files);
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
 
     @DeleteMapping("/delete/{board_id}")
-    public CommonResponse<?>boardDelete(@PathVariable("board_id")Integer boardId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>boardDelete(@PathVariable("board_id")Integer boardId,@AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         boardService.BoardDelete(boardId,customUserDetails.getMember());
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
