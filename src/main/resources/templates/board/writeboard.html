@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html 
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>자유게시판 글작성</title>
+</head>
+<body>
+<th:block layout:fragment="content"> 
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1>게시글 작성</h1>
+			<div class="card shadow">
+				<div class="card-body">
+					<form action=""  id="boardform" enctype="multipart/form-data">
+					<!--<input type="hidden" id="board_Author" name="boardAuthor" th:value="${#authentication.name}">
+					<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">-->
+					<div class="form-group">
+						<label for="board_Title">제목</label>
+						<input type="text" id="board_Title" name="boardTitle" class="form-control"/>
+					</div>
+					<div id="valid_boardTitle"></div>
+					<div class="row">
+						<div class="col">
+							<label for="passWd">비밀번호</label>
+							<input type="password" id="passWd" name="passWd" autoComplete="off" class="form-control"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="board_Contents">내용</label>
+					    <textarea id="board_Contents" name="boardContents" class="form-control" rows="10" style="resize:none"></textarea>
+					</div>
+					<div id="valid_boardContents"></div>
+					<div class="form-group">
+						<label for="addfile">첨부 파일</label>
+						<input type="file" id="addfile" name="file" class="form-control" multiple='multiple'/>
+					</div>
+					<div class="form-group">
+						<div class="text-right">
+							<a th:href="@{/page/board/list}" class="btn btn-primary">목록</a>
+							<button type="button" class="btn btn-primary" onclick="writeboard()" sec:authorize="hasAnyRole('ROLE_USER','ROLE_ADMIN')">작성하기</button>
+						</div>
+					</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+//썸머노트 o.k
+$(document).ready(function () { 
+	$('#board_Contents').summernote({
+       placeholder: '내용을 작성하세요',
+       height: 400,
+       maxHeight: 400,
+       codeviewFilter: false,
+       codeviewIframeFilter: true,
+       popover:{
+       	image:[],
+       	link:[],
+       	air:[]
+       },
+       focus: true,
+       callbacks :{
+       	sendImage: function(files){
+       		console.log(files)
+					sendFile(file[0], this);
+       	}
+       }
+   });
+		let filegroupid = $('#fileGroupId').val();
+		console.log(filegroupid);
+});
+
+function sendImage(file,el){
+	var formdate = new FormData();
+	formdate.append('file',file);
+	formdate.append('fileGroupId',$('#fileGroupId').val());
+	
+	$.ajax({
+		url:'api/board/el/upload',
+		type:'post',
+		data: formdate,
+		processData: false,
+		contentType : false,
+		cache:false,
+		enctype: 'multipart/form-data',	
+	}).done(function(resp){
+		console.log(resp);
+		$(el).summernote('insertImage',data.url,function($image){
+			$image.css('width',"25%")
+		});
+	});	
+}
+
+function fileCheck(){
+	
+	var filecount = 6;
+	var inputFiles = $("input[name='file']");
+	var files = inputFiles[0].files;
+	
+	console.log(files);
+	console.log(inputFiles);
+	
+	//파일첨부 제한.
+	if(files.length > filecount){
+		$('#valid_file').text('파일은 6개까지 입니다.');
+		$('#valid_file').css('color','red');
+		return false;
+	}
+	
+	//첨부한 만큼 반복문을 돌린다.
+	if(inputFiles != null){
+		for(var i = 0; i<files.length;i++){
+			console.log(files[i]);
+			formdate.append("file",files[i]);
+		}
+	} 
+	
+	if(inputFiles == null){
+		writeboard();	
+	}
+	
+	return true;
+}
+
+function writeboard(){
+	
+	var title = $('#board_Title').val();
+	var author= $('#board_Author').val();
+	var contents= $('#board_Contents').val();
+	var pwd = $('#passWd').val();
+	var fileid = $('#fileGroupId').val();
+    
+	var formdate = new FormData();
+		
+	formdate.append("boardTitle",title);
+	formdate.append("boardContents",contents);
+	formdate.append("boardAuthor",author);
+	formdate.append("fileGroupId",fileid);
+	formdate.append("passWd",pwd);
+		
+	if(fileCheck()){
+		$.ajax({
+			url:'/api/board/write',
+			type:'post',
+			data:formdate,
+			processData: false,
+			contentType : false,
+			cache:false,
+			enctype: 'multipart/form-data',
+		}).done(function(resp){
+			
+			if(resp.status == 200){
+				alert('글이 작성 되었습니다.');	
+				location.href='/page/board/list';
+			}
+			
+			if(resp.status == 400){
+				
+				if(resp.data.hasOwnProperty('valid_boardTitle')){
+					$('#valid_boardTitle').text(resp.data.valid_boardTitle);
+					$('#valid_boardTitle').css('color','red');
+				}else{
+					$('#valid_boardTitle').text('');
+				}
+				if(resp.data.hasOwnProperty('valid_boardContents')){
+					$('#valid_boardContents').text(resp.data.valid_boardContents);
+					$('#valid_boardContents').css('color','red');
+				}else{
+					$('#valid_boardContents').text('');
+				}
+			}
+		});	
+	}
+} 
+</script>
+</th:block>
+</body>
+</html>

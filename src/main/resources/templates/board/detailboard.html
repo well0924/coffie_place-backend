@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>자유게시판 글조회</title>
+<!-- summernote css/js-->
+<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1>게시글 열람</h1>
+			<div class="card shadow">
+				<div class="card-body">
+					<input type="hidden" id="board_id" name="boardId">
+					<input type="hidden" id="pwd" name="passWd">
+					<input type="hidden" id="fileGroupId" name="fileGroupId">
+					<div class="form-group">
+						<label for="board_subject">제목</label>
+						<input type="text" id="board_subject" name="boardTitle" class="form-control" disabled="disabled"/>
+					</div>
+					<div class="form-group">
+						<label for="board_writer">작성자</label>
+						<input type="text" id="board_writer" name="boardAuthor" class="form-control" disabled="disabled"/>
+					</div>
+					<div class="form-group">
+						<label for="board_date">작성날짜</label>
+						<input type="text" id="board_date" name="createdAt" class="form-control" disabled="disabled"/>
+					</div>                                           
+					<div class="form-group">
+						<label for="board_content">내용</label>
+						<p></p>
+					</div>
+					<div class="form-group">
+						<label for="board_content">조회수</label>
+						<input id="board_content" name="readCount" class="form-control" rows="10" style="resize:none" disabled="disabled">
+					</div>
+					<div class="form-group">
+						<label>첨부 파일</label>
+						<!-- 첨부파일 -->
+						<th:block>
+							</br>
+							<a th:href="@{/api/file/boarddownload(boardId=${detail.boardId})}">
+								<span id="files" name="originName"></span>
+							</a>
+						</th:block>
+						<th:block>
+							</br>
+							첨부 파일이 없습니다.
+						</th:block>
+					</div>
+					<div class="form-group">
+						<div class="text-right">
+							<a href="/page/board/list" class="btn btn-primary">목록보기</a>
+							<a class="btn btn-primary" onclick="pwdCheck()">수정하기</a>
+						</div>
+					</div>
+				</div>
+				<!-- Comments section-->
+				<div class="card mb-2">
+					<div class="card-header bg-light">
+	        			<i class="fa fa-comment fa"></i> REPLY
+					</div>
+					<div class="card-body">
+						<ul class="list-group list-group-flush">
+						    <li class="list-group-item">
+								<input type="hidden" class="form-control ml-2" id="writer" name="replyAuthor"  th:value="${#authentication.name}">
+								<textarea class="form-control" id="contents" name ="replyContents" rows="3"></textarea>
+								<button type="button" class="btn btn-dark mt-3" onClick="replyWrite();" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">댓글 작성</button>
+						    </li>
+						</ul>
+					</div>
+				</div>
+				<!-- Commentlist start -->
+				<div id="replylist"></div> 
+				<!-- Comment end -->
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+var filegroupid = $('#fileGroupId').val();
+let pwd = $('#pwd').val();
+
+console.log(pwd);
+
+//비밀번호화면 이동 페이지o.k
+function pwdCheck(){
+		
+	let pwd = $('#pwd').val();
+	let id = $('#board_id').val();
+	
+	//비밀번호를 입력하지 않았을 경우 또는 비밀번호가 null인 경우
+	if(pwd.trim().length == 0){
+		
+		location.href = '/page/board/modifypage/'+id;
+		return false;
+	}else if(pwd != null){
+		location.href='/page/board/pwcheck/'+id;
+		return false;
+	}
+		return true;	
+}
+//댓글 유효성 검사
+function validation(){
+	var writer = $('#writer').val();
+	var contents = $('#contents').val();	
+	 	
+	if(writer.trim().length == 0){
+		alert('작성자를 입력해주세요.');
+		return false;
+	}
+	
+	if(contents.trim().length == 0){
+		alert('내용을 입력해주세요.');
+		return false;
+	}
+	return true;
+}
+
+//댓글목록
+$(document).ready(function(){
+	Replylist();
+});
+
+function Replylist(){
+	var id = $('#board_id').val();
+		
+	$.getJSON("/api/reply/"+id,function(data){
+		var str ="";
+		
+		$(data).each(function(){
+			str +='<div class="card mb-2">';
+				str +='<div class="card-header bg-light">';
+					str +='<i class="fa fa-comment fa"></i>';
+				str +='</div>';
+				str +='<div class="card-body">';
+					str +='<ul class="list-group list-group-flush" id="replies">';
+						str +='<li class="list-group-item" data-replyId="'+this.replyId+'">';
+							str +='<div class="form-inline mb-2">';
+								str +='<label for="replyId"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+								str +='<span>'+this.replyId+'</span>'+'<br>';
+							str +='</div>';
+							str +='<div class="form-inline mb-2">';
+								str +='<label for="replywriter"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+								str +="작성자:<span id='replywriter'>"+this.replyWriter+'</span>'+'</br>';
+							str +='</div>';
+							str +='<div class="form-inline mb-2">';
+								str +='<label for="replycontents"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+								str +="글 내용:<span id='replycontents'>"+this.replyContents+'</span>'+'</br>';
+							str +='</div>';
+							str +='<div class="form-inline mb-2">';
+								str +='<label for="createdAt"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+								str +='<span id="createdAt">'+this.createdAt+'</span>'+'</br>';
+							str +='</div>';
+							str +='<button type="button" class="btn btn-primary" onClick="deleteReply('+this.replyId+'\)">'+'삭제'+'</button>';
+						str +='</li>';
+					str +='</ul>';
+				str +='</div>';
+			str +='</div>';
+		});
+		$('#replylist').html(str);
+	});	
+}
+	
+//댓글 작성(자유게시판)o.k
+function replyWrite(){
+	var replywriter = $('#writer').val();
+	var replycontents = $('#contents').val(); 
+	var boardid = $('#board_id').val();
+	 	
+	var formdate ={
+		boardId : boardid,
+		replyWriter : replywriter,
+		replyContents : replycontents
+	};
+	if(validation()){
+		$.ajax({
+			url:'/api/reply/write',
+			type:'post',
+			data:JSON.stringify(formdate),
+			dataType:'json',
+			contentType:'application/json; charset=utf-8'
+		}).done(function(resp){
+			console.log(resp);
+			alert('댓글이 작성되었습니다.');
+			$('#replylist').empty();
+			//작성 부분 지우기.
+			$('#contents').val("");
+			$('#writer').val("");
+			Replylist();
+		});	
+	}	
+}
+//댓글 삭제o.k
+function deleteReply(replyId){
+		
+	var Isconfirm = confirm('삭제하겠습니까?');
+		
+	if(Isconfirm){
+		$.ajax({
+			url:'/api/reply/delete/'+replyId,
+			type:'delete',
+			dataType:'json',
+			contentType : 'application/json; charset=utf-8'
+		}).done(function(resp){
+			console.log(resp);
+			alert('댓글이 삭제 되었습니다.');
+			$('#replylist').empty();
+			Replylist();
+		});
+	}	
+}
+</script>
+</th:block>
+</body>
+</html>

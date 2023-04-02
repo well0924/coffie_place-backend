@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>자유게시판 글수정</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1>게시글 수정</h1>
+			<div class="card shadow">
+				<div class="card-body">
+					<form action=""  id="boardform" enctype="multipart/form-data">
+						<input type="hidden" id="board_id" name="boardId">
+						<input type="hidden" id="fileGroupId" name="fileGroupId">
+						<div class="form-group">
+							<label for="board_Title">제목</label>
+							<input type="text" id="board_Title" name="boardTitle" class="form-control"/>
+						</div>
+						<div class="row">
+							<div class="col">
+								<label for="passWd">비밀번호</label>
+								<input type="password" id="passWd" name="passWd" autoComplete="off" class="form-control"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="board_Contents">내용</label>
+						    <textarea id="board_Contents" name="boardContents" class="form-control" rows="10" style="resize:none"></textarea>
+						</div>
+						<div class="form-group">
+							<label for="addfile">첨부 파일</label>
+							<input type="file" id="addfile" name="file" class="form-control" multiple="multiple"/>
+						</div>
+					</form>
+					<div class="form-group">
+						<label for="addfile">첨부 파일</label>
+						<!-- 첨부파일 -->
+						<th:block>
+							</br>
+						</th:block>
+					</div>
+					<div class="form-group">
+						<div class="text-right">
+							<a href="/page/board/list" class="btn btn-primary">목록</a>
+							<button type="button" class="btn btn-primary" onclick="updateboard()" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">수정하기</button>
+							<button type="button" class="btn btn-primary" onclick="deleteboard()" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">삭제하기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- js -->
+<script type="text/javascript">
+$(document).ready(function () { 
+	$('#board_Contents').summernote({
+       placeholder: '내용을 작성하세요',
+       height: 400,
+       maxHeight: 400,
+       codeviewFilter: false,
+       codeviewIframeFilter: true,
+       popover:{
+       	image:[],
+       	link:[],
+       	air:[]
+       },
+       focus: true,
+       callbacks :{
+    	   sendImage: function(files){
+       		console.log(files)
+				sendFile(file[0], this);
+       	}
+       }
+   });
+		let filegroupid = $('#fileGroupId').val();
+		console.log(filegroupid);
+});
+
+//에디터 이미지 업로드 기능o.k
+function sendImage(file,el){
+	var formdate = new FormData();
+	formdate.append('file',file);
+	formdate.append('fileGroupId',$('#fileGroupId').val());
+	
+	$.ajax({
+		url:'api/board/el/upload',
+		type:'post',
+		data: formdate,
+		processData: false,
+		contentType : false,
+		cache:false,
+		enctype: 'multipart/form-data',	
+	}).done(function(resp){
+		console.log(resp);
+		$(el).summernote('insertImage',data.url,function($image){
+			$image.css('width',"25%")
+		});
+	});	
+}
+
+//글 수정 기능o.k
+function updateboard(){
+	
+	var title = $('#board_Title').val();
+	var author= $('#board_Author').val();
+	var contents= $('#board_Contents').val();
+	var pwd = $('#passWd').val();
+	var id = $('#board_id').val();
+	
+	var formdate = new FormData();
+	
+	formdate.append("boardId",id);
+	formdate.append("boardTitle",title);
+	formdate.append("boardAuthor",author);
+	formdate.append("boardContents",contents);
+	formdate.append("passWd",pwd);
+	
+	var inputFiles = $("input[name='file']");
+	var files = inputFiles[0].files;
+	
+	if(inputFiles != null){
+		for(var i = 0; i< files.length; i++){
+			console.log(files[i]);
+			formdate.append("file",files[i]);
+		}
+	}
+	
+ 	$.ajax({
+		url:'/api/board/modify/'+id,
+		type:'put',
+		data:formdate,
+		processData: false,
+		contentType : false,
+		cache:false,
+		enctype: 'multipart/form-data',
+	}).done(function(resp){
+		console.log(resp);		
+		alert('수정되었습니다.');
+		location.href='/page/board/list';
+	});
+}
+
+//글 삭제 기능o.k
+function deleteboard(){
+	var id = $('#board_id').val();
+	
+	$.ajax({
+		url:'/api/board/delete/'+id,
+		type:'delete',
+		dataType:'json',
+		contentType :'application/json; charset=utf-8',
+	}).done(function(resp){
+		console.log(resp);
+		alert('삭제되었습니다.');
+		location.href='/page/board/list';
+	});
+} 
+</script>
+</th:block>
+</body>
+</html>

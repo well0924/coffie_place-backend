@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html 
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>자유게시판 목록</title>
+<style>
+/* 게시판 검색 기능 css(자유게시판,공지게시판,관리자 페이지,관리자 가게페이지) */
+div.col-lg-12{
+	display: flex;
+}
+/*페이징*/
+ul.list-group list-group-flush{
+   list-style:none;
+}
+/*검색부분*/
+div#searchbar.row{
+	clear:right;
+	width:500px; 
+	margin:auto; 
+	margin-bottom: 10px;
+}
+/*검색부분*/
+select#searchType{
+	height:31px;
+	margin-right: 10px;
+}
+/*검색부분*/
+button#btnSearch.btn.btn-sm.btn-primary{
+	height:31px;
+	width:100px;
+	margin-left: 10px;
+}
+/*검색부분*/
+button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
+	margin-bottom: 10px;
+}
+
+</style>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="card shadow">
+		<div class="card-body">
+			<h4 class="card-title" style="text-align: center;">자유게시판</h4>
+			<table class="table table-hover" id='board_list'>
+				<thead>
+					<tr>
+						<th class="text-center d-none d-md-table-cell">글번호</th>
+						<th class="w-50">제목</th>
+						<th class="text-center d-none d-md-table-cell">작성자</th>
+						<th class="text-center d-none d-md-table-cell">조회수</th>
+						<th class="text-center d-none d-md-table-cell">작성날짜</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${not #lists.isEmpty(boardlist)}" th:each="list : ${boardlist}">
+						<td class="text-center d-none d-md-table-cell">[[${list.boardId}]]</td>
+						<td><a th:href="@{'/page/board/detail/'+ ${list.boardId}}">[[${list.boardTitle}]]</a></td>
+						<td class="text-center d-none d-md-table-cell">[[${list.boardAuthor}]]</td>
+						<th class="text-center d-none d-md-table-cell">[[${list.readCount}]]</th>
+						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>
+						
+					</tr>
+					<tr th:unless="${not #lists.isEmpty(boardlist)}">
+						<td>조회된 게시글이 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<!--paging -->
+			<div>
+			</div>
+			<div class="d-none d-md-block">
+				<ul class="pagination justify-content-center">
+					<li class="page-item">
+						<a th:href="">
+						class="page-link">이전</a>
+					</li>			
+					<li class="page-item">
+						<a class="page-link"></a>
+					</li>
+					<li class="page-item">
+						<a class="page-link">다음</a>
+					</li>
+				</ul>
+			</div>
+			<!--paging end-->
+			
+			<div class="text-right">
+				<a th:href="@{/page/board/boardwrite}" class="btn btn-primary" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">글쓰기</a>
+			</div>
+			
+			<!-- search start -->
+			<div class="row" style="clear:right;width:500px;margin:auto">
+			<div class="col-lg-12">
+				<select name="searchType" id="searchType">
+					<option th:value="all">전체보기</option>
+					<option th:value="T">제목</option>
+					<option th:value="C">내용</option>
+					<option th:value="W">작성자</option>
+					<option th:value="TC">제목과 내용</option>
+				</select>
+				<input type="text" class="form-control form-control-sm" name="keyword" id="keyword">
+				<button class="btn btn-sm btn-primary" name="btnSearch" id="btnSearch">검색</button>
+			</div>
+			</div>
+			<!-- search end -->
+		</div>
+	</div>
+</div>
+</th:block>
+</body>
+</html>
