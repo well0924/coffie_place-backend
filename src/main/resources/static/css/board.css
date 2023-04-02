@@ -1,0 +1,30 @@
+/* 게시판 검색 기능 css(자유게시판,공지게시판,관리자 페이지,관리자 가게페이지) */
+div.col-lg-12{
+    display: flex;
+}
+/*페이징*/
+ul.list-group list-group-flush{
+    list-style:none;
+}
+/*검색부분*/
+div#searchbar.row{
+    clear:right;
+    width:500px;
+    margin:auto;
+    margin-bottom: 10px;
+}
+/*검색부분*/
+select#searchType{
+    height:31px;
+    margin-right: 10px;
+}
+/*검색부분*/
+button#btnSearch.btn.btn-sm.btn-primary{
+    height:31px;
+    width:100px;
+    margin-left: 10px;
+}
+/*검색부분*/
+button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
+    margin-bottom: 10px;
+}

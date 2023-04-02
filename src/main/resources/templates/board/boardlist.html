@@ -8,39 +8,7 @@ layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
 <title>자유게시판 목록</title>
-<style>
-/* 게시판 검색 기능 css(자유게시판,공지게시판,관리자 페이지,관리자 가게페이지) */
-div.col-lg-12{
-	display: flex;
-}
-/*페이징*/
-ul.list-group list-group-flush{
-   list-style:none;
-}
-/*검색부분*/
-div#searchbar.row{
-	clear:right;
-	width:500px; 
-	margin:auto; 
-	margin-bottom: 10px;
-}
-/*검색부분*/
-select#searchType{
-	height:31px;
-	margin-right: 10px;
-}
-/*검색부분*/
-button#btnSearch.btn.btn-sm.btn-primary{
-	height:31px;
-	width:100px;
-	margin-left: 10px;
-}
-/*검색부분*/
-button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
-	margin-bottom: 10px;
-}
-
-</style>
+<link rel="stylesheet" th:href="@{/css/board.css}">
 </head>
 <body>
 <th:block layout:fragment="content">
@@ -74,27 +42,32 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 			</table>
 			
 			<!--paging -->
-			<div>
-			</div>
-			<div class="d-none d-md-block">
-				<ul class="pagination justify-content-center">
-					<li class="page-item">
-						<a class="page-link">이전</a>
-					</li>			
-					<li class="page-item">
-						<a class="page-link"></a>
-					</li>
-					<li class="page-item">
-						<a class="page-link">다음</a>
-					</li>
-				</ul>
+			<div th:if="${!boardlist.isEmpty()}">
+				<nav th:with="pageNumber = ${boardlist.pageable.pageNumber},
+				pageSize = ${boardlist.pageable.pageSize},
+				totalPages= ${boardlist.totalPages},
+				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
+				tempEndPage=${startPage+pageSize - 1},
+				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
+					<div class="d-none d-md-block">
+						<ul class="pagination justify-content-center">
+							<li class="page-item" th:classappend="${boardlist.first}?'disabled'">
+								<a class="page-link" th:href="${boardlist.first}? '#' : @{/page/board/list(page=${pageNumber-1})}">이전</a>
+							</li>
+							<li class="page-item" th:each="page: ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
+								<a class="page-link">[[${page}]]</a>
+							</li>
+							<li class="page-item" th:classappend="${boardlist.last}?'disabled'">
+								<a class="page-link" th:href="@{/page/board/list(page=${pageNumber+1})}">다음</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
 			</div>
 			<!--paging end-->
-			
 			<div class="text-right">
-				<a th:href="@{/page/board/boardwrite}" class="btn btn-primary" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">글쓰기</a>
+				<a th:href="@{/page/board/writePage}" class="btn btn-primary" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">글쓰기</a>
 			</div>
-			
 			<!-- search start -->
 			<div class="row" style="clear:right;width:500px;margin:auto">
 			<div class="col-lg-12">
