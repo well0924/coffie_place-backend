@@ -3,8 +3,8 @@ package com.example.coffies_vol_02.Board.service;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
+import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -113,5 +113,18 @@ public class BoardService {
         boardRepository.deleteById(boardId);
     }
 
-
+    /*
+    * 비밀번호 확인
+    */
+    @Transactional
+    public BoardDto.BoardResponseDto passwordCheck(String passWd,Integer id,Member member){
+        if(member == null){
+            throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
+        }
+        BoardDto.BoardResponseDto result = boardRepository.findByPassWdAndId(passWd,id);
+        if(result ==null){
+            throw new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD);
+        }
+        return result;
+    }
 }

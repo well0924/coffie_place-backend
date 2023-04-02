@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.UUID;
 
 @Controller
 @AllArgsConstructor
@@ -31,9 +32,10 @@ public class BoardViewController {
         return mv;
     }
 
-    @GetMapping("/detail/{id}")
-    public ModelAndView boardDetail(@PathVariable("id") Integer boardId){
+    @GetMapping("/detail/{board_id}")
+    public ModelAndView boardDetail(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
+
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
 
         mv.addObject("detail",detail);
@@ -46,22 +48,29 @@ public class BoardViewController {
     public ModelAndView writePage(){
         ModelAndView mv = new ModelAndView();
 
+        String uuid = UUID.randomUUID().toString();
+        String key = "free_"+uuid.substring(0,uuid.indexOf("-"));
+
+        mv.addObject("fileGroupId", key);
+
         mv.setViewName("/board/writeboard");
 
         return mv;
     }
 
-    @GetMapping("/passwordCheck")
-    public ModelAndView passwordCheck(){
+    @GetMapping("/passwordCheck/{board_id}")
+    public ModelAndView passwordCheck(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
+        BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
 
+        mv.addObject("pwd",detail);
         mv.setViewName("/board/passwordcheck");
 
         return mv;
     }
 
-    @GetMapping("/modify/{id}")
-    public ModelAndView modifyPage(@PathVariable Integer boardId){
+    @GetMapping("/modify/{board_id}")
+    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
 

@@ -2,8 +2,8 @@ package com.example.coffies_vol_02.Board.controller.api;
 
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.config.Exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,5 +52,10 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
+    @GetMapping("/password/{board_id}/{password}")
+    public CommonResponse<?>passwordChange(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        BoardDto.BoardResponseDto result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
+        return new CommonResponse<>(HttpStatus.OK.value(),result);
+    }
 
 }
