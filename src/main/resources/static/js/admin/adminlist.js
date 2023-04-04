@@ -85,7 +85,7 @@ function cafelist(){
 }
 
 function noticewrite(){
-    location.href='/page/notice/noticeinsert';
+    location.href='/page/notice/writePage';
 }
 
 function palceregister(){

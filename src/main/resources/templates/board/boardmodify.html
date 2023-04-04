@@ -89,7 +89,7 @@ function sendImage(file,el){
 	var formdate = new FormData();
 	formdate.append('file',file);
 	formdate.append('fileGroupId',$('#fileGroupId').val());
-	
+
 	$.ajax({
 		url:'api/board/el/upload',
 		type:'post',
@@ -97,73 +97,16 @@ function sendImage(file,el){
 		processData: false,
 		contentType : false,
 		cache:false,
-		enctype: 'multipart/form-data',	
+		enctype: 'multipart/form-data',
 	}).done(function(resp){
 		console.log(resp);
 		$(el).summernote('insertImage',data.url,function($image){
 			$image.css('width',"25%")
 		});
-	});	
-}
-
-//글 수정 기능o.k
-function updateboard(){
-	
-	var title = $('#board_Title').val();
-	var author= $('#board_Author').val();
-	var contents= $('#board_Contents').val();
-	var pwd = $('#passWd').val();
-	var id = $('#board_id').val();
-	
-	var formdate = new FormData();
-	
-	formdate.append("boardId",id);
-	formdate.append("boardTitle",title);
-	formdate.append("boardAuthor",author);
-	formdate.append("boardContents",contents);
-	formdate.append("passWd",pwd);
-	
-	var inputFiles = $("input[name='file']");
-	var files = inputFiles[0].files;
-	
-	if(inputFiles != null){
-		for(var i = 0; i< files.length; i++){
-			console.log(files[i]);
-			formdate.append("file",files[i]);
-		}
-	}
-	
- 	$.ajax({
-		url:'/api/board/modify/'+id,
-		type:'put',
-		data:formdate,
-		processData: false,
-		contentType : false,
-		cache:false,
-		enctype: 'multipart/form-data',
-	}).done(function(resp){
-		console.log(resp);		
-		alert('수정되었습니다.');
-		location.href='/page/board/list';
 	});
 }
-
-//글 삭제 기능o.k
-function deleteboard(){
-	var id = $('#board_id').val();
-	
-	$.ajax({
-		url:'/api/board/delete/'+id,
-		type:'delete',
-		dataType:'json',
-		contentType :'application/json; charset=utf-8',
-	}).done(function(resp){
-		console.log(resp);
-		alert('삭제되었습니다.');
-		location.href='/page/board/list';
-	});
-} 
 </script>
+<script th:src="@{/js/board/boardmodify.js}"/>
 </th:block>
 </body>
 </html>

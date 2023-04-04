@@ -59,19 +59,19 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:if="${list.noticeFixed.toString().equals('Y')}" th:each="list : ${noticelist}">
+					<tr th:if="${list.isFixed.toString().equals('Y')}" th:each="list : ${noticelist}">
 						<td class="text-center d-none d-md-table-cell"><strong>[[${list.id}]]</strong></td>
 						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeGroup}]]</strong></td>
-						<td><a th:href="@{'/page/notice/noticedetail/'+ ${list.noticeId}}"><strong>[[${list.noticeTitle}]]</strong></a></td>
-						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeAuthor}]]</strong></td>
-						<td class="text-center d-none d-md-table-cell"><strong>[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</strong></td>
+						<td><a th:href="@{'/page/notice/detail/'+ ${list.id}}"><strong>[[${list.noticeTitle}]]</strong></a></td>
+						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeWriter}]]</strong></td>
+						<td class="text-center d-none d-md-table-cell"><strong>[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</strong></td>
 					</tr>
-					<tr th:if="${list.noticeFixed.toString().equals('N')}" th:each="list : ${noticeList}">
+					<tr th:if="${list.isFixed.toString().equals('N')}" th:each="list : ${noticeList}">
 						<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
 						<td class="text-center d-none d-md-table-cell">[[${list.noticeGroup}]]</td>
-						<td><a th:href="@{'/page/notice/noticedetail/'+ ${list.id}}">[[${list.noticeTitle}]]</a></td>
-						<td class="text-center d-none d-md-table-cell">[[${list.noticeAuthor}]]</td>
-						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>	
+						<td><a th:href="@{'/page/notice/detail/'+ ${list.id}}">[[${list.noticeTitle}]]</a></td>
+						<td class="text-center d-none d-md-table-cell">[[${list.noticeWriter}]]</td>
+						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 					</tr>
 					<tr th:unless="${not #lists.isEmpty(noticelist)}">
 						<td>조회된 게시글이 없습니다.</td>
@@ -103,7 +103,7 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 			</div>
 			<!--paging end-->
 			<div class="text-right">
-				<a th:href="@{/page/notice/noticeinsert}" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">글쓰기</a>
+				<a th:href="@{/page/notice/writePage}" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')">글쓰기</a>
 			</div>
 			<!-- search start -->
 			<div class="row" style="clear:right;width:500px;margin:auto">

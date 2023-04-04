@@ -52,136 +52,54 @@ layout:decorate="~{layout/leafframe}">
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-
-//썸머노트 o.k
-$(document).ready(function () { 
-	$('#board_Contents').summernote({
-       placeholder: '내용을 작성하세요',
-       height: 400,
-       maxHeight: 400,
-       codeviewFilter: false,
-       codeviewIframeFilter: true,
-       popover:{
-       	image:[],
-       	link:[],
-       	air:[]
-       },
-       focus: true,
-       callbacks :{
-       	sendImage: function(files){
-       		console.log(files)
+<script>
+	$(document).ready(function () {
+		$('#board_Contents').summernote({
+			placeholder: '내용을 작성하세요',
+			height: 400,
+			maxHeight: 400,
+			codeviewFilter: false,
+			codeviewIframeFilter: true,
+			popover:{
+				image:[],
+				link:[],
+				air:[]
+			},
+			focus: true,
+			callbacks :{
+				sendImage: function(files){
+					console.log(files)
 					sendFile(file[0], this);
-       	}
-       }
-   });
+				}
+			}
+		});
 		let filegroupid = $('#fileGroupId').val();
 		console.log(filegroupid);
-});
+	});
 
-function sendImage(file,el){
-	var formdate = new FormData();
-	formdate.append('file',file);
-	formdate.append('fileGroupId',$('#fileGroupId').val());
-	
-	$.ajax({
-		url:'api/board/el/upload',
-		type:'post',
-		data: formdate,
-		processData: false,
-		contentType : false,
-		cache:false,
-		enctype: 'multipart/form-data',	
-	}).done(function(resp){
-		console.log(resp);
-		$(el).summernote('insertImage',data.url,function($image){
-			$image.css('width',"25%")
-		});
-	});	
-}
+	//에디터 이미지 업로드 기능o.k
+	function sendImage(file,el){
+		var formdate = new FormData();
+		formdate.append('file',file);
+		formdate.append('fileGroupId',$('#fileGroupId').val());
 
-function fileCheck(){
-	
-	var filecount = 6;
-	var inputFiles = $("input[name='file']");
-	var files = inputFiles[0].files;
-	
-	console.log(files);
-	console.log(inputFiles);
-	
-	//파일첨부 제한.
-	if(files.length > filecount){
-		$('#valid_file').text('파일은 6개까지 입니다.');
-		$('#valid_file').css('color','red');
-		return false;
-	}
-	
-	//첨부한 만큼 반복문을 돌린다.
-	if(inputFiles != null){
-		for(var i = 0; i<files.length;i++){
-			console.log(files[i]);
-			formdate.append("file",files[i]);
-		}
-	} 
-	
-	if(inputFiles == null){
-		writeboard();	
-	}
-	
-	return true;
-}
-
-function writeboard(){
-	
-	var title = $('#board_Title').val();
-	var author= $('#board_Author').val();
-	var contents= $('#board_Contents').val();
-	var pwd = $('#passWd').val();
-	var fileid = $('#fileGroupId').val();
-    
-	var formdate = new FormData();
-		
-	formdate.append("boardTitle",title);
-	formdate.append("boardContents",contents);
-	formdate.append("boardAuthor",author);
-	formdate.append("fileGroupId",fileid);
-	formdate.append("passWd",pwd);
-		
-	if(fileCheck()){
 		$.ajax({
-			url:'/api/board/write',
+			url:'api/board/el/upload',
 			type:'post',
-			data:formdate,
+			data: formdate,
 			processData: false,
 			contentType : false,
 			cache:false,
 			enctype: 'multipart/form-data',
 		}).done(function(resp){
-			
-			if(resp.status == 200){
-				alert('글이 작성 되었습니다.');	
-				location.href='/page/board/list';
-			}
-			
-			if(resp.status == 400){
-				
-				if(resp.data.hasOwnProperty('valid_boardTitle')){
-					$('#valid_boardTitle').text(resp.data.valid_boardTitle);
-					$('#valid_boardTitle').css('color','red');
-				}else{
-					$('#valid_boardTitle').text('');
-				}
-				if(resp.data.hasOwnProperty('valid_boardContents')){
-					$('#valid_boardContents').text(resp.data.valid_boardContents);
-					$('#valid_boardContents').css('color','red');
-				}else{
-					$('#valid_boardContents').text('');
-				}
-			}
-		});	
+			console.log(resp);
+			$(el).summernote('insertImage',data.url,function($image){
+				$image.css('width',"25%")
+			});
+		});
 	}
-} 
 </script>
+<script th:src="@{/js/board/boardWrite.js}"></script>
 </th:block>
 </body>
 </html>
