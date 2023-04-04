@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.Notice.service;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Attach.service.FileHandler;
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
@@ -53,6 +52,9 @@ public class NoticeService {
                 .noticeBoard(noticeBoard)
                 .build();
     }
+    /*
+    *  공지글 작성
+    */
     @Transactional
     public Integer noticeWrite(NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
 
@@ -80,6 +82,10 @@ public class NoticeService {
         }
         return noticeInsertResult;
     }
+    
+    /*
+    * 공지 게시글 수정
+    */
     @Transactional
     public Integer noticeUpdate(Integer noticeId,NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
@@ -96,12 +102,12 @@ public class NoticeService {
         }
         if(!filelist.isEmpty()){
 
-            for (int i=0;i<filelist.size();i++) {
-                String filePath = filelist.get(i).getFilePath();
+            for (Attach attach : filelist) {
+                String filePath = attach.getFilePath();
 
                 File file = new File(filePath);
 
-                if(file.exists()){
+                if (file.exists()) {
                     file.delete();
                 }
             }
@@ -111,10 +117,24 @@ public class NoticeService {
         }
         return updateResult;
     }
+
+    /*
+    * 공지 게시글 삭제
+    */
     @Transactional
-    public void noticeDelete(Integer noticeId){
+    public void noticeDelete(Integer noticeId)throws Exception{
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        NoticeBoard noticeBoard = detail.get();
+
+        List<Attach>list = attachRepository.findAttachNoticeBoard(noticeId);
+
+        for (Attach attach : list) {
+            String filePath = attach.getFilePath();
+            File file = new File(filePath);
+
+            if (file.exists()) {
+                file.delete();
+            }
+        }
         noticeBoardRepository.deleteById(noticeId);
     }
 }
