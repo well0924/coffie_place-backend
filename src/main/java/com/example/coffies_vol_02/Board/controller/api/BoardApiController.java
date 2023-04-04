@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.service.BoardService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
+@Api(tags = "Board api",value = "자유게시판 관련 api 컨트롤러")
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
@@ -48,7 +50,8 @@ public class BoardApiController {
     }
 
     @PatchMapping("/update/{board_id}")
-    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,@Valid @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
+    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,
+                                        @Valid @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
                                         BindingResult bindingResult,
                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                         @RequestPart(value = "files",required = false) List<MultipartFile>files) throws Exception {

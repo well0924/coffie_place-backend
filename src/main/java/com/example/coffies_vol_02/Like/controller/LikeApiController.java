@@ -4,11 +4,13 @@ import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Like.service.LikeService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Api(tags = "Like api",value = "좋아요 api 컨트롤러")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/like")

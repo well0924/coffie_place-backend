@@ -88,6 +88,7 @@ public class BoardService {
                 .fileGroupId(requestDto.getFileGroupId())
                 .member(member)
                 .build();
+
         int InsertResult = boardRepository.save(board).getId();
 
         List<Attach>filelist = fileHandler.parseFileInfo(files);
@@ -159,17 +160,18 @@ public class BoardService {
         if(!boardAuthor.equals(userId)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
-        List<AttachDto>list = attachService.filelist(boardId);
+        List<AttachDto>attachlist = attachService.boardfilelist(boardId);
 
-        for(int i = 0; i<list.size();i++){
+        for(int i = 0; i<attachlist.size();i++){
 
-            String filePath = list.get(i).getFilePath();
+            String filePath = attachlist.get(i).getFilePath();
             File file = new File(filePath);
 
             if(file.exists()){
                 file.delete();
             }
         }
+
         boardRepository.deleteById(boardId);
     }
 

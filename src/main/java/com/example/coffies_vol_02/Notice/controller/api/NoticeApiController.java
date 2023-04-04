@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.Notice.controller.api;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
 import com.example.coffies_vol_02.Notice.service.NoticeService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
+@Api(tags = "Notice api",value = "공지게시판 api 컨트롤러")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/notice")
@@ -46,7 +48,7 @@ public class NoticeApiController {
     }
 
     @DeleteMapping("/delete/{notice_id}")
-    public CommonResponse<?>noticeDelete(@PathVariable("notice_id")Integer noticeId){
+    public CommonResponse<?>noticeDelete(@PathVariable("notice_id")Integer noticeId) throws Exception {
         noticeService.noticeDelete(noticeId);
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }

@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.service.CommentService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Api(tags = "comment api",value = "댓글 api 컨트롤러")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/comment")
