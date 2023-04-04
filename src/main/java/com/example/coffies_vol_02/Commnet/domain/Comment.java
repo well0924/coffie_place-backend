@@ -2,10 +2,13 @@ package com.example.coffies_vol_02.Commnet.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Like.domain.Like;
 import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -25,9 +28,12 @@ public class Comment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     private Member member;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
+    private Set<Like> likes = new HashSet<>();
 
     @Builder
-    public Comment(String replyWriter,String replyContents,Board board,Member member){
+    public Comment(String replyWriter,String replyContents,Board board,Member member,Comment comment){
         this.board = board;
         this.member = member;
         this.replyWriter = member.getUserId();
