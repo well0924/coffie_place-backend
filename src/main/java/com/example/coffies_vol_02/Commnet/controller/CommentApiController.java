@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.Commnet.controller;
 
+import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.service.CommentService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;

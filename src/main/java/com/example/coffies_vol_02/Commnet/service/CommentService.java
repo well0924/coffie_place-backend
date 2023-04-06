@@ -9,9 +9,11 @@ import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.AllArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,15 +27,22 @@ public class CommentService {
     *   댓글 목록 
     */
     @Transactional(readOnly = true)
-    public List<CommentDto.CommentResponseDto> replyList(Integer boardId) throws Exception {
+    public List<CommentDto.CommentResponseDto> replyList(@Param("id") Integer boardId) throws Exception {
         List<Comment>list = commentRepository.findCommentsBoardId(boardId);
+        List<CommentDto.CommentResponseDto>result = new ArrayList<>();
 
-        if(list.isEmpty()){
-            throw new CustomExceptionHandler(ERRORCODE.NOT_REPLY);
+        for(Comment co : list){
+            CommentDto.CommentResponseDto dto = CommentDto.CommentResponseDto
+                                                .builder()
+                                                .comment(co)
+                                                .build();
+
+            result.add(dto);
         }
 
-        return list.stream().map(comment -> new CommentDto.CommentResponseDto()).collect(Collectors.toList());
+        return result;
     }
+
     /*
     *   댓글 작성
     */
@@ -50,6 +59,7 @@ public class CommentService {
                 .board(boarddetail.get())
                 .replyWriter(member.getUserId())
                 .replyContents(dto.getReplyContents())
+                .member(member)
                 .build();
 
         commentRepository.save(comment);
@@ -66,12 +76,14 @@ public class CommentService {
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
         Comment comment = commentRepository.findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
+
         String userId = member.getUserId();
         String commentAuthor = comment.getReplyWriter();
 
         if(!userId.equals(commentAuthor)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
+
         commentRepository.deleteById(replyId);
     }
 }

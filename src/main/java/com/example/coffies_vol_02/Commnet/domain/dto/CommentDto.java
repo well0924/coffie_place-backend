@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.Commnet.domain.dto;
 
 import com.example.coffies_vol_02.Commnet.domain.Comment;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -24,9 +25,9 @@ public class CommentDto {
         private Integer id;
         private String replyWriter;
         private String replyContents;
-        private Integer replyLike;
-        private Integer replyPoint;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         private LocalDateTime createdTime;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         private LocalDateTime updatedTime;
 
         @Builder
