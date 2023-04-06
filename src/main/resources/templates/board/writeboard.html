@@ -18,8 +18,8 @@ layout:decorate="~{layout/leafframe}">
 			<div class="card shadow">
 				<div class="card-body">
 					<form action=""  id="boardform" enctype="multipart/form-data">
-					<!--<input type="hidden" id="board_Author" name="boardAuthor" th:value="${#authentication.name}">
-					<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">-->
+					<input type="hidden" id="board_Author" name="boardAuthor" th:value="${#authentication.name}">
+					<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">
 					<div class="form-group">
 						<label for="board_Title">제목</label>
 						<input type="text" id="board_Title" name="boardTitle" class="form-control"/>

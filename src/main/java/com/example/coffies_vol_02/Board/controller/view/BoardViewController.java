@@ -1,8 +1,13 @@
 package com.example.coffies_vol_02.Board.controller.view;
 
+import com.example.coffies_vol_02.Attach.domain.AttachDto;
+import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.service.BoardService;
+import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.Commnet.service.CommentService;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,13 +18,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.UUID;
 
+@Log4j2
 @Controller
 @AllArgsConstructor
 @RequestMapping("/page/board")
 public class BoardViewController {
     private final BoardService boardService;
+    private final AttachService attachService;
+    private final CommentService commentService;
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
@@ -33,12 +42,15 @@ public class BoardViewController {
     }
 
     @GetMapping("/detail/{board_id}")
-    public ModelAndView boardDetail(@PathVariable("board_id") Integer boardId){
+    public ModelAndView boardDetail(@PathVariable("board_id") Integer boardId)throws Exception{
         ModelAndView mv = new ModelAndView();
 
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
+        List<AttachDto> attachList = attachService.boardfilelist(boardId);
 
         mv.addObject("detail",detail);
+        mv.addObject("file",attachList);
+
         mv.setViewName("/board/detailboard");
 
         return mv;
@@ -70,11 +82,15 @@ public class BoardViewController {
     }
 
     @GetMapping("/modify/{board_id}")
-    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId){
+    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) throws Exception {
         ModelAndView mv = new ModelAndView();
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
+        List<AttachDto> attachList=attachService.boardfilelist(boardId);
+
+        log.info("modify list:"+attachList);
 
         mv.addObject("detail",detail);
+        mv.addObject("file",attachList);
         mv.setViewName("/board/boardmodify");
 
         return mv;

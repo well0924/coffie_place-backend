@@ -12,6 +12,7 @@ import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 @AllArgsConstructor
 public class BoardService {
@@ -37,9 +39,6 @@ public class BoardService {
     public Page<BoardDto.BoardResponseDto> boardAll(Pageable pageable){
         Page<Board>list = boardRepository.findAll(pageable);
 
-        if(list.isEmpty()){
-            throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST);
-        }
         return list.map(board -> new BoardDto.BoardResponseDto(board));
     }
 
@@ -83,7 +82,7 @@ public class BoardService {
                 .builder()
                 .boardTitle(requestDto.getBoardTitle())
                 .boardContents(requestDto.getBoardContents())
-                .readCount(requestDto.getReadCount())
+                .readCount(0)
                 .passWd(requestDto.getPassWd())
                 .fileGroupId(requestDto.getFileGroupId())
                 .member(member)
@@ -91,7 +90,7 @@ public class BoardService {
 
         int InsertResult = boardRepository.save(board).getId();
 
-        List<Attach>filelist = fileHandler.parseFileInfo(files);
+        List<Attach>filelist = fileHandler.parseFileInfo(board,files);
 
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
@@ -110,6 +109,7 @@ public class BoardService {
     @Transactional
     public Integer BoardUpdate(Integer boardId, BoardDto.BoardRequestDto dto, Member member,List<MultipartFile>files) throws Exception {
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
+        log.info("service update;");
 
         String boardAuthor = detail.get().getBoardAuthor();
         String userId = member.getUserId();
@@ -121,22 +121,34 @@ public class BoardService {
 
         int UpdateResult = detail.get().getId();
 
-        List<Attach>filelist = fileHandler.parseFileInfo(files);
+        List<Attach>filelist = attachRepository.findAttachBoard(boardId);
+        log.info("select files: "+filelist);
 
-        if(filelist == null || filelist.size() == 0){
-            return UpdateResult;
-        }
+        //게시물을 수정하는 경우
         if(!filelist.isEmpty()){
-
-            for (int i=0;i<filelist.size();i++) {
+            for(int i =0; i<filelist.size();i++){
                 String filePath = filelist.get(i).getFilePath();
 
+                int id = filelist.get(i).getId();
+
+                log.info("ids:: "+id);
+                log.info("filePaths:: "+filePath);
+
                 File file = new File(filePath);
+                log.info(file);
+                //디비에 저장된 파일을 삭제
 
                 if(file.exists()){
                     file.delete();
                 }
+
+                log.info(file);
             }
+            //파일 재업로드
+            filelist = fileHandler.parseFileInfo(detail.get(),files);
+            log.info("파일을 첨부한 후 수정!");
+            log.info("upload result:"+filelist);
+
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
@@ -160,6 +172,7 @@ public class BoardService {
         if(!boardAuthor.equals(userId)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
+
         List<AttachDto>attachlist = attachService.boardfilelist(boardId);
 
         for(int i = 0; i<attachlist.size();i++){

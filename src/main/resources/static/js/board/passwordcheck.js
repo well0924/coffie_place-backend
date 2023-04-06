@@ -2,7 +2,7 @@
 function validation(){
 
     let input = $('#inputnumber').val();
-    console.log(pw);
+    console.log(input);
 
     if(input.trim().length==0){
         alert('비밀번호를 입력해주세요.');
@@ -14,6 +14,9 @@ function validation(){
 function pwdCheck(){
     let id = $('#boardid').val();
     let pwd = $('#inputnumber').val();
+
+    console.log(id);
+    console.log(pwd);
 
     if(validation()){
         $.ajax({

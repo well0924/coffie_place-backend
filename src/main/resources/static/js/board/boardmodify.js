@@ -1,4 +1,6 @@
-//글 수정 기능o.k
+/**
+ * 글 수정 기능o.k
+ */
 function updateboard(){
 
     let title = $('#board_Title').val();
@@ -22,8 +24,8 @@ function updateboard(){
     }
 
     $.ajax({
-        url:'/api/board/modify/'+id,
-        type:'put',
+        url:'/api/board/update/'+id,
+        type:'patch',
         data:formdate,
         processData: false,
         contentType : false,
