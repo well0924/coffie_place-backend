@@ -8,4 +8,6 @@ import org.springframework.stereotype.Controller;
 @AllArgsConstructor
 public class PlaceViewController {
     private final PlaceService placeService;
+
+
 }

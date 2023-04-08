@@ -36,6 +36,7 @@ public class Place extends BaseTime {
     @OneToMany(fetch =FetchType.LAZY,mappedBy = "place")
     private List<PlaceImage> placeImageList = new ArrayList<>();
 
+
     @Builder
     public Place(String placeName,String placeAuthor,String placeStart,String placeClose,String placePhone,String placeAddr1,String placeAddr2,String fileGroupId,Double placeLng,Double placeLat,Double reviewRate){
         this.placeName = placeName;
