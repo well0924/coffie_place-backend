@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.Notice.service;
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
 import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Attach.service.FileHandler;
+import com.example.coffies_vol_02.Config.Util.FileHandler;
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;

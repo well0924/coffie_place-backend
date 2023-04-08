@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.Attach.service;
+package com.example.coffies_vol_02.Config.Util;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;

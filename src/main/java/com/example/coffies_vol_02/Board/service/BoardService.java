@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
 import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Attach.service.FileHandler;
+import com.example.coffies_vol_02.Config.Util.FileHandler;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.repository.BoardRepository;
