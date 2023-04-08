@@ -3,6 +3,8 @@ package com.example.coffies_vol_02.Attach.service;
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
+import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.repository.query.Param;
@@ -42,22 +44,42 @@ public class AttachService {
     */
     public void deleteBoardAttach(Integer Id) throws Exception {
         List<Attach>list = attachRepository.findAttachBoard(Id);
-        for(int i =0 ; i< list.size(); i++){
-            attachRepository.delete(list.get(i));
+        for (Attach attach : list) {
+            attachRepository.delete(attach);
         }
         log.info("file service");
         log.info("filelist:"+list);
     }
 
+    /*
+     * 공지 게시판 파일 삭제
+     */
     public void deleteNoticeAttach(Integer Id) throws Exception {
         List<Attach>list = attachRepository.findAttachNoticeBoard(Id);
-        for(int i =0 ; i< list.size(); i++){
-            attachRepository.delete(list.get(i));
+        for (Attach attach : list) {
+            attachRepository.delete(attach);
         }
         log.info("file service");
         log.info("filelist:"+list);
     }
 
+    /*
+    * 파일 조회
+    */
+    @Transactional(readOnly = true)
+    public AttachDto getFile(String fileName){
+        Attach detail = attachRepository.findByOriginFileName(fileName);
+
+        AttachDto result = AttachDto
+                .builder()
+                .originFileName(detail.getOriginFileName())
+                .fileSize(detail.getFileSize())
+                .filePath(detail.getFilePath())
+                .boardId(detail.getBoard().getId())
+                .build();
+
+        return result;
+    }
     private List<AttachDto> getAttach(List<Attach> list) {
         List<AttachDto>filelist = new ArrayList<>();
 
