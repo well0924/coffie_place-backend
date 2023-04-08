@@ -1,0 +1,128 @@
+/*별점css*/
+#myform fieldset{
+    display: inline-block;
+    direction: rtl;
+    border:0;
+}
+/*별점css*/
+#myform fieldset legend{
+    text-align: right;
+}
+/*별점css*/
+#myform input[type=radio]{
+    display: none;
+}
+/*별점css*/
+#myform label{
+    font-size: 3em;
+    color: transparent;
+    text-shadow: 0 0 0 #f0f0f0;
+}
+/*별점css*/
+#myform label:hover{
+    text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+}
+/*별점css*/
+#myform label:hover ~ label{
+    text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+}
+/*별점css*/
+#myform input[type=radio]:checked ~ label{
+    text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+}
+/*별점css*/
+#reviewAuthor{
+    margin-bottom: 5px;
+}
+/*별점css*/
+#reviewContents {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: solid 1.5px #D3D3D3;
+    border-radius: 5px;
+    font-size: 16px;
+    resize: none;
+}
+/*별점css*/
+.star-ratings {
+    color: #aaa9a9;
+    position: relative;
+    unicode-bidi: bidi-override;
+    width: max-content;
+    -webkit-text-fill-color: transparent; /* Will override color (regardless of order) */
+    -webkit-text-stroke-width: 1.3px;
+    -webkit-text-stroke-color: #2b2a29;
+}
+/*별점css*/
+.star-ratings-fill {
+    color: #fff58c;
+    padding: 0;
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    -webkit-text-fill-color: gold;
+}
+/*별점css*/
+.star-ratings-base {
+    z-index: 0;
+    padding: 0;
+}
+/*카카오 맵 커스텀 오버레이*/
+.wrap {position: absolute;left: 0;bottom: 40px;width: 288px;height: 132px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
+.wrap * {padding: 0;margin: 0;}
+.wrap .info {width: 500px;height: 120px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
+.wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
+.info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
+.info .close {position: absolute;top: 10px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
+.info .close:hover {cursor: pointer;}
+.info .body {position: relative;overflow: hidden;}
+.info .desc {position: relative;margin: 13px 0 0 90px;height: 75px;}
+.desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
+.info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
+.info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
+.info .link {color: #5085BB;}
+.container{
+    margin-top:100px
+}
+/* 게시판 검색 기능 css(자유게시판,공지게시판,관리자 페이지,관리자 가게페이지) */
+div.col-lg-12{
+    display: flex;
+}
+/*페이징*/
+ul.list-group list-group-flush{
+    list-style:none;
+}
+/*검색부분*/
+div#searchbar.row{
+    clear:right;
+    width:500px;
+    margin:auto;
+    margin-bottom: 10px;
+}
+/*검색부분*/
+select#searchType{
+    height:31px;
+    margin-right: 10px;
+}
+/*검색부분*/
+button#btnSearch.btn.btn-sm.btn-primary{
+    height:31px;
+    width:100px;
+    margin-left: 10px;
+}
+/*검색부분*/
+button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
+    margin-bottom: 10px;
+}
+
+/*가게 별점*/
+.inner-star::before{color: #FF9600;}
+.outer-star {position: relative;display: inline-block;color: #CCCCCC;}
+.inner-star {position: absolute;left: 0;top: 0;width: 0%;overflow: hidden;white-space: nowrap;}
+.outer-star::before, .inner-star::before {content: '\f005';font-family: 'Font Awesome 5 free';font-weight: 900;color: #FF9600;}

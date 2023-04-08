@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>가게 목록</title>
+<link rel="stylesheet" th:href="@{/css/placelist.css}">
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container" style="margin-top:100px">
+	<div class="card shadow">
+		<div class="card-body">
+			<h4 class="card-title" style="text-align: center;">카페 검색</h4>
+			<!--search bar-->
+			<div class="form-inline" style="display: flex; justify-content: center;">
+				<select id="searchType" class="form-control" name="searchType">
+					<option>선택</option>
+					<option th:value="CN">가게이름</option>
+					<option th:value="CA">주소</option> 		
+				</select>
+				<input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
+				<button id="btnSearch"  class="btn btn-primary">Search</button>
+			</div>
+			<!--search end-->
+			<a th:href="@{/api/file/exceldown}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
+			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
+			<table class="table table-hover" id='board_list'>
+				<thead>
+					<tr>
+						<th>번호</th>
+						<th>가게이름</th>
+						<th>주소</th>
+						<th>평가</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each= "list : ${placelist}">
+						<td class="text-center d-none d-md-table-cell">
+							[[${list.placeId}]]
+						</td>
+						<td>
+							<a th:href="@{'/page/place/placedetail/'+${list.placeId}}">
+							[[${list.placeName}]]	
+							</a>
+						</td>
+						<td class="text-center d-none d-md-table-cell">
+							[[${list.placeAddr1}]]
+						</td>
+						<td class="text-center d-none d-md-table-cell">
+							<div class='RatingStar'>
+								<div class='RatingScore'>
+						  			<div class='outer-star'>
+						  				<div class='inner-star'>
+						  				</div>
+						  			</div>
+						  			[[${list.reviewRate}]]
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr th:unless="${not #lists.isEmpty(placelist)}">
+						<td>조회된 가게가 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+			<!--paging -->
+	<!--		<div class="d-none d-md-block">
+				<ul class="pagination justify-content-center">
+					<li class="page-item" th:if="${prev} == true">
+						<a th:href="@{/page/place/placelist(page=${startPage}-1,perPageNum=${paging.cri.perPageNum})}" class="page-link">이전</a>
+					</li>
+					<li class="page-item" th:each="idx,iterStat : ${#numbers.sequence(paging.startPage,paging.endPage)}" th:classappend="${paging.cri.page}==${idx} ? active : null">
+						<a th:href="@{/page/place/placelist(page=${idx},perPageNum=${paging.cri.perPageNum})}" class="page-link"th:text="${idx}"></a>
+					</li>
+					<li class="page-item" th:if="${paging.next}== true and ${paging.endPage > 0}">
+						<a th:href="@{/page/place/placelist(page=${paging.endPage}+1,perPageNum=${paging.cri.perPageNum})}" class="page-link">다음</a>
+					</li>
+				</ul>
+			</div>-->
+			<!--paging end-->
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).on('click', '#btnSearch', function(e){
+	/*<![CDATA[*/
+	var url ="/page/place/placelist?"+"page="+[[${paging.cri.page}]]+"&perPageNum="+[[${paging.cri.perPageNum}]]+"&searchType="+$('#searchType').val()+"&keyword="+$('#autocomplete').val();
+	location.href = url;
+	/*]]>*/
+});
+//가게 자동완성기능
+$('#autocomplete').autocomplete({
+	 source : function(request, response) {
+		 $.ajax({
+			 url:'/api/place/autocompletekeyword',
+			 type:'post',
+			 dataType:'json',
+			 data:{value: request.term}
+		 }).done(function(data){
+			 console.log(data);
+			 console.log(data.value);
+			 response(
+					$.map(data.resultList,function(item){
+						return{
+							label: item.place_name,
+							value: item.place_name,
+							idx  : item.place_id
+						};				
+					}) 
+			);//response end
+		}).fail(function(error){
+			console.log("오류가 발생했습니다.");
+			console.log(error);
+		});
+	 }
+	 
+	 ,focus: function(event,ui){//
+		 return false;
+	 },
+	 minLength: 1,// 최소 글자수
+	 delay: 100,
+	 select : function(evt,ui){
+		 console.log(ui.item.label);
+		 console.log(ui.item.idx);
+	 }
+});
+
+function placeregister(){
+	location.href='/page/place/placeregister';
+}
+</script>
+</th:block>
+</body>
+</html>

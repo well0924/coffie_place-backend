@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}" lang="kr">
+<head>
+<meta charset="UTF-8">
+<title>가게 상세조회</title>
+<link rel="stylesheet" th:src="@{/css/placedetail.css}">
+</head>
+<body>
+<th:block layout:fragment="content">
+<h1>조회화면</h1>
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<div class="col-lg-6">
+		<h2>가게조회</h2>
+			<!--placeimage(main)-->
+			<th:block th:each="list:${imagelist}">
+				<img th:if="${list.isTitle}"th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"></img>
+			</th:block>
+		<hr>
+			<!-- placedetail -->
+			<input type="hidden" id="userid" name="userId" th:value="${#authentication.name}">
+			<input type="hidden" id ="placeaddr" name="placeAddr1" th:value="${detail.placeAddr1}">
+			<input type="hidden" id="placeid" name ="placeId" th:value="${detail.placeId}">
+			<input type="hidden" id="placelng" name ="placeLng" th:value="${detail.placeLng}">
+			<input type="hidden" id="placelat" name ="placeLat" th:value="${detail.placeLat}">
+			<input type="hidden" id="placename" name="placeName" th:value="${detail.placeName}">
+			<input type="hidden" id="placephone" name="placePhone" th:value="${detail.placePhone}">
+			<input type="hidden" id="filegroupid" name ="fileGroupId" th:value="${detail.fileGroupId}">
+			<ul>
+				<li>가게이름:[[${detail.placeName}]]</li>
+				<li>전화번호:[[${detail.placePhone}]]</li>
+				<li>가게주소:[[${detail.placeAddr1}]]</li>
+				<li>영업시간:[[${detail.placeStart}]]~[[${detail.placeClose}]]</li>
+			</ul>
+			<!--placeimage(smallsize)-->
+			<th:block th:each="list:${imagelist}">
+				<img th:unless="${list.isTitle}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)">			
+			</th:block>
+		</br>
+		</br>
+			<button class="btn btn-primary" onclick="WishCheck()">카페찜하기</button>
+			<button class="btn btn-primary" onclick="placemodify()" sec:authorize="hasRole('ROLE_ADMIN')">가게수정</button>
+			<a th:href="@{/page/place/placelist}" class="btn btn-primary">목록</a>
+		<hr>
+			<!--댓글 부분-->
+			<form class="mb-3"  id="myform">
+				<fieldset>
+					<span class="text-bold">별점을 선택해주세요</span>
+					<input type="radio" name="replyPoint" th:value="5" id="rate1"><label for="rate1">★</label>
+					<input type="radio" name="replyPoint" th:value="4" id="rate2"><label for="rate2">★</label>
+					<input type="radio" name="replyPoint" th:value="3" id="rate3"><label for="rate3">★</label>
+					<input type="radio" name="replyPoint" th:value="2" id="rate4"><label for="rate4">★</label>
+					<input type="radio" name="replyPoint" th:value="1" id="rate5"><label for="rate5">★</label>					
+				</fieldset>
+				<div>
+					<input class="col-auto form-control" type="hidden" id="reviewAuthor" name="replyWriter" th:value="${#authentication.name}"></input>
+					<textarea class="col-auto form-control" type="text" id="reviewContents" name="replyContents" placeholder="댓글을 남겨주세요."></textarea>
+				</div>
+			</form>
+			<button class="btn btn-primary" onclick="replyPost()" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">글 작성</button>							
+			<!--댓글부분 끝-->
+			<hr>
+			<!--댓글 출력부분-->
+			<div id="replylist"></div>	
+		</div>
+		<div class="col-lg-6">
+			<h1>주소</h1>
+			<!--지도 나오는 부분-->
+			<div id="map" style="width:100%;height:550px;"></div>
+			</br>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	ReviewList();
+});
+ 	//지도 부분
+ 	//1.화면에서 필요한 값을 가져온다.
+	//2.지도를 생성한다.
+	//3.마커의 이미지를 가져온다.
+	//4.마커를 생성한다.
+	
+	//에러:kakao.maps.size is not a constructor4
+	//내용:LatLng이라는 메서드는 아직 로딩이 끝나지 않아서 존재하지 않는데
+	//	  생성자 함수(constructor)로 사용하려고 하기 때문에 발생하는 에러...
+	
+	//가게 주소
+	var storeAddress = $("#placeaddr").val();
+ 	//가게이름
+	var storeName = $("#placename").val();
+	//가게 
+ 	var placeLang  = $('#placelng').val();
+	var placeLat = $('#placelat').val();
+	var placeid = $('#placeid').val();
+	var phone = $('#placephone').val();
+	
+	console.log(storeAddress);
+	console.log(placeLat);
+	console.log(placeLang);
+	
+	//지도를 생성할 div
+	var container = document.getElementById('map');
+	
+	//지도의 중심좌표
+	const options = {
+		 //입력을 받은 위경도를 넣는다.->가게 위경도
+	     center: new kakao.maps.LatLng(placeLat, placeLang),
+	     level: 1//지도의 확대레벨
+	};
+	//지도를 생성 
+	var map = new kakao.maps.Map(container, options);
+	//지도 리사이즈
+	function resizeMap(){
+		var container = document.getElementById('map');
+		container.style.width='500px';
+		container.style.height='1000px';
+	}
+	//위치를 담은 마커를 생성한다.
+	var markerPosition = new kakao.maps.LatLng(placeLat,placeLang);
+	
+	var marker = new kakao.maps.Marker({
+		position : markerPosition
+	});
+	
+	//맵에 표시한다.
+	marker.setMap(map);
+	
+	//댓글 목록 o.k
+	function ReviewList(){
+		var placeid = $('#placeid').val();
+	
+		$.ajax({
+			url:'/api/reply/list/'+placeid,
+			type:'get',
+			dataType:'json'
+		}).done(function(data){
+			var str = '';
+			
+			if(data <1){
+				str +='<span>'+'댓글이 없습니다.'+'</span>';
+			}else{
+				
+			$.each(data,function(idx,data){
+
+				var starScore = getStarRange(data.replyPoint);
+			
+				var starDiv = '<div class="star-ratings">\n' +
+						'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + starScore + '%;">\n' +
+						'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
+						'  </div>\n' +
+						'  <div class="star-ratings-base space-x-2 text-lg">\n' +
+						'    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
+						'  </div>\n' +
+						'</div>';
+			
+				str +='<div class="mb-3"  id="myform">';
+				str += starDiv;
+				str +='<div>';
+				str +='<p id="reviewAuthor" name="replyWriter">'+data.replyWriter+'</p>';
+				str += data.replyContents;
+				str +='</br>';
+				str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.replyId+','+data.replyLike+')">'+data.replyLike+'</i>';
+				str +='</br>';
+				str +='<button type="button" class="btn btn-dark mt-3" name="replyId" onclick="deleteReply('+data.replyId+')">'+'삭제'+'</button>';
+				str +='</div>';
+				str +='</div>';
+			});
+			
+				$('#replylist').append(str);
+			}
+		});
+	}
+	//댓글 유효성 검사.
+	function validation(){
+		let comment = $('#reviewContents').val();
+		
+		if(comment.trim().length ==  0){
+			alert('내용을 입력해 주세요.');
+			return false;
+		}
+		return true;
+	}
+	//댓글 작성 o.k
+	function replyPost(){
+
+		let placeid = $('#placeid').val();
+		let point = $('input[name=replyPoint]:checked').val();
+		let comment = $('#reviewContents').val();
+		let createdby = $('#reviewAuthor').val();
+		
+		const formdate = {
+			placeId : placeid,
+			replyPoint : point,
+			replyContents : comment,
+			replyWriter : createdby
+		}
+		
+		if(validation()){
+			$.ajax({
+				url:'/api/reply/placewrite',
+				type:'post',
+				dataType:'json',
+				data: JSON.stringify(formdate),
+				contentType: 'application/json; chartset = utf-8'
+			}).done(function(data){
+				alert('완료');
+				$('#reviewContents').val("");
+				$('#reviewAuthor').val("");
+				$('#replylist').empty();
+				ReviewList();
+				
+			}).fail(function(error){
+				alert('댓글 입력에 실패했습니다.');
+			});
+		}	
+	}
+	
+	//댓글 삭제 o.k
+	function deleteReply(replyId){
+		$.ajax({
+			url:'/api/reply/placedelete/'+replyId,
+			type:'delete',
+			dataType:'json'
+		}).done(function(data){
+			alert('삭제되었습니다.');
+			$('#replylist').empty();
+			ReviewList();
+		});
+	}
+	
+	//좋아요 기능o.k
+	function LikeCheck(id,replyLike){
+		const frm = {
+				replyId : id
+		}
+		
+		$.ajax({
+			url:'/api/reply/likecheck/'+id,
+			type:'post',
+			dataType:'json',
+			data:JSON.stringify(frm),
+			contentType: 'application/json; chartset = utf-8'
+		}).done(function(check){
+			console.log(check);
+			if(check == 0){//추천을 첨 눌렀을시
+				alert('추천이 되었습니다.');
+				likeUp(id);
+			}else{
+				likeDown(id);
+				alert('추천이 취소되었습니다.');
+			}
+		});
+	}
+	
+	//별점 계산o.k
+	function getStarRange(starScore) {
+		console.log(starScore)
+		const score = starScore * 20;
+		return score + 1.5;
+	}
+	
+	//추천증가 o.k
+	function likeUp(id){
+		const frm = {replyId :id};
+		$.ajax({
+			url:'/api/reply/likeup/'+id,
+			type:'post',
+			contentType:'application/json; chartset = utf-8',
+			dataType:'json',
+			data:JSON.stringify(frm)
+		}).done(function(result){
+			$('#replylist').empty();
+			ReviewList();
+		});
+	}
+	
+	//추천감소 o.k
+	function likeDown(id){
+		console.log(id);
+		const frm = {replyId : id};
+		$.ajax({
+			url:'/api/reply/likedown/'+id,
+			type:'post',
+			contentType:'application/json; charset = utf=8',
+			dataType:'json',
+			data:JSON.stringify(frm)
+		}).done(function(result){
+			
+			console.log(result);
+			$('#replylist').empty();
+			ReviewList();
+		});
+	}
+	
+	//위시리스트 중복기능o.k
+	function WishCheck(){
+		let userid = $('#userid').val();
+		let placeid = $('#placeid').val();
+		let filegroupid = $('#filegroupid').val();
+		
+		const dataform = {	
+							placeId : placeid,
+							fileGroupId : filegroupid,
+							userId : userid
+						 }
+		
+		$.ajax({
+			url:'/api/mypage/wishcheck/'+placeid+'/'+userid,
+			type:'post',
+			dataType:'json',
+			data:JSON.stringify(dataform),
+			contentType:'application/json; charset= utf-8'
+			
+		}).done(function(resp){
+			console.log(resp);
+			console.log(resp.checkresult);
+			if(resp.checkresult == 0){				
+				alert('위시리스트에 추가되었습니다.');
+			}else{
+				alert('이미 등록한 리스트 입니다.');
+			}
+		});
+		console.log(userid);
+		console.log(placeid);
+		console.log(filegroupid);
+	}
+	
+	//위시리스트 추가기능.o.k
+	function addWish(){
+		
+		let userid = $('#userid').val();
+		let placeid = $('#placeid').val();
+		let filegroupid = $('#filegroupid').val();
+		
+		const formdate ={
+						placeId: placeid,
+						userId : userid,
+						fileGroupId : filegroupid,
+					   };
+		
+		$.ajax({
+			url:'/api/mypage/wishinsert',
+			type:'POST',
+			dataType:'json',
+			data:JSON.stringify(formdate),
+			contentType:'application/json; charset = utf-8'
+		}).done(function(resp){
+			alert('위시리스트에 추가되었습니다.');
+			location.href='/page/place/placedetail/'+placeid;
+		}).fail(function(error){
+			alert(error);
+		});
+	}
+	
+	//이미지 팝업기능 o.k
+	function fnImgPop(url){
+		let img = new Image();
+		img.src =url;
+		let name = "image popup";
+
+	    let option = "width = 500, height = 500, top = 100, left = 200, location = no"
+	    window.open(url, name, option);  
+	}
+	
+	//가게 수정 페이지 이동
+	function placemodify(){
+		let placeid = $('#placeid').val();
+		
+		location.href='/page/place/placemodify/'+placeid;
+	}
+</script>	
+</th:block>
+</body>
+</html>
