@@ -18,15 +18,17 @@ import java.util.List;
 public class FileApiController {
     private final AttachService attachService;
 
-    @GetMapping("/filelist")
+    @GetMapping("/filelist/{board_id}")
     public CommonResponse<?>fileList(@PathVariable("board_id")Integer boardId) throws Exception {
         List<AttachDto> list = attachService.boardfilelist(boardId);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @GetMapping("/noticefilelist")
+    @GetMapping("/noticefilelist/{notice_id}")
     public CommonResponse<?>noticefileList(@PathVariable("notice_id")Integer noticeId)throws Exception{
         List<AttachDto>list = attachService.noticefilelist(noticeId);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
+    //파일 삭제
+    //다운로드
 }

@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Notice.domain.dto;
 
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -23,7 +24,7 @@ public class NoticeBoardDto {
         @NotBlank
         private String noticeContents;
         private String fileGroupId;
-        @NotBlank
+        @ApiModelProperty(dataType ="char")
         private Character isFixed;
     }
     @Getter

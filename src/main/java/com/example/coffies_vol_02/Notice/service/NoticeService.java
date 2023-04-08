@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Notice.service;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
+import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Attach.service.FileHandler;
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class NoticeService {
     private final NoticeBoardRepository noticeBoardRepository;
     private final AttachRepository attachRepository;
+    private final AttachService attachService;
     private final FileHandler fileHandler;
 
     /*
@@ -33,9 +35,6 @@ public class NoticeService {
     public Page<NoticeBoardDto.BoardResponseDto>noticeList(Pageable pageable){
         Page<NoticeBoard>noticeBoards = noticeBoardRepository.findAll(pageable);
 
-        if(noticeBoards.isEmpty()){
-            throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST);
-        }
         return noticeBoards.map(noticeBoard -> new NoticeBoardDto.BoardResponseDto(noticeBoard));
     }
     
@@ -97,9 +96,6 @@ public class NoticeService {
 
         List<Attach>filelist = fileHandler.parseFileInfo(files);
 
-        if(filelist == null || filelist.size() == 0){
-            return updateResult;
-        }
         if(!filelist.isEmpty()){
 
             for (Attach attach : filelist) {
@@ -110,6 +106,7 @@ public class NoticeService {
                 if (file.exists()) {
                     file.delete();
                 }
+                attachService.deleteNoticeAttach(noticeId);
             }
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));

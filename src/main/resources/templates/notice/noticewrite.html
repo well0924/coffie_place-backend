@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
@@ -20,7 +19,7 @@ layout:decorate="~{layout/leafframe}">
 				<div class="card-body">
 					<form action=""  id="boardform" enctype="multipart/form-data">
 						<input type="hidden" id="noticeAuthor" name="noticeAuthor" class="form-control" th:value="${#authentication.name}"/>
-						<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${file_group_id}">
+						<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">
 						<div class="row">
 							<div class="col">
 								<label for="noticeGroup">게시글 카테고리</label>
@@ -121,7 +120,8 @@ function fileCheck(){
 	var filecount =6;
 	var inputFiles = $("input[name='file']");
 	var files = inputFiles[0].files;
-	
+	var formdate = new FormData();
+
 	if(files.length > filecount){
 		$('#valid_file').text('파일은 6개까지입니다.');
 		$('#valid_file').css('color','red');
@@ -131,7 +131,7 @@ function fileCheck(){
 	if(inputFiles != null){
 		for(var i =0; i<files.length; i++){
 			console.log(files[i]);
-			formdate.append("file",files[i]);
+			formdate.append("files",files[i]);
 		}	
 	}
 	
@@ -148,59 +148,56 @@ function noticewrite(){
 	let category=$('#noticeGroup').val();
 	let fixed=$('#isFixed').val();
 	let fileid=$('#fileGroupId').val();
-		
 	var formdate = new FormData();
-		
+
 	formdate.append("noticeGroup",category);
 	formdate.append("noticeFixed",fixed);
 	formdate.append("noticeTitle",title);
 	formdate.append("noticeAuthor",author);
 	formdate.append("noticeContents",contents);
 	formdate.append("fileGroupId",fileid);
-	
-	if(fileCheck()){
-		$.ajax({
-			url:'/api/notice/write',
-			type:'post',
-			data:formdate,
-			processData: false,
-			contentType : false,
-			cache:false,
-			enctype: 'multipart/form-data',
-		}).done(function(resp){
-			if(resp.status==200){
-				console.log(resp);
-				alert('글이 작성 되었습니다.');
-				location.href='/page/notice/noticelist';	
+
+	$.ajax({
+		url:'/api/notice/write',
+		type:'post',
+		data:formdate,
+		processData: false,
+		contentType : false,
+		cache:false,
+		enctype: 'multipart/form-data',
+	}).always(function(resp){
+		if(resp.status==200){
+			console.log(resp);
+			alert('글이 작성 되었습니다.');
+			location.href='/page/notice/list';
+		}
+		if(resp.status==400){
+			if(resp.data.hasOwnProperty('valid_noticeGroup')){
+				$('#valid_noticeGroup').text(resp.data.valid_noticeGroup);
+				$('#valid_noticeGroup').css('color','red');
+			}else{
+				$('#valid_noticeGroup').text('');
 			}
-			if(resp.status==400){
-				if(resp.data.hasOwnProperty('valid_noticeGroup')){
-					$('#valid_noticeGroup').text(resp.data.valid_noticeGroup);
-					$('#valid_noticeGroup').css('color','red');
-				}else{
-					$('#valid_noticeGroup').text('');
-				}
-				if(resp.data.hasOwnProperty('valid_noticeFixed')){
-					$('#valid_noticeFixed').text(resp.data.valid_noticeFixed);
-					$('#valid_noticeFixed').css('color','red');
-				}else{
-					$('#valid_noticeFixed').text('');
-				}
-				if(resp.data.hasOwnProperty('valid_noticeTitle')){
-					$('#valid_noticeTitle').text(resp.data.valid_noticeTitle);
-					$('#valid_noticeTitle').css('color','red');
-				}else{
-					$('#valid_noticeTitle').text('');
-				}
-				if(resp.data.hasOwnProperty('valid_noticeContents')){
-					$('#valid_noticeContents').text(resp.data.valid_noticeContents);
-					$('#valid_noticeContents').css('color','red');
-				}else{
-					$('#valid_noticeContents').text('');
-				}
+			if(resp.data.hasOwnProperty('valid_noticeFixed')){
+				$('#valid_noticeFixed').text(resp.data.valid_noticeFixed);
+				$('#valid_noticeFixed').css('color','red');
+			}else{
+				$('#valid_noticeFixed').text('');
 			}
-		});				
-	}	
+			if(resp.data.hasOwnProperty('valid_noticeTitle')){
+				$('#valid_noticeTitle').text(resp.data.valid_noticeTitle);
+				$('#valid_noticeTitle').css('color','red');
+			}else{
+				$('#valid_noticeTitle').text('');
+			}
+			if(resp.data.hasOwnProperty('valid_noticeContents')){
+				$('#valid_noticeContents').text(resp.data.valid_noticeContents);
+				$('#valid_noticeContents').css('color','red');
+			}else{
+				$('#valid_noticeContents').text('');
+			}
+		}
+	});
 }
 </script>
 </th:block>

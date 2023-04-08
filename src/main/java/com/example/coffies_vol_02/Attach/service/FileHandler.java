@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Attach.service;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
+import com.example.coffies_vol_02.Board.domain.Board;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -88,6 +89,7 @@ public class FileHandler {
                     Attach attachFile = new Attach(attachDto.getOriginFileName(),attachDto.getFilePath(),attachDto.getFileSize());
 
                     list.add(attachFile);
+
                     // 업로드 한 파일 데이터를 지정한 파일에 저장
                     file = new File( absolutePath + File.separator + new_file_name);
                     multipartFile.transferTo(file);
@@ -100,4 +102,6 @@ public class FileHandler {
         }
         return list;
     }
+
+
 }

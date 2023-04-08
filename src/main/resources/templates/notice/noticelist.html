@@ -73,7 +73,7 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 						<td class="text-center d-none d-md-table-cell">[[${list.noticeWriter}]]</td>
 						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 					</tr>
-					<tr th:unless="${not #lists.isEmpty(noticelist)}">
+					<tr th:unless="${#lists.isEmpty(noticelist)}">
 						<td>조회된 게시글이 없습니다.</td>
 					</tr>
 				</tbody>

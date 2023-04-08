@@ -90,7 +90,7 @@ public class BoardService {
 
         int InsertResult = boardRepository.save(board).getId();
 
-        List<Attach>filelist = fileHandler.parseFileInfo(board,files);
+        List<Attach>filelist = fileHandler.parseFileInfo(files);
 
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
@@ -123,29 +123,21 @@ public class BoardService {
 
         List<Attach>filelist = attachRepository.findAttachBoard(boardId);
         log.info("select files: "+filelist);
-
-        //게시물을 수정하는 경우
+        //파일이 있는 경우에 수정하는 경우
         if(!filelist.isEmpty()){
             for(int i =0; i<filelist.size();i++){
                 String filePath = filelist.get(i).getFilePath();
-
-                int id = filelist.get(i).getId();
-
-                log.info("ids:: "+id);
-                log.info("filePaths:: "+filePath);
-
                 File file = new File(filePath);
-                log.info(file);
-                //디비에 저장된 파일을 삭제
-
+                //폴더에 저장된 파일을 삭제
                 if(file.exists()){
                     file.delete();
                 }
-
-                log.info(file);
+                //디비에 저장된 파일을 삭제
+                attachService.deleteBoardAttach(boardId);
             }
+        }else{
             //파일 재업로드
-            filelist = fileHandler.parseFileInfo(detail.get(),files);
+            filelist = fileHandler.parseFileInfo(files);
             log.info("파일을 첨부한 후 수정!");
             log.info("upload result:"+filelist);
 

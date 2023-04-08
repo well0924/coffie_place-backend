@@ -13,4 +13,6 @@ public interface AttachRepository extends JpaRepository<Attach,Integer> {
     List<Attach>findAttachBoard(@Param("id") Integer boardId)throws Exception;
     @Query("select a from Attach a where a.noticeBoard.id = :id")
     List<Attach>findAttachNoticeBoard(@Param("id") Integer noticeId)throws Exception;
+
+
 }

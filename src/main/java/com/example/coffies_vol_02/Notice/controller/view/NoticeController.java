@@ -34,7 +34,7 @@ public class NoticeController {
     public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId){
         ModelAndView mv = new ModelAndView();
         NoticeBoardDto.BoardResponseDto list = noticeService.noticeDetail(noticeId);
-        mv.addObject("noticelist",list);
+        mv.addObject("detail",list);
         mv.setViewName("/notice/noticedetail");
         return mv;
     }

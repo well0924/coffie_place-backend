@@ -4,11 +4,16 @@ import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
 import com.example.coffies_vol_02.Notice.service.NoticeService;
 import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +40,8 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @PostMapping("/write")
-    public CommonResponse<?>noticeWrite(@Valid @RequestPart("dto") NoticeBoardDto.BoardRequestDto dto, BindingResult bindingResult,@RequestPart("files") List<MultipartFile> files) throws Exception {
+    @PostMapping(value = "/write")
+    public CommonResponse<?>noticeWrite(@Valid @RequestPart(value = "dto") NoticeBoardDto.BoardRequestDto dto, BindingResult bindingResult,@RequestPart(value = "files",required = false) List<MultipartFile> files) throws Exception {
         int InsertResult = noticeService.noticeWrite(dto,files);
         return new CommonResponse<>(HttpStatus.OK.value(),InsertResult);
     }

@@ -19,7 +19,7 @@ public class BoardDto {
         private String boardContents;
         private String boardAuthor;
         private Integer readCount;
-        private Integer passWd;
+        private String passWd;
         private String fileGroupId;
     }
     @Getter
@@ -33,7 +33,7 @@ public class BoardDto {
         private String boardContents;
         private String boardAuthor;
         private Integer readCount;
-        private Integer passWd;
+        private String passWd;
         private Integer liked;
         private String fileGroupId;
         private LocalDateTime createdTime;
