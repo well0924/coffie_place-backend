@@ -1,5 +1,3 @@
-
-//댓글 유효성 검사
 function validation(){
     let writer = $('#writer').val();
     let contents = $('#contents').val();
@@ -24,41 +22,56 @@ $(document).ready(function(){
 function Replylist(){
     let id = $('#board_id').val();
 
-    $.getJSON("/api/reply/"+id,function(data){
-        let str ="";
+    $.ajax({
+        url:"/api/comment/list/"+id,
+        type:"GET",
+        dataType:"json",
+        contentType:"application/json; charset=utf-8"
+    }).done(function(resp){
+        let str = "";
+        let count = resp.data.length;
 
-        $(data).each(function(){
-            str +='<div class="card mb-2">';
-            str +='<div class="card-header bg-light">';
-            str +='<i class="fa fa-comment fa"></i>';
-            str +='</div>';
-            str +='<div class="card-body">';
-            str +='<ul class="list-group list-group-flush" id="replies">';
-            str +='<li class="list-group-item" data-replyId="'+this.replyId+'">';
-            str +='<div class="form-inline mb-2">';
-            str +='<label for="replyId"><i class="fa fa-user-circle-o fa-2x"></i></label>';
-            str +='<span>'+this.replyId+'</span>'+'<br>';
-            str +='</div>';
-            str +='<div class="form-inline mb-2">';
-            str +='<label for="replywriter"><i class="fa fa-user-circle-o fa-2x"></i></label>';
-            str +="작성자:<span id='replywriter'>"+this.replyWriter+'</span>'+'</br>';
-            str +='</div>';
-            str +='<div class="form-inline mb-2">';
-            str +='<label for="replycontents"><i class="fa fa-user-circle-o fa-2x"></i></label>';
-            str +="글 내용:<span id='replycontents'>"+this.replyContents+'</span>'+'</br>';
-            str +='</div>';
-            str +='<div class="form-inline mb-2">';
-            str +='<label for="createdAt"><i class="fa fa-user-circle-o fa-2x"></i></label>';
-            str +='<span id="createdAt">'+this.createdAt+'</span>'+'</br>';
-            str +='</div>';
-            str +='<button type="button" class="btn btn-primary" onClick="deleteReply('+this.replyId+'\)">'+'삭제'+'</button>';
-            str +='</li>';
-            str +='</ul>';
-            str +='</div>';
-            str +='</div>';
-        });
+        if(resp.data.length>0){
+            for(let i = 0; i<resp.data.length;i++){
+                str +='<div class="card mb-2">';
+                str +='<div class="card-header bg-light">';
+                str +='<i class="fa fa-comment fa"></i>';
+                str +='</div>';
+                str +='<div class="card-body">';
+                str +='<ul class="list-group list-group-flush" id="replies">';
+                str +='<li class="list-group-item" data-id="'+resp.data[i].id+'">';
+                str +='<div class="form-inline mb-2">';
+                str +='<label for="replyId"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+                str +='<span>'+resp.data[i].id+'</span>'+'<br>';
+                str +='</div>';
+                str +='<div class="form-inline mb-2">';
+                str +='<label for="replywriter"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+                str +="작성자:<span id='replywriter'>"+resp.data[i].replyWriter+'</span>'+'</br>';
+                str +='</div>';
+                str +='<div class="form-inline mb-2">';
+                str +='<label for="replycontents"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+                str +="글 내용:<span id='replycontents'>"+resp.data[i].replyContents+'</span>'+'</br>';
+                str +='</div>';
+                str +='<div class="form-inline mb-2">';
+                str +='<label for="createdAt"><i class="fa fa-user-circle-o fa-2x"></i></label>';
+                str +='<span id="createdAt">'+resp.data[i].createdTime+'</span>'+'</br>';
+                str +='</div>';
+                str +='<button type="button" class="btn btn-primary" onClick="deleteReply('+resp.data[i].id+'\)">'+'삭제'+'</button>';
+                str +='</li>';
+                str +='</ul>';
+                str +='</div>';
+                str +='</div>';
+            }
+        }else{
+            //댓글이 없는 경우
+            str += "<div class='mb-2'>";
+            str += "<h6><strong>등록된 댓글이 없습니다.</strong></h6>";
+            str += "</div>";
+        }
         $('#replylist').html(str);
-    });
+    }).fail(function(error){
+        console.log(error);
+    });;
 }
 
 //댓글 작성(자유게시판)o.k
@@ -76,7 +89,7 @@ function replyWrite(){
 
     if(validation()){
         $.ajax({
-            url:'/api/reply/write',
+            url:'/api/comment/write/'+boardid,
             type:'post',
             data:JSON.stringify(formdate),
             dataType:'json',
@@ -95,11 +108,11 @@ function replyWrite(){
 //댓글 삭제o.k
 function deleteReply(replyId){
 
-    const Isconfirm = confirm('삭제하겠습니까?');
+    const IsConfirm = confirm('삭제하겠습니까?');
 
-    if(Isconfirm){
+    if(IsConfirm){
         $.ajax({
-            url:'/api/reply/delete/'+replyId,
+            url:'/api/comment/delete/'+replyId,
             type:'delete',
             dataType:'json',
             contentType : 'application/json; charset=utf-8'
