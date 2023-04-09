@@ -62,7 +62,7 @@ layout:decorate="~{layout/leafframe}">
 							</div>
 						</td>
 					</tr>
-					<tr th:unless="${not #lists.isEmpty(placelist)}">
+					<tr th:if="${ #lists.isEmpty(placelist)}">
 						<td>조회된 가게가 없습니다.</td>
 					</tr>
 				</tbody>
@@ -86,12 +86,6 @@ layout:decorate="~{layout/leafframe}">
 	</div>
 </div>
 <script type="text/javascript">
-$(document).on('click', '#btnSearch', function(e){
-	/*<![CDATA[*/
-	var url ="/page/place/placelist?"+"page="+[[${paging.cri.page}]]+"&perPageNum="+[[${paging.cri.perPageNum}]]+"&searchType="+$('#searchType').val()+"&keyword="+$('#autocomplete').val();
-	location.href = url;
-	/*]]>*/
-});
 //가게 자동완성기능
 $('#autocomplete').autocomplete({
 	 source : function(request, response) {

@@ -81,7 +81,7 @@ function selectDelete(){
 }
 
 function cafelist(){
-    location.href='/page/place/placelist';
+    location.href='/page/place/list';
 }
 
 function noticewrite(){

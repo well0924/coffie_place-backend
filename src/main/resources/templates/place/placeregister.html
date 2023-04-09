@@ -31,7 +31,7 @@
 			<h1>가게 등록</h1>
 			<div class="card shadow">
 				<div class="card-body">
-					<form action=""  id="boardform" enctype="multipart/form-data">
+					<form action="" enctype="multipart/form-data">
 					<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">
 					<div class="form-group">
 						<label for="place_name">가게명</label>
@@ -152,7 +152,7 @@ function placeRegister(){
 	let placeclose = document.getElementById('place_close').value;
 	let filegroupid = document.getElementById('fileGroupId').value;
 	
-	var formdate = new FormData();
+	const formdate = new FormData();
 	//폼데이터
 	formdate.append("placeName",placename);
 	formdate.append("placeLat",placelat);

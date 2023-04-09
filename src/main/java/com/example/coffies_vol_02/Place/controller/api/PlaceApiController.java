@@ -9,7 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @AllArgsConstructor
@@ -28,17 +31,20 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),placeDetail);
     }
     @PostMapping("/register")
-    public CommonResponse<?>placeRegister(@RequestBody PlaceDto.PlaceRequestDto dto){
-        return new CommonResponse<>();
+    public CommonResponse<?>placeRegister(@Valid @RequestBody PlaceDto.PlaceRequestDto dto, BindingResult bindingResult){
+        int registerResult = placeService.placeRegister(dto);
+        return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
 
     @PutMapping("/updateplace/{place_id}")
     public CommonResponse<?>placeUpdate(@PathVariable("place_id") Integer placeId,@RequestBody PlaceDto.PlaceRequestDto dto){
-        return new CommonResponse<>();
+        int placeUpdateResult = placeService.placeModify(placeId,dto);
+        return new CommonResponse<>(HttpStatus.OK.value(),placeUpdateResult);
     }
 
     @DeleteMapping("/placeDelete/{place_id}")
     public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId){
-        return new CommonResponse<>();
+        placeService.placeDelete(placeId);
+        return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 }
