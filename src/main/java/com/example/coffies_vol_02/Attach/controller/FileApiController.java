@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.Attach.controller;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Place.service.PlaceService;
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +27,7 @@ import java.util.List;
 @RequestMapping("/api/file")
 public class FileApiController {
     private final AttachService attachService;
+    private final PlaceService placeService;
 
     @GetMapping("/filelist/{board_id}")
     public CommonResponse<?>fileList(@PathVariable("board_id")Integer boardId) throws Exception {
@@ -48,5 +51,10 @@ public class FileApiController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + getFile.getOriginFileName() + "\"")
                 .body(resource);
+    }
+
+    @GetMapping("/placedownload")
+    public ResponseEntity placeExcelDownload(HttpServletResponse response,boolean excelDown){
+        return ResponseEntity.ok(placeService.getPlaceList(response,excelDown));
     }
 }
