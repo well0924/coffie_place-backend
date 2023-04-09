@@ -44,13 +44,13 @@
 					<div class="card-body"  th:each= "top5 :${top5}" style="margin-top: 50px">
 						<div class="card shadow">
 						<!-- 이미지 출력부분 -->
-						<th:block th:each= "imagelist : ${top5}">
+						<!--<th:block th:each= "imagelist : ${top5}">
 							<img th:if= "${top5.fileGroupId}==${imagelist.fileGroupId}" th:src="${imagelist.thumbFileImagePath}">
 						</th:block>
-						<img>
+						<img>-->
 						<div class="col-12">		
-							<h5 class="card-title">[[${top5.placeName}]]</h5>
-							<p class="card-text" >[[${top5.placeAddr1}]]</p>
+							<h5 class="card-title"></h5>
+							<p class="card-text" ></p>
 							<div class='RatingStar'>
 								<div class='RatingScore'>
 					  			<div class='outer-star'>
@@ -58,8 +58,8 @@
 					  			</div>
 								</div>
 							</div>
-							<p class="card-text">[[${top5.reviewRate}]]</p>
-							<a class="btn btn-primary" th:href="@{'/page/place/placedetail/'+${top5.placeId}}">More</a>
+							<p class="card-text"></p>
+							<a class="btn btn-primary" >More</a>
 						</div>
 						</div>
 					</div>
@@ -97,12 +97,12 @@
 								</thead>
 								<tbody>
 									<tr th:if="${not #lists.isEmpty(boardlist)}" th:each="obj : ${boardlist}">
-										<td class="text-center">[[${obj.boardId}]]</td>
+										<td class="text-center">[[${obj.id}]]</td>
 										<td>
-											<a th:href="@{'/page/board/detail/'+${obj.boardId}}">[[${obj.boardTitle}]]</a>
+											<a th:href="@{'/page/board/detail/'+${obj.id}}">[[${obj.boardTitle}]]</a>
 										</td>
 										<td class="text-center">[[${obj.boardTitle}]]</td>
-										<td class="text-center d-none d-xl-table-cell">[[${#temporals.format(obj.createdAt,'yyyy-MM-dd')}]]</td>
+										<td class="text-center d-none d-xl-table-cell">[[${#temporals.format(obj.createdTime,'yyyy-MM-dd')}]]</td>
 										<td>[[${obj.readCount}]]</td>
 									</tr>
 									<tr th:unless="${not #lists.isEmpty(boardlist)}">
@@ -130,29 +130,29 @@
 									</tr>
 								</thead>
 								<tbody>
-								<tr th:if="${list.noticeFixed=='Y'}" th:each="list : ${noticelist}">
+								<tr th:if="${list.isFixed=='Y'}" th:each="list : ${noticelist}">
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='Y'}"><strong>[[${list.noticeGroup}]]</strong></td>
+										th:if="${list.isFixed=='Y'}"><strong>[[${list.noticeGroup}]]</strong></td>
 									<td><a
-										th:href="@{'/page/notice/noticedetail/'+${list.noticeId}}"
-										th:if="${list.noticeFixed=='Y'}"><strong>[[${list.noticeTitle}]]</strong></a></td>
+										th:href="@{'/page/notice/noticedetail/'+${list.id}}"
+										th:if="${list.isFixed=='Y'}"><strong>[[${list.noticeTitle}]]</strong></a></td>
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='Y'}">[[${list.noticeAuthor}]]</td>
+										th:if="${list.isFixed=='Y'}">[[${list.noticeAuthor}]]</td>
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='Y'}">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>
+										th:if="${list.isFixed=='Y'}">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 								</tr>
-								<tr th:if="${list.noticeFixed=='N'}" th:each="list : ${noticeList}">
+								<tr th:if="${list.isFixed=='N'}" th:each="list : ${noticeList}">
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='N'}">[[${list.noticeId}]]</td>
+										th:if="${list.isFixed=='N'}">[[${list.id}]]</td>
 									<td><a
-										th:href="@{'/page/notice/noticedetail/'+${list.noticeId}}"
-										th:if="${list.noticeFixed=='N'}">[[${list.noticeTitle}]]</a></td>
+										th:href="@{'/page/notice/noticedetail/'+${list.id}}"
+										th:if="${list.isFixed=='N'}">[[${list.noticeTitle}]]</a></td>
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='N'}">[[${list.noticeAuthor}]]</td>
+										th:if="${list.isFixed=='N'}">[[${list.noticeAuthor}]]</td>
 									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.noticeFixed=='N'}">[[${#temporals.format(list.createdAt,'yyyy-MM-dd')}]]</td>
+										th:if="${list.isFixed=='N'}">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 								</tr>
-								<tr th:unless="${not #lists.isEmpty(noticelist)}">
+								<tr th:if="${not #lists.isEmpty(noticelist)}">
 									<td>조회된 게시글이 없습니다.</td>
 								</tr>
 								</tbody>
