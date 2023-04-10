@@ -1,12 +1,15 @@
 package com.example.coffies_vol_02.Place.domain;
 
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,14 +27,14 @@ public class PlaceImage extends BaseTime {
     private String storedName;
     private String originName;
     private String imgUploader;
-    private char isTitle;
+    private String isTitle;
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
     private Place place;
 
     @Builder
-    public PlaceImage(String fileGroupId,String imgUploader,String fileType,String thumbFileImagePath,String thumbFilePath,String storedName,String originName,String imgPath,String imgGroup,char isTitle){
+    public PlaceImage(String fileGroupId,String imgUploader,String fileType,String thumbFileImagePath,String thumbFilePath,String storedName,String originName,String imgPath,String imgGroup,String isTitle){
         this.fileGroupId = fileGroupId;
         this.fileType = fileType;
         this.imgPath = imgPath;

@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Place.domain;
 
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -51,5 +52,22 @@ public class Place extends BaseTime {
         this.placeLat = placeLat;
         this.reviewRate = reviewRate;
     }
+    //이미지 첨부
+    public void addPlaceImage(PlaceImage placeImage){
+        this.placeImageList.add(placeImage);
 
+        if(placeImage.getPlace() !=this){
+            placeImage.setPlace(this);
+        }
+    }
+    public void placeUpadate(PlaceDto.PlaceRequestDto dto){
+        this.placeLat = dto.getPlaceLat();
+        this.placeLng = dto.getPlaceLng();
+        this.placeStart = dto.getPlaceStart();
+        this.placeClose = dto.getPlaceClose();
+        this.placeAddr1 = dto.getPlaceAddr1();
+        this.placeAddr2 = dto.getPlaceAddr2();
+        this.placePhone = dto.getPlacePhone();
+        this.placeName = dto.getPlaceName();
+    }
 }

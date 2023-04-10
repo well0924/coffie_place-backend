@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Place.controller.api;
 
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,19 +32,34 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),placeDetail);
     }
     @PostMapping("/register")
-    public CommonResponse<?>placeRegister(@Valid @RequestBody PlaceDto.PlaceRequestDto dto, BindingResult bindingResult){
-        int registerResult = placeService.placeRegister(dto);
+    public CommonResponse<?>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto image, BindingResult bindingResult) throws Exception {
+
+        int registerResult = 0;
+
+        try {
+            registerResult = placeService.placeRegister(dto,image);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
 
     @PutMapping("/updateplace/{place_id}")
-    public CommonResponse<?>placeUpdate(@PathVariable("place_id") Integer placeId,@RequestBody PlaceDto.PlaceRequestDto dto){
-        int placeUpdateResult = placeService.placeModify(placeId,dto);
+    public CommonResponse<?>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto) throws Exception {
+        int placeUpdateResult = 0;
+
+        try {
+            placeUpdateResult = placeService.placeModify(placeId,dto,imageRequestDto);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),placeUpdateResult);
     }
 
     @DeleteMapping("/placeDelete/{place_id}")
-    public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId){
+    public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId) throws Exception {
         placeService.placeDelete(placeId);
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }

@@ -102,7 +102,7 @@ public class FileHandler {
         return list;
     }
     //가게 이미지 업로드
-    public List<PlaceImage>placeImagesUpload(PlaceImageDto.PlaceImageRequestDto dto,List<MultipartFile> images)throws Exception{
+    public List<PlaceImage>placeImagesUpload(PlaceImageDto.PlaceImageRequestDto dto, List<MultipartFile> images)throws Exception{
         List<PlaceImage>list = new ArrayList<>();
 
         if(!CollectionUtils.isEmpty(images)){
@@ -155,18 +155,20 @@ public class FileHandler {
                                 .isTitle(dto.getIsTitle())
                                 .imgUploader(dto.getImgUploader())
                                 .build();
-                        PlaceImage placeImage =
-                                new PlaceImage(
-                                        ResponseDto.getFileGroupId(),
-                                        ResponseDto.getFileType(),
-                                        ResponseDto.getImgPath(),
-                                        ResponseDto.getThumbFilePath(),
-                                        ResponseDto.getImgGroup(),
-                                        ResponseDto.getImgUploader(),
-                                        ResponseDto.getOriginName(),
-                                        ResponseDto.getStoredName(),
-                                        ResponseDto.getThumbFileImagePath(),
-                                        ResponseDto.getIsTitle());
+
+                        PlaceImage placeImage = new PlaceImage
+                                (
+                                  ResponseDto.getFileGroupId(),
+                                  ResponseDto.getFileType(),
+                                  ResponseDto.getImgPath(),
+                                  ResponseDto.getStoredName(),
+                                  ResponseDto.getOriginName(),
+                                  ResponseDto.getThumbFileImagePath(),
+                                  ResponseDto.getThumbFilePath(),
+                                  ResponseDto.getImgPath(),
+                                  ResponseDto.getImgGroup(),
+                                  ResponseDto.getIsTitle()
+                                );
 
                         list.add(placeImage);
                     }
@@ -176,7 +178,7 @@ public class FileHandler {
         return list;
     }
     //가게 이미지 리사이징
-    public String ResizeImage(PlaceImageDto.PlaceImageResponseDto dto,int width,int height){
+    public String ResizeImage(PlaceImage dto,int width,int height){
         String defaultFolder = filePath+File.separator+dto.getImgGroup()+File.separator+dto.getFileType()+File.separator;
 
         String originFilePath = defaultFolder+dto.getStoredName();

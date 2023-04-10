@@ -22,6 +22,7 @@ public class PlaceViewController {
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable){
         ModelAndView mv = new ModelAndView();
+
         Page<PlaceDto.PlaceResponseDto>placeList = placeService.placeList(pageable);
 
         mv.addObject("placelist",placeList);
@@ -33,9 +34,10 @@ public class PlaceViewController {
     @GetMapping("/detail/{place_id}")
     public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId){
         ModelAndView mv = new ModelAndView();
-        PlaceDto.PlaceResponseDto detail  = placeService.placeDetail(placeId);
-        mv.addObject("detail",detail);
 
+        PlaceDto.PlaceResponseDto detail  = placeService.placeDetail(placeId);
+
+        mv.addObject("detail",detail);
         mv.setViewName("/place/placedetail");
 
         return mv;

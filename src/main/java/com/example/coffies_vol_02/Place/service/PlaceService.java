@@ -2,8 +2,12 @@ package com.example.coffies_vol_02.Place.service;
 
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Config.Util.FileHandler;
 import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.Place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
@@ -15,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +29,10 @@ import java.util.Optional;
 @AllArgsConstructor
 public class PlaceService {
     private final PlaceRepository placeRepository;
-    
+    private final FileHandler fileHandler;
+    private final PlaceImageRepository placeImageRepository;
+    private final PlaceImageService placeImageService;
+
     /*
     * 가게 목록
     */
@@ -50,7 +59,7 @@ public class PlaceService {
     * 가게 등록
     */
     @Transactional
-    public Integer placeRegister(PlaceDto.PlaceRequestDto dto){
+    public Integer placeRegister(PlaceDto.PlaceRequestDto dto, PlaceImageDto.PlaceImageRequestDto requestDto) throws Exception {
         Place place = Place
                 .builder()
                 .placeLat(dto.getPlaceLat())
@@ -67,24 +76,103 @@ public class PlaceService {
 
         int registerResult = placeRepository.save(place).getId();
 
+        List<PlaceImage>placeImageList =new ArrayList<>();
+        PlaceImage responseDto = null;
+
+        if(registerResult>0){
+            placeImageList = fileHandler.placeImagesUpload(requestDto,dto.getImages());
+        }
+
+        if(!placeImageList.isEmpty()){
+            String resize = "";
+
+            for(int i=0;i<placeImageList.size();i++){
+                responseDto = placeImageList.get(i);
+                if(i==0){
+                    responseDto.setIsTitle("1");
+                    resize = fileHandler.ResizeImage(responseDto,360,360);
+                }else{
+                    resize =fileHandler.ResizeImage(responseDto,120,120);
+                }
+                responseDto.setImgGroup("coffieplace");
+                responseDto.setFileType("place");
+                responseDto.setThumbFileImagePath(resize);
+            }
+
+            for(PlaceImage placeImage :placeImageList){
+                place.addPlaceImage(placeImageRepository.save(placeImage));
+            }
+        }
         return registerResult;
     }
+
     /*
      * 가게 수정
      */
     @Transactional
-    public Integer placeModify(Integer placeId,PlaceDto.PlaceRequestDto dto){
+    public Integer placeModify(Integer placeId,PlaceDto.PlaceRequestDto dto,PlaceImageDto.PlaceImageRequestDto imageDto) throws Exception {
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        placeDetail.get().placeUpadate(dto);
 
-        return null;
+        int result = placeDetail.get().getId();
+        List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
+
+        if(!imageList.isEmpty()){
+            for(int i=0;i< imageList.size();i++){
+                String imagePath = imageList.get(i).getImgPath();
+                String thumbPath = imageList.get(i).getThumbFilePath();
+                File image = new File(imagePath);
+                File thumb = new File(thumbPath);
+
+                if(image.exists()){
+                    image.delete();
+                }
+                if(thumb.exists()){
+                    thumb.delete();
+                }
+                placeImageService.deletePlaceImage(placeId);
+            }
+            imageList = fileHandler.placeImagesUpload(imageDto,dto.getImages());
+            for(PlaceImage placeImage : imageList){
+                placeDetail.get().addPlaceImage(placeImageRepository.save(placeImage));
+            }
+        }else{
+            imageList = fileHandler.placeImagesUpload(imageDto,dto.getImages());
+            for(PlaceImage placeImage : imageList){
+                placeDetail.get().addPlaceImage(placeImageRepository.save(placeImage));
+            }
+        }
+        return result;
     }
+
     /*
      * 가게 삭제
      */
-    public void placeDelete(Integer placeId){
+    public void placeDelete(Integer placeId) throws Exception {
+        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+
+        List<PlaceImageDto.PlaceImageResponseDto>imagelist = placeImageService.placeImageResponseDtoList(placeId);
+
+        for(int i= 0; i<imagelist.size();i++){
+            String filePath= imagelist.get(i).getImgPath();
+            String thumbPath = imagelist.get(i).getThumbFilePath();
+
+            File path = new File(filePath);
+            File thumb = new File(thumbPath);
+
+            if(path.exists()){
+                path.delete();
+            }
+            if(thumb.exists()){
+                thumb.delete();
+            }
+        }
         placeRepository.deleteById(placeId);
     }
 
+    /*
+    *  가게 목록(엑셀 파일)
+    */
     public Object getPlaceList(HttpServletResponse response,boolean execelDown){
         List<Place>placeList = placeRepository.findAll();
 
@@ -95,7 +183,7 @@ public class PlaceService {
     }
 
     /*
-    * 가게 목록 엑셀 파일
+    * 목록 엑셀 파일
     */
     private void createExcelDownload(HttpServletResponse response, List<Place> placeList){
         try{
