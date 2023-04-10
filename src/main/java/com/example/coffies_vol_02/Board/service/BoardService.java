@@ -109,7 +109,6 @@ public class BoardService {
     @Transactional
     public Integer BoardUpdate(Integer boardId, BoardDto.BoardRequestDto dto, Member member,List<MultipartFile>files) throws Exception {
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        log.info("service update;");
 
         String boardAuthor = detail.get().getBoardAuthor();
         String userId = member.getUserId();
@@ -117,14 +116,16 @@ public class BoardService {
         if(!boardAuthor.equals(userId)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
+
         detail.get().boardUpdate(dto);
 
         int UpdateResult = detail.get().getId();
 
         List<Attach>filelist = attachRepository.findAttachBoard(boardId);
-        log.info("select files: "+filelist);
+
         //파일이 있는 경우에 수정하는 경우
         if(!filelist.isEmpty()){
+            log.info("파일이 있는데 수정을 하는 경우");
             for(int i =0; i<filelist.size();i++){
                 String filePath = filelist.get(i).getFilePath();
                 File file = new File(filePath);
@@ -135,12 +136,17 @@ public class BoardService {
                 //디비에 저장된 파일을 삭제
                 attachService.deleteBoardAttach(boardId);
             }
+            log.info("재업로드!");
+            //파일을 업로드
+            filelist = fileHandler.parseFileInfo(files);
+            for(Attach attachFile : filelist){
+                detail.get().addAttach(attachRepository.save(attachFile));
+            }
         }else{
+            log.info("파일이 없는데 수정하는 경우");
             //파일 재업로드
             filelist = fileHandler.parseFileInfo(files);
-            log.info("파일을 첨부한 후 수정!");
-            log.info("upload result:"+filelist);
-
+            log.info("재업로드!!");
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }

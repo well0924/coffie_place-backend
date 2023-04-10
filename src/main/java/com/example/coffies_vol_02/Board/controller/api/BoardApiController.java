@@ -41,22 +41,14 @@ public class BoardApiController {
     }
 
     @PostMapping("/write")
-    public CommonResponse<?>boardWrite(@Valid @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
-                                       BindingResult bindingResult,
-                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                       @RequestPart(value = "files",required = false) List<MultipartFile>files) throws Exception {
-
-        int WriteResult = boardService.boardSave(dto,customUserDetails.getMember(),files);
-
+    public CommonResponse<?>boardWrite(@Valid @ModelAttribute BoardDto.BoardRequestDto dto, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
+        int WriteResult = boardService.boardSave(dto,customUserDetails.getMember(),dto.getFiles());
         return new CommonResponse<>(HttpStatus.OK.value(),WriteResult);
     }
 
     @PutMapping("/update/{board_id}")
-    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,
-                                        @RequestPart(value = "board") BoardDto.BoardRequestDto dto,
-                                        @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                        @RequestPart(value = "files",required = false) List<MultipartFile>files) throws Exception {
-        int UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),files);
+    public CommonResponse<?>boardUpdate(@PathVariable("board_id") Integer boardId,@ModelAttribute BoardDto.BoardRequestDto dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
+        int UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),dto.getFiles());
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
 

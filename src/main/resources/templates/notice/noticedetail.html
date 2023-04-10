@@ -57,13 +57,7 @@ layout:decorate="~{layout/leafframe}">
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-//수정화면으로 이동
-function noticeupdate(){
-	let id = $('#noticeid').val();
-	location.href='/page/notice/noticemodify/'+id	
-}
-</script>
+<script type="text/javascript" th:src="@{/js/notice/noticedetail.js}"></script>
 </th:block>
 </body>
 </html>

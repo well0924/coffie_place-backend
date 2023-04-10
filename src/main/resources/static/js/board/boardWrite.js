@@ -1,21 +1,19 @@
-function fileCheck(){
-
-    if(inputFiles == null){
-        writeboard();
-    }
-
-    return true;
-}
-
 function writeboard(){
 
     const formdate = new FormData();
+
     let title = $('#board_Title').val();
     let author= $('#board_Author').val();
     let contents= $('#board_Contents').val();
     let pwd = $('#passWd').val();
     let fileid = $('#fileGroupId').val();
-    let data = {boardTitle : title,boardContents : contents, boardAuthor: author,fileGroupId:fileid,passWd:pwd};
+
+    formdate.append("boardTitle",title);
+    formdate.append("boardContents",contents);
+    formdate.append("boardAuthor",author);
+    formdate.append("fileGroupId",fileid);
+    formdate.append("passWd",pwd);
+
     let filecount = 6;
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
@@ -37,8 +35,6 @@ function writeboard(){
             formdate.append("files",files[i]);
         }
     }
-    formdate.append("board",new Blob([JSON.stringify(data)], {type: "application/json"}));
-
     $.ajax({
         url:'/api/board/write',
         type:'post',

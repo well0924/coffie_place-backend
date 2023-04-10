@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    //jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     //theymleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -38,6 +39,12 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    //ImageScaling
+    implementation 'com.jhlabs:filters:2.0.235-1'
+    implementation 'com.mortennobel:java-image-scaling:0.8.6'
+    //apache poi
+    implementation 'org.apache.poi:poi:5.2.2'
+    implementation 'org.apache.poi:poi-ooxml:5.2.2'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

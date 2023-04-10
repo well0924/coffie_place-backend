@@ -2,19 +2,20 @@
  * 글 수정 기능o.k
  */
 function updateboard(){
+    const formdate = new FormData();
 
     let title = $('#board_Title').val();
     let author= $('#board_Author').val();
     let contents= $('#board_Contents').val();
     let pwd = $('#passWd').val();
     let id = $('#board_id').val();
-    let data = {boardTitle : title,boardContents : contents, boardAuthor: author,passWd:pwd};
-    const formdate = new FormData();
-
-    formdate.append("board",new Blob([JSON.stringify(data)], {type: "application/json"}));
-
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
+
+    formdate.append("boardTitle",title);
+    formdate.append("boardContents",contents);
+    formdate.append("boardAuthor",author);
+    formdate.append("passWd",pwd);
 
     if(inputFiles != null){
         for(let i = 0; i< files.length; i++){
@@ -25,7 +26,7 @@ function updateboard(){
 
     $.ajax({
         url:'/api/board/update/'+id,
-        type:'patch',
+        type:'put',
         data:formdate,
         processData: false,
         contentType : false,

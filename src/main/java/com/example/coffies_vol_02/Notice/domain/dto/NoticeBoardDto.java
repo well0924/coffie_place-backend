@@ -4,9 +4,11 @@ import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class NoticeBoardDto {
     @Setter
@@ -26,6 +28,7 @@ public class NoticeBoardDto {
         private String fileGroupId;
         @ApiModelProperty(dataType ="char")
         private Character isFixed;
+        private List<MultipartFile> files;
     }
     @Getter
     @ToString

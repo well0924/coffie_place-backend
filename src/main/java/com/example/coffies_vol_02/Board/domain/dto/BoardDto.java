@@ -2,9 +2,11 @@ package com.example.coffies_vol_02.Board.domain.dto;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BoardDto {
     @Setter
@@ -21,6 +23,7 @@ public class BoardDto {
         private Integer readCount;
         private String passWd;
         private String fileGroupId;
+        private List<MultipartFile> files;
     }
     @Getter
     @Builder

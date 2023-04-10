@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
@@ -75,6 +74,7 @@ layout:decorate="~{layout/leafframe}">
 		</div>
 	</div>
 </div>
+<script th:src="@{/js/notice/noticemodify.js}"></script>
 <script type="text/javascript">
 //에디터
 $(document).ready(function () { 
@@ -120,67 +120,6 @@ function sendImage(file,el){
 		$(el).summernote('insertImage',data.url,function($image){
 			$image.css('width',"25%")
 		});
-	});	
-}
-
-
-//공지게시글 수정o.k
-function noticeupdate(){
-	
-	var id=$('#noticeid').val();
-	var title=$('#noticeTitle').val();
-	var author =$('#noticeAuthor').val();
-	var contents=$('#noticeContent').val();
-	var category=$('#noticeGroup').val();
-	var fixed=$('#isFixed').val();
-	
-	var formdate = new FormData();
-	formdate.append('noticeId' , id);
-	formdate.append('noticeTitle' , title);
-	formdate.append('noticeAuthor' , author);
-	formdate.append('noticeContents' , contents);
-	formdate.append('noticeGroup' , category);
-	formdate.append('noticeFixed' , fixed);
-	
-	var inputFiles = $("input[name='file']");
-	var files = inputFiles[0].files;
-	
-	if(inputFiles != null){
-		for(var i =0; i<files.length; i++){
-			console.log(files[i]);
-			formdate.append('file',files[i]);
-		}	
-	}
-	
-	$.ajax({
-		url:'/api/notice/update/'+id,
-		type:'put',
-		data:formdate,
-		processData: false,
-		contentType : false,
-		cache:false,
-		enctype: 'multipart/form-data',
-	}).done(function(resp){
-		console.log(resp);
-		alert('공지글이 수정 되었습니다.');
-		location.href='/page/notice/noticelist';
-	});
-}
-
-//공지게시글 삭제o.k
-function noticedelete(){
-	
-	var id=$('#noticeid').val();
-	
-	$.ajax({
-		url:'/api/notice/delete/'+id,
-		type:'delete',
-		data:null,
-		contentType:'application/json; charset=utf-8'
-	}).done(function(resp){
-		console.log(resp);
-		alert('공지글이 삭제되었습니다.');
-		location.href='/page/notice/noticelist';
 	});	
 }
 </script>
