@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.Notice.service.NoticeService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping("/list")
-    public ModelAndView noticeList(@PageableDefault Pageable pageable){
+    public ModelAndView noticeList(@PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
         Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeList(pageable);
         mv.addObject("noticelist",list);

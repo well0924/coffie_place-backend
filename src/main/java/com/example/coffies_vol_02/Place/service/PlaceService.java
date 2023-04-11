@@ -173,7 +173,7 @@ public class PlaceService {
     /*
     *  가게 목록(엑셀 파일)
     */
-    public Object getPlaceList(HttpServletResponse response,boolean execelDown){
+    public List<Place> getPlaceList(HttpServletResponse response,boolean execelDown){
         List<Place>placeList = placeRepository.findAll();
 
         if(execelDown){
