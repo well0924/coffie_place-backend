@@ -32,9 +32,9 @@ function noticewrite(){
     }
 
     formdate.append("noticeGroup",category);
-    formdate.append("noticeFixed",fixed);
+    formdate.append("isFixed",fixed);
     formdate.append("noticeTitle",title);
-    formdate.append("noticeAuthor",author);
+    formdate.append("noticeWriter",author);
     formdate.append("noticeContents",contents);
     formdate.append("fileGroupId",fileid);
 

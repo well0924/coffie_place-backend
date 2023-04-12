@@ -18,7 +18,7 @@ layout:decorate="~{layout/leafframe}">
 			<div class="card shadow">
 				<div class="card-body">
 					<form action=""  id="boardform" enctype="multipart/form-data">
-						<input type="hidden" id="noticeAuthor" name="noticeAuthor" class="form-control" th:value="${#authentication.name}"/>
+						<input type="hidden" id="noticeAuthor" name="noticeWriter" class="form-control" th:value="${#authentication.name}"/>
 						<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${fileGroupId}">
 						<div class="row">
 							<div class="col">
@@ -32,7 +32,7 @@ layout:decorate="~{layout/leafframe}">
 							</div>
 							<div class="col">
 								<label for="isFixed">고정글 여부</label>
-								<select name="noticeFixed" id ="isFixed">
+								<select name="isFixed" id ="isFixed">
 									<option>고정글 여부</option>
 									<option th:value="Y">Y</option>
 									<option th:value="N">N</option>

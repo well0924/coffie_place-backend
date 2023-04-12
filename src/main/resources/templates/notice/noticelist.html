@@ -57,22 +57,22 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 						<th class="text-center d-none d-md-table-cell">작성날짜</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr th:if="${list.isFixed.toString().equals('Y')}" th:each="list : ${noticelist}">
+				<tbody th:each="list : ${noticelist}">
+					<tr th:if="${list.isFixed.toString().equals('Y')}">
 						<td class="text-center d-none d-md-table-cell"><strong>[[${list.id}]]</strong></td>
 						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeGroup}]]</strong></td>
 						<td><a th:href="@{'/page/notice/detail/'+ ${list.id}}"><strong>[[${list.noticeTitle}]]</strong></a></td>
 						<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeWriter}]]</strong></td>
 						<td class="text-center d-none d-md-table-cell"><strong>[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</strong></td>
 					</tr>
-					<tr th:if="${list.isFixed.toString().equals('N')}" th:each="list : ${noticeList}">
+					<tr th:if="${list.isFixed.toString().equals('N')}">
 						<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
 						<td class="text-center d-none d-md-table-cell">[[${list.noticeGroup}]]</td>
 						<td><a th:href="@{'/page/notice/detail/'+ ${list.id}}">[[${list.noticeTitle}]]</a></td>
 						<td class="text-center d-none d-md-table-cell">[[${list.noticeWriter}]]</td>
 						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 					</tr>
-					<tr th:unless="${#lists.isEmpty(noticelist)}">
+					<tr th:unless="${not #lists.isEmpty(noticelist)}">
 						<td>조회된 게시글이 없습니다.</td>
 					</tr>
 				</tbody>

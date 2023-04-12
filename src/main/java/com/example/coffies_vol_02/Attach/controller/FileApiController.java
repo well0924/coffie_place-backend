@@ -3,7 +3,10 @@ package com.example.coffies_vol_02.Attach.controller;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.Config.Exception.Dto.ExcelResponseDto;
+import com.example.coffies_vol_02.Config.Util.Excel.ExcelService;
 import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,21 +48,28 @@ public class FileApiController {
         List<AttachDto>list = attachService.noticefilelist(noticeId);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
-    @ApiOperation(value = "첨부파일 다운로드")
+    @ApiOperation(value = "자유게시판 첨부파일 다운로드")
     @GetMapping("/download/{file_name}")
-    public ResponseEntity<Resource>fileDownload(@PathVariable("file_name")String fileName) throws IOException {
-        AttachDto getFile = attachService.getFile(fileName);
+    public ResponseEntity<Resource>BoardFileDownload(@PathVariable("file_name")String fileName) throws IOException {
+        AttachDto getFile = attachService.getFreeBoardFile(fileName);
         Path path = Paths.get(getFile.getFilePath());
         Resource resource = new InputStreamResource(Files.newInputStream(path));
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + getFile.getOriginFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
-    @ApiOperation(value = "가게 목록 엑셀파일 다운로드")
-    @GetMapping("/placedownload")
-    public CommonResponse<List<Place>> placeExcelDownload(HttpServletResponse response, boolean excelDown){
-        return new CommonResponse<>(HttpStatus.OK.value(),placeService.getPlaceList(response,excelDown));
+    @ApiOperation(value = "공지게시판 첨부파일 다운로드")
+    @GetMapping("/noticedownload/{file_name}")
+    public ResponseEntity<Resource>NoticeFileDownload(@PathVariable("file_name")String fileName) throws IOException {
+        AttachDto getFile = attachService.getNoticeBoardFile(fileName);
+        Path path = Paths.get(getFile.getFilePath());
+        Resource resource = new InputStreamResource(Files.newInputStream(path));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
+                .body(resource);
     }
 }

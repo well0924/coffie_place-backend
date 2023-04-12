@@ -40,9 +40,13 @@ layout:decorate="~{layout/leafframe}">
 							<!-- 첨부파일 -->
 							<th:block th:each="attachfiles : ${filelist}">
 								</br>
-								<a th:href="@{/api/file/noticedownload(noticeId=${detail.noticeId})}">	
-									<span id="files" name="originName">[[${attachfiles.originName}]]</span>
+								<a th:href="@{'/api/file/noticedownload/'+${attachfiles.originFileName}}">
+									<span id="files" name="originFileName">[[${attachfiles.originFileName}]]</span>
 								</a>	
+							</th:block>
+							<th:block th:unless="${not #lists.isEmpty(filelist)}">
+								</br>
+								첨부 파일이 없습니다.
 							</th:block>
 						</div>
 						<div class="form-group">

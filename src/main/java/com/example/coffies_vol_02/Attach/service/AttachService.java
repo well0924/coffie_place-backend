@@ -3,8 +3,6 @@ package com.example.coffies_vol_02.Attach.service;
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +24,7 @@ public class AttachService {
     @Transactional(readOnly = true)
     public List<AttachDto> boardfilelist(@Param("id") Integer boardId)throws Exception{
         List<Attach>list = attachRepository.findAttachBoard(boardId);
-        return getAttach(list);
+        return getFreeBoardAttach(list);
     }
 
     /*
@@ -35,8 +33,7 @@ public class AttachService {
     @Transactional
     public List<AttachDto>noticefilelist(@Param("id")Integer noticeId)throws Exception{
         List<Attach>noticeList = attachRepository.findAttachNoticeBoard(noticeId);
-
-        return getAttach(noticeList);
+        return getNoticeBoardAttach(noticeList);
     }
 
     /*
@@ -67,7 +64,7 @@ public class AttachService {
     * 파일 조회
     */
     @Transactional(readOnly = true)
-    public AttachDto getFile(String fileName){
+    public AttachDto getFreeBoardFile(String fileName){
         Attach detail = attachRepository.findByOriginFileName(fileName);
 
         AttachDto result = AttachDto
@@ -80,7 +77,23 @@ public class AttachService {
 
         return result;
     }
-    private List<AttachDto> getAttach(List<Attach> list) {
+
+    @Transactional(readOnly = true)
+    public AttachDto getNoticeBoardFile(String fileName){
+        Attach detail = attachRepository.findByOriginFileName(fileName);
+
+        AttachDto result = AttachDto
+                .builder()
+                .originFileName(detail.getOriginFileName())
+                .fileSize(detail.getFileSize())
+                .filePath(detail.getFilePath())
+                .noticeId(detail.getNoticeBoard().getId())
+                .build();
+
+        return result;
+    }
+
+    private List<AttachDto> getFreeBoardAttach(List<Attach> list) {
         List<AttachDto>filelist = new ArrayList<>();
 
         for(Attach file : list){
@@ -90,12 +103,29 @@ public class AttachService {
                     .filePath(file.getFilePath())
                     .originFileName(file.getOriginFileName())
                     .fileSize(file.getFileSize())
-                    .boardId(file.getId())
+                    .boardId(file.getBoard().getId())
                     .build();
-
+            log.info(attachDto);
             filelist.add(attachDto);
         }
         return filelist;
     }
 
+    private List<AttachDto> getNoticeBoardAttach(List<Attach> list) {
+        List<AttachDto>filelist = new ArrayList<>();
+
+        for(Attach file : list){
+
+            AttachDto attachDto = AttachDto
+                    .builder()
+                    .filePath(file.getFilePath())
+                    .originFileName(file.getOriginFileName())
+                    .fileSize(file.getFileSize())
+                    .noticeId(file.getNoticeBoard().getId())
+                    .build();
+            log.info(attachDto);
+            filelist.add(attachDto);
+        }
+        return filelist;
+    }
 }
