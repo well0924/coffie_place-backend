@@ -3,10 +3,6 @@ package com.example.coffies_vol_02.Attach.controller;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.Config.Exception.Dto.ExcelResponseDto;
-import com.example.coffies_vol_02.Config.Util.Excel.ExcelService;
-import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -71,5 +66,10 @@ public class FileApiController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
+    }
+
+    @GetMapping("/placedownload")
+    public ResponseEntity getUsersPointStats(HttpServletResponse response, boolean excelDownload){
+        return ResponseEntity.ok(placeService.getUsersPointStats(response, excelDownload));
     }
 }

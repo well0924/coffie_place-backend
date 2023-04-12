@@ -9,7 +9,9 @@ import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.example.coffies_vol_02.Place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,11 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 @AllArgsConstructor
 public class PlaceService {
@@ -32,6 +38,7 @@ public class PlaceService {
     private final FileHandler fileHandler;
     private final PlaceImageRepository placeImageRepository;
     private final PlaceImageService placeImageService;
+    private final ObjectMapper objectMapper;
 
     /*
     * 가게 목록
@@ -41,7 +48,20 @@ public class PlaceService {
         Page<Place>list = placeRepository.findAll(pageable);
         return list.map(place -> new PlaceDto.PlaceResponseDto(place));
     }
-    
+    @Transactional(readOnly = true)
+    public List<PlaceDto.PlaceResponseDto>placeResponseDtos(){
+        List<Place>list = placeRepository.findAll();
+        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
+        for(Place place:list){
+            PlaceDto.PlaceResponseDto dto = PlaceDto.PlaceResponseDto
+                    .builder()
+                    .place(place)
+                    .build();
+            result.add(dto);
+        }
+        return result;
+    }
+
     /*
     *  가게 단일 조회
     */
@@ -54,7 +74,7 @@ public class PlaceService {
                 .place(detail)
                 .build();
     }
-    
+
     /*
     * 가게 등록
     */
@@ -72,37 +92,40 @@ public class PlaceService {
                 .placeAddr1(dto.getPlaceAddr1())
                 .placeAddr2(dto.getPlaceAddr2())
                 .fileGroupId(dto.getFileGroupId())
+                .reviewRate(0.0)
                 .build();
 
         int registerResult = placeRepository.save(place).getId();
 
-        List<PlaceImage>placeImageList =new ArrayList<>();
-        PlaceImage responseDto = null;
+        List<PlaceImage>placeImageList;
+        PlaceImage responseDto;
 
         if(registerResult>0){
+            log.info("이미지 업로드");
             placeImageList = fileHandler.placeImagesUpload(requestDto,dto.getImages());
-        }
-
-        if(!placeImageList.isEmpty()){
-            String resize = "";
-
-            for(int i=0;i<placeImageList.size();i++){
-                responseDto = placeImageList.get(i);
-                if(i==0){
-                    responseDto.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(responseDto,360,360);
-                }else{
-                    resize =fileHandler.ResizeImage(responseDto,120,120);
+            log.info(placeImageList);
+            if(!placeImageList.isEmpty()){
+                String resize = "";
+                log.info("이미지?");
+                for(int i=0;i<placeImageList.size();i++){
+                    responseDto = placeImageList.get(i);
+                    if(i==0){
+                        responseDto.setIsTitle("1");
+                        resize = fileHandler.ResizeImage(responseDto,360,360);
+                    }else{
+                        resize =fileHandler.ResizeImage(responseDto,120,120);
+                    }
+                    responseDto.setImgGroup("coffieplace");
+                    responseDto.setFileType("place");
+                    responseDto.setThumbFileImagePath(resize);
                 }
-                responseDto.setImgGroup("coffieplace");
-                responseDto.setFileType("place");
-                responseDto.setThumbFileImagePath(resize);
-            }
 
-            for(PlaceImage placeImage :placeImageList){
-                place.addPlaceImage(placeImageRepository.save(placeImage));
+                for(PlaceImage placeImage :placeImageList){
+                    place.addPlaceImage(placeImageRepository.save(placeImage));
+                }
             }
         }
+
         return registerResult;
     }
 
@@ -170,38 +193,39 @@ public class PlaceService {
         placeRepository.deleteById(placeId);
     }
 
-    /*
-    *  가게 목록(엑셀 파일)
-    */
-    public List<Place> getPlaceList(HttpServletResponse response,boolean execelDown){
-        List<Place>placeList = placeRepository.findAll();
 
-        if(execelDown){
-            createExcelDownload(response,placeList);
+    public Object getUsersPointStats(HttpServletResponse response, boolean excelDownload) {
+
+        List<Place> placePlace = placeRepository.findAll();
+        if(excelDownload){
+            createExcelDownloadResponse(response, placePlace);
+            return null; //없으면 에러!
         }
+        List<Map> placeList = placePlace.stream()
+                .map(place -> objectMapper.convertValue(place, Map.class))
+                .collect(Collectors.toList());
         return placeList;
     }
 
-    /*
-    * 목록 엑셀 파일
-    */
-    private void createExcelDownload(HttpServletResponse response, List<Place> placeList){
+    private void createExcelDownloadResponse(HttpServletResponse response, List<Place>placeList) {
+
         try{
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("등록 가게 목록");
-            CellStyle numberCellStyle = workbook.createCellStyle();
-            numberCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
+            Sheet sheet = workbook.createSheet("등록 가게목록");
 
             //파일명
-            final String fileName = "사용자 포인트 통계";
+            final String fileName = "등록 가게 목록";
 
             //헤더
-            final String[] header = {"번호", "가게명","가게 등록자","가게전화번호", "가게 시작시간", "가게 종료시간","가게주소1","가게주소2"};
+            final String[] header = {"번호","가게 이름","등록자","가게전화번호","시작시간", "종료시간","가게 주소1","가게 주소2","가게 평점","파일 번호","가게 위도","가게 경도"};
+
             Row row = sheet.createRow(0);
+
             for (int i = 0; i < header.length; i++) {
                 Cell cell = row.createCell(i);
                 cell.setCellValue(header[i]);
             }
+
             //바디
             for (int i = 0; i < placeList.size(); i++) {
                 row = sheet.createRow(i + 1);  //헤더 이후로 데이터가 출력되어야하니 +1
@@ -230,8 +254,20 @@ public class PlaceService {
                 cell = row.createCell(6);
                 cell.setCellValue(place.getPlaceAddr1());
 
-                cell = row.createCell(6);
+                cell = row.createCell(7);
                 cell.setCellValue(place.getPlaceAddr2());
+
+                cell = row.createCell(8);
+                cell.setCellValue(place.getReviewRate());
+
+                cell = row.createCell(9);
+                cell.setCellValue(place.getFileGroupId());
+
+                cell = row.createCell(10);
+                cell.setCellValue(place.getPlaceLng());
+
+                cell = row.createCell(11);
+                cell.setCellValue(place.getPlaceLat());
             }
 
 
@@ -241,8 +277,10 @@ public class PlaceService {
 
             workbook.write(response.getOutputStream());
             workbook.close();
-        }catch (Exception e){
+
+        }catch(IOException e){
             e.printStackTrace();
         }
+
     }
 }

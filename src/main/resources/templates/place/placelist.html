@@ -26,7 +26,7 @@ layout:decorate="~{layout/leafframe}">
 				<button id="btnSearch"  class="btn btn-primary">Search</button>
 			</div>
 			<!--search end-->
-			<a th:href="@{/api/file/exceldown}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
+			<a th:href="@{/api/file/placedownload?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
 			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
 			<table class="table table-hover" id='board_list'>
 				<thead>
@@ -34,16 +34,16 @@ layout:decorate="~{layout/leafframe}">
 						<th>번호</th>
 						<th>가게이름</th>
 						<th>주소</th>
-						<th>평가</th>
+						<th>평점</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr th:each= "list : ${placelist}">
 						<td class="text-center d-none d-md-table-cell">
-							[[${list.placeId}]]
+							[[${list.id}]]
 						</td>
 						<td>
-							<a th:href="@{'/page/place/placedetail/'+${list.placeId}}">
+							<a th:href="@{'/page/place/detail/'+${list.id}}">
 							[[${list.placeName}]]	
 							</a>
 						</td>
@@ -68,19 +68,25 @@ layout:decorate="~{layout/leafframe}">
 				</tbody>
 			</table>
 			<!--paging -->
-	<!--		<div class="d-none d-md-block">
-				<ul class="pagination justify-content-center">
-					<li class="page-item" th:if="${prev} == true">
-						<a th:href="@{/page/place/placelist(page=${startPage}-1,perPageNum=${paging.cri.perPageNum})}" class="page-link">이전</a>
+			<div class="d-none d-md-block" th:if="${!placelist.isEmpty()}">
+				<ul class="pagination justify-content-center"
+				th:with="pageNumber = ${placelist.pageable.pageNumber},
+				pageSize = ${placelist.pageable.pageSize},
+				totalPages= ${placelist.totalPages},
+				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
+				tempEndPage=${startPage+pageSize - 1},
+				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
+					<li class="page-item" th:classappend="${placelist.first}?'disabled'">
+						<a th:href="${placelist.first}? '#': @{/page/place/list(page=${pageNumber-1})}" class="page-link">이전</a>
 					</li>
-					<li class="page-item" th:each="idx,iterStat : ${#numbers.sequence(paging.startPage,paging.endPage)}" th:classappend="${paging.cri.page}==${idx} ? active : null">
-						<a th:href="@{/page/place/placelist(page=${idx},perPageNum=${paging.cri.perPageNum})}" class="page-link"th:text="${idx}"></a>
+					<li class="page-item" th:each="page : ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
+						<a class="page-link">[[${page}]]</a>
 					</li>
-					<li class="page-item" th:if="${paging.next}== true and ${paging.endPage > 0}">
-						<a th:href="@{/page/place/placelist(page=${paging.endPage}+1,perPageNum=${paging.cri.perPageNum})}" class="page-link">다음</a>
+					<li class="page-item" th:classappend="${placelist.last}?'disabled'">
+						<a th:href="@{/page/place/list(page=${pageNumber+1})}" class="page-link">다음</a>
 					</li>
 				</ul>
-			</div>-->
+			</div>
 			<!--paging end-->
 		</div>
 	</div>
