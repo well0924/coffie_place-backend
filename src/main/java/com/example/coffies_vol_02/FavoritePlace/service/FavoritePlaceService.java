@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FavoritePlaceService {
-
-    private final FavoritePlaceRepository favoritePlaceRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
@@ -42,8 +40,8 @@ public class FavoritePlaceService {
      *
      * 내가 작성한 글 확인하기.
      */
-    public Page<BoardDto.BoardResponseDto> getMyPageBoardList(Pageable pageable, Member member){
-        member = memberRepository.findByUserId(member.getUserId()).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
+    public Page<BoardDto.BoardResponseDto> getMyPageBoardList(Pageable pageable, Member member,String userId){
+        member = memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         Page<Board>list = boardRepository.findByMember(member,pageable);
         return list.map(board -> new BoardDto.BoardResponseDto(board));
     }
@@ -52,8 +50,8 @@ public class FavoritePlaceService {
      *
      * 내가 작성한 댓글
      */
-    public List<CommentDto.CommentResponseDto> getMyPageCommnetList(Pageable pageable, Member member){
-        member = memberRepository.findByUserId(member.getUserId()).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
+    public List<CommentDto.CommentResponseDto> getMyPageCommnetList(String userId,Pageable pageable, Member member){
+        member = memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         List<Comment>list = commentRepository.findByMember(member,pageable);
         return list.stream().map(comment -> new CommentDto.CommentResponseDto(comment)).collect(Collectors.toList());
     }

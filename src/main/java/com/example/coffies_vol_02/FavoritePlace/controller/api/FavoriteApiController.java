@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,12 +27,12 @@ public class FavoriteApiController {
     private FavoritePlaceService favoritePlaceService;
 
     @ApiOperation(value = "로그인한 회원이 작성한 글")
-    @GetMapping("/contents")
-    public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@AuthenticationPrincipal CustomUserDetails customUserDetails,@PageableDefault Pageable pageable){
+    @GetMapping("/contents/{id}")
+    public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @AuthenticationPrincipal CustomUserDetails customUserDetails, @PageableDefault Pageable pageable){
         Page<BoardDto.BoardResponseDto>list = null;
 
         try {
-            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember());
+            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -40,12 +41,12 @@ public class FavoriteApiController {
     }
     
     @ApiOperation(value = "로그인한 회원이 작성한 댓글")
-    @GetMapping("/comment")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
+    @GetMapping("/comment/{id}")
+    public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
         List<CommentDto.CommentResponseDto>list = new ArrayList<>();
 
         try {
-            list = favoritePlaceService.getMyPageCommnetList(pageable,customUserDetails.getMember());
+            list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
         }catch (Exception e){
             e.printStackTrace();
         }

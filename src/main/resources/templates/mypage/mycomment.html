@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html 
+xmlns="http://www.w3.org/1999/xhtml" 
+xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+layout:decorate="~{layout/leafframe}">
+<head>
+<meta charset="UTF-8">
+<title>내가 작성한 글</title>
+<!-- jquery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<!-- jquery ui -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!--fontawesome CDN-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+<!-- Bootstrap CDN -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<!-- summernote css/js-->
+<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
+<!-- Slick 불러오기 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+<!-- 게시판 목록 css -->
+<link rel="stylesheet" th:href="@{/css/board.css}">
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!--메인부분 -->
+<div class="container" style="margin-top:100px">
+	<div class="row">
+		<th:block th:replace="/layout/sidebar :: sidebarfragment"></th:block>
+    	<div class="col-9" style="margin-top: 20px">
+		<div class="card shadow">
+			<div class="card-body">
+				<h4 class="card-title">내가 작성한 댓글</h4>
+				<div class="row">
+					<table class="table table-hover" id='article_list'>
+						<thead>
+							<tr>
+								<th class="text-center d-none d-md-table-cell">글번호</th>
+								<th class="w-50">댓글 내용</th>
+								<th class="text-center d-none d-md-table-cell">댓글 작성자</th>
+								<th class="text-center d-none d-md-table-cell">작성날짜</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="list : ${mylist}">
+								<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
+								<td class="text-center d-none d-md-table-cell">
+									[[${list.replyContents}]]
+								</td>
+								<th class="text-center d-none d-md-table-cell">[[${list.replyWriter}]]</th>
+								<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
+							</tr>
+							<tr th:unless="${not #lists.isEmpty(mylist)}">
+								<td>조회된 댓글이 없습니다.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<script type="text/javascript">
+					
+					//회원탈뢰 
+					function memberDelete(){
+						var id = $('#user_id').val();
+											
+						$.ajax({
+							url:'/api/admin/memberdelete/'+id,
+							type:'delete',
+							data:null
+						}).done(function(resp){
+							alert('탈퇴했습니다.');
+							location.href='/page/main/mainpage';
+						});
+					}
+				</script>
+					<a th:href="@{/page/main/mainpage}" class="btn btn-primary" style="margin-top: 5px; margin-left: 16px;">메인</a>
+				</div>
+			</div>
+		</div>	
+	</div>
+</div>
+</th:block>
+</body>
+</html>
