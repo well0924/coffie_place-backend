@@ -72,7 +72,7 @@ public class BoardService {
     *
     */
     @Transactional
-    public Integer boardSave(BoardDto.BoardRequestDto requestDto, Member member, List<MultipartFile> files) throws Exception {
+    public Integer boardSave(BoardDto.BoardRequestDto requestDto, Member member) throws Exception {
 
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -90,7 +90,7 @@ public class BoardService {
 
         int InsertResult = boardRepository.save(board).getId();
 
-        List<Attach>filelist = fileHandler.parseFileInfo(files);
+        List<Attach>filelist = fileHandler.parseFileInfo(requestDto.getFiles());
 
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
@@ -125,28 +125,23 @@ public class BoardService {
 
         //파일이 있는 경우에 수정하는 경우
         if(!filelist.isEmpty()){
-            log.info("파일이 있는데 수정을 하는 경우");
             for(int i =0; i<filelist.size();i++){
                 String filePath = filelist.get(i).getFilePath();
                 File file = new File(filePath);
-                //폴더에 저장된 파일을 삭제
+
                 if(file.exists()){
                     file.delete();
                 }
-                //디비에 저장된 파일을 삭제
                 attachService.deleteBoardAttach(boardId);
             }
-            log.info("재업로드!");
-            //파일을 업로드
             filelist = fileHandler.parseFileInfo(files);
+
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
         }else{
-            log.info("파일이 없는데 수정하는 경우");
-            //파일 재업로드
             filelist = fileHandler.parseFileInfo(files);
-            log.info("재업로드!!");
+
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
@@ -199,5 +194,10 @@ public class BoardService {
             throw new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD);
         }
         return result;
+    }
+
+    @Transactional
+    public Integer updateView(Integer boardId){
+        return boardRepository.ReadCountUp(boardId);
     }
 }

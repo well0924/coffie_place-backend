@@ -28,7 +28,6 @@ import java.util.UUID;
 public class BoardViewController {
     private final BoardService boardService;
     private final AttachService attachService;
-    private final CommentService commentService;
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
@@ -47,7 +46,9 @@ public class BoardViewController {
 
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         List<AttachDto> attachList = attachService.boardfilelist(boardId);
-
+        //조회수 증가
+        boardService.updateView(boardId);
+        
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
 
@@ -86,8 +87,6 @@ public class BoardViewController {
         ModelAndView mv = new ModelAndView();
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         List<AttachDto> attachList=attachService.boardfilelist(boardId);
-
-        log.info("modify list:"+attachList);
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);

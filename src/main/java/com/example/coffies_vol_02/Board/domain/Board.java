@@ -59,7 +59,7 @@ public class Board extends BaseTime {
     private List<Attach>attachList = new ArrayList<>();
 
     @Builder
-    public Board(Integer id, String boardContents, String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member){
+    public Board(Integer id, String boardContents, String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member,Like likes){
         this.id = id;
         this.boardTitle = boardTitle;
         this.boardAuthor = member.getUserId();
@@ -70,27 +70,22 @@ public class Board extends BaseTime {
         this.member = member;
         this.liked = 0;
     }
-
-    public void countUp() {
-        this.readCount++;
-    }
-
+    //게시글 수정
     public void boardUpdate(BoardDto.BoardRequestDto dto){
         this.boardTitle = dto.getBoardTitle();
         this.boardContents = dto.getBoardContents();
     }
-
+    //게시글 좋아요 추가 +1
     public void increaseLikeCount(){
         this.liked +=1;
     }
-
+    //게시글 좋아요 감소 -1
     public void decreaseLikeCount(){
         this.liked -=1;
     }
     //파일 첨부
     public void addAttach(Attach attachFile){
         this.attachList.add(attachFile);
-
         if(attachFile.getBoard()!=this){
             attachFile.setBoard(this);
         }
