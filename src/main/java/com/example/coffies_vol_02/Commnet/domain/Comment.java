@@ -8,7 +8,6 @@ import com.example.coffies_vol_02.Place.domain.Place;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +23,7 @@ public class Comment extends BaseTime {
     private Integer id;
     private String replyWriter;
     private String replyContents;
+    private Integer replyPoint;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     @ToString.Exclude
@@ -36,17 +36,17 @@ public class Comment extends BaseTime {
     @JoinColumn(name = "place_id")
     @ToString.Exclude
     private Place place;
-
     @ToString.Exclude
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
     private Set<Like> likes = new HashSet<>();
 
     @Builder
-    public Comment(String replyWriter,String replyContents,Board board,Member member){
+    public Comment(String replyWriter,String replyContents,Integer replyPoint,Board board,Member member,Place place){
         this.board = board;
         this.member = member;
+        this.place = place;
+        this.replyPoint = replyPoint;
         this.replyWriter = member.getUserId();
         this.replyContents = replyContents;
-
     }
 }

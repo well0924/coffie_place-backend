@@ -16,6 +16,7 @@ public class CommentDto {
     public static class CommentRequestDto{
         private String replyWriter;
         private String replyContents;
+        private Integer replyPoint;
     }
     @Getter
     @ToString
@@ -25,6 +26,7 @@ public class CommentDto {
         private Integer id;
         private String replyWriter;
         private String replyContents;
+        private Integer reviewPoint;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         private LocalDateTime createdTime;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -35,6 +37,29 @@ public class CommentDto {
             this.id = comment.getId();
             this.replyWriter = comment.getMember().getUserId();
             this.replyContents  = comment.getReplyContents();
+            this.reviewPoint = comment.getReplyPoint();
+            this.createdTime = comment.getCreatedTime();
+            this.updatedTime = comment.getUpdatedTime();
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PlaceCommentResponse{
+        private Integer id;
+        private String replyWriter;
+        private String replyContents;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        private LocalDateTime createdTime;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        private LocalDateTime updatedTime;
+
+        @Builder
+        public PlaceCommentResponse(Comment comment){
+            this.id = comment.getId();
+            this.replyWriter = comment.getMember().getUserId();
+            this.replyContents = comment.getReplyContents();
             this.createdTime = comment.getCreatedTime();
             this.updatedTime = comment.getUpdatedTime();
         }

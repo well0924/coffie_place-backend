@@ -24,7 +24,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 			<!-- placedetail -->
 			<input type="hidden" id="userid" name="userId" th:value="${#authentication.name}">
 			<input type="hidden" id ="placeaddr" name="placeAddr1" th:value="${detail.placeAddr1}">
-			<input type="hidden" id="placeid" name ="placeId" th:value="${detail.placeId}">
+			<input type="hidden" id="placeid" name ="id" th:value="${detail.id}">
 			<input type="hidden" id="placelng" name ="placeLng" th:value="${detail.placeLng}">
 			<input type="hidden" id="placelat" name ="placeLat" th:value="${detail.placeLat}">
 			<input type="hidden" id="placename" name="placeName" th:value="${detail.placeName}">
@@ -44,7 +44,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		</br>
 			<button class="btn btn-primary" onclick="WishCheck()">카페찜하기</button>
 			<button class="btn btn-primary" onclick="placemodify()" sec:authorize="hasRole('ROLE_ADMIN')">가게수정</button>
-			<a th:href="@{/page/place/placelist}" class="btn btn-primary">목록</a>
+			<a th:href="@{/page/place/list}" class="btn btn-primary">목록</a>
 		<hr>
 			<!--댓글 부분-->
 			<form class="mb-3"  id="myform">
@@ -89,23 +89,11 @@ $(document).ready(function(){
 	//내용:LatLng이라는 메서드는 아직 로딩이 끝나지 않아서 존재하지 않는데
 	//	  생성자 함수(constructor)로 사용하려고 하기 때문에 발생하는 에러...
 	
-	//가게 주소
-	var storeAddress = $("#placeaddr").val();
- 	//가게이름
-	var storeName = $("#placename").val();
-	//가게 
- 	var placeLang  = $('#placelng').val();
-	var placeLat = $('#placelat').val();
-	var placeid = $('#placeid').val();
-	var phone = $('#placephone').val();
-	
-	console.log(storeAddress);
-	console.log(placeLat);
-	console.log(placeLang);
-	
 	//지도를 생성할 div
-	var container = document.getElementById('map');
-	
+	const container = document.getElementById('map');
+	let placeLat = $('#placelat').val();
+	let placeLang = $('#placelng').val();
+
 	//지도의 중심좌표
 	const options = {
 		 //입력을 받은 위경도를 넣는다.->가게 위경도
@@ -113,17 +101,17 @@ $(document).ready(function(){
 	     level: 1//지도의 확대레벨
 	};
 	//지도를 생성 
-	var map = new kakao.maps.Map(container, options);
+	let map = new kakao.maps.Map(container, options);
 	//지도 리사이즈
 	function resizeMap(){
-		var container = document.getElementById('map');
+		let container = document.getElementById('map');
 		container.style.width='500px';
 		container.style.height='1000px';
 	}
 	//위치를 담은 마커를 생성한다.
-	var markerPosition = new kakao.maps.LatLng(placeLat,placeLang);
+	let markerPosition = new kakao.maps.LatLng(placeLat,placeLang);
 	
-	var marker = new kakao.maps.Marker({
+	let marker = new kakao.maps.Marker({
 		position : markerPosition
 	});
 	
@@ -132,44 +120,43 @@ $(document).ready(function(){
 	
 	//댓글 목록 o.k
 	function ReviewList(){
-		var placeid = $('#placeid').val();
+		let placeId = $('#placeid').val();
 	
 		$.ajax({
-			url:'/api/reply/list/'+placeid,
+			url:'/api/comment/placelist/'+placeId,
 			type:'get',
 			dataType:'json'
 		}).done(function(data){
-			var str = '';
-			
-			if(data <1){
+			let str = '';
+			let starDiv = '';
+			console.log(data.data);
+			if(data.data.length<0){
 				str +='<span>'+'댓글이 없습니다.'+'</span>';
 			}else{
-				
-			$.each(data,function(idx,data){
-
-				var starScore = getStarRange(data.replyPoint);
-			
-				var starDiv = '<div class="star-ratings">\n' +
-						'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + starScore + '%;">\n' +
-						'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
-						'  </div>\n' +
-						'  <div class="star-ratings-base space-x-2 text-lg">\n' +
-						'    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
-						'  </div>\n' +
-						'</div>';
-			
-				str +='<div class="mb-3"  id="myform">';
-				str += starDiv;
-				str +='<div>';
-				str +='<p id="reviewAuthor" name="replyWriter">'+data.replyWriter+'</p>';
-				str += data.replyContents;
-				str +='</br>';
-				str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.replyId+','+data.replyLike+')">'+data.replyLike+'</i>';
-				str +='</br>';
-				str +='<button type="button" class="btn btn-dark mt-3" name="replyId" onclick="deleteReply('+data.replyId+')">'+'삭제'+'</button>';
-				str +='</div>';
-				str +='</div>';
-			});
+				for(let i =0; i<data.data.length;i++){
+					let starScore = getStarRange(data.data.replyPoint);
+					console.log(starScore);
+					console.log(data.data);
+					starDiv = '<div class="star-ratings">\n' +
+							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + starScore + '%;">\n' +
+							'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
+							'  </div>\n' +
+							'  <div class="star-ratings-base space-x-2 text-lg">\n' +
+							'    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
+							'  </div>\n' +
+							'</div>';
+					str +='<div class="mb-3"  id="myform">';
+					str += starDiv;
+					str +='<div>';
+					str +='<p id="reviewAuthor" name="replyWriter">'+data.data.replyWriter+'</p>';
+					str += data.data.replyContents;
+					str +='</br>';
+					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data.id+')">'+data.data.replyPoint+'</i>';
+					str +='</br>';
+					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data.id+')">'+'삭제'+'</button>';
+					str +='</div>';
+					str +='</div>';
+				}
 			
 				$('#replylist').append(str);
 			}
@@ -188,13 +175,13 @@ $(document).ready(function(){
 	//댓글 작성 o.k
 	function replyPost(){
 
-		let placeid = $('#placeid').val();
+		let placeId = $('#placeid').val();
 		let point = $('input[name=replyPoint]:checked').val();
 		let comment = $('#reviewContents').val();
 		let createdby = $('#reviewAuthor').val();
 		
 		const formdate = {
-			placeId : placeid,
+			placeId : placeId,
 			replyPoint : point,
 			replyContents : comment,
 			replyWriter : createdby
@@ -202,20 +189,19 @@ $(document).ready(function(){
 		
 		if(validation()){
 			$.ajax({
-				url:'/api/reply/placewrite',
+				url:'/api/comment/placewrite/'+placeId,
 				type:'post',
 				dataType:'json',
 				data: JSON.stringify(formdate),
 				contentType: 'application/json; chartset = utf-8'
-			}).done(function(data){
+			}).done(function(resp){
 				alert('완료');
+				console.log(resp);
 				$('#reviewContents').val("");
 				$('#reviewAuthor').val("");
 				$('#replylist').empty();
 				ReviewList();
 				
-			}).fail(function(error){
-				alert('댓글 입력에 실패했습니다.');
 			});
 		}	
 	}
@@ -223,10 +209,11 @@ $(document).ready(function(){
 	//댓글 삭제 o.k
 	function deleteReply(replyId){
 		$.ajax({
-			url:'/api/reply/placedelete/'+replyId,
+			url:'/api/comment/placedelete/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(data){
+			console.log(data);
 			alert('삭제되었습니다.');
 			$('#replylist').empty();
 			ReviewList();
@@ -235,9 +222,7 @@ $(document).ready(function(){
 	
 	//좋아요 기능o.k
 	function LikeCheck(id,replyLike){
-		const frm = {
-				replyId : id
-		}
+		const frm = {replyId : id}
 		
 		$.ajax({
 			url:'/api/reply/likecheck/'+id,
@@ -260,7 +245,7 @@ $(document).ready(function(){
 	//별점 계산o.k
 	function getStarRange(starScore) {
 		console.log(starScore)
-		const score = starScore * 20;
+		let score = starScore * 20;
 		return score + 1.5;
 	}
 	
@@ -329,34 +314,7 @@ $(document).ready(function(){
 		console.log(placeid);
 		console.log(filegroupid);
 	}
-	
-	//위시리스트 추가기능.o.k
-	function addWish(){
-		
-		let userid = $('#userid').val();
-		let placeid = $('#placeid').val();
-		let filegroupid = $('#filegroupid').val();
-		
-		const formdate ={
-						placeId: placeid,
-						userId : userid,
-						fileGroupId : filegroupid,
-					   };
-		
-		$.ajax({
-			url:'/api/mypage/wishinsert',
-			type:'POST',
-			dataType:'json',
-			data:JSON.stringify(formdate),
-			contentType:'application/json; charset = utf-8'
-		}).done(function(resp){
-			alert('위시리스트에 추가되었습니다.');
-			location.href='/page/place/placedetail/'+placeid;
-		}).fail(function(error){
-			alert(error);
-		});
-	}
-	
+
 	//이미지 팝업기능 o.k
 	function fnImgPop(url){
 		let img = new Image();
