@@ -140,7 +140,7 @@ public class CommentService {
     *
     */
     @Transactional
-    public void placeCommentDelete(Integer replyId,Member member){
+    public void placeCommentDelete(Integer replyId,Member member) throws Exception {
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
@@ -152,7 +152,6 @@ public class CommentService {
         if(!userId.equals(commentAuthor)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
-
         commentRepository.deleteById(replyId);
     }
     @Transactional
@@ -167,7 +166,7 @@ public class CommentService {
     @Transactional
     public void updateStar(Integer placeId)throws Exception{
        Double avgStar = getStarAvgByPlaceId(placeId);
-       log.info(avgStar);
+       log.info("평점:"+avgStar);
        cafeReviewRate(avgStar, placeId);
     }
 }

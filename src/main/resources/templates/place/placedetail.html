@@ -7,7 +7,107 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 <head>
 <meta charset="UTF-8">
 <title>가게 상세조회</title>
-<link rel="stylesheet" th:src="@{/css/placedetail.css}">
+<style>
+	.container{
+		margin-top:100px
+	}
+	div.col-lg-12{
+		display: flex;
+	}
+	/*페이징*/
+	ul.list-group list-group-flush{
+		list-style:none;
+	}
+	/*별점css*/
+	#myform fieldset{
+		display: inline-block;
+		direction: rtl;
+		border:0;
+	}
+	/*별점css*/
+	#myform fieldset legend{
+		text-align: right;
+	}
+	/*별점css*/
+	#myform input[type=radio]{
+		display: none;
+	}
+	/*별점css*/
+	#myform label{
+		font-size: 3em;
+		color: transparent;
+		text-shadow: 0 0 0 #f0f0f0;
+	}
+	/*별점css*/
+	#myform label:hover{
+		text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+	}
+	/*별점css*/
+	#myform label:hover ~ label{
+		text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+	}
+	/*별점css*/
+	#myform input[type=radio]:checked ~ label{
+		text-shadow: 0 0 0 rgba(200, 200, 0, 0.99);
+	}
+	/*별점css*/
+	#reviewAuthor{
+		margin-bottom: 5px;
+	}
+	/*별점css*/
+	#reviewContents {
+		width: 100%;
+		height: 150px;
+		padding: 10px;
+		box-sizing: border-box;
+		border: solid 1.5px #D3D3D3;
+		border-radius: 5px;
+		font-size: 16px;
+		resize: none;
+	}
+	/*별점css*/
+	.star-ratings {
+		color: #aaa9a9;
+		position: relative;
+		unicode-bidi: bidi-override;
+		width: max-content;
+		-webkit-text-fill-color: transparent; /* Will override color (regardless of order) */
+		-webkit-text-stroke-width: 1.3px;
+		-webkit-text-stroke-color: #2b2a29;
+	}
+	/*별점css*/
+	.star-ratings-fill {
+		color: #fff58c;
+		padding: 0;
+		position: absolute;
+		z-index: 1;
+		display: flex;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+		-webkit-text-fill-color: gold;
+	}
+	/*별점css*/
+	.star-ratings-base {
+		z-index: 0;
+		padding: 0;
+	}
+	/*카카오 맵 커스텀 오버레이*/
+	.wrap {position: absolute;left: 0;bottom: 40px;width: 288px;height: 132px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
+	.wrap * {padding: 0;margin: 0;}
+	.wrap .info {width: 500px;height: 120px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
+	.wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
+	.info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
+	.info .close {position: absolute;top: 10px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
+	.info .close:hover {cursor: pointer;}
+	.info .body {position: relative;overflow: hidden;}
+	.info .desc {position: relative;margin: 13px 0 0 90px;height: 75px;}
+	.desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+	.desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
+	.info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
+	.info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
+	.info .link {color: #5085BB;}
+</style>
 </head>
 <body>
 <th:block layout:fragment="content">
@@ -18,7 +118,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		<h2>가게조회</h2>
 			<!--placeimage(main)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:if="${list.isTitle}"th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"></img>
+				<img th:if="${list.isTitle}"th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		<hr>
 			<!-- placedetail -->
@@ -38,7 +138,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 			</ul>
 			<!--placeimage(smallsize)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:unless="${list.isTitle}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)">			
+				<img th:unless="${list.isTitle}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		</br>
 		</br>
@@ -129,16 +229,17 @@ $(document).ready(function(){
 		}).done(function(data){
 			let str = '';
 			let starDiv = '';
+			let starScore = 0;
 			console.log(data.data);
 			if(data.data.length<0){
 				str +='<span>'+'댓글이 없습니다.'+'</span>';
 			}else{
 				for(let i =0; i<data.data.length;i++){
-					let starScore = getStarRange(data.data.replyPoint);
+					starScore = getStarRange(data.data[i].replyPoint);
 					console.log(starScore);
-					console.log(data.data);
+					console.log(data.data[i]);
 					starDiv = '<div class="star-ratings">\n' +
-							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + starScore + '%;">\n' +
+							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + data.data[i].replyPoint + '%;">\n' +
 							'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
 							'  </div>\n' +
 							'  <div class="star-ratings-base space-x-2 text-lg">\n' +
@@ -148,12 +249,12 @@ $(document).ready(function(){
 					str +='<div class="mb-3"  id="myform">';
 					str += starDiv;
 					str +='<div>';
-					str +='<p id="reviewAuthor" name="replyWriter">'+data.data.replyWriter+'</p>';
-					str += data.data.replyContents;
+					str +='<p id="reviewAuthor" name="replyWriter">'+data.data[i].replyWriter+'</p>';
+					str += data.data[i].replyContents;
 					str +='</br>';
-					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data.id+')">'+data.data.replyPoint+'</i>';
+					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')">'+data.data[i].replyPoint+'</i>';
 					str +='</br>';
-					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data.id+')">'+'삭제'+'</button>';
+					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+')">'+'삭제'+'</button>';
 					str +='</div>';
 					str +='</div>';
 				}
@@ -207,9 +308,9 @@ $(document).ready(function(){
 	}
 	
 	//댓글 삭제 o.k
-	function deleteReply(replyId){
+	function deleteReply(replyId,placeId){
 		$.ajax({
-			url:'/api/comment/placedelete/'+replyId,
+			url:'/api/comment/placedelete/'+placeId+'/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(data){
@@ -244,8 +345,9 @@ $(document).ready(function(){
 	
 	//별점 계산o.k
 	function getStarRange(starScore) {
-		console.log(starScore)
+		console.log(starScore);
 		let score = starScore * 20;
+		console.log(score);
 		return score + 1.5;
 	}
 	

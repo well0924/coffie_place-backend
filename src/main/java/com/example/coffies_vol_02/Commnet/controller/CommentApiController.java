@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Commnet.service.CommentService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -103,13 +104,12 @@ public class CommentApiController {
     }
 
     @ApiOperation("가게 댓글 삭제")
-    @DeleteMapping("/placedelete/{place_id}")
-    public CommonResponse<?>placeCommentWrite(@PathVariable("place_id") Integer placeId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    @DeleteMapping("/placedelete/{place_id}/{reply_id}")
+    public CommonResponse<?>placeCommentDelete(@PathVariable("place_id")Integer placeId,@PathVariable("reply_id") Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
 
         try {
-            //평점 계산 후 댓글 삭제
+            commentService.placeCommentDelete(replyId,customUserDetails.getMember());
             commentService.updateStar(placeId);
-            commentService.placeCommentDelete(placeId,customUserDetails.getMember());
         }catch (Exception e){
             e.printStackTrace();
         }
