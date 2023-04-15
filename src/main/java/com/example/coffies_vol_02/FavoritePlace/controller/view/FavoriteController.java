@@ -56,4 +56,6 @@ public class FavoriteController {
         mv.setViewName("/mypage/mycomment");
         return mv;
     }
+
+
 }

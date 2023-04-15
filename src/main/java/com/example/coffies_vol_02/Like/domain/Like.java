@@ -18,7 +18,7 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id",nullable = false)
+    @JoinColumn(name = "board_id")
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
@@ -28,19 +28,14 @@ public class Like {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @Column
-    private boolean likeStatus;
     @Builder
     public Like(Member member, Board board) {
         this.board = board;
         this.member = member;
-        this.likeStatus = true;
     }
     @Builder
     public Like(Member member,Comment comment){
         this.member = member;
         this.comment = comment;
-        this.likeStatus =true;
     }
-
 }

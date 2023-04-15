@@ -1,46 +1,61 @@
 package com.example.coffies_vol_02.Like.service;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Like.domain.Like;
-import com.example.coffies_vol_02.Like.repository.LikeRepository;
+import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Like.domain.Like;
+import com.example.coffies_vol_02.Like.repository.LikeRepository;
 import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class LikeService {
     private final LikeRepository likeRepository;
-    private static final String likeMessage ="좋아요 처리 완료";
-    private static final String likeCancelMessage ="좋아요 취소 처리 완료";
+    private final BoardRepository boardRepository;
+    public static final String LikeSuccess ="좋아요 추가";
+    public static final String LikeCancel ="좋아요 취소";
+
     /*
     *  좋아요 중복
     */
     @Transactional
     public boolean hasLikeBoard(Board board, Member member){
-        return likeRepository.findByMemberAndBoard(member,board).isPresent();
+        return likeRepository.findByMemberAndBoard(member,board).isEmpty();
     }
+
     /*
     * 좋아요 +1
     */
-    @Transactional
-    public String createLikeBoard(Board board,Member member){
-        board.increaseLikeCount();
-        Like like = new Like(member,board);
-        likeRepository.save(like);
-        return likeMessage;
+    public String createBoardLike(Integer boardId,Member member){
+        Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
+        //좋아요 중복체크를 거친 뒤에 중복되지 않으면 카운트,
+        if(hasLikeBoard(detail.get(),member))
+            likeRepository.save(new Like(member, detail.get()));
+        return LikeSuccess;
     }
+
     /*
-    * 좋아요 -1
-    */
-    @Transactional
-    public String removeLikeBoard(Board board,Member member){
-        Like likeBoard = likeRepository.findByMemberAndBoard(member,board).orElseThrow(()->{throw new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND);});
-        board.decreaseLikeCount();
-        likeRepository.delete(likeBoard);
-        return likeCancelMessage;
+     * 좋아요 -1
+     */
+    public String cancelLike(Integer boardId, Member member){
+        Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
+        Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndBoard(member, detail.get()).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
+        likeRepository.delete(like.get());
+
+        return LikeCancel;
+    }
+
+    /*
+     * 좋아요 카운트
+     */
+    public List<String>likeCount(Integer boardId,Member member){
+        return null;
     }
 }
