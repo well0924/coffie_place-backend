@@ -23,6 +23,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -92,7 +94,7 @@ public class MemberApiControllerTest {
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
     }
     @DisplayName("회원 수정")
@@ -115,7 +117,7 @@ public class MemberApiControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
     }
 
@@ -177,14 +179,23 @@ public class MemberApiControllerTest {
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
     }
 
     @Test
     @DisplayName("회원선택삭제기능")
-    public void memberSeleteDelete(){
+    public void memberSelecteDelete() throws Exception {
+        List<String> userid = new ArrayList<>();
 
+        userid.add(memberDto().getUserId());
+
+        mvc.perform(post("/api/member/selectdelete")
+                        .content(objectMapper.writeValueAsString(userid))
+                        .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
     }
 
     private MemberDto.MemberResponseDto responseDto(){
