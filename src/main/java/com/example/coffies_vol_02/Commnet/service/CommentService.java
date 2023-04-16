@@ -9,7 +9,6 @@ import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,8 +32,8 @@ public class CommentService {
     *   댓글 목록(자유게시판)
     */
     @Transactional(readOnly = true)
-    public List<CommentDto.CommentResponseDto> replyList(@Param("id") Integer boardId) throws Exception {
-        List<Comment>list = commentRepository.findCommentsBoardId(boardId);
+    public List<CommentDto.CommentResponseDto> replyList(Integer boardId) throws Exception {
+        List<Comment>list = commentRepository.findByBoardId(boardId);
         List<CommentDto.CommentResponseDto>result = new ArrayList<>();
 
         for(Comment co : list){
@@ -55,7 +54,7 @@ public class CommentService {
         Optional<Board>boarddetail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         if(member == null){
-            throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
+            throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
 
         Comment comment = Comment
@@ -93,11 +92,10 @@ public class CommentService {
 
     /*
     *  댓글 목록(가게)
-    *
     */
     @Transactional(readOnly = true)
     public List<CommentDto.CommentResponseDto>placeCommentList(Integer placeId) throws Exception {
-        List<Comment>list = commentRepository.findCommentsPlaceId(placeId);
+        List<Comment>list = commentRepository.findByPlaceId(placeId);
         List<CommentDto.CommentResponseDto>result = new ArrayList<>();
 
         for(Comment co : list){
@@ -113,7 +111,6 @@ public class CommentService {
 
     /*
     * 가게 댓글 작성
-    *
     */
     @Transactional
     public Integer placeCommentWrite(Integer placeId,CommentDto.CommentRequestDto dto,Member member){
@@ -130,17 +127,16 @@ public class CommentService {
                 .member(member)
                 .build();
 
-        int insertResult = commentRepository.save(comment).getId();
-
+        commentRepository.save(comment);
+        Integer insertResult = comment.getId();
         return insertResult;
     }
 
     /*
     * 가게 댓글 삭제
-    *
     */
     @Transactional
-    public void placeCommentDelete(Integer replyId,Member member) throws Exception {
+    public void placeCommentDelete(Integer replyId,Member member){
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
@@ -154,6 +150,7 @@ public class CommentService {
         }
         commentRepository.deleteById(replyId);
     }
+
     @Transactional
     public Double getStarAvgByPlaceId(@Param("id") Integer placeId) throws Exception {
         return commentRepository.getStarAvgByPlaceId(placeId);
@@ -163,6 +160,7 @@ public class CommentService {
     void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId){
         commentRepository.cafeReviewRate(reviewRate,placeId);
     }
+
     @Transactional
     public void updateStar(Integer placeId)throws Exception{
        Double avgStar = getStarAvgByPlaceId(placeId);

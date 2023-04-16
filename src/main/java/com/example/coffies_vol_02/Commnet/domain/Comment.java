@@ -41,7 +41,8 @@ public class Comment extends BaseTime {
     private Set<Like> likes = new HashSet<>();
 
     @Builder
-    public Comment(String replyWriter,String replyContents,Integer replyPoint,Board board,Member member,Place place){
+    public Comment(Integer id,String replyWriter,String replyContents,Integer replyPoint,Board board,Member member,Place place){
+        this.id = id;
         this.board = board;
         this.member = member;
         this.place = place;

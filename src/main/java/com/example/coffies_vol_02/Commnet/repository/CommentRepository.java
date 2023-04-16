@@ -12,17 +12,15 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
     //댓글 목록(자유게시판)
-    @Query("select c from Comment c where c.board.id = :id")
-    List<Comment> findCommentsBoardId(@Param("id") Integer boardId)throws Exception;
+    List<Comment> findByBoardId(Integer boardId)throws Exception;
 
     //댓글 목록(가게)
-    @Query("select c from Comment c where c.place.id = :id")
-    List<Comment>findCommentsPlaceId(@Param("id")Integer placeId)throws Exception;
+    List<Comment>findByPlaceId(Integer placeId)throws Exception;
 
     //내가 작성한 댓글
     List<Comment>findByMember(Member member, Pageable pageable);
 
-    //댓글 평점
+    //댓글 평점조회
     @Query("select avg(c.replyPoint) from Comment c where c.place.id = :id")
     Double getStarAvgByPlaceId(@Param("id") Integer placeId)throws Exception;
 

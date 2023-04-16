@@ -25,18 +25,13 @@ import java.util.List;
 @RequestMapping("/api/comment")
 public class CommentApiController {
     private final CommentService commentService;
-    private final CommentRepository commentRepository;
 
     @ApiOperation(value = "댓글 목록")
     @GetMapping("/list/{board_id}")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>commentList(@PathVariable("board_id")Integer boardId){
+    public CommonResponse<List<CommentDto.CommentResponseDto>>commentList(@PathVariable("board_id")Integer boardId) throws Exception {
         List<CommentDto.CommentResponseDto> list = new ArrayList<>();
 
-        try {
-            list = commentService.replyList(boardId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        list = commentService.replyList(boardId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
@@ -45,11 +40,7 @@ public class CommentApiController {
     public CommonResponse<Integer>commentWrite(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentDto.CommentRequestDto dto){
         int WriteResult = 0;
 
-        try {
-            WriteResult = commentService.replyWrite(boardId,customUserDetails.getMember(),dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        WriteResult = commentService.replyWrite(boardId,customUserDetails.getMember(),dto);
 
         return new CommonResponse<>(HttpStatus.OK.value(), WriteResult);
     }
@@ -57,24 +48,16 @@ public class CommentApiController {
     @DeleteMapping("/delete/{reply_id}")
     public CommonResponse<?>commentDelete(@PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
 
-        try {
-            commentService.commentDelete(replyId,customUserDetails.getMember());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        commentService.commentDelete(replyId,customUserDetails.getMember());
 
         return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
     }
     @ApiOperation(value = "가게 댓글 목록")
     @GetMapping("/placelist/{place_id}")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>placeCommentList(@PathVariable("place_id") Integer placeId){
+    public CommonResponse<List<CommentDto.CommentResponseDto>>placeCommentList(@PathVariable("place_id") Integer placeId) throws Exception {
         List<CommentDto.CommentResponseDto>commentResponseDtoList = new ArrayList<>();
 
-        try {
-            commentResponseDtoList = commentService.placeCommentList(placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        commentResponseDtoList = commentService.placeCommentList(placeId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),commentResponseDtoList);
     }
@@ -82,37 +65,22 @@ public class CommentApiController {
     @ApiOperation("가게 댓글 작성")
     @PostMapping("/placewrite/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody CommentDto.CommentRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody CommentDto.CommentRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         int insertResult = 0;
 
-        try {
-            insertResult = commentService.placeCommentWrite(placeId,dto,customUserDetails.getMember());
-            //가게 평점 계산
-            commentService.updateStar(placeId);
-            if(insertResult>0){
-                log.info(insertResult);
-                log.info(dto);
-            }else {
-                log.info(insertResult);
-                log.info(dto);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        insertResult = commentService.placeCommentWrite(placeId,dto,customUserDetails.getMember());
+        //가게 평점 계산
+        commentService.updateStar(placeId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),insertResult);
     }
 
     @ApiOperation("가게 댓글 삭제")
     @DeleteMapping("/placedelete/{place_id}/{reply_id}")
-    public CommonResponse<?>placeCommentDelete(@PathVariable("place_id")Integer placeId,@PathVariable("reply_id") Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>placeCommentDelete(@PathVariable("place_id")Integer placeId,@PathVariable("reply_id") Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
 
-        try {
-            commentService.placeCommentDelete(replyId,customUserDetails.getMember());
-            commentService.updateStar(placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        commentService.placeCommentDelete(replyId,customUserDetails.getMember());
+        commentService.updateStar(placeId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete Comment");
     }
