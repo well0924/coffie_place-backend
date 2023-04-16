@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +39,6 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Page<BoardDto.BoardResponseDto> boardAll(Pageable pageable){
         Page<Board>list = boardRepository.findAll(pageable);
-
         return list.map(board -> new BoardDto.BoardResponseDto(board));
     }
 
@@ -51,8 +51,6 @@ public class BoardService {
         Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         Board result = boardDetail.get();
-
-        result.countUp();
 
         return BoardDto.BoardResponseDto.builder()
                 .id(result.getId())
@@ -195,7 +193,11 @@ public class BoardService {
         }
         return result;
     }
-
+    
+    /*
+    * 
+    * 게시글 조회수 증가
+    */
     @Transactional
     public Integer updateView(Integer boardId){
         return boardRepository.ReadCountUp(boardId);

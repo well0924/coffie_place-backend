@@ -19,6 +19,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@ToString
 @NoArgsConstructor
 @Table(name = "tbl_board")
 public class Board extends BaseTime {
@@ -37,10 +38,6 @@ public class Board extends BaseTime {
     private String passWd;
 
     private String fileGroupId;
-
-    @Column(nullable = false)
-    private Integer liked;//추천수
-
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
@@ -55,11 +52,11 @@ public class Board extends BaseTime {
     private Set<Like> likes = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "board",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attach>attachList = new ArrayList<>();
 
     @Builder
-    public Board(Integer id, String boardContents, String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member,Like likes){
+    public Board(Integer id,String boardContents,String boardAuthor,String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member){
         this.id = id;
         this.boardTitle = boardTitle;
         this.boardAuthor = member.getUserId();
@@ -68,20 +65,12 @@ public class Board extends BaseTime {
         this.passWd = passWd;
         this.fileGroupId = fileGroupId;
         this.member = member;
-        this.liked = 0;
     }
+
     //게시글 수정
     public void boardUpdate(BoardDto.BoardRequestDto dto){
         this.boardTitle = dto.getBoardTitle();
         this.boardContents = dto.getBoardContents();
-    }
-    //게시글 좋아요 추가 +1
-    public void increaseLikeCount(){
-        this.liked +=1;
-    }
-    //게시글 좋아요 감소 -1
-    public void decreaseLikeCount(){
-        this.liked -=1;
     }
     //파일 첨부
     public void addAttach(Attach attachFile){

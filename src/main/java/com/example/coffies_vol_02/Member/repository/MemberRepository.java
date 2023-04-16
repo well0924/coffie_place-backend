@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member,Integer> {
+public interface MemberRepository extends JpaRepository<Member,Integer>, JpaSpecificationExecutor<Member> {
     //페이징 목록
     Page<Member> findAll(Pageable pageable);
 
@@ -31,13 +32,12 @@ public interface MemberRepository extends JpaRepository<Member,Integer> {
 
     //회원 이름 자동완성기능
     List<Member>findByUserIdStartsWith(String searchVal, Sort sort);
-    @Query("SELECT m.userId FROM Member m where m.userId like %:searchVal%")
-    List<String>Search(@Param("searchVal") String searchVal);
 
     //회원 선택삭제
     @Transactional
     @Modifying
     @Query("delete from Member m where m.userId in :ids")
     void deleteAllByUserId(List<String>ids);
+
 
 }

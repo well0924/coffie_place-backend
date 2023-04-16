@@ -46,7 +46,7 @@ public class BoardApiController {
     public CommonResponse<BoardDto.BoardResponseDto>boardDetail(@PathVariable("id") Integer boardId){
         BoardDto.BoardResponseDto detail = new BoardDto.BoardResponseDto();
 
-        try {
+        try{
             detail = boardService.boardDetail(boardId);
         }catch (Exception e){
             e.printStackTrace();
