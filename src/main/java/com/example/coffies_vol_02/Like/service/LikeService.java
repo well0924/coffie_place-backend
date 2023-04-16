@@ -11,8 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -23,7 +22,7 @@ public class LikeService {
     public static final String LikeCancel ="좋아요 취소";
 
     /*
-    *  좋아요 중복
+    *  게시글 좋아요 중복
     */
     @Transactional
     public boolean hasLikeBoard(Board board, Member member){
@@ -31,31 +30,46 @@ public class LikeService {
     }
 
     /*
-    * 좋아요 +1
+    * 게시글 좋아요 +1
     */
     public String createBoardLike(Integer boardId,Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
+
         //좋아요 중복체크를 거친 뒤에 중복되지 않으면 카운트,
-        if(hasLikeBoard(detail.get(),member))
+        if(hasLikeBoard(detail.get(),member)){
             likeRepository.save(new Like(member, detail.get()));
+        }
         return LikeSuccess;
     }
 
     /*
-     * 좋아요 -1
+     * 게시글 좋아요 -1
      */
     public String cancelLike(Integer boardId, Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
+
         Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndBoard(member, detail.get()).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
+
         likeRepository.delete(like.get());
 
         return LikeCancel;
     }
 
     /*
-     * 좋아요 카운트
+     * 게시글 좋아요 카운트
      */
     public List<String>likeCount(Integer boardId,Member member){
-        return null;
+        Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST));
+
+        Integer likeCount = likeRepository.countByBoard(board).orElse(0);
+
+        List<String> resultData = new ArrayList<>(Arrays.asList(String.valueOf(likeCount)));
+
+        if (Objects.nonNull(member)) {
+            resultData.add(String.valueOf(hasLikeBoard(board, member)));
+            return resultData;
+        }
+        return resultData;
     }
+
 }

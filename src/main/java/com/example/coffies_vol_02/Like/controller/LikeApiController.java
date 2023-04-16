@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Api(tags = "Like Api Controller",value = "좋아요 api 컨트롤러")
 @RestController
 @AllArgsConstructor
@@ -30,7 +32,7 @@ public class LikeApiController {
     }
 
     @ApiOperation("게시글 좋아요 취소")
-    @DeleteMapping("/delete/{board_id}")
+    @DeleteMapping("/minus/{board_id}")
     public CommonResponse<String>boardLikeCancel(@PathVariable("board_id")Integer boardId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         String result = "";
 
@@ -39,5 +41,14 @@ public class LikeApiController {
         }
 
         return new CommonResponse<>(HttpStatus.OK.value(),result);
+    }
+
+    @ApiOperation("게시글 좋아요 카운트")
+    @GetMapping("/{board_id}")
+    public CommonResponse<List<String>>boardLikeCount(@PathVariable("board_id")Integer boardId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+
+        List<String>resultDate = likeService.likeCount(boardId,customUserDetails.getMember());
+
+        return new CommonResponse<>(HttpStatus.OK.value(),resultDate);
     }
 }
