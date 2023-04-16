@@ -2,11 +2,16 @@ package com.example.coffies_vol_02.Like.service;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.repository.BoardRepository;
+import com.example.coffies_vol_02.Commnet.domain.Comment;
+import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Like.domain.Like;
 import com.example.coffies_vol_02.Like.repository.LikeRepository;
 import com.example.coffies_vol_02.Member.domain.Member;
+import com.example.coffies_vol_02.Member.repository.MemberRepository;
+import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +25,8 @@ public class LikeService {
     private final BoardRepository boardRepository;
     public static final String LikeSuccess ="좋아요 추가";
     public static final String LikeCancel ="좋아요 취소";
+    private final CommentRepository commentRepository;
+    private final PlaceRepository placeRepository;
 
     /*
     *  게시글 좋아요 중복
@@ -71,5 +78,31 @@ public class LikeService {
         }
         return resultData;
     }
+    @Transactional
+    public boolean hasLikeComment(Member member, Comment comment){
+        return likeRepository.findByMemberAndComment(member,comment).isEmpty();
+    }
 
+    /*
+    * 가게 댓글 좋아요
+    */
+    public String placeCommentLike(Integer replyId,Member member){
+        Comment comment = commentRepository.findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
+        if(hasLikeComment(member,comment)){
+            likeRepository.save(new Like(member,comment));
+        }
+        return LikeSuccess;
+    }
+
+    /*
+    * 가게 댓글 취소
+    */
+    public String cancelCommentLike(Integer replyId, Member member){
+        Comment comment = commentRepository.findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
+        Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndComment(member, comment).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
+
+        likeRepository.delete(like.get());
+
+        return LikeCancel;
+    }
 }

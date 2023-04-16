@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -47,7 +47,31 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원 목록(페이징)")
     public void memberList(){
+        List<Member>list = new ArrayList<>();
+        list.add(member);
+        PageRequest pageable = PageRequest.of(0,5, Sort.by("id").descending());
+        Page<Member>pageList = new PageImpl<>(list,pageable,0);
 
+        when(memberRepository.findAll(pageable)).thenReturn(pageList);
+
+        Page<MemberDto.MemberResponseDto>result = memberService.findAll(pageable);
+        result.map(member ->new MemberDto.MemberResponseDto(
+                member.getId(),
+                member.getUserId(),
+                member.getPassword(),
+                member.getMemberName(),
+                member.getUserPhone(),
+                member.getUserGender(),
+                member.getUserAge(),
+                member.getUserEmail(),
+                member.getUserAddr1(),
+                member.getUserAddr2(),
+                member.getRole(),
+                member.getCreatedTime(),
+                member.getUpdatedTime()));
+
+        System.out.println(result);
+        assertThat(result).isNotNull();
     }
     @Test
     @DisplayName("회원 단일 조회")
@@ -101,26 +125,21 @@ public class MemberServiceTest {
     @DisplayName("회원 수정")
     public void memberUpdateTest(){
         //given
-        given(memberRepository.findById(1)).willReturn(Optional.of(member));
-
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-
-        Member member = detail.get();
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
-
+        dto.setId(1);
         dto.setMemberName("update name");
         dto.setUserId("test update");
         dto.setRole(Role.ROLE_ADMIN);
         dto.setUserEmail("testemail.com");
 
-        member.updateMember(dto);
         //when
-        int result = memberService.memberUpdate(1,dto);
-        //then
-        then(memberService.memberUpdate(1,dto));
-        assertThat(result).isEqualTo(memberDto().getId());
-        assertThat(dto.getMemberName()).isEqualTo("update name");
+        member.updateMember(dto);
+        responseDto = memberService.findMemberById(member.getId());
+        Integer updateResult = memberService.memberUpdate(dto.getId(),dto);
+
+        assertThat(responseDto.getId()).isEqualTo(member.getId());
     }
 
     @Test
@@ -131,6 +150,7 @@ public class MemberServiceTest {
         long count = memberRepository.count();
         //when
         memberService.memberDelete(member.getId());
+        //then
         assertThat(count).isEqualTo(0);
     }
 
@@ -190,7 +210,7 @@ public class MemberServiceTest {
 
         MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
         dto.setPassword(changepassword);
-        System.out.println(dto.getPassword());
+
         given(memberService.updatePassword(member.getId(),dto)).willReturn(member.getId());
 
         assertThat(changepassword).isEqualTo("4567");

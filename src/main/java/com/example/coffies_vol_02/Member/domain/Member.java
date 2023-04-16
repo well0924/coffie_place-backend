@@ -15,6 +15,7 @@ public class Member extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Setter
     private String userId;
     @Setter
     private String password;

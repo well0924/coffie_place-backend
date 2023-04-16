@@ -27,9 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,13 +39,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MemberApiControllerTest {
     @Autowired
     private WebApplicationContext context;
-    @MockBean
-    private MemberService memberService;
-
     @Mock
     private MemberRepository memberRepository;
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @MockBean
+    private MemberService memberService;
     @Autowired
     private MockMvc mvc;
 
@@ -80,7 +80,7 @@ public class MemberApiControllerTest {
 
         dto.setId(member.getId());
         dto.setUserId(member.getUserId());
-        dto.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
+        dto.setPassword(member.getPassword());
         dto.setUserGender(member.getUserGender());
         dto.setUserAge(member.getUserAge());
         dto.setMemberName(member.getMemberName());
@@ -125,11 +125,12 @@ public class MemberApiControllerTest {
     @Test
     public void memberDeleteTest()throws Exception{
 
-        mvc.perform(MockMvcRequestBuilders.delete("/api/member/memberDelete/{id}", responseDto.getId())
+        mvc.perform(delete("/api/member/memberDelete/{id}", responseDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
+        verify(memberService).memberDelete(any());
     }
 
     @Test
@@ -175,6 +176,7 @@ public class MemberApiControllerTest {
         String password = "4567qwer!!";
         MemberDto.MemberCreateDto dto =  new MemberDto.MemberCreateDto();
         dto.setPassword(bCryptPasswordEncoder.encode(password));
+
         mvc.perform(MockMvcRequestBuilders.patch("/api/member/newpassword/{id}",id)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)

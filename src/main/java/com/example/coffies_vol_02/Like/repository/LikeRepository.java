@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface LikeRepository extends JpaRepository<Like,Integer> {
     //좋아요 중복(게시글 좋아요)
     Optional<Like> findByMemberAndBoard(Member member, Board board);
-    //댓글 좋아요(댓글 좋아요)
+    //댓글 좋아요(가게 댓글 좋아요)
     Optional<Like>findByMemberAndComment(Member member, Comment comment);
     //좋아요 카운트
     Optional<Integer>countByBoard(Board board);
