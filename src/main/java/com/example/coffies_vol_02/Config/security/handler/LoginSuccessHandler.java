@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
     private RedirectStrategy redirectStratgy = new DefaultRedirectStrategy();
-    private static final String DEFAULT_URL= "/page/main/mainpage";
+    private static final String DEFAULT_URL= "/page/main/main";
     private static final String ADMIN_URL="/page/admin/adminlist";
 
     @Override
@@ -60,11 +60,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         }else {
 
             Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-
+            //권한이 ADMIN이면 어드민 페이지로 이동
             if(roles.contains("ROLE_ADMIN")) {
 
                 redirectStratgy.sendRedirect(request, response,ADMIN_URL);
-
+            //권한이 USER이면 메인 페이지로 이동
             }else if(roles.contains("ROLE_USER")) {
 
                 redirectStratgy.sendRedirect(request, response,DEFAULT_URL);

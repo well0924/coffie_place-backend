@@ -39,7 +39,7 @@ public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
         log.info(exception);
         errorMsg = URLEncoder.encode(errorMsg, "UTF-8");
 
-        setDefaultFailureUrl("/page/member/loginPage?error=true&exception="+errorMsg);
+        setDefaultFailureUrl("/page/login/loginPage?error=true&exception="+errorMsg);
 
         super.onAuthenticationFailure(request, response, exception);
     }
