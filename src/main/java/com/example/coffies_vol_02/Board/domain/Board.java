@@ -56,7 +56,7 @@ public class Board extends BaseTime {
     private List<Attach>attachList = new ArrayList<>();
 
     @Builder
-    public Board(Integer id,String boardContents,String boardAuthor,String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member){
+    public Board(Integer id, String boardContents, String boardAuthor, String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member){
         this.id = id;
         this.boardTitle = boardTitle;
         this.boardAuthor = member.getUserId();
@@ -65,6 +65,8 @@ public class Board extends BaseTime {
         this.passWd = passWd;
         this.fileGroupId = fileGroupId;
         this.member = member;
+        this.getCreatedTime();
+        this.getUpdatedTime();
     }
 
     //게시글 수정
@@ -72,6 +74,7 @@ public class Board extends BaseTime {
         this.boardTitle = dto.getBoardTitle();
         this.boardContents = dto.getBoardContents();
     }
+
     //파일 첨부
     public void addAttach(Attach attachFile){
         this.attachList.add(attachFile);

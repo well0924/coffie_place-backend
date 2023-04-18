@@ -8,6 +8,7 @@ import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Log4j2
 @Component
 public class FileHandler {
     @Value("${server.file.upload}")
@@ -47,6 +49,7 @@ public class FileHandler {
             // 디렉터리가 존재하지 않을 경우
             if(!file.exists()) {
                 boolean wasSuccessful = file.mkdirs();
+                System.out.println("file create");
                 System.out.println(wasSuccessful);
                 // 디렉터리 생성에 실패했을 경우
                 if(!wasSuccessful)
@@ -102,81 +105,77 @@ public class FileHandler {
         return list;
     }
     //가게 이미지 업로드
-    public List<PlaceImage>placeImagesUpload(PlaceImageDto.PlaceImageRequestDto dto, List<MultipartFile> images)throws Exception{
+    public List<PlaceImage>placeImagesUpload(PlaceImageDto.PlaceImageRequestDto dto)throws Exception{
         List<PlaceImage>list = new ArrayList<>();
 
-        if(!CollectionUtils.isEmpty(images)){
+        if(!CollectionUtils.isEmpty(dto.getImages())){
 
-            for(MultipartFile multipartFile: images){
+            for(MultipartFile multipartFile: dto.getImages()){
+
                 if(!multipartFile.isEmpty()){
-
-                    String originalFileExtension;
                     String originFileName = multipartFile.getOriginalFilename();
-                    String contentType = multipartFile.getContentType();
                     String ext = originFileName.substring(originFileName.lastIndexOf(".")+1);
 
-                    if(ObjectUtils.isEmpty(contentType)) {
-                        break;
-                    }else {
-                        if(contentType.contains("image/jpeg"))
-                            originalFileExtension = ".jpg";
-                        else if(contentType.contains("image/png"))
-                            originalFileExtension = ".png";
-                        else
-                            originalFileExtension= ext;
-                    }
-
-                    String fileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"."+originalFileExtension;
-                    String thumbFileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"thumb."+originalFileExtension;
+                    String fileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"."+ext;
+                    String thumbFileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"thumb."+ext;
                     String localPath = imgPath+dto.getImgGroup()+"/"+dto.getFileType()+"/"+thumbFileName;
-                    String fullPath = new File(filePath).getAbsolutePath()+dto.getImgGroup()+File.separator+File.separator+dto.getFileType()+File.separator+File.separator+fileName;
+                    String fullPath = new File(filePath).getAbsolutePath()+ File.separator + File.separator+dto.getImgGroup()+File.separator+File.separator+dto.getFileType()+File.separator+File.separator+fileName;
+                    String path = filePath+ File.separator + File.separator +dto.getImgGroup()+"\\"+dto.getFileType()+"\\thumb\\"+thumbFileName;
 
-                    if(originFileName!=null && originFileName.trim().length()>0){
-                        File newFile =  new File(fullPath);
+                    System.out.println("localpath:"+localPath);
+                    System.out.println("fullPath:"+fullPath);
+                    System.out.println("path:"+path);
 
-                        if(!newFile.exists()){
-                            if (newFile.getParentFile().mkdirs()) {
-                                newFile.createNewFile();
-                            }
+                    File newFile =  new File(fullPath);
+                    System.out.println(newFile);
+
+                    if(!newFile.exists()){
+                        if (newFile.getParentFile().mkdirs()) {
+                            newFile.createNewFile();
+                        }else {
+                            System.out.println("file fail!");
                         }
-                        multipartFile.transferTo(newFile);
-
-                        String path = filePath +dto.getImgGroup()+"\\"+dto.getFileType()+"\\thumb\\"+thumbFileName;
-
-                        PlaceImageDto.PlaceImageResponseDto ResponseDto = PlaceImageDto.PlaceImageResponseDto
-                                .builder()
-                                .fileGroupId(dto.getFileGroupId())
-                                .fileType(dto.getFileType())
-                                .imgPath(fullPath)
-                                .storedName(fileName)
-                                .originName(originFileName)
-                                .thumbFileImagePath(localPath)
-                                .thumbFilePath(path)
-                                .isTitle(dto.getIsTitle())
-                                .imgUploader(dto.getImgUploader())
-                                .build();
-
-                        PlaceImage placeImage = new PlaceImage
-                                (
-                                  ResponseDto.getFileGroupId(),
-                                  ResponseDto.getFileType(),
-                                  ResponseDto.getImgPath(),
-                                  ResponseDto.getStoredName(),
-                                  ResponseDto.getOriginName(),
-                                  ResponseDto.getThumbFileImagePath(),
-                                  ResponseDto.getThumbFilePath(),
-                                  ResponseDto.getImgPath(),
-                                  ResponseDto.getImgGroup(),
-                                  ResponseDto.getIsTitle()
-                                );
-
-                        list.add(placeImage);
                     }
+
+                    PlaceImageDto.PlaceImageResponseDto ResponseDto = PlaceImageDto.PlaceImageResponseDto
+                            .builder()
+                            .fileGroupId(dto.getFileGroupId())
+                            .fileType(dto.getFileType())
+                            .imgPath(fullPath)
+                            .storedName(fileName)
+                            .originName(originFileName)
+                            .thumbFileImagePath(localPath)
+                            .thumbFilePath(path)
+                            .isTitle(dto.getIsTitle())
+                            .imgUploader(dto.getImgUploader())
+                            .build();
+
+                    PlaceImage placeImage = new PlaceImage
+                            (
+                              ResponseDto.getFileGroupId(),
+                              ResponseDto.getFileType(),
+                              ResponseDto.getImgPath(),
+                              ResponseDto.getStoredName(),
+                              ResponseDto.getOriginName(),
+                              ResponseDto.getThumbFileImagePath(),
+                              ResponseDto.getThumbFilePath(),
+                              ResponseDto.getImgPath(),
+                              ResponseDto.getImgGroup(),
+                              ResponseDto.getIsTitle()
+                            );
+                    log.info(placeImage);
+                    list.add(placeImage);
+
+                    multipartFile.transferTo(newFile);
+                    // 파일 권한 설정(쓰기, 읽기)
+                    newFile.setWritable(true);
+                    newFile.setReadable(true);
                 }
             }
         }
         return list;
     }
+
     //가게 이미지 리사이징
     public String ResizeImage(PlaceImage dto,int width,int height){
         String defaultFolder = filePath+File.separator+dto.getImgGroup()+File.separator+dto.getFileType()+File.separator;

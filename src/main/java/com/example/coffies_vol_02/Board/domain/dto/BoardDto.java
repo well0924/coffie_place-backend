@@ -6,12 +6,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BoardDto {
     @Setter
     @Getter
     @ToString
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BoardRequestDto{
@@ -41,6 +43,7 @@ public class BoardDto {
         private String fileGroupId;
         private LocalDateTime createdTime;
         private LocalDateTime updatedTime;
+
         @Builder
         public BoardResponseDto(Board board){
             this.id = board.getId();

@@ -67,9 +67,9 @@ public class FileApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
-
+    @ApiOperation("가게 목록 엑셀 다운로드")
     @GetMapping("/placedownload")
-    public ResponseEntity getUsersPointStats(HttpServletResponse response, boolean excelDownload){
-        return ResponseEntity.ok(placeService.getUsersPointStats(response, excelDownload));
+    public ResponseEntity getPlaceList(HttpServletResponse response, boolean excelDownload){
+        return ResponseEntity.ok(placeService.getPlaceList(response,excelDownload));
     }
 }

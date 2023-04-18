@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,7 +85,9 @@ public class BoardService {
                 .member(member)
                 .build();
 
-        int InsertResult = boardRepository.save(board).getId();
+        boardRepository.save(board);
+
+        Integer InsertResult = board.getId();
 
         List<Attach>filelist = fileHandler.parseFileInfo(requestDto.getFiles());
 
@@ -106,6 +107,11 @@ public class BoardService {
     */
     @Transactional
     public Integer BoardUpdate(Integer boardId, BoardDto.BoardRequestDto dto, Member member,List<MultipartFile>files) throws Exception {
+
+        if(member==null){
+            throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
+        }
+
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         String boardAuthor = detail.get().getBoardAuthor();
@@ -152,6 +158,10 @@ public class BoardService {
     */
     @Transactional
     public void BoardDelete(Integer boardId,Member member) throws Exception {
+
+        if(member==null){
+            throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
+        }
 
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
