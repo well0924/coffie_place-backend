@@ -51,4 +51,9 @@ public class LikeApiController {
 
         return new CommonResponse<>(HttpStatus.OK.value(),resultDate);
     }
+
+    @ApiOperation("가게 댓글 좋아요 카운트")
+    public CommonResponse<?>placeLikeCount(){
+        return new CommonResponse<>();
+    }
 }

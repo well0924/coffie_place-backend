@@ -18,11 +18,14 @@ layout:decorate="~{layout/leafframe}">
 	<div class="row">
 		<div class="col-sm-12">
 			<h1>게시글 열람</h1>
+			<div id="favoriteCount"></div>
+			<i class="fa-sharp fa-solid fa-eye">[[${detail.readCount}]]</i>
 			<div class="card shadow">
 				<div class="card-body">
 					<input type="hidden" id="board_id" name="id" th:value="${detail.id}">
 					<input type="hidden" id="pwd" name="passWd" th:value="${detail.passWd}">
 					<input type="hidden" id="fileGroupId" name="fileGroupId">
+					<!--좋아요 횟수 나오는 부분-->
 					<div class="form-group">
 						<label for="board_subject">제목</label>
 						<input type="text" id="board_subject" name="boardTitle" class="form-control" th:value="${detail.boardTitle}" disabled="disabled"/>
@@ -37,11 +40,10 @@ layout:decorate="~{layout/leafframe}">
 					</div>                                           
 					<div class="form-group">
 						<label for="board_content">내용</label>
-						<p th:utext="${detail.boardContents}"></p>
+						<p id="board_content" th:utext="${detail.boardContents}"></p>
 					</div>
 					<div class="form-group">
-						<label for="board_content">조회수</label>
-						<input id="board_content" name="readCount" class="form-control" rows="10" style="resize:none" th:value="${detail.readCount}" disabled="disabled">
+						<button id ="board_liked" name="liked" class="btn btn-primary" onclick="boardLike()">좋아요</button>
 					</div>
 					<div class="form-group">
 						<label>첨부 파일</label>
@@ -88,6 +90,63 @@ layout:decorate="~{layout/leafframe}">
 </div>
 <script th:src="@{/js/board/boarddetail.js}"></script>
 <script th:src="@{/js/reply/boardreply.js}"></script>
+<script>
+	$(document).ready(function(){
+		likeCount();
+	});
+	//게시판 좋아요 카운팅
+	function likeCount(){
+		let str = '';
+		let id = $('#board_id').val();
+		$.ajax({
+			url:"/api/like/"+id,
+			type:"get",
+			dataType:"json",
+			contentType:"application/json; charset=utf-8"
+		}).done(function (resp) {
+			if(resp.data[0]!=null){
+
+				if(resp.data[1] != false){
+					str += '<i class="fa-sharp fa-solid fa-thumbs-up">' + resp.data[0] + '</i>';
+				}
+				if(resp.data[1] != true){
+					str += '<i class="fa-regular fa-thumbs-up">'+resp.data[0]+'</i>';
+				}
+			}
+			$('#favoriteCount').html(str);
+		});
+	}
+	//게시판 좋아요 추가하기.
+	function boardLike(){
+		console.log("좋아요");
+		let id = $('#board_id').val();
+		$.ajax({
+			url:"/api/like/plus/"+id,
+			type: 'post',
+			dataType: "json",
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(id)
+		}).done(function(resp){
+			alert(resp.data);
+			$('#favoriteCount').empty();
+			likeCount();
+		});
+	}
+
+	function likeCancel(){
+		let id = $('#board_id').val();
+		$.ajax({
+			url:'/api/like/minus/'+id,
+			type:'delete',
+			dataType:'json',
+			contentType:'application/json; charset=utf-8'
+		}).done(function(resp){
+			console.log(resp.data);
+			$('#favoriteCount').empty();
+			likeCount();
+		});
+	}
+</script>
 </th:block>
 </body>
 </html>

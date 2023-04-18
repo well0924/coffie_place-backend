@@ -3,7 +3,6 @@ server:
   file:
     upload: C:\\UploadFile\\
 
-#
 spring:
   main:
     allow-bean-definition-overriding: true
