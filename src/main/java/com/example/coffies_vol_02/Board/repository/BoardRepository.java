@@ -21,7 +21,6 @@ public interface BoardRepository extends JpaRepository<Board,Integer> {
     Page<Board> findByMember(Member member, Pageable pageable);
 
     //게시글 조회수 증가
-    //Modifying 어노테이션 공부하기.
     @Modifying
     @Query("update Board b set b.readCount = b.readCount +1 where b.id = :id")
     Integer ReadCountUp(@Param("id") Integer id);
