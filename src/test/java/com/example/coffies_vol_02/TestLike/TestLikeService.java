@@ -175,7 +175,7 @@ public class TestLikeService {
     private Comment comment(){
         return Comment
                 .builder()
-                .id(1)
+                .id(7)
                 .replyContents("reply test")
                 .replyWriter(member.getUserId())
                 .replyPoint(3)

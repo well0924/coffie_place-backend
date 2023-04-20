@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.TestLike;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
@@ -32,7 +31,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -56,11 +54,11 @@ public class TestLikeController {
     @Mock
     private MemberRepository memberRepository;
     @Mock
-    private BoardRepository boardRepository;
-    @Mock
     private LikeRepository likeRepository;
     @Mock
     private PlaceRepository placeRepository;
+    @Mock
+    private CommentLikeRepository commentLikeRepository;
     @Autowired
     ObjectMapper objectMapper;
     Member member;
@@ -71,8 +69,6 @@ public class TestLikeController {
     CommentLike commentLike;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
-    @Autowired
-    private CommentLikeRepository commentLikeRepository;
 
     @BeforeEach
     public void init(){
@@ -161,7 +157,7 @@ public class TestLikeController {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
-        given(commentLikeRepository.save(commentLike)).willReturn(commentLike);
+        given(commentLikeRepository.findByMemberAndComment(member,comment)).willReturn(Optional.of(commentLike));
 
         mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",1,7)
                         .contentType(MediaType.APPLICATION_JSON)
