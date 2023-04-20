@@ -67,7 +67,9 @@ public class NoticeService {
                 .fileGroupId(dto.getFileGroupId())
                 .build();
 
-        int noticeInsertResult = noticeBoardRepository.save(noticeBoard).getId();
+        noticeBoardRepository.save(noticeBoard);
+
+        Integer noticeInsertResult = noticeBoard.getId();
 
         List<Attach>filelist = fileHandler.parseFileInfo(files);
 

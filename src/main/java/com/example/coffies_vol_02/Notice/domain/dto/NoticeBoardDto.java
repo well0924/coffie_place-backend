@@ -14,6 +14,7 @@ public class NoticeBoardDto {
     @Setter
     @Getter
     @ToString
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BoardRequestDto{

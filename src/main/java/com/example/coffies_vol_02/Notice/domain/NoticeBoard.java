@@ -29,7 +29,8 @@ public class NoticeBoard extends BaseTime {
     private List<Attach> attachList = new ArrayList<>();
 
     @Builder
-    public NoticeBoard(String noticeGroup,String noticeTitle,String noticeWriter,String noticeContents,String fileGroupId,Character isFixed){
+    public NoticeBoard(Integer id,String noticeGroup,String noticeTitle,String noticeWriter,String noticeContents,String fileGroupId,Character isFixed){
+        this.id = id;
         this.noticeGroup = noticeGroup;
         this.noticeTitle = noticeTitle;
         this.noticeContents = noticeContents;
