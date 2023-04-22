@@ -16,12 +16,9 @@ import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.poi.sl.draw.geom.GuideIf;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,10 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -167,10 +161,10 @@ public class CommentApiControllerTest {
 
     @Test
     @DisplayName("가게 댓글 삭제")
-    @Disabled
     public void placeCommentDeleteTest()throws Exception{
-        mvc.perform(delete("/api/comment/placedelete/{place_id}/{reply_id}",any(),any())
-                .with(user(customUserDetails)))
+        mvc.perform(delete("/api/comment/place_delete/{place_id}/{reply_id}",place.getId(),comment.getId())
+                        .with(user(customUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
                 .andDo(print());
     }
@@ -200,6 +194,7 @@ public class CommentApiControllerTest {
                 .member(member)
                 .build();
     }
+
     private Member memberDto(){
         return Member
                 .builder()

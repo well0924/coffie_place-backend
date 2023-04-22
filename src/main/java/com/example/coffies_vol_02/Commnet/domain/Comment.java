@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Commnet.domain;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.Like.domain.CommentLike;
 import com.example.coffies_vol_02.Like.domain.Like;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Place.domain.Place;
@@ -38,7 +39,7 @@ public class Comment extends BaseTime {
     private Place place;
     @ToString.Exclude
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
-    private Set<Like> likes = new HashSet<>();
+    private Set<CommentLike> likes = new HashSet<>();
 
     @Builder
     public Comment(Integer id,String replyWriter,String replyContents,Integer replyPoint,Board board,Member member,Place place){

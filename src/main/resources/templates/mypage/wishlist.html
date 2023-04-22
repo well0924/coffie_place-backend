@@ -45,13 +45,13 @@ layout:decorate="~{layout/leafframe}">
 				<div class="row">
 					<div class="col-4" th:each ="list:${wishlist}">
 						<div class="card">
-							<input type="hidden" id ="userid" name="userId" th:value="${list.userId}">
-							<input type="hidden" id ="favoriteid" name="favoriteId" th:value="${list.favoriteId}">
+							<input type="hidden" id ="userid" name="memberId" th:value="${list.memberId}">
+							<input type="hidden" id ="favoriteid" name="id" th:value="${list.id}">
 							<th:block>
 							<img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}"/>
 							</th:block>
 							<div class="card-body">
-							[[${list.favoriteId}]]
+							[[${list.id}]]
 								<h5 class="card-title">[[${list.placeName}]]</h5>
 								<p class="card-text">[[${list.placeAddr1}]]</p>
 								<div class='RatingStar'>
@@ -62,7 +62,7 @@ layout:decorate="~{layout/leafframe}">
 									</div>
 								</div>
 								<p class="card-text">[[${list.reviewRate}]]</p>
-								<a th:href="@{'/page/place/placedetail/'+${list.placeId}}" class="btn btn-primary">상세보기</a>
+								<a th:href="@{'/page/place/detail/'+${list.placeId}}" class="btn btn-primary">상세보기</a>
 							</div>
 							<button class="btn btn-danger" onclick="deleteWish()">위시리스트 삭제</button>
 						</div>
@@ -83,24 +83,17 @@ function deleteWish(){
 	
 	let favoriteid = $('#favoriteid').val();
 	
-	let userid = $('#userid').val();
-	
 	if(isConfirm){
 		
 		$.ajax({
-			url:'/api/mypage/delete/'+favoriteid+"/"+userid,
+			url:'/api/mypage/delete/'+favoriteid,
 			type:'delete',
 			dataType:'json',
 			data:null,
 			contentType:'application/json; charset = utf-8'
 		}).done(function(resp){
-			
 			alert('삭제되었습니다.');
-			
 			location.href="/page/mypage/page/"+userid;
-			
-			console.log(favoriteid);
-			console.log(userid);
 		});
 	}
 }
@@ -109,7 +102,7 @@ function memberDelete(){
 	let id = $('#user_id').val();
 
 	$.ajax({
-		url:'/api/admin/memberdelete/'+id,
+		url:'/api/admin/memberDelete/'+id,
 		type:'delete',
 		data:null
 	}).done(function(resp){
