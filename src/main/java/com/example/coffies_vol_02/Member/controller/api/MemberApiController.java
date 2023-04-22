@@ -33,25 +33,13 @@ public class MemberApiController {
     @Operation(summary = "회원 목록 api",description = "회원전체 목록을 출력한다.")
     @GetMapping("/list")
     public CommonResponse<Page<MemberDto.MemberResponseDto>> memberList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
-        Page<MemberDto.MemberResponseDto> list = null;
-
-        try {
-            list = memberService.findAll(pageable);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Page<MemberDto.MemberResponseDto> list = memberService.findAll(pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     @Operation(summary = "회원 단일 조회 api",description = "회원을 단일  조회한다.")
     @GetMapping("/detail/{user_idx}")
     public CommonResponse<MemberDto.MemberResponseDto>memberDetail(@PathVariable("user_idx")Integer userIdx){
-        MemberDto.MemberResponseDto detail = new MemberDto.MemberResponseDto();
-
-        try {
-            detail = memberService.findMemberById(userIdx);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        MemberDto.MemberResponseDto detail = memberService.findMemberById(userIdx);
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
@@ -59,13 +47,8 @@ public class MemberApiController {
     @PostMapping("/memberjoin")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>memberJoin(@Valid @RequestBody MemberDto.MemberCreateDto dto, BindingResult bindingResult){
-        int JoinResult = 0
-                ;
-        try {
-            JoinResult = memberService.memberSave(dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        int JoinResult = 0;
+        JoinResult = memberService.memberSave(dto);
         return new CommonResponse<>(HttpStatus.OK.value(),JoinResult);
     }
     @ApiOperation(value = "회원수정 api")
@@ -74,11 +57,8 @@ public class MemberApiController {
     public CommonResponse<?>memberUpdate(@PathVariable("user_idx") Integer userIdx,@RequestBody MemberDto.MemberCreateDto dto){
         int UpdateResult = 0;
 
-        try {
-            UpdateResult = memberService.memberUpdate(userIdx,dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        UpdateResult = memberService.memberUpdate(userIdx,dto);
+
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
     @ApiOperation(value = "회원삭제 api")
@@ -93,11 +73,8 @@ public class MemberApiController {
     public CommonResponse<?>findUserID(@PathVariable(value = "user_name")String userName, @PathVariable("user_email")String userEmail){
         String findUser = "";
 
-        try {
-            findUser =memberService.findByMembernameAndUseremail(userName,userEmail);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        findUser =memberService.findByMembernameAndUseremail(userName,userEmail);
+
         return new CommonResponse<>(HttpStatus.OK.value(),findUser);
     }
     @Operation(summary = "회원 아이디 중복 api",description = "회원가입 페이지에서 아이디 중복기능")
@@ -118,12 +95,7 @@ public class MemberApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>passwordChange(@PathVariable("user_id")Integer id,@RequestBody MemberDto.MemberCreateDto dto){
         int updateResult = 0;
-
-        try {
-            updateResult = memberService.updatePassword(id,dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        updateResult = memberService.updatePassword(id,dto);
         return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
     }
 

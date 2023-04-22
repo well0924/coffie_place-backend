@@ -1,10 +1,13 @@
 package com.example.coffies_vol_02.Member.domain;
 
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,6 +31,9 @@ public class Member extends BaseTime {
     private String userAddr2;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<FavoritePlace>wishList = new ArrayList<>();
 
     @Builder
     public Member(Integer id,String userId,String password,String memberName,String userPhone,String userGender,String userAge,String userEmail,String userAddr1,String userAddr2,Role role){

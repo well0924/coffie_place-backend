@@ -39,7 +39,8 @@ public class Place extends BaseTime {
 
     
     @Builder
-    public Place(String placeName,String placeAuthor,String placeStart,String placeClose,String placePhone,String placeAddr1,String placeAddr2,String fileGroupId,Double placeLng,Double placeLat,Double reviewRate){
+    public Place(Integer id,String placeName,String placeAuthor,String placeStart,String placeClose,String placePhone,String placeAddr1,String placeAddr2,String fileGroupId,Double placeLng,Double placeLat,Double reviewRate){
+        this.id = id;
         this.placeName = placeName;
         this.placeAuthor = placeAuthor;
         this.placeStart = placeStart;
@@ -50,12 +51,11 @@ public class Place extends BaseTime {
         this.fileGroupId = fileGroupId;
         this.placeLng = placeLng;
         this.placeLat = placeLat;
-        this.reviewRate = reviewRate;
+        this.reviewRate = 0.0;
     }
     //이미지 첨부
     public void addPlaceImage(PlaceImage placeImage){
         this.placeImageList.add(placeImage);
-
         if(placeImage.getPlace() !=this){
             placeImage.setPlace(this);
         }

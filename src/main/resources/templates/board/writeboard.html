@@ -61,17 +61,10 @@ layout:decorate="~{layout/leafframe}">
 			codeviewFilter: false,
 			codeviewIframeFilter: true,
 			popover:{
-				image:[],
 				link:[],
 				air:[]
 			},
-			focus: true,
-			callbacks :{
-				sendImage: function(files){
-					console.log(files)
-					sendFile(file[0], this);
-				}
-			}
+			focus: true
 		});
 		let filegroupid = $('#fileGroupId').val();
 		console.log(filegroupid);

@@ -70,7 +70,6 @@ public class MemberServiceTest {
                 member.getCreatedTime(),
                 member.getUpdatedTime()));
 
-        System.out.println(result);
         assertThat(result).isNotNull();
     }
     @Test

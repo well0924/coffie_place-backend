@@ -19,6 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 
 @Log4j2
 @Configuration
@@ -43,7 +45,9 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
+        return (web) -> web
+                .httpFirewall(defaultFireWell())
+                .ignoring()
                 .antMatchers("/images/**", "/js/**","/font/**", "/webfonts/**", "/main/**", "/webjars/**", "/dist/**", "/plugins/**", "/css/**","/favicon.ico");
     }
 
@@ -77,9 +81,10 @@ public class SecurityConfig {
             //csrf 토큰 비활성화
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/api/member/selectdelete","/api/member/autocompetekeyword").hasRole("ADMIN")
+            .antMatchers("/**").permitAll()
+            /*.antMatchers("/api/member/selectdelete","/api/member/autocompetekeyword").hasRole("ADMIN")
             .antMatchers("/page/login/loginPage", "/page/login/memberjoin", "/page/login/tmpid", "/api/member/**","/page/board/*").permitAll()
-            .antMatchers("/api/board/**","/api/comment/**","/api/like/**").hasAnyRole("ADMIN","USER")
+            .antMatchers("/api/board/**","/api/comment/**","/api/like/**").hasAnyRole("ADMIN","USER")*/
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
             .anyRequest().authenticated();
 
@@ -101,5 +106,8 @@ public class SecurityConfig {
 
         return http.build();
     }
-
+    @Bean
+    public HttpFirewall defaultFireWell(){
+        return new DefaultHttpFirewall();
+    }
 }
