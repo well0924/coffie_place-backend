@@ -18,7 +18,8 @@ public enum ERRORCODE{
     LIKE_NOT_FOUND(404,"좋아요가 없습니다."),
     NOT_MATCH_PASSWORD(400,"비밀번호가 일치하지 않습니다."),
     NOT_FILE(400,"파일이 존재하지 않습니다."),
-    PLACE_NOT_FOUND(400,"가게가 존재하지 않습니다.");
+    PLACE_NOT_FOUND(400,"가게가 존재하지 않습니다."),
+    NOT_WISHLIST(400,"위시리스트가 없습니다.");
     private final Integer httpStatus;
     private final String message;
 }

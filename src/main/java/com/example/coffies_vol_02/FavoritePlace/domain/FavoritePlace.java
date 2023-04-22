@@ -25,9 +25,9 @@ public class FavoritePlace {
     private String fileGroupId;
 
     @Builder
-    public FavoritePlace(Place place,Member member,String fileGroupId){
+    public FavoritePlace(Place place, Member member, String fileGroupId) {
         this.place = place;
         this.member = member;
-        this.fileGroupId = fileGroupId;
+        this.fileGroupId = place.getFileGroupId();
     }
 }

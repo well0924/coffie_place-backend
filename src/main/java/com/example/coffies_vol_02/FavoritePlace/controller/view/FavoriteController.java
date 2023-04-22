@@ -4,6 +4,8 @@ import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
+import com.example.coffies_vol_02.FavoritePlace.domain.dto.FavoritePlaceDto;
 import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,8 +27,6 @@ import java.util.List;
 @RequestMapping("/page/mypage")
 public class FavoriteController {
     private final FavoritePlaceService favoritePlaceService;
-    private final CommentRepository commentRepository;
-
 
     @GetMapping("/contents/{id}")
     public ModelAndView myContents(@PathVariable("id")String userId, @AuthenticationPrincipal CustomUserDetails customUserDetails, @PageableDefault(direction = Sort.Direction.DESC,size = 5,sort = "id") Pageable pageable){
@@ -54,6 +54,15 @@ public class FavoriteController {
         }
         mv.addObject("mylist",list);
         mv.setViewName("/mypage/mycomment");
+        return mv;
+    }
+
+    @GetMapping("/page/{user_id}")
+    public ModelAndView myWishList(@PathVariable("user_id")String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        ModelAndView mv = new ModelAndView();
+        List<FavoritePlaceDto.FavoriteResponseDto>list = favoritePlaceService.findByMemberId(userId);
+        mv.addObject("wishlist",list);
+        mv.setViewName("/mypage/wishlist");
         return mv;
     }
 

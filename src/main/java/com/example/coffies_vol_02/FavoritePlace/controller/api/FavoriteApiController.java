@@ -12,10 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.parameters.P;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,31 +24,39 @@ import java.util.List;
 public class FavoriteApiController {
     private FavoritePlaceService favoritePlaceService;
 
+    @ApiOperation("가게 위시리스트에 추가")
+    @PostMapping("/{member_id}/{place_id}")
+    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        if(favoritePlaceService.hasWishPlace(placeId,memberId)){//체크했을시 있는 경우
+            //위시리스트삭제
+            favoritePlaceService.deleteById(placeId,memberId);
+            return new CommonResponse<>(HttpStatus.OK.value(),false);
+        }else{//없는경우
+            //위시리스트 추가
+            favoritePlaceService.wishListAdd(memberId,placeId);
+            return new CommonResponse<>(HttpStatus.OK.value(),true);
+        }
+    }
+    @ApiOperation("위시리스트 삭제")
+    @DeleteMapping("/{wish_id}")
+    public CommonResponse<?>wishListDelete(@PathVariable("wish_id")Integer wishId){
+        favoritePlaceService.wishDelete(wishId);
+        return new CommonResponse<>(HttpStatus.OK.value(),"wishlist delete!");
+    }
+
     @ApiOperation(value = "로그인한 회원이 작성한 글")
     @GetMapping("/contents/{id}")
     public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @AuthenticationPrincipal CustomUserDetails customUserDetails, @PageableDefault Pageable pageable){
-        Page<BoardDto.BoardResponseDto>list = null;
-
-        try {
-            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+        Page<BoardDto.BoardResponseDto> list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     
     @ApiOperation(value = "로그인한 회원이 작성한 댓글")
     @GetMapping("/comment/{id}")
     public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
-        List<CommentDto.CommentResponseDto>list = new ArrayList<>();
-
-        try {
-            list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+        List<CommentDto.CommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
+
+
 }
