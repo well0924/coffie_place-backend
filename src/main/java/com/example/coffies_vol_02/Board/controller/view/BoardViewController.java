@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -30,9 +31,10 @@ public class BoardViewController {
     private final AttachService attachService;
 
     @GetMapping("/list")
-    public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+    public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                  @RequestParam(value = "searchVal",required = false)String searchVal){
         ModelAndView mv = new ModelAndView();
-        Page<BoardDto.BoardResponseDto> boardList = boardService.boardAll(pageable);
+        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,pageable);
 
         mv.addObject("boardlist",boardList);
         mv.setViewName("/board/boardlist");

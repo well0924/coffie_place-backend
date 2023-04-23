@@ -41,6 +41,12 @@ public class BoardService {
         return list.map(board -> new BoardDto.BoardResponseDto(board));
     }
 
+    @Transactional(readOnly = true)
+    public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal, Pageable pageable){
+        Page<BoardDto.BoardResponseDto>searchResult = boardRepository.findAllSearch(searchVal,pageable);
+        return searchResult;
+    }
+
     /*
     *  게시글 단일 조회
     *

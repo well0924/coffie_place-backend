@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface BoardRepository extends JpaRepository<Board,Integer> {
+public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoardRepository{
     //비밀 번호 확인
     @Query("select b from Board b where b.id=:id and b.passWd= :passWd")
     BoardDto.BoardResponseDto findByPassWdAndId(@Param("passWd") String password, @Param("id") Integer id);
