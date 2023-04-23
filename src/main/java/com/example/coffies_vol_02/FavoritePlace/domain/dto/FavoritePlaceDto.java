@@ -1,15 +1,13 @@
 package com.example.coffies_vol_02.FavoritePlace.domain.dto;
 
 import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 public class FavoritePlaceDto {
     @Getter
     @Setter
     @ToString
+    @AllArgsConstructor
     @NoArgsConstructor
     public static class FavoriteResponseDto{
         private Integer id;
@@ -22,7 +20,9 @@ public class FavoritePlaceDto {
         private String placeClose;
         private String placeAddr1;
         private String placeAddr2;
+        private String isTitle;
         private String thumbFileImagePath;
+        @Builder
         public FavoriteResponseDto(FavoritePlace favoritePlace){
             this.id = favoritePlace.getId();
             this.placeId = favoritePlace.getPlace().getId();
@@ -33,7 +33,6 @@ public class FavoritePlaceDto {
             this.placeClose = favoritePlace.getPlace().getPlaceClose();
             this.placeAddr1 = favoritePlace.getPlace().getPlaceAddr1();
             this.placeAddr2 = favoritePlace.getPlace().getPlaceAddr2();
-            this.thumbFileImagePath = favoritePlace.getPlace().getPlaceImageList().get(0).getThumbFileImagePath();
         }
     }
 }

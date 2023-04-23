@@ -66,7 +66,7 @@ public class NoticeController {
 
         NoticeBoardDto.BoardResponseDto list = noticeService.noticeDetail(noticeId);
 
-        mv.addObject("noticelist",list);
+        mv.addObject("detail",list);
         mv.setViewName("/notice/noticemodify");
 
         return mv;

@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Table(name = "tbl_favorite_place")
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 public class FavoritePlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +24,8 @@ public class FavoritePlace {
     private String fileGroupId;
 
     @Builder
-    public FavoritePlace(Place place, Member member, String fileGroupId) {
+    public FavoritePlace(Integer id,Place place, Member member, String fileGroupId) {
+        this.id = id;
         this.place = place;
         this.member = member;
         this.fileGroupId = place.getFileGroupId();

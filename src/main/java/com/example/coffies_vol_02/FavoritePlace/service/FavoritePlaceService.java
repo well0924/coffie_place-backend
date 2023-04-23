@@ -44,6 +44,7 @@ public class FavoritePlaceService {
         List<FavoritePlace>wishList = member.get().getWishList();
         return wishList.stream().map(FavoritePlaceDto.FavoriteResponseDto::new).collect(Collectors.toList());
     }
+
     /*
      * 위시 리스트 중복처리
      */
@@ -59,10 +60,10 @@ public class FavoritePlaceService {
         Optional<Place>place = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
         favoritePlaceRepository.save(FavoritePlace
-                                        .builder()
-                                        .member(member.get())
-                                        .place(place.get())
-                                        .build());
+                .builder()
+                .member(member.get())
+                .place(place.get())
+                .build());
     }
 
     /*
@@ -75,6 +76,7 @@ public class FavoritePlaceService {
     public void deleteById(Integer placeId,Integer memberId){
         favoritePlaceRepository.deleteByPlaceIdAndMemberId(placeId,memberId);
     }
+
     /*
      * 내가 작성한 글 확인하기.
      */

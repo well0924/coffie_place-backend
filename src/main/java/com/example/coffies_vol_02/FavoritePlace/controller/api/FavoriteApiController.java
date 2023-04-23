@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.FavoritePlace.domain.dto.FavoritePlaceDto;
 import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -23,11 +24,16 @@ import java.util.List;
 @RequestMapping("/api/mypage")
 public class FavoriteApiController {
     private FavoritePlaceService favoritePlaceService;
-
+    @ApiOperation("위시리스트 목록")
+    @GetMapping("/{user_id}")
+    public CommonResponse<List<FavoritePlaceDto.FavoriteResponseDto>>wishPlaceList(@PathVariable("user_id")String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        List<FavoritePlaceDto.FavoriteResponseDto>list= favoritePlaceService.findByMemberId(userId);
+        return new CommonResponse<>(HttpStatus.OK.value(),list);
+    }
     @ApiOperation("가게 위시리스트에 추가")
     @PostMapping("/{member_id}/{place_id}")
-    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        if(favoritePlaceService.hasWishPlace(placeId,memberId)){//체크했을시 있는 경우
+    public CommonResponse<Boolean>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        if(favoritePlaceService.hasWishPlace(placeId,memberId)==true){//체크했을시 있는 경우
             //위시리스트삭제
             favoritePlaceService.deleteById(placeId,memberId);
             return new CommonResponse<>(HttpStatus.OK.value(),false);
@@ -39,7 +45,7 @@ public class FavoriteApiController {
     }
     @ApiOperation("위시리스트 삭제")
     @DeleteMapping("/{wish_id}")
-    public CommonResponse<?>wishListDelete(@PathVariable("wish_id")Integer wishId){
+    public CommonResponse<String>wishListDelete(@PathVariable("wish_id")Integer wishId){
         favoritePlaceService.wishDelete(wishId);
         return new CommonResponse<>(HttpStatus.OK.value(),"wishlist delete!");
     }
@@ -57,6 +63,5 @@ public class FavoriteApiController {
         List<CommentDto.CommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
-
 
 }
