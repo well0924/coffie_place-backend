@@ -36,6 +36,17 @@ public class MemberApiController {
         Page<MemberDto.MemberResponseDto> list = memberService.findAll(pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
+    @Operation(summary = "회원 검색 api",description = "회원목록에서 검색을 한다.")
+    @GetMapping("/search")
+    public CommonResponse<Page<MemberDto.MemberResponseDto>>memberSearch(
+            @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam("searchVal") String searchVal){
+
+        Page<MemberDto.MemberResponseDto> list = memberService.findByAllSearch(searchVal,pageable);
+
+        return new CommonResponse<>(HttpStatus.OK.value(),list);
+    }
+
     @Operation(summary = "회원 단일 조회 api",description = "회원을 단일  조회한다.")
     @GetMapping("/detail/{user_idx}")
     public CommonResponse<MemberDto.MemberResponseDto>memberDetail(@PathVariable("user_idx")Integer userIdx){

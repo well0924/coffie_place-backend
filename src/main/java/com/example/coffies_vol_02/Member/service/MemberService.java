@@ -54,6 +54,12 @@ public class MemberService {
                 member.getUpdatedTime()));
     }
 
+    @Transactional(readOnly = true)
+    public Page<MemberDto.MemberResponseDto>findByAllSearch(String searchVal,Pageable pageable){
+        Page<MemberDto.MemberResponseDto>result = memberRepository.findByAllSearch(searchVal,pageable);
+        return result;
+    }
+
     /*
      * 회원 단일 조회
      *
