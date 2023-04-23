@@ -16,15 +16,14 @@
 	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;" onclick="noticewrite()">공지글 작성</button>
 	<!-- search start -->
 	<div class="form-inline" style="display: flex; justify-content: center;">
-		<select name="searchType" class="form-control" id="searchType">
+		<select name="searchVal" class="form-control" id="searchType">
 			<option>-----------</option>
-			<option th:value="all">전체보기</option>
-			<option th:value="I">아이디</option>
-			<option th:value="N">이름</option>
-			<option th:value="E">이메일</option>
+			<option th:value="userId">아이디</option>
+			<option th:value="memberName">이름</option>
+			<option th:value="userEmail">이메일</option>
 		</select>
 		<input type="text" class="form-control" id="autocompleteText" name="userId"placeholder="회원아이디를 입력해주세요.">
-		<button class="btn btn-sm btn-primary" id="btnSearch">검색</button>
+		<button class="btn btn-sm btn-primary" id="btnSearch" onclick="searchResult()">검색</button>
 	</div>
 	<!-- search end -->
 	<table class="table table-hover" id='board_list'>
@@ -62,6 +61,9 @@
 				<td class="text-center d-none d-md-table-cell">
 					[[${member.createdTime}]]
 				</td>
+			</tr>
+			<tr th:unless="${not #lists.isEmpty(memberlist)}">
+				<td>조회된 회원이 없습니다.</td>
 			</tr>
 			<tr th:unless="${not #lists.isEmpty(memberlist)}">
 				<td>조회된 회원이 없습니다.</td>

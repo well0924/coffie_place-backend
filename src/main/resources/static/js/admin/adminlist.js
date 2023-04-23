@@ -79,7 +79,10 @@ function selectDelete(){
         });
     }
 }
-
+function searchResult(){
+    let searchVal = $('#autocompleteText').val();
+    location.href='/page/admin/adminlist?searchVal='+searchVal;
+}
 function cafelist(){
     location.href='/page/place/list';
 }
