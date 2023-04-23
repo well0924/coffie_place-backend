@@ -24,13 +24,14 @@ public class PlaceDto {
         private String placeAddr2;
         @NotBlank(message = "가게 전화번호를 입력해주세요.")
         private String placePhone;
-        private String placeAuthor;
+        private String placeAuthor = "well4149";
         @NotBlank(message = "가게 시작시간을 입력해주세요.")
         private String placeStart;
         @NotBlank(message = "가게 종료시간을 입력해주세요.")
         private String placeClose;
         private String fileGroupId;
-        private List<MultipartFile> images;
+        private Double reviewRate= 0.0;
+
     }
     @Getter
     @ToString
@@ -57,6 +58,7 @@ public class PlaceDto {
             this.placeLat = place.getPlaceLat();
             this.placeLng = place.getPlaceLng();
             this.placeAddr1 = place.getPlaceAddr1();
+            this.reviewRate= place.getReviewRate();
             this.placeAddr2 = place.getPlaceAddr2();
             this.placeName = place.getPlaceName();
             this.placeStart = place.getPlaceStart();

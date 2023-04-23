@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member,Integer>, JpaSpecificationExecutor<Member> {
+public interface MemberRepository extends JpaRepository<Member,Integer>{
     //페이징 목록
     Page<Member> findAll(Pageable pageable);
 

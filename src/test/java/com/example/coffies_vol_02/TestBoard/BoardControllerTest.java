@@ -64,8 +64,6 @@ public class BoardControllerTest {
     private BoardService boardService;
     @Autowired
     private MockMvc mvc;
-    @Autowired
-    private ObjectMapper objectMapper;
     private Member member;
     private Board board;
     private Attach attach;
@@ -205,23 +203,6 @@ public class BoardControllerTest {
                 .readCount(0)
                 .passWd("1234")
                 .member(memberDto())
-                .build();
-    }
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
                 .build();
     }
     private BoardDto.BoardRequestDto getBoardRequestDto(){

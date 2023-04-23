@@ -7,8 +7,6 @@
 <head>
 <meta charset="UTF-8">
 <title>가게 등록 페이지</title>
-<!-- kakaoMap -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6ed9da504d6672f3b0d883fa91a2687a"></script>
 <!-- jquery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
@@ -164,18 +162,18 @@ function placeRegister(){
 	formdate.append("placeClose",placeclose);
 	formdate.append("fileGroupId",filegroupid);
 	//이미지.
-	var images = $("input[type='file']");
+	let images = $("input[type='file']");
 	
-	var files = images[0].files;
+	let files = images[0].files;
 	
-	for(var i = 0;i<files.length;i++){
+	for(let i = 0;i<files.length;i++){
 		console.log(files[i]);
 		formdate.append("file",files[i]);
 	}
 	
-	//가게 등록 기능o.k
+	//가게 등록 기능
 	$.ajax({
-		url:'/api/place/placeregister',
+		url:'/api/place/register',
 		type:'post',
 		dataType:'json',
 		data: formdate,
@@ -187,7 +185,7 @@ function placeRegister(){
 		
 		if(data.status == 200){
 			alert("가게가 등록이 되었습니다.");
-			location.href="/page/admin/adminlist";	
+			//location.href="/page/admin/adminlist";
 		}
 		
 		if(data.status == 400){

@@ -62,7 +62,7 @@ public class PlaceViewController {
 
         PlaceDto.PlaceResponseDto detail = placeService.placeDetail(placeId);
 
-        mv.addObject("",detail);
+        mv.addObject("detail",detail);
         mv.setViewName("/place/placemodify");
 
         return mv;

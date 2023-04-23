@@ -2,7 +2,10 @@ package com.example.coffies_vol_02.Place.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PlaceImageDto {
     @Getter
@@ -20,6 +23,7 @@ public class PlaceImageDto {
         private String imgUploader = "well4149";
         @Builder.Default
         private String isTitle = "N";
+        private List<MultipartFile>images;
     }
     @Getter
     @Setter

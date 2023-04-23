@@ -12,7 +12,6 @@ import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
@@ -92,39 +91,11 @@ public class PlaceService {
                 .placeAddr1(dto.getPlaceAddr1())
                 .placeAddr2(dto.getPlaceAddr2())
                 .fileGroupId(dto.getFileGroupId())
-                .reviewRate(0.0)
+                .reviewRate(dto.getReviewRate())
                 .build();
+        placeRepository.save(place);
 
-        int registerResult = placeRepository.save(place).getId();
-
-        List<PlaceImage>placeImageList;
-        PlaceImage responseDto;
-
-        if(registerResult>0){
-            log.info("이미지 업로드");
-            placeImageList = fileHandler.placeImagesUpload(requestDto,dto.getImages());
-            log.info(placeImageList);
-            if(!placeImageList.isEmpty()){
-                String resize = "";
-                log.info("이미지?");
-                for(int i=0;i<placeImageList.size();i++){
-                    responseDto = placeImageList.get(i);
-                    if(i==0){
-                        responseDto.setIsTitle("1");
-                        resize = fileHandler.ResizeImage(responseDto,360,360);
-                    }else{
-                        resize =fileHandler.ResizeImage(responseDto,120,120);
-                    }
-                    responseDto.setImgGroup("coffieplace");
-                    responseDto.setFileType("place");
-                    responseDto.setThumbFileImagePath(resize);
-                }
-
-                for(PlaceImage placeImage :placeImageList){
-                    place.addPlaceImage(placeImageRepository.save(placeImage));
-                }
-            }
-        }
+        int registerResult = place.getId();
 
         return registerResult;
     }
@@ -138,33 +109,7 @@ public class PlaceService {
         placeDetail.get().placeUpadate(dto);
 
         int result = placeDetail.get().getId();
-        List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
-        if(!imageList.isEmpty()){
-            for(int i=0;i< imageList.size();i++){
-                String imagePath = imageList.get(i).getImgPath();
-                String thumbPath = imageList.get(i).getThumbFilePath();
-                File image = new File(imagePath);
-                File thumb = new File(thumbPath);
-
-                if(image.exists()){
-                    image.delete();
-                }
-                if(thumb.exists()){
-                    thumb.delete();
-                }
-                placeImageService.deletePlaceImage(placeId);
-            }
-            imageList = fileHandler.placeImagesUpload(imageDto,dto.getImages());
-            for(PlaceImage placeImage : imageList){
-                placeDetail.get().addPlaceImage(placeImageRepository.save(placeImage));
-            }
-        }else{
-            imageList = fileHandler.placeImagesUpload(imageDto,dto.getImages());
-            for(PlaceImage placeImage : imageList){
-                placeDetail.get().addPlaceImage(placeImageRepository.save(placeImage));
-            }
-        }
         return result;
     }
 
@@ -174,27 +119,13 @@ public class PlaceService {
     public void placeDelete(Integer placeId) throws Exception {
         Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
-        List<PlaceImageDto.PlaceImageResponseDto>imagelist = placeImageService.placeImageResponseDtoList(placeId);
-
-        for(int i= 0; i<imagelist.size();i++){
-            String filePath= imagelist.get(i).getImgPath();
-            String thumbPath = imagelist.get(i).getThumbFilePath();
-
-            File path = new File(filePath);
-            File thumb = new File(thumbPath);
-
-            if(path.exists()){
-                path.delete();
-            }
-            if(thumb.exists()){
-                thumb.delete();
-            }
-        }
         placeRepository.deleteById(placeId);
     }
 
-
-    public Object getUsersPointStats(HttpServletResponse response, boolean excelDownload) {
+    /*
+     *
+     */
+    public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 
         List<Place> placePlace = placeRepository.findAll();
         if(excelDownload){
@@ -207,6 +138,9 @@ public class PlaceService {
         return placeList;
     }
 
+    /*
+     * 가게 목록 엑셀 다운로드
+     */
     private void createExcelDownloadResponse(HttpServletResponse response, List<Place>placeList) {
 
         try{

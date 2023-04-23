@@ -20,7 +20,7 @@
 				</th:block>
 				<form action=""  id="boardform" enctype="multipart/form-data">
 					<input type="hidden" id="fileGroupId" name="fileGroupId" th:value="${detail.fileGroupId}">
-					<input type="hidden" id="place_id" name="placeId" th:value="${detail.placeId}">
+					<input type="hidden" id="place_id" name="placeId" th:value="${detail.id}">
 					<div class="form-group">
 						<label for="place_name">가게명</label>
 						<input type="text" id="place_name" name="placeName" class="form-control" th:value="${detail.placeName}"/>

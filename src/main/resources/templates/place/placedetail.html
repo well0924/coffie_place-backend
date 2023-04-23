@@ -169,6 +169,8 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		</div>
 		<div class="col-lg-6">
 			<h1>주소</h1>
+			<!-- kakaoMap -->
+			<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=07cb9d91b6a6a9acf013db53f9e0306b"></script>
 			<!--지도 나오는 부분-->
 			<div id="map" style="width:100%;height:550px;"></div>
 			</br>
@@ -197,7 +199,7 @@ $(document).ready(function(){
 	//지도의 중심좌표
 	const options = {
 		 //입력을 받은 위경도를 넣는다.->가게 위경도
-	     center: new kakao.maps.LatLng(placeLat, placeLang),
+	     center: new kakao.maps.LatLng(37.63974, 127.025538),
 	     level: 1//지도의 확대레벨
 	};
 	//지도를 생성 
@@ -229,15 +231,15 @@ $(document).ready(function(){
 		}).done(function(data){
 			let str = '';
 			let starDiv = '';
-			let starScore = 0;
+			var starScore= 0;
 			console.log(data.data);
+			console.log(starScore);
 			if(data.data.length<0){
 				str +='<span>'+'댓글이 없습니다.'+'</span>';
 			}else{
 				for(let i =0; i<data.data.length;i++){
-					starScore = getStarRange(data.data[i].replyPoint);
+					var starScore = getStarRange(data.data[i].replyPoint);
 					console.log(starScore);
-					console.log(data.data[i]);
 					starDiv = '<div class="star-ratings">\n' +
 							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + data.data[i].replyPoint + '%;">\n' +
 							'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
@@ -263,7 +265,7 @@ $(document).ready(function(){
 			}
 		});
 	}
-	//댓글 유효성 검사.
+	//댓글 유효성 검사.o.k
 	function validation(){
 		let comment = $('#reviewContents').val();
 		
@@ -310,7 +312,7 @@ $(document).ready(function(){
 	//댓글 삭제 o.k
 	function deleteReply(replyId,placeId){
 		$.ajax({
-			url:'/api/comment/placedelete/'+placeId+'/'+replyId,
+			url:'/api/comment/place_delete/'+placeId+'/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(data){
@@ -320,70 +322,13 @@ $(document).ready(function(){
 			ReviewList();
 		});
 	}
-	
-	//좋아요 기능o.k
-	function LikeCheck(id,replyLike){
-		const frm = {replyId : id}
-		
-		$.ajax({
-			url:'/api/reply/likecheck/'+id,
-			type:'post',
-			dataType:'json',
-			data:JSON.stringify(frm),
-			contentType: 'application/json; chartset = utf-8'
-		}).done(function(check){
-			console.log(check);
-			if(check == 0){//추천을 첨 눌렀을시
-				alert('추천이 되었습니다.');
-				likeUp(id);
-			}else{
-				likeDown(id);
-				alert('추천이 취소되었습니다.');
-			}
-		});
-	}
-	
 	//별점 계산o.k
 	function getStarRange(starScore) {
 		console.log(starScore);
-		let score = starScore * 20;
+		var score = starScore * 20;
 		console.log(score);
 		return score + 1.5;
 	}
-	
-	//추천증가 o.k
-	function likeUp(id){
-		const frm = {replyId :id};
-		$.ajax({
-			url:'/api/reply/likeup/'+id,
-			type:'post',
-			contentType:'application/json; chartset = utf-8',
-			dataType:'json',
-			data:JSON.stringify(frm)
-		}).done(function(result){
-			$('#replylist').empty();
-			ReviewList();
-		});
-	}
-	
-	//추천감소 o.k
-	function likeDown(id){
-		console.log(id);
-		const frm = {replyId : id};
-		$.ajax({
-			url:'/api/reply/likedown/'+id,
-			type:'post',
-			contentType:'application/json; charset = utf=8',
-			dataType:'json',
-			data:JSON.stringify(frm)
-		}).done(function(result){
-			
-			console.log(result);
-			$('#replylist').empty();
-			ReviewList();
-		});
-	}
-	
 	//위시리스트 중복기능o.k
 	function WishCheck(){
 		let userid = $('#userid').val();
@@ -426,7 +371,6 @@ $(document).ready(function(){
 	    let option = "width = 500, height = 500, top = 100, left = 200, location = no"
 	    window.open(url, name, option);  
 	}
-	
 	//가게 수정 페이지 이동
 	function placemodify(){
 		let placeid = $('#placeid').val();

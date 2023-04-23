@@ -249,6 +249,7 @@ public class BoardServiceTest {
 
         assertThat(readCount).isEqualTo(2);
     }
+
     private Board board(){
         return Board
                 .builder()
