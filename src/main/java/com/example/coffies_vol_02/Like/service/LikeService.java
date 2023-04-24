@@ -47,9 +47,6 @@ public class LikeService {
         //좋아요 중복체크를 거친 뒤에 중복되지 않으면 카운트,
         if(hasLikeBoard(detail.get(),member) == false){
             likeRepository.save(Like.builder().member(member).board(detail.get()).build());
-        }else if(hasLikeBoard(detail.get(),member)== true){
-            cancelLike(detail.get().getId(),member);
-            return LikeCancel;
         }
         return LikeSuccess;
     }
@@ -64,9 +61,6 @@ public class LikeService {
 
         if(like.isPresent()){
             likeRepository.delete(like.get());
-        }else{
-            createBoardLike(boardId,member);
-            return LikeSuccess;
         }
         return LikeCancel;
     }
