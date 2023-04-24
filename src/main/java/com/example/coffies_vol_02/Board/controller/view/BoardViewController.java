@@ -4,8 +4,6 @@ import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Commnet.service.CommentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -76,6 +74,7 @@ public class BoardViewController {
     @GetMapping("/passwordCheck/{board_id}")
     public ModelAndView passwordCheck(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
+
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
 
         mv.addObject("pwd",detail);
@@ -87,6 +86,7 @@ public class BoardViewController {
     @GetMapping("/modify/{board_id}")
     public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) throws Exception {
         ModelAndView mv = new ModelAndView();
+
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         List<AttachDto> attachList=attachService.boardfilelist(boardId);
 

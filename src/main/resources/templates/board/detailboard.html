@@ -18,7 +18,10 @@ layout:decorate="~{layout/leafframe}">
 	<div class="row">
 		<div class="col-sm-12">
 			<h1>게시글 열람</h1>
-			<div id="favoriteCount"></div>
+			<div id="favoriteCount">
+<!--				<i class="fa-sharp fa-solid fa-thumbs-up"></i>
+				<i class="fa-regular fa-thumbs-up"></i>-->
+			</div>
 			<i class="fa-sharp fa-solid fa-eye">[[${detail.readCount}]]</i>
 			<div class="card shadow">
 				<div class="card-body">
@@ -43,7 +46,8 @@ layout:decorate="~{layout/leafframe}">
 						<p id="board_content" th:utext="${detail.boardContents}"></p>
 					</div>
 					<div class="form-group">
-						<button id ="board_liked" name="liked" class="btn btn-primary" onclick="boardLike()">좋아요</button>
+						<button id ="like_plus" name="liked" class="btn btn-primary" onclick="boardLike()">좋아요</button>
+						<button id ="like_minus" name="liked" class="btn btn-primary" onclick="likeCancel()">좋아요 취소</button>
 					</div>
 					<div class="form-group">
 						<label>첨부 파일</label>
@@ -88,13 +92,7 @@ layout:decorate="~{layout/leafframe}">
 		</div>
 	</div>
 </div>
-<script>
-	$(document).ready(function(){
-		likeCount();
-		Replylist();
-	});
-</script>
-<script th:src="@{/js/board/boarddetail.js}"></script>
+<script  th:src="@{/js/board/boarddetail.js}"></script>
 <script th:src="@{/js/reply/boardreply.js}"></script>
 </th:block>
 </body>

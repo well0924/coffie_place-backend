@@ -52,6 +52,7 @@ public class BoardDto {
             this.boardContents = board.getBoardContents();
             this.readCount = board.getReadCount();
             this.passWd = board.getPassWd();
+            this.liked = board.getLikes().size();
             this.fileGroupId = board.getFileGroupId();
             this.createdTime = board.getCreatedTime();
             this.updatedTime = board.getUpdatedTime();
