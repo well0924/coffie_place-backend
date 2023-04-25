@@ -8,6 +8,7 @@ spring:
     allow-bean-definition-overriding: true
   mvc:
     pathmatch:
+      #swagger config
       matching-strategy: ant_path_matcher
   #db
   datasource:
@@ -35,7 +36,6 @@ spring:
       encoding: UTF-8
       servlet:
         content-type: text/html
-
       #devtool
       devtools:
         livereload:
@@ -43,7 +43,11 @@ spring:
         remote:
           restart:
             enabled: true
-
+  #redis
+  redis:
+    port: 6379
+    host: localhost
+  #jpa
   jpa:
     show-sql: true
     hibernate:
