@@ -2,10 +2,12 @@ package com.example.coffies_vol_02.Config.security.auth;
 
 import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.Config.Redis.CacheKey;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
+
+    //자주 사용하는 메소드는 캐시처리하기.
+    //redis 캐시에 저장이 되면 user::회원아이디 로 저장이 된다.
+    @Cacheable(value = CacheKey.USER,key = "#username",unless = "#result == null",cacheManager = "redisCacheManager")
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("----security login in....");

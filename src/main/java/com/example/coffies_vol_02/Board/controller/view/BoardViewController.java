@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.service.BoardService;
+import com.example.coffies_vol_02.Config.Redis.RedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ import java.util.UUID;
 public class BoardViewController {
     private final BoardService boardService;
     private final AttachService attachService;
-
+    private final RedisService redisService;
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(value = "searchVal",required = false)String searchVal){
@@ -46,9 +47,9 @@ public class BoardViewController {
 
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         List<AttachDto> attachList = attachService.boardfilelist(boardId);
-        //조회수 증가
-        boardService.updateView(boardId);
-        
+        //조회수 증가(캐시 적용)
+        redisService.boardViewCount(boardId);
+
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
 
