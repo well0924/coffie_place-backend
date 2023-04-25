@@ -11,7 +11,13 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "tbl_notice")
+@ToString(exclude = {"attachList"})
+@Table(name = "tbl_notice",
+        indexes = {
+        @Index(name = "notice_index1",columnList = "id"),
+        @Index(name = "notice_index2",columnList = "noticeGroup"),
+        @Index(name = "notice_index3",columnList = "isFixed"),
+        @Index(name = "notice_index4",columnList = "noticeTitle")})
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeBoard extends BaseTime {
@@ -24,7 +30,6 @@ public class NoticeBoard extends BaseTime {
     private String noticeContents;
     private String fileGroupId;
     private Character isFixed;
-    @ToString.Exclude
     @OneToMany(mappedBy = "noticeBoard",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attach> attachList = new ArrayList<>();
 
