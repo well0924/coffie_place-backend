@@ -10,7 +10,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@ToString
+@ToString(exclude = {"member","comment"})
 @Table(name = "tbl_comment_like")
 @NoArgsConstructor
 @AllArgsConstructor
