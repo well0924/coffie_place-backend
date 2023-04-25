@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Table(name = "tbl_like")
+@ToString(exclude = {"member","board"})
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Like {

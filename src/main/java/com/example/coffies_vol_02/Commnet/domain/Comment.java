@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Getter
 @Entity
-@ToString
+@ToString(exclude = {"member","board","place","likes"})
 @Table(name = "tbl_board_reply")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,17 +27,13 @@ public class Comment extends BaseTime {
     private Integer replyPoint;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    @ToString.Exclude
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
-    @ToString.Exclude
     private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    @ToString.Exclude
     private Place place;
-    @ToString.Exclude
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
     private Set<CommentLike> likes = new HashSet<>();
 

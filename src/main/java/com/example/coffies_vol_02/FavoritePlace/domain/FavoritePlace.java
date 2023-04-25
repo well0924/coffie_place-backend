@@ -9,16 +9,14 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Table(name = "tbl_favorite_place")
-@ToString
+@ToString(exclude = {"place","member"})
 @NoArgsConstructor
 public class FavoritePlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ToString.Exclude
     @ManyToOne
     private Place place;
-    @ToString.Exclude
     @ManyToOne
     private Member member;
     private String fileGroupId;

@@ -28,7 +28,7 @@ public class PlaceImage extends BaseTime {
     private String originName;
     private String imgUploader;
     private String isTitle;
-    @ToString.Exclude
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
     private Place place;

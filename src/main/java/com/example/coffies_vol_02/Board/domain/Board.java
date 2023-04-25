@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Entity
 @Getter
-@ToString
+@ToString(exclude = {"commentList","likes","attachList","member"})
 @NoArgsConstructor
 @Table(name = "tbl_board")
 public class Board extends BaseTime {
@@ -38,20 +38,17 @@ public class Board extends BaseTime {
     private String passWd;
 
     private String fileGroupId;
-    @ToString.Exclude
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     private Member member;
 
     @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
-    @ToString.Exclude
     private List<Comment>commentList = new ArrayList<>();
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "board",cascade = CascadeType.ALL)
     private Set<Like> likes = new HashSet<>();
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attach>attachList = new ArrayList<>();
 

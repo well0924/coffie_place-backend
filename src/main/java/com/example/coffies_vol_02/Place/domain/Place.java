@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "tbl_place")
+@ToString(exclude = {"placeImageList","commentList"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Place extends BaseTime {
@@ -30,10 +31,8 @@ public class Place extends BaseTime {
     private String placeStart;
     private String placeClose;
     private String fileGroupId;
-    @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "place")
     private List<Comment>commentList = new ArrayList<>();
-    @ToString.Exclude
     @OneToMany(fetch =FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PlaceImage> placeImageList = new ArrayList<>();
 
