@@ -35,6 +35,9 @@ layout:decorate="~{layout/leafframe}">
 							<button type="submit" class="btn btn-primary">로그인</button>
 							<a th:href="@{/page/login/memberjoin}" class="btn btn-danger">회원가입</a>
 						</div>
+						<div th:if="error">
+							<p id="valid" style="color: red; font-size:12px;"><a th:text="${exception}"></a></p>
+						</div>
 					</form>
 				</div>
 			</div>
