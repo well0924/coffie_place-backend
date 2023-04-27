@@ -3,8 +3,6 @@ package com.example.coffies_vol_02.Board.repository;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.QBoard;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,36 +25,48 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     //게시물 검색
     @Override
     public Page<BoardDto.BoardResponseDto> findAllSearch(String searchVal, Pageable pageable) {
+        List<BoardDto.BoardResponseDto>boardSearchResult = new ArrayList<>();
+        //검색시 목록
         List<Board>result= jpaQueryFactory
-                .selectFrom(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .select(QBoard.board)
+                .from(QBoard.board)
                 .where(boardContentsEq(searchVal)
                         .or(boardAuthorEq(searchVal))
                         .or(boardTitleEq(searchVal)))
+                .orderBy(QBoard.board.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
-        List<BoardDto.BoardResponseDto>boardSearchResult = new ArrayList<>();
-        
+
+        //검색시 게시물 갯수
         Long resultCount = jpaQueryFactory
                 .select(QBoard.board.count())
                 .from(QBoard.board)
                 .where(boardAuthorEq(searchVal).or(boardContentsEq(searchVal)).or(boardTitleEq(searchVal)))
+                .orderBy(QBoard.board.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetchOne();
+
         for(Board board:result){
             BoardDto.BoardResponseDto responseDto = BoardDto.BoardResponseDto
                     .builder()
                     .id(board.getId())
                     .boardTitle(board.getBoardTitle())
                     .boardContents(board.getBoardContents())
+                    .boardAuthor(board.getBoardAuthor())
                     .passWd(board.getPassWd())
                     .fileGroupId(board.getFileGroupId())
                     .readCount(board.getReadCount())
                     .createdTime(board.getCreatedTime())
                     .updatedTime(board.getUpdatedTime())
                     .build();
+
             boardSearchResult.add(responseDto);
         }
         return new PageImpl<>(boardSearchResult,pageable,resultCount);
     }
+
     BooleanBuilder boardContentsEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardContents.contains(searchVal));
     }
@@ -67,6 +76,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     BooleanBuilder boardAuthorEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardAuthor.contains(searchVal));
     }
+
     BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
             return new BooleanBuilder(f.get());

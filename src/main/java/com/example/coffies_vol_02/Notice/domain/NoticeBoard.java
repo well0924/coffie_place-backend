@@ -6,6 +6,7 @@ import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +18,11 @@ import java.util.List;
         @Index(name = "notice_index1",columnList = "id"),
         @Index(name = "notice_index2",columnList = "noticeGroup"),
         @Index(name = "notice_index3",columnList = "isFixed"),
-        @Index(name = "notice_index4",columnList = "noticeTitle")})
+        @Index(name = "notice_index4",columnList = "noticeTitle")
+})
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoticeBoard extends BaseTime {
+public class NoticeBoard extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

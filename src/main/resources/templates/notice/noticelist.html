@@ -109,14 +109,13 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 			<div class="col-lg-12">
 				<select name="searchType" id="searchType">
 					<option th:value="Nall">전체보기</option>
-					<option th:value="NT">제목</option>
-					<option th:value="NC">내용</option>
-					<option th:value="NF">고정여부</option>
-					<option th:value="NW">작성자</option>
-					<option th:value="NTC">제목과 내용</option>
+					<option th:value="noticeTitle">제목</option>
+					<option th:value="noticeContents">내용</option>
+					<option th:value="isFixed">고정여부</option>
+					<option th:value="noticeWriter">작성자</option>
 				</select>
 				<input type="text" class="form-control form-control-sm" name="keyword" id="keyword">
-				<button class="btn btn-sm btn-primary" name="btnSearch" id="btnSearch">검색</button>
+				<button class="btn btn-sm btn-primary" name="btnSearch" id="btnSearch" onclick="searchResult()">검색</button>
 			</div>
 			</div>
 			<!-- search end -->
@@ -124,5 +123,11 @@ button#dropdownMenuButton.btn.btn-dark.dropdown-toggle.float-right{
 	</div>
 </div>
 </th:block>
+<script>
+	function searchResult(){
+		let searchVal = $('#keyword').val();
+		location.href='/page/notice/list?searchVal='+searchVal;
+	}
+</script>
 </body>
 </html>

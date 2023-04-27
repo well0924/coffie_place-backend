@@ -24,4 +24,5 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     @Modifying
     @Query("update Board b set b.readCount = b.readCount +1 where b.id = :id")
     Integer ReadCountUp(@Param("id") Integer id);
+
 }

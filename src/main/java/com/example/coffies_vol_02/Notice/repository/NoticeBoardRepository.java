@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface NoticeBoardRepository extends JpaRepository<NoticeBoard,Integer> {
+public interface NoticeBoardRepository extends JpaRepository<NoticeBoard,Integer>,CustomNoticeBoardRepository {
     @Query("select n from NoticeBoard n order by n.isFixed desc ,n.id desc")
     Page<NoticeBoard>findAll(Pageable pageable);
 }

@@ -52,6 +52,7 @@ public class NoticeBoardDto {
             this.fileGroupId = noticeBoard.getFileGroupId();
             this.noticeTitle = noticeBoard.getNoticeTitle();
             this.noticeWriter = noticeBoard.getNoticeWriter();
+            this.noticeGroup = noticeBoard.getNoticeGroup();
             this.noticeContents = noticeBoard.getNoticeContents();
             this.isFixed = noticeBoard.getIsFixed();
             this.createdTime = noticeBoard.getCreatedTime();

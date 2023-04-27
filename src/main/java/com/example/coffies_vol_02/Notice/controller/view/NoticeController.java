@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -27,23 +28,29 @@ public class NoticeController {
     private final AttachService attachService;
 
     @GetMapping("/list")
-    public ModelAndView noticeList(@PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+    public ModelAndView noticeList(@RequestParam String searchVal, @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
-        Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeList(pageable);
+
+        Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeSearchList(searchVal, pageable);
+
         mv.addObject("noticelist",list);
         mv.setViewName("/notice/noticelist");
+
         return mv;
     }
 
     @GetMapping("/detail/{notice_id}")
     public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId) throws Exception {
         ModelAndView mv = new ModelAndView();
+
         NoticeBoardDto.BoardResponseDto list = noticeService.noticeDetail(noticeId);
         List<AttachDto> attachList = attachService.noticefilelist(noticeId);
 
         mv.addObject("filelist",attachList);
         mv.addObject("detail",list);
+
         mv.setViewName("/notice/noticedetail");
+
         return mv;
     }
 

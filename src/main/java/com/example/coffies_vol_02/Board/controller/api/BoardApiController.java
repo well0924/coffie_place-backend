@@ -35,6 +35,7 @@ public class BoardApiController {
     @GetMapping("/boardlist")
     public CommonResponse<Page<BoardDto.BoardResponseDto>>boardList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<BoardDto.BoardResponseDto> list = boardService.boardAll(pageable);
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -50,6 +51,7 @@ public class BoardApiController {
     @GetMapping("/{id}")
     public CommonResponse<BoardDto.BoardResponseDto>boardDetail(@PathVariable("id") Integer boardId){
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
@@ -70,10 +72,10 @@ public class BoardApiController {
 
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
+
     @ApiOperation(value = "게시글 삭제",notes = "자유게시판에서 게시글을 삭제")
     @DeleteMapping("/delete/{board_id}")
-    public CommonResponse<?>boardDelete(@PathVariable("board_id")Integer boardId,@AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
-
+    public CommonResponse<?>boardDelete(@PathVariable("board_id")Integer boardId, @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         boardService.BoardDelete(boardId,customUserDetails.getMember());
 
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");

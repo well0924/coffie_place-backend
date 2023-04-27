@@ -10,8 +10,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,10 +21,14 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Proxy(lazy = false)
 @ToString(exclude = {"commentList","likes","attachList","member"})
 @NoArgsConstructor
-@Table(name = "tbl_board")
-public class Board extends BaseTime {
+@Table(name = "tbl_board",
+        indexes = {
+                @Index(name = "board_index1",columnList = "boardTitle"),
+                @Index(name = "board_index2",columnList = "boardAuthor")})
+public class Board extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -66,7 +72,7 @@ public class Board extends BaseTime {
         this.getUpdatedTime();
     }
 
-    //게시글 수정
+    //게시글 수정(Dirty Checking)
     public void boardUpdate(BoardDto.BoardRequestDto dto){
         this.boardTitle = dto.getBoardTitle();
         this.boardContents = dto.getBoardContents();

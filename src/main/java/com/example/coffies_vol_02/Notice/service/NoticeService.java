@@ -37,7 +37,16 @@ public class NoticeService {
 
         return noticeBoards.map(noticeBoard -> new NoticeBoardDto.BoardResponseDto(noticeBoard));
     }
-    
+
+    /*
+    * 공지 게시물 검색
+    */
+    @Transactional(readOnly = true)
+    public Page<NoticeBoardDto.BoardResponseDto>noticeSearchList(String searchVal,Pageable pageable){
+        Page<NoticeBoardDto.BoardResponseDto>noticeSearchList = noticeBoardRepository.findAllSearchList(searchVal,pageable);
+        return noticeSearchList;
+    }
+
     /*
     *   공지글 단일 조회
     */
@@ -51,6 +60,7 @@ public class NoticeService {
                 .noticeBoard(noticeBoard)
                 .build();
     }
+
     /*
     *  공지글 작성
     */
