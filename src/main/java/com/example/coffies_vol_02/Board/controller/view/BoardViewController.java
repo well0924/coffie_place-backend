@@ -36,6 +36,7 @@ public class BoardViewController {
         Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,pageable);
 
         mv.addObject("boardlist",boardList);
+        mv.addObject("searchVal",searchVal);
         mv.setViewName("/board/boardlist");
 
         return mv;

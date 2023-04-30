@@ -22,8 +22,42 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
     public CustomNoticeBoardRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
+
+    @Override
+    public Page<NoticeBoardDto.BoardResponseDto> findAllList(Pageable pageable) {
+
+        List<NoticeBoardDto.BoardResponseDto>noticeList =  new ArrayList<>();
+
+        List<NoticeBoard>result = jpaQueryFactory
+                .select(QNoticeBoard.noticeBoard)
+                .from(QNoticeBoard.noticeBoard)
+                .join(QNoticeBoard.noticeBoard)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
+                .fetch();
+
+        Long count = jpaQueryFactory
+                .select(QNoticeBoard.noticeBoard.count())
+                .from(QNoticeBoard.noticeBoard)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
+                .fetchOne();
+
+        for(NoticeBoard noticeBoard:result){
+            NoticeBoardDto.BoardResponseDto responseDto = NoticeBoardDto.BoardResponseDto
+                    .builder()
+                    .noticeBoard(noticeBoard)
+                    .build();
+            noticeList.add(responseDto);
+        }
+        return new PageImpl<>(noticeList,pageable,count);
+    }
+
     @Override
     public Page<NoticeBoardDto.BoardResponseDto> findAllSearchList(String searchVal, Pageable pageable) {
+
         List<NoticeBoardDto.BoardResponseDto>searchResult = new ArrayList<>();
 
         List<NoticeBoard> result = jpaQueryFactory
@@ -45,6 +79,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                         .or(noticeContentsEq(searchVal)))
                 .orderBy(QNoticeBoard.noticeBoard.id.desc())
                 .fetchOne();
+
         for(NoticeBoard noticeBoard:result){
             NoticeBoardDto.BoardResponseDto responseDto = NoticeBoardDto.BoardResponseDto
                     .builder()
@@ -52,6 +87,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                     .build();
             searchResult.add(responseDto);
         }
+
         return new PageImpl<>(searchResult,pageable,searchCount);
     }
 
@@ -71,5 +107,4 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
             return new BooleanBuilder();
         }
     }
-
 }

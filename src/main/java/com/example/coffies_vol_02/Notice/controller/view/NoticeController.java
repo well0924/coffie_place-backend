@@ -34,6 +34,8 @@ public class NoticeController {
         Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeSearchList(searchVal, pageable);
 
         mv.addObject("noticelist",list);
+        mv.addObject("searchVal",searchVal);
+
         mv.setViewName("/notice/noticelist");
 
         return mv;

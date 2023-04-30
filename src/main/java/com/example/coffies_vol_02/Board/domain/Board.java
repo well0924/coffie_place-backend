@@ -55,6 +55,8 @@ public class Board extends BaseTime implements Serializable {
     @OneToMany(mappedBy = "board",cascade = CascadeType.ALL)
     private Set<Like> likes = new HashSet<>();
 
+    //게시글이 삭제되면 첨부파일도 같이 삭제가 된다.
+    //여기서는 CascadeType.REMOVE 와 orphanRemoval = true 차이점 알아보기.
     @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attach>attachList = new ArrayList<>();
 
@@ -85,5 +87,4 @@ public class Board extends BaseTime implements Serializable {
             attachFile.setBoard(this);
         }
     }
-
 }

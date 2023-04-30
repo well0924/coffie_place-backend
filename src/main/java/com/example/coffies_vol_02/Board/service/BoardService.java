@@ -37,10 +37,12 @@ public class BoardService {
     */
     @Transactional(readOnly = true)
     public Page<BoardDto.BoardResponseDto> boardAll(Pageable pageable){
-        Page<Board>list = boardRepository.findAll(pageable);
-        return list.map(board -> new BoardDto.BoardResponseDto(board));
+        return boardRepository.boardList(pageable);
     }
 
+    /*
+    *  게시글 검색
+    */
     @Transactional(readOnly = true)
     public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal, Pageable pageable){
         Page<BoardDto.BoardResponseDto>searchResult = boardRepository.findAllSearch(searchVal,pageable);
@@ -49,7 +51,6 @@ public class BoardService {
 
     /*
     *  게시글 단일 조회
-    *
     */
     @Transactional(readOnly = true)
     public BoardDto.BoardResponseDto boardDetail(Integer boardId){
@@ -72,7 +73,6 @@ public class BoardService {
 
     /*
     * 글작성(파일 첨부)
-    *
     */
     @Transactional
     public Integer boardSave(BoardDto.BoardRequestDto requestDto, Member member) throws Exception {
@@ -196,7 +196,7 @@ public class BoardService {
     }
 
     /*
-    * 비밀번호 확인
+    * 게시글 비밀번호 확인
     */
     @Transactional
     public BoardDto.BoardResponseDto passwordCheck(String passWd,Integer id,Member member){
@@ -211,7 +211,6 @@ public class BoardService {
     }
     
     /*
-    * 
     * 게시글 조회수 증가
     */
     @Transactional

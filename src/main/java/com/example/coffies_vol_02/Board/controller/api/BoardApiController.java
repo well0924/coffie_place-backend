@@ -1,11 +1,9 @@
 package com.example.coffies_vol_02.Board.controller.api;
 
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Board.service.BoardService;
 import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -85,6 +83,7 @@ public class BoardApiController {
     @GetMapping("/password/{board_id}/{password}")
     public CommonResponse<BoardDto.BoardResponseDto>passwordChange(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         BoardDto.BoardResponseDto result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
+
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 

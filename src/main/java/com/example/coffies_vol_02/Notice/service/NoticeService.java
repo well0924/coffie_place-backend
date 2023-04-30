@@ -33,9 +33,7 @@ public class NoticeService {
     */
     @Transactional(readOnly = true)
     public Page<NoticeBoardDto.BoardResponseDto>noticeList(Pageable pageable){
-        Page<NoticeBoard>noticeBoards = noticeBoardRepository.findAll(pageable);
-
-        return noticeBoards.map(noticeBoard -> new NoticeBoardDto.BoardResponseDto(noticeBoard));
+        return noticeBoardRepository.findAllList(pageable);
     }
 
     /*

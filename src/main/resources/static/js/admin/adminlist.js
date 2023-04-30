@@ -11,17 +11,16 @@ $(document).ready(function() {
                 console.log(result);
                 response(
                     $.map(result, function (item) {
-                        return {
-                            label: item.data,
-                            value: item.data
-                        };
+                        return {label: item.data, value: item.data};
                     })
                 );
             });
-        },select: function (event, ui) {
+        },
+        select: function (event, ui) {
             console.log(ui);
             console.log(ui.item.data);
-        },focus:function (event,ui) {
+        },
+        focus:function (event,ui) {
             return false;
         },minLength: 1
     });
@@ -86,11 +85,9 @@ function searchResult(){
 function cafelist(){
     location.href='/page/place/list';
 }
-
 function noticewrite(){
     location.href='/page/notice/writePage';
 }
-
 function palceregister(){
     location.href='/page/place/placeregister';
 }

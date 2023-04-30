@@ -3,6 +3,8 @@ package com.example.coffies_vol_02.Board.repository;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.QBoard;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
+import com.example.coffies_vol_02.Board.domain.dto.QBoardDto_BoardResponseDto;
+import com.example.coffies_vol_02.Member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,14 +24,40 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public CustomBoardRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
+
+    //게시글 목록
+    @Override
+    public Page<BoardDto.BoardResponseDto> boardList(Pageable pageable) {
+
+        List<BoardDto.BoardResponseDto>result = jpaQueryFactory
+                .select(new QBoardDto_BoardResponseDto(QBoard.board))
+                .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        Long totalCount = jpaQueryFactory
+                .select(QBoard.board.count())
+                .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchOne();
+
+        return new PageImpl<>(result,pageable,totalCount);
+    }
+
     //게시물 검색
     @Override
     public Page<BoardDto.BoardResponseDto> findAllSearch(String searchVal, Pageable pageable) {
-        List<BoardDto.BoardResponseDto>boardSearchResult = new ArrayList<>();
+        List<BoardDto.BoardResponseDto> boardSearchResult = new ArrayList<>();
         //검색시 목록
         List<Board>result= jpaQueryFactory
                 .select(QBoard.board)
                 .from(QBoard.board)
+                .leftJoin(QMember.member)
+                .on(QBoard.board.member.eq(QMember.member))
                 .where(boardContentsEq(searchVal)
                         .or(boardAuthorEq(searchVal))
                         .or(boardTitleEq(searchVal)))
@@ -70,9 +98,11 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     BooleanBuilder boardContentsEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardContents.contains(searchVal));
     }
+
     BooleanBuilder boardTitleEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardTitle.contains(searchVal));
     }
+
     BooleanBuilder boardAuthorEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardAuthor.contains(searchVal));
     }

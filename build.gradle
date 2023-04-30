@@ -29,6 +29,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     //aop
     implementation 'org.springframework.boot:spring-boot-starter-aop:3.0.2'
+    //bootstrap,jquery,fontawesome
+    implementation 'org.webjars.bower:jquery:3.6.0'
+    implementation 'org.webjars:jquery-form:4.2.2'
+    implementation 'org.webjars:font-awesome:5.15.3'
+    implementation 'org.webjars:bootstrap:4.6.0'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security:2.7.6'
@@ -45,8 +51,6 @@ dependencies {
     //apache poi
     implementation 'org.apache.poi:poi:5.2.2'
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
-    //java mail sender
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 

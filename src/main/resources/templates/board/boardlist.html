@@ -77,20 +77,21 @@ layout:decorate="~{layout/leafframe}">
 					<option th:value="boardContents">내용</option>
 					<option th:value="boardAuthor">작성자</option>
 				</select>
-				<input type="text" class="form-control form-control-sm" name="keyword" id="keyword">
-				<button class="btn btn-sm btn-primary" name="btnSearch" id="btnSearch" onclick="searchResult()">검색</button>
+				<input type="text" class="form-control form-control-sm" name="keyword" id="boardkeyword">
+				<button class="btn btn-sm btn-primary" id="btnSearch" onclick="boardSearchResult()">검색</button>
 			</div>
 			</div>
 			<!-- search end -->
+			<script>
+				function boardSearchResult(){
+					let searchVal = $('#boardkeyword').val();
+					console.log(searchVal);
+					location.href='/page/board/list?searchVal='+searchVal;
+				}
+			</script>
 		</div>
 	</div>
 </div>
 </th:block>
-<script>
-	function searchResult(){
-		let searchVal = $('#keyword').val();
-		location.href='/page/board/list?searchVal='+searchVal;
-	}
-</script>
 </body>
 </html>

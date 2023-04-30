@@ -2,6 +2,8 @@ package com.example.coffies_vol_02.Board.domain.dto;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.annotations.QueryDelegate;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +51,7 @@ public class BoardDto {
         private LocalDateTime updatedTime;
 
         @Builder
+        @QueryProjection
         public BoardResponseDto(Board board){
             this.id = board.getId();
             this.boardTitle = board.getBoardTitle();
