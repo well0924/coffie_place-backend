@@ -2,8 +2,6 @@ package com.example.coffies_vol_02.Config.Util;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Place.domain.Place;
 import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
@@ -19,10 +17,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Log4j2
 @Component
@@ -104,72 +101,92 @@ public class FileHandler {
         }
         return list;
     }
+
     //가게 이미지 업로드
-    public List<PlaceImage>placeImagesUpload(PlaceImageDto.PlaceImageRequestDto dto)throws Exception{
+    public List<PlaceImage>placeImagesUpload(List<MultipartFile>images)throws Exception{
         List<PlaceImage>list = new ArrayList<>();
+        //업로드할 이미지가 있는경우
+        if(!CollectionUtils.isEmpty(images)){
+            //이미지 다중 처리
+            for(MultipartFile multipartFile : images){
 
-        if(!CollectionUtils.isEmpty(dto.getImages())){
+                if(!multipartFile.isEmpty()){//파일이 있는 경우
+                    // 파일의 확장자 추출
+                    String originalFileExtension;
 
-            for(MultipartFile multipartFile: dto.getImages()){
+                    String contentType = multipartFile.getContentType();
 
-                if(!multipartFile.isEmpty()){
                     String originFileName = multipartFile.getOriginalFilename();
+
                     String ext = originFileName.substring(originFileName.lastIndexOf(".")+1);
 
-                    String fileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"."+ext;
-                    String thumbFileName = "file_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))+"thumb."+ext;
-                    String localPath = imgPath+dto.getImgGroup()+"/"+dto.getFileType()+"/"+thumbFileName;
-                    String fullPath = new File(filePath).getAbsolutePath()+ File.separator + File.separator+dto.getImgGroup()+File.separator+File.separator+dto.getFileType()+File.separator+File.separator+fileName;
-                    String path = filePath+ File.separator + File.separator +dto.getImgGroup()+"\\"+dto.getFileType()+"\\thumb\\"+thumbFileName;
+                    String uuid = UUID.randomUUID().toString();
 
-                    System.out.println("localpath:"+localPath);
-                    System.out.println("fullPath:"+fullPath);
-                    System.out.println("path:"+path);
+                    String fileGroupId = "place_"+uuid.substring(0,uuid.indexOf("-"));
 
-                    File newFile =  new File(fullPath);
-                    System.out.println(newFile);
+                    // 확장자명이 존재하지 않을 경우 처리 x
+                    if(ObjectUtils.isEmpty(contentType)) {
+                        break;
+                    }else {
+                        if(contentType.contains("image/jpeg"))
+                            originalFileExtension = ".jpg";
+                        else if(contentType.contains("image/png"))
+                            originalFileExtension = ".png";
+                        else
+                            originalFileExtension= ext;
+                    }
 
-                    if(!newFile.exists()){
-                        if (newFile.getParentFile().mkdirs()) {
-                            newFile.createNewFile();
-                        }else {
-                            System.out.println("file fail!");
+                    // 파일명 중복 피하고자 나노초까지 얻어와 지정
+                    String new_file_name = System.nanoTime()+originalFileExtension;
+
+                    String thumbFileName = "file_"+System.nanoTime()+"_thumb."+ext;
+
+                    String fullPath = filePath+"coffieplace"+"\\"+"images"+"\\"+new_file_name;
+                    String localPath = imgPath+"coffieplace"+"/"+"images"+"/"+thumbFileName;
+                    String path = filePath+"coffieplace"+"\\"+"images"+"\\thumb\\"+thumbFileName;
+                    File file = new File(fullPath);
+
+                    // 디렉터리가 존재하지 않을 경우
+                    if(!file.exists()) {
+                        if(file.getParentFile().mkdirs()){
+                            boolean IsSuccess =file.createNewFile();
+                            log.info(IsSuccess);
                         }
                     }
 
-                    PlaceImageDto.PlaceImageResponseDto ResponseDto = PlaceImageDto.PlaceImageResponseDto
+                    PlaceImageDto.PlaceImageRequestDto placeImageRequestDto = PlaceImageDto.PlaceImageRequestDto
                             .builder()
-                            .fileGroupId(dto.getFileGroupId())
-                            .fileType(dto.getFileType())
+                            .fileGroupId(fileGroupId)
+                            .fileType("images")
+                            .imgGroup("coffieplace")
                             .imgPath(fullPath)
-                            .storedName(fileName)
-                            .originName(originFileName)
                             .thumbFileImagePath(localPath)
                             .thumbFilePath(path)
-                            .isTitle(dto.getIsTitle())
-                            .imgUploader(dto.getImgUploader())
+                            .storedName(new_file_name)
+                            .originName(originFileName)
+                            .imgUploader("well4149")
+                            .isTitle("N")
                             .build();
 
-                    PlaceImage placeImage = new PlaceImage
-                            (
-                              ResponseDto.getFileGroupId(),
-                              ResponseDto.getFileType(),
-                              ResponseDto.getImgPath(),
-                              ResponseDto.getStoredName(),
-                              ResponseDto.getOriginName(),
-                              ResponseDto.getThumbFileImagePath(),
-                              ResponseDto.getThumbFilePath(),
-                              ResponseDto.getImgPath(),
-                              ResponseDto.getImgGroup(),
-                              ResponseDto.getIsTitle()
-                            );
-                    log.info(placeImage);
-                    list.add(placeImage);
+                    PlaceImage placeImage = new PlaceImage(
+                            placeImageRequestDto.getFileGroupId(),
+                            placeImageRequestDto.getFileType(),
+                            placeImageRequestDto.getImgGroup(),
+                            placeImageRequestDto.getImgPath(),
+                            placeImageRequestDto.getThumbFileImagePath(),
+                            placeImageRequestDto.getThumbFilePath(),
+                            placeImageRequestDto.getOriginName(),
+                            placeImageRequestDto.getStoredName(),
+                            placeImageRequestDto.getImgUploader(),
+                            placeImageRequestDto.getIsTitle());
 
-                    multipartFile.transferTo(newFile);
+                    list.add(placeImage);
+                    // 업로드 한 파일 데이터를 지정한 파일에 저장
+                    file = new File(fullPath);
+                    multipartFile.transferTo(file);
                     // 파일 권한 설정(쓰기, 읽기)
-                    newFile.setWritable(true);
-                    newFile.setReadable(true);
+                    file.setWritable(true);
+                    file.setReadable(true);
                 }
             }
         }
@@ -178,9 +195,10 @@ public class FileHandler {
 
     //가게 이미지 리사이징
     public String ResizeImage(PlaceImage dto,int width,int height){
-        String defaultFolder = filePath+File.separator+dto.getImgGroup()+File.separator+dto.getFileType()+File.separator;
 
-        String originFilePath = defaultFolder+dto.getStoredName();
+        String defaultFolder = filePath+dto.getImgGroup()+File.separator+File.separator+dto.getFileType();
+
+        String originFilePath = defaultFolder+"\\"+dto.getOriginName();
 
         File file = new File(originFilePath);
 
@@ -189,7 +207,6 @@ public class FileHandler {
         boolean resultCode = false;
 
         try {
-
             if(filePath != null && filePath.length() !=0) {
 
                 String originFileName = file.getName();
@@ -206,21 +223,24 @@ public class FileHandler {
 
                 BufferedImage resizeImage = scaleImage.filter(originImage,null);
 
-                String fullPath = defaultFolder + "thumb"+File.separator+ thumbFileName;
+                String fullPath = defaultFolder+File.separator+File.separator + "thumb"+File.separator+File.separator+ thumbFileName;
 
                 File out = new File(fullPath);
 
+                log.info(out);
+
                 if(!out.getParentFile().exists()) {
-                    out.getParentFile().mkdirs();
+                    boolean filecreate=out.getParentFile().mkdirs();
+                    log.info(filecreate);
                 }
 
                 if(!out.exists()) {
                     resultCode = ImageIO.write(resizeImage, ext, out);
+                    log.info(resultCode);
                     if(resultCode) {
                         thumblocalPath = imgPath + dto.getImgGroup()+"/"+dto.getFileType()+"/thumb/"+out.getName();
                     }else {
                         thumblocalPath = null;
-
                     }
                 }
             }

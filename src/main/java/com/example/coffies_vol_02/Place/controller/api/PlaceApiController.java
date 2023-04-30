@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,13 @@ public class PlaceApiController {
         Page<PlaceDto.PlaceResponseDto> list = placeService.placeList(pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
+
+    @ApiOperation(value = "가게 목록 검색")
+    @GetMapping("/search")
+    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+        Page<PlaceDto.PlaceResponseDto> list = placeService.placeListAll(keyword,pageable);
+        return new CommonResponse<>(HttpStatus.OK.value(),list);
+    }
     
     @ApiOperation(value = "가게 단일 조회")
     @GetMapping("/detail/{place_id}")
@@ -41,12 +49,13 @@ public class PlaceApiController {
     }
     
     @ApiOperation(value = "가게 등록")
-    @PostMapping("/register")
+    @PostMapping(path="/register",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto image, BindingResult bindingResult) throws Exception {
+    public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto, BindingResult bindingResult) throws Exception {
         int registerResult = 0;
-        registerResult = placeService.placeRegister(dto,image);
+        registerResult = placeService.placeRegister(dto,imageRequestDto);
         log.info("결과:"+registerResult);
+        log.info("???:"+imageRequestDto.getImages());
         return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
     

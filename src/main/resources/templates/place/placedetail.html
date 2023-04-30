@@ -117,8 +117,9 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		<div class="col-lg-6">
 		<h2>가게조회</h2>
 			<!--placeimage(main)-->
+			<img src="C:\UploadFile\coffieplace\images\thumb\1320441237324900_thumb.jpg">
 			<th:block th:each="list:${imagelist}">
-				<img th:if="${list.isTitle}"th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
+				<!--<img th:if="${list.isTitle}"th:src="${list}" onclick="fnImgPop(this.src)"/>-->
 			</th:block>
 		<hr>
 			<!-- placedetail -->
@@ -199,7 +200,7 @@ $(document).ready(function(){
 	//지도의 중심좌표
 	const options = {
 		 //입력을 받은 위경도를 넣는다.->가게 위경도
-	     center: new kakao.maps.LatLng(37.63974, 127.025538),
+	     center: new kakao.maps.LatLng(placeLang,placeLat),
 	     level: 1//지도의 확대레벨
 	};
 	//지도를 생성 
@@ -231,17 +232,16 @@ $(document).ready(function(){
 		}).done(function(data){
 			let str = '';
 			let starDiv = '';
-			var starScore= 0;
+			let starScore;
 			console.log(data.data);
-			console.log(starScore);
 			if(data.data.length<0){
 				str +='<span>'+'댓글이 없습니다.'+'</span>';
 			}else{
 				for(let i =0; i<data.data.length;i++){
-					var starScore = getStarRange(data.data[i].replyPoint);
+					starScore = getStarRange(data.data[i].reviewPoint);
 					console.log(starScore);
 					starDiv = '<div class="star-ratings">\n' +
-							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + data.data[i].replyPoint + '%;">\n' +
+							'  <div  class="star-ratings-fill space-x-2 text-lg" style="width:' + starScore +'%">\n' +
 							'   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>\n' +
 							'  </div>\n' +
 							'  <div class="star-ratings-base space-x-2 text-lg">\n' +
@@ -249,18 +249,17 @@ $(document).ready(function(){
 							'  </div>\n' +
 							'</div>';
 					str +='<div class="mb-3"  id="myform">';
-					str += starDiv;
-					str +='<div>';
-					str +='<p id="reviewAuthor" name="replyWriter">'+data.data[i].replyWriter+'</p>';
-					str += data.data[i].replyContents;
-					str +='</br>';
-					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')">'+data.data[i].replyPoint+'</i>';
-					str +='</br>';
-					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+')">'+'삭제'+'</button>';
-					str +='</div>';
+						str += starDiv;
+						str +='<div>';
+							str +='<p id="reviewAuthor" name="replyWriter">'+data.data[i].replyWriter+'</p>';
+								str += data.data[i].replyContents;
+								str +='</br>';
+							str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')"></i>';
+							str +='</br>';
+							str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+')">'+'삭제'+'</button>';
+						str +='</div>';
 					str +='</div>';
 				}
-			
 				$('#replylist').append(str);
 			}
 		});
@@ -308,7 +307,6 @@ $(document).ready(function(){
 			});
 		}	
 	}
-	
 	//댓글 삭제 o.k
 	function deleteReply(replyId,placeId){
 		$.ajax({
@@ -329,37 +327,34 @@ $(document).ready(function(){
 		console.log(score);
 		return score + 1.5;
 	}
-	//위시리스트 중복기능o.k
+	//위시리스트 기능
 	function WishCheck(){
 		let userid = $('#userid').val();
-		let placeid = $('#placeid').val();
-		let filegroupid = $('#filegroupid').val();
+		let placeId = $('#placeid').val();
+		let fileGroupId = $('#filegroupid').val();
 		
 		const dataform = {	
 							placeId : placeid,
-							fileGroupId : filegroupid,
+							fileGroupId : fileGroupId,
 							userId : userid
 						 }
 		
 		$.ajax({
-			url:'/api/mypage/wishcheck/'+placeid+'/'+userid,
+			url:'/api/mypage/'+userid+'/'+placeId,
 			type:'post',
 			dataType:'json',
 			data:JSON.stringify(dataform),
 			contentType:'application/json; charset= utf-8'
 			
 		}).done(function(resp){
-			console.log(resp);
-			console.log(resp.checkresult);
-			if(resp.checkresult == 0){				
-				alert('위시리스트에 추가되었습니다.');
-			}else{
-				alert('이미 등록한 리스트 입니다.');
+			if(resp.data==false){
+				alert("위시리스트에서 삭제합니다.");
+			}else if(resp.data==true){
+				alert("위시리스트에 추가합니다.");
 			}
 		});
 		console.log(userid);
-		console.log(placeid);
-		console.log(filegroupid);
+		console.log(placeId);
 	}
 
 	//이미지 팝업기능 o.k
@@ -373,9 +368,9 @@ $(document).ready(function(){
 	}
 	//가게 수정 페이지 이동
 	function placemodify(){
-		let placeid = $('#placeid').val();
+		let placeId = $('#placeid').val();
 		
-		location.href='/page/place/placemodify/'+placeid;
+		location.href='/page/place/placemodify/'+placeId;
 	}
 </script>	
 </th:block>

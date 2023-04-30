@@ -33,9 +33,9 @@ public class Place extends BaseTime {
     private String fileGroupId;
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "place")
     private List<Comment>commentList = new ArrayList<>();
+    //가게글이 삭제가 되면 가게 이미지도 같이 삭제가 된다.
     @OneToMany(fetch =FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PlaceImage> placeImageList = new ArrayList<>();
-
     
     @Builder
     public Place(Integer id,String placeName,String placeAuthor,String placeStart,String placeClose,String placePhone,String placeAddr1,String placeAddr2,String fileGroupId,Double placeLng,Double placeLat,Double reviewRate){
@@ -52,6 +52,7 @@ public class Place extends BaseTime {
         this.placeLat = placeLat;
         this.reviewRate = 0.0;
     }
+
     //이미지 첨부
     public void addPlaceImage(PlaceImage placeImage){
         this.placeImageList.add(placeImage);
@@ -59,6 +60,7 @@ public class Place extends BaseTime {
             placeImage.setPlace(this);
         }
     }
+
     public void placeUpadate(PlaceDto.PlaceRequestDto dto){
         this.placeLat = dto.getPlaceLat();
         this.placeLng = dto.getPlaceLng();

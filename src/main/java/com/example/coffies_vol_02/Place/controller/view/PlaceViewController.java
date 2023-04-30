@@ -1,6 +1,8 @@
 package com.example.coffies_vol_02.Place.controller.view;
 
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.Place.service.PlaceImageService;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -18,6 +22,7 @@ import java.util.UUID;
 @RequestMapping("/page/place")
 public class PlaceViewController {
     private final PlaceService placeService;
+    private final PlaceImageService placeImageService;
 
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable){
@@ -32,12 +37,15 @@ public class PlaceViewController {
     }
 
     @GetMapping("/detail/{place_id}")
-    public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId){
+    public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId) throws Exception {
         ModelAndView mv = new ModelAndView();
 
         PlaceDto.PlaceResponseDto detail  = placeService.placeDetail(placeId);
+        List<PlaceImageDto.PlaceImageResponseDto> imageResponseDtoList = placeImageService.placeImageResponseDtoList(placeId);
 
         mv.addObject("detail",detail);
+        mv.addObject("imagelist",imageResponseDtoList);
+
         mv.setViewName("/place/placedetail");
 
         return mv;

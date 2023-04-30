@@ -34,16 +34,26 @@ public class PlaceImage extends BaseTime {
     private Place place;
 
     @Builder
-    public PlaceImage(String fileGroupId,String imgUploader,String fileType,String thumbFileImagePath,String thumbFilePath,String storedName,String originName,String imgPath,String imgGroup,String isTitle){
+    public PlaceImage(
+            String fileGroupId,
+            String fileType,
+            String imgGroup,
+            String imgPath,
+            String thumbFileImagePath,
+            String thumbFilePath,
+            String storedName,
+            String originName,
+            String imgUploader,
+            String isTitle){
         this.fileGroupId = fileGroupId;
         this.fileType = fileType;
-        this.imgPath = imgPath;
-        this.isTitle = isTitle;
         this.imgGroup = imgGroup;
-        this.imgUploader = imgUploader;
-        this.originName = originName;
-        this.storedName = storedName;
+        this.imgPath = imgPath;
         this.thumbFileImagePath = thumbFileImagePath;
         this.thumbFilePath = thumbFilePath;
+        this.originName = originName;
+        this.storedName = storedName;
+        this.imgUploader = imgUploader;
+        this.isTitle = isTitle;
     }
 }

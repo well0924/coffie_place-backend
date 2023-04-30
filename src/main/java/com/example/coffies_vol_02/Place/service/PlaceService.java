@@ -20,10 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,18 +45,22 @@ public class PlaceService {
         Page<Place>list = placeRepository.findAll(pageable);
         return list.map(place -> new PlaceDto.PlaceResponseDto(place));
     }
+    
+    /*
+    * 가게 검색
+    */
     @Transactional(readOnly = true)
-    public List<PlaceDto.PlaceResponseDto>placeResponseDtos(){
-        List<Place>list = placeRepository.findAll();
-        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
-        for(Place place:list){
-            PlaceDto.PlaceResponseDto dto = PlaceDto.PlaceResponseDto
-                    .builder()
-                    .place(place)
-                    .build();
-            result.add(dto);
-        }
+    public Page<PlaceDto.PlaceResponseDto>placeListAll(String keyword,Pageable pageable){
+        Page<PlaceDto.PlaceResponseDto>result = placeRepository.placeListSearch(keyword,pageable);
         return result;
+    }
+
+    /*
+    * 가게 top5
+    */
+    @Transactional(readOnly = true)
+    public Page<PlaceDto.PlaceResponseDto>placeTop5(Pageable pageable){
+        return placeRepository.placeTop5(pageable);
     }
 
     /*
@@ -78,7 +80,7 @@ public class PlaceService {
     * 가게 등록
     */
     @Transactional
-    public Integer placeRegister(PlaceDto.PlaceRequestDto dto, PlaceImageDto.PlaceImageRequestDto requestDto) throws Exception {
+    public Integer placeRegister(PlaceDto.PlaceRequestDto dto,PlaceImageDto.PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
                 .builder()
                 .placeLat(dto.getPlaceLat())
@@ -93,10 +95,41 @@ public class PlaceService {
                 .fileGroupId(dto.getFileGroupId())
                 .reviewRate(dto.getReviewRate())
                 .build();
+
         placeRepository.save(place);
 
-        int registerResult = place.getId();
+        Integer registerResult = place.getId();
 
+        List<PlaceImage>imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
+
+        PlaceImage placeImage = new PlaceImage();
+
+        if(imageList.size()==0||imageList.isEmpty()){
+            return registerResult;
+        }
+
+        if(!imageList.isEmpty()) {
+            String resize = "";
+            for(int i=0;i< imageList.size();i++){
+                placeImage= imageList.get(i);
+                if(i == 0){
+                    placeImage.setIsTitle("1");
+                    resize = fileHandler.ResizeImage(placeImage,360,360);
+                }else{
+                    resize = fileHandler.ResizeImage(placeImage,120,120);
+                }
+                placeImage.setPlace(place);
+                placeImage.setImgGroup("coffieplace");
+                placeImage.setFileType("images");
+                placeImage.setThumbFileImagePath(resize);
+
+                place.addPlaceImage(placeImageRepository.save(placeImage));
+            }
+            /*for (PlaceImage placeImage : imageList) {
+                place.addPlaceImage(placeImageRepository.save(placeImage));
+                log.info("??"+placeImage);
+            }*/
+        }
         return registerResult;
     }
 

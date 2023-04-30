@@ -31,19 +31,7 @@ public class PlaceImageService {
         PlaceImageDto.PlaceImageResponseDto placeImageResponseDto
                 = PlaceImageDto.PlaceImageResponseDto
                 .builder()
-                .id(image.getId())
-                .imgGroup(image.getImgGroup())
-                .imgPath(image.getImgPath())
-                .isTitle(image.getIsTitle())
-                .fileType(image.getFileType())
-                .thumbFileImagePath(image.getThumbFileImagePath())
-                .thumbFilePath(image.getThumbFilePath())
-                .storedName(image.getStoredName())
-                .originName(image.getOriginName())
-                .fileGroupId(image.getFileGroupId())
-                .imgUploader(image.getImgUploader())
-                .createdTime(image.getCreatedTime())
-                .updatedTime(image.getUpdatedTime())
+                .placeImage(image)
                 .build();
 
         return placeImageResponseDto;
@@ -61,19 +49,7 @@ public class PlaceImageService {
             PlaceImageDto.PlaceImageResponseDto placeImageResponseDto
                     = PlaceImageDto.PlaceImageResponseDto
                     .builder()
-                    .id(image.getId())
-                    .imgGroup(image.getImgGroup())
-                    .imgPath(image.getImgPath())
-                    .isTitle(image.getIsTitle())
-                    .fileType(image.getFileType())
-                    .thumbFileImagePath(image.getThumbFileImagePath())
-                    .thumbFilePath(image.getThumbFilePath())
-                    .storedName(image.getStoredName())
-                    .originName(image.getOriginName())
-                    .fileGroupId(image.getFileGroupId())
-                    .imgUploader(image.getImgUploader())
-                    .createdTime(image.getCreatedTime())
-                    .updatedTime(image.getUpdatedTime())
+                    .placeImage(image)
                     .build();
 
             result.add(placeImageResponseDto);

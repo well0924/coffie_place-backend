@@ -81,7 +81,7 @@
 					<div id="valid_file"></div>
 					<div class="form-group">
 						<div class="text-right">
-							<a href="/page/place/placelist" class="btn btn-primary">목록</a>
+							<a href="/page/place/list" class="btn btn-primary">목록</a>
 							<button type="button" class="btn btn-primary" onclick="placeRegister()">가게등록하기</button>
 						</div>
 					</div>
@@ -168,7 +168,7 @@ function placeRegister(){
 	
 	for(let i = 0;i<files.length;i++){
 		console.log(files[i]);
-		formdate.append("file",files[i]);
+		formdate.append("images",files[i]);
 	}
 	
 	//가게 등록 기능

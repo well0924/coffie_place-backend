@@ -31,7 +31,6 @@ public class PlaceDto {
         private String placeClose;
         private String fileGroupId;
         private Double reviewRate= 0.0;
-
     }
     @Getter
     @ToString
