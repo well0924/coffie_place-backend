@@ -226,7 +226,7 @@ $(document).ready(function(){
 		let placeId = $('#placeid').val();
 	
 		$.ajax({
-			url:'/api/comment/placelist/'+placeId,
+			url:'/api/comment/place/list/'+placeId,
 			type:'get',
 			dataType:'json'
 		}).done(function(data){
@@ -291,14 +291,16 @@ $(document).ready(function(){
 		
 		if(validation()){
 			$.ajax({
-				url:'/api/comment/placewrite/'+placeId,
+				url:'/api/comment/place/write/'+placeId,
 				type:'post',
 				dataType:'json',
 				data: JSON.stringify(formdate),
 				contentType: 'application/json; chartset = utf-8'
 			}).done(function(resp){
 				alert('완료');
+
 				console.log(resp);
+
 				$('#reviewContents').val("");
 				$('#reviewAuthor').val("");
 				$('#replylist').empty();
@@ -310,7 +312,7 @@ $(document).ready(function(){
 	//댓글 삭제 o.k
 	function deleteReply(replyId,placeId){
 		$.ajax({
-			url:'/api/comment/place_delete/'+placeId+'/'+replyId,
+			url:'/api/comment/place/delete/'+placeId+'/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(data){
@@ -327,25 +329,16 @@ $(document).ready(function(){
 		console.log(score);
 		return score + 1.5;
 	}
-	//위시리스트 기능
+	//위시리스트 확인기능
 	function WishCheck(){
 		let userid = $('#userid').val();
 		let placeId = $('#placeid').val();
-		let fileGroupId = $('#filegroupid').val();
-		
-		const dataform = {	
-							placeId : placeid,
-							fileGroupId : fileGroupId,
-							userId : userid
-						 }
-		
+
 		$.ajax({
-			url:'/api/mypage/'+userid+'/'+placeId,
-			type:'post',
+			url:'/api/mypage/check/'+userid+'/'+placeId,
+			type:'get',
 			dataType:'json',
-			data:JSON.stringify(dataform),
 			contentType:'application/json; charset= utf-8'
-			
 		}).done(function(resp){
 			if(resp.data==false){
 				alert("위시리스트에서 삭제합니다.");

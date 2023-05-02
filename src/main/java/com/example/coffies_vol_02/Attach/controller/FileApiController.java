@@ -31,18 +31,6 @@ public class FileApiController {
     private final AttachService attachService;
     private final PlaceService placeService;
 
-    @ApiOperation(value = "자유게시판 첨부파일 목록")
-    @GetMapping("/filelist/{board_id}")
-    public CommonResponse<List<AttachDto>>fileList(@PathVariable("board_id")Integer boardId) throws Exception {
-        List<AttachDto> list = attachService.boardfilelist(boardId);
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
-    }
-    @ApiOperation(value = "공지게시판 첨부파일 목록")
-    @GetMapping("/noticefilelist/{notice_id}")
-    public CommonResponse<List<AttachDto>>noticefileList(@PathVariable("notice_id")Integer noticeId)throws Exception{
-        List<AttachDto>list = attachService.noticefilelist(noticeId);
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
-    }
     @ApiOperation(value = "자유게시판 첨부파일 다운로드")
     @GetMapping("/download/{file_name}")
     public ResponseEntity<Resource>BoardFileDownload(@PathVariable("file_name")String fileName) throws IOException {
@@ -55,8 +43,9 @@ public class FileApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
+
     @ApiOperation(value = "공지게시판 첨부파일 다운로드")
-    @GetMapping("/noticedownload/{file_name}")
+    @GetMapping("/notice/download/{file_name}")
     public ResponseEntity<Resource>NoticeFileDownload(@PathVariable("file_name")String fileName) throws IOException {
         AttachDto getFile = attachService.getNoticeBoardFile(fileName);
         Path path = Paths.get(getFile.getFilePath());
@@ -68,8 +57,8 @@ public class FileApiController {
                 .body(resource);
     }
     @ApiOperation("가게 목록 엑셀 다운로드")
-    @GetMapping("/placedownload")
-    public ResponseEntity getPlaceList(HttpServletResponse response, boolean excelDownload){
+    @GetMapping("/place-download")
+    public ResponseEntity getPlaceListDownload(HttpServletResponse response, boolean excelDownload){
         return ResponseEntity.ok(placeService.getPlaceList(response,excelDownload));
     }
 }

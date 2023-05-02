@@ -7,7 +7,7 @@ function idcheck(){
     let id = $('#user_id').val();
 
     $.ajax({
-        url:'/api/member/idduplicated/'+id,
+        url:'/api/member/id-check/'+id,
         type:'get',
         dataType:'json',
         contentType:"application/json; charset=UTF-8"
@@ -117,7 +117,7 @@ function memberjoin(){
     };
 
     $.ajax({
-        url:'/api/member/memberjoin',
+        url:'/api/member/join',
         type:'post',
         data: JSON.stringify(dateForm),
         dataType:'json',

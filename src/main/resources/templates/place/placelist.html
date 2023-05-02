@@ -26,7 +26,7 @@ layout:decorate="~{layout/leafframe}">
 				<button id="btnSearch"  class="btn btn-primary">Search</button>
 			</div>
 			<!--search end-->
-			<a th:href="@{/api/file/placedownload?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
+			<a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
 			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
 			<table class="table table-hover" id='board_list'>
 				<thead>

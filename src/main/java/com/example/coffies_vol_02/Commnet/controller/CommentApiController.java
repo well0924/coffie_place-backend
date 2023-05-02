@@ -29,9 +29,7 @@ public class CommentApiController {
     @ApiOperation(value = "댓글 목록")
     @GetMapping("/list/{board_id}")
     public CommonResponse<List<CommentDto.CommentResponseDto>>commentList(@PathVariable("board_id")Integer boardId) throws Exception {
-        List<CommentDto.CommentResponseDto> list = new ArrayList<>();
-
-        list = commentService.replyList(boardId);
+        List<CommentDto.CommentResponseDto> list = commentService.replyList(boardId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
@@ -53,7 +51,7 @@ public class CommentApiController {
         return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
     }
     @ApiOperation(value = "가게 댓글 목록")
-    @GetMapping("/placelist/{place_id}")
+    @GetMapping("/place/list/{place_id}")
     public CommonResponse<List<CommentDto.CommentResponseDto>>placeCommentList(@PathVariable("place_id") Integer placeId) throws Exception {
         List<CommentDto.CommentResponseDto>commentResponseDtoList = new ArrayList<>();
 
@@ -63,7 +61,7 @@ public class CommentApiController {
     }
     
     @ApiOperation("가게 댓글 작성")
-    @PostMapping("/placewrite/{place_id}")
+    @PostMapping("/place/write/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody CommentDto.CommentRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         int insertResult = 0;
@@ -76,10 +74,11 @@ public class CommentApiController {
     }
 
     @ApiOperation("가게 댓글 삭제")
-    @DeleteMapping("/place_delete/{place_id}/{reply_id}")
+    @DeleteMapping("/place/delete/{place_id}/{reply_id}")
     public CommonResponse<?>placeCommentDelete(@PathVariable("place_id")Integer placeId,@PathVariable("reply_id") Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
 
         commentService.placeCommentDelete(replyId,customUserDetails.getMember());
+
         commentService.updateStar(placeId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete Comment");

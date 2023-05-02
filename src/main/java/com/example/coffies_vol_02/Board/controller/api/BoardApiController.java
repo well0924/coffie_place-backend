@@ -30,26 +30,23 @@ public class BoardApiController {
     private final BoardService boardService;
 
     @ApiOperation(value = "게시글 목록",notes = "자유게시판 목록")
-    @GetMapping("/boardlist")
+    @GetMapping(path = "/list")
     public CommonResponse<Page<BoardDto.BoardResponseDto>>boardList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<BoardDto.BoardResponseDto> list = boardService.boardAll(pageable);
-
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @ApiOperation(value = "게시글 검색",notes = "자유게시판 목록 검색")
-    @GetMapping("/search")
+    @GetMapping(path = "/search")
     public CommonResponse<Page<BoardDto.BoardResponseDto>>boardSearch(@PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,@RequestParam(value = "searchVal",required = false) String searchVal){
         Page<BoardDto.BoardResponseDto> list = boardService.boardSearchAll(searchVal,pageable);
-
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @ApiOperation(value = "게시글 단일 조회",notes = "자유게시판 단일 조회")
-    @GetMapping("/{id}")
+    @GetMapping(path = "/detail/{id}")
     public CommonResponse<BoardDto.BoardResponseDto>boardDetail(@PathVariable("id") Integer boardId){
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
-
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
@@ -58,7 +55,6 @@ public class BoardApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>boardWrite(@Valid @ModelAttribute BoardDto.BoardRequestDto dto, BindingResult bindingResult,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         int WriteResult = boardService.boardSave(dto,customUserDetails.getMember());
-
         return new CommonResponse<>(HttpStatus.OK.value(),WriteResult);
     }
 
@@ -67,23 +63,20 @@ public class BoardApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>boardUpdate(@PathVariable("board_id") Integer boardId,@ModelAttribute BoardDto.BoardRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         int UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),dto.getFiles());
-
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
 
     @ApiOperation(value = "게시글 삭제",notes = "자유게시판에서 게시글을 삭제")
-    @DeleteMapping("/delete/{board_id}")
+    @DeleteMapping(path = "/delete/{board_id}")
     public CommonResponse<?>boardDelete(@PathVariable("board_id")Integer boardId, @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         boardService.BoardDelete(boardId,customUserDetails.getMember());
-
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
     @ApiOperation(value = "자유게시판 비밀번호 입력")
-    @GetMapping("/password/{board_id}/{password}")
+    @GetMapping(path = "/password/{board_id}/{password}")
     public CommonResponse<BoardDto.BoardResponseDto>passwordChange(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         BoardDto.BoardResponseDto result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
-
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 

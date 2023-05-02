@@ -45,7 +45,7 @@ function findId(){
     let email  = $('#user_email').val();
     if(validation()&&validemail()){
         $.ajax({
-            url:'/api/member/findid/'+name+'/'+email,
+            url:'/api/member/find-id/'+name+'/'+email,
             type:'get',
             dataType:'json',
             contentType:'application/json; charset=UTF-8'

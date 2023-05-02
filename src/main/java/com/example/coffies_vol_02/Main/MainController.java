@@ -25,12 +25,13 @@ public class MainController {
     @GetMapping("/main")
     public ModelAndView mainPage(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView  mv = new ModelAndView();
-
+        //게시글 목록
         Page<BoardDto.BoardResponseDto> boardList = boardService.boardAll(pageable);
-        Page<NoticeBoardDto.BoardResponseDto>noticelist = noticeService.noticeList(pageable);
+        //공지게시글 목록
+        Page<NoticeBoardDto.BoardResponseDto>noticeList = noticeService.noticeList(pageable);
 
         mv.addObject("boardlist",boardList);
-        mv.addObject("noticelist",noticelist);
+        mv.addObject("noticelist",noticeList);
 
         mv.setViewName("/mainPage/mainpage");
 
