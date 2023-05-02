@@ -28,21 +28,21 @@ public class PlaceApiController {
     private final PlaceService placeService;
     
     @ApiOperation(value = "가게 목록 조회")
-    @GetMapping("/list")
+    @GetMapping(path = "/list")
     public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         Page<PlaceDto.PlaceResponseDto> list = placeService.placeList(pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @ApiOperation(value = "가게 목록 검색")
-    @GetMapping("/search")
+    @GetMapping(path = "/search")
     public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         Page<PlaceDto.PlaceResponseDto> list = placeService.placeListAll(keyword,pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     
     @ApiOperation(value = "가게 단일 조회")
-    @GetMapping("/detail/{place_id}")
+    @GetMapping(path = "/detail/{place_id}")
     public CommonResponse<PlaceDto.PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
         PlaceDto.PlaceResponseDto placeDetail = placeService.placeDetail(placeId);
         return new CommonResponse<>(HttpStatus.OK.value(),placeDetail);
@@ -54,20 +54,18 @@ public class PlaceApiController {
     public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto, BindingResult bindingResult) throws Exception {
         int registerResult = 0;
         registerResult = placeService.placeRegister(dto,imageRequestDto);
-        log.info("결과:"+registerResult);
-        log.info("???:"+imageRequestDto.getImages());
         return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
     
     @ApiOperation(value = "가게 수정")
-    @PutMapping("/updateplace/{place_id}")
+    @PutMapping(path = "/update/{place_id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public CommonResponse<Integer>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto) throws Exception {
         int placeUpdateResult = 0;
         placeUpdateResult = placeService.placeModify(placeId,dto,imageRequestDto);
         return new CommonResponse<>(HttpStatus.OK.value(),placeUpdateResult);
     }
 
-    @DeleteMapping("/placeDelete/{place_id}")
+    @DeleteMapping(path = "/delete/{place_id}")
     public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId) throws Exception {
         placeService.placeDelete(placeId);
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
