@@ -57,6 +57,7 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
     }
 
     private List<Member>getMemberSearch(String searchVal,Pageable pageable){
+
         List<Member>memberList = jpaQueryFactory
                 .select(QMember.member)
                 .from(QMember.member)
