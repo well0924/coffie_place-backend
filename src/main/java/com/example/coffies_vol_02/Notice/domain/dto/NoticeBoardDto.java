@@ -20,15 +20,13 @@ public class NoticeBoardDto {
     public static class BoardRequestDto{
         @NotBlank
         private String noticeGroup;
-        @NotBlank
+        @ApiModelProperty(dataType ="char")
+        private Character isFixed;
         private String noticeTitle;
-        @NotBlank
         private String noticeWriter;
         @NotBlank
         private String noticeContents;
         private String fileGroupId;
-        @ApiModelProperty(dataType ="char")
-        private Character isFixed;
         private List<MultipartFile> files;
     }
     @Getter

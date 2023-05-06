@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestBoard;
+package com.example.coffies_vol_02.TestNotice;
 
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
