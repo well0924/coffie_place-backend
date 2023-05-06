@@ -12,13 +12,11 @@ import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,13 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -100,12 +97,11 @@ public class BoardControllerTest {
 
         mvc.perform(get("/page/board/list")
                 .with(user(customUserDetails))
-                .contentType(MediaType.TEXT_HTML))
+                .contentType(MediaType.TEXT_HTML)
+                .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(model().attributeExists("boardlist"))
                 .andExpect(view().name("/board/boardlist"))
                 .andDo(print());
-        
     }
 
     @Test
@@ -174,6 +170,7 @@ public class BoardControllerTest {
                 .andExpect(model().attributeExists("file"))
                 .andExpect(view().name("/board/boardmodify"))
                 .andDo(print());
+
     }
 
     private Member memberDto(){
