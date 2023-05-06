@@ -7,6 +7,7 @@ import lombok.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class MemberDto {
@@ -17,7 +18,7 @@ public class MemberDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberCreateDto{
+    public static class MemberCreateDto implements Serializable {
         private Integer id;
         @NotBlank(message = "아이디를 입력해주세요.")
         @Pattern(regexp = "^[a-z0-9]{4,15}$",message = "아이디는 영어소문자와 숫자만 사용하고 4~15자까지 입니다.")
@@ -46,7 +47,7 @@ public class MemberDto {
     @Getter
     @ToString
     @NoArgsConstructor
-    public static class MemberResponseDto{
+    public static class MemberResponseDto implements Serializable{
         private Integer id;
         private String userId;
         private String password;

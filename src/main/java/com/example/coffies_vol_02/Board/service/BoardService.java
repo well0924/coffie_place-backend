@@ -27,31 +27,35 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class BoardService {
+
     private final BoardRepository boardRepository;
+
     private final FileHandler fileHandler;
+
     private final AttachRepository attachRepository;
+
     private final AttachService attachService;
 
-    /*
+    /**
     * 게시글 목록
-    */
+    **/
     @Transactional(readOnly = true)
     public Page<BoardDto.BoardResponseDto> boardAll(Pageable pageable){
         return boardRepository.boardList(pageable);
     }
 
-    /*
+    /**
     *  게시글 검색
-    */
+    **/
     @Transactional(readOnly = true)
-    public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal, Pageable pageable){
-        Page<BoardDto.BoardResponseDto>searchResult = boardRepository.findAllSearch(searchVal,pageable);
+    public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal,String sort, Pageable pageable){
+        Page<BoardDto.BoardResponseDto>searchResult = boardRepository.findAllSearch(searchVal,sort,pageable);
         return searchResult;
     }
 
-    /*
+    /**
     *  게시글 단일 조회
-    */
+    **/
     @Transactional(readOnly = true)
     public BoardDto.BoardResponseDto boardDetail(Integer boardId){
         Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
@@ -71,9 +75,9 @@ public class BoardService {
                 .build();
     }
 
-    /*
+    /**
     * 글작성(파일 첨부)
-    */
+    **/
     @Transactional
     public Integer boardSave(BoardDto.BoardRequestDto requestDto, Member member) throws Exception {
 
@@ -108,9 +112,9 @@ public class BoardService {
         return InsertResult;
     }
 
-    /*
+    /**
     *  게시글 수정(파일 첨부)
-    */
+    **/
     @Transactional
     public Integer BoardUpdate(Integer boardId, BoardDto.BoardRequestDto dto, Member member,List<MultipartFile>files) throws Exception {
 
@@ -159,9 +163,9 @@ public class BoardService {
         return UpdateResult;
     }
 
-    /*
+    /**
     *  게시글 삭제
-    */
+    **/
     @Transactional
     public void BoardDelete(Integer boardId,Member member) throws Exception {
 
@@ -195,24 +199,28 @@ public class BoardService {
         boardRepository.deleteById(boardId);
     }
 
-    /*
+    /**
     * 게시글 비밀번호 확인
-    */
+    **/
     @Transactional
     public BoardDto.BoardResponseDto passwordCheck(String passWd,Integer id,Member member){
+
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
-        BoardDto.BoardResponseDto result = boardRepository.findByPassWdAndId(passWd,id);
-        if(result ==null){
-            throw new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD);
-        }
-        return result;
+
+        Optional<BoardDto.BoardResponseDto> result = Optional
+                .of(Optional
+                        .ofNullable(
+                                boardRepository.findByPassWdAndId(passWd, id))
+                                    .orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
+
+        return result.get();
     }
     
-    /*
+    /**
     * 게시글 조회수 증가
-    */
+    **/
     @Transactional
     public Integer updateView(Integer boardId){
         return boardRepository.ReadCountUp(boardId);

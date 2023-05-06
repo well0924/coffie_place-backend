@@ -4,17 +4,20 @@ import com.example.coffies_vol_02.Config.BaseTime;
 import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @ToString
+@Proxy(lazy = false)
 @NoArgsConstructor
 @Table(name = "tbl_user")
-public class Member extends BaseTime {
+public class Member extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

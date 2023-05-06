@@ -117,9 +117,8 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		<div class="col-lg-6">
 		<h2>가게조회</h2>
 			<!--placeimage(main)-->
-			<img src="C:\UploadFile\coffieplace\images\thumb\1320441237324900_thumb.jpg">
 			<th:block th:each="list:${imagelist}">
-				<!--<img th:if="${list.isTitle}"th:src="${list}" onclick="fnImgPop(this.src)"/>-->
+				<img th:if="${list.isTitle.toString().equals('1')}" th:src="${list.getImgPath()}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		<hr>
 			<!-- placedetail -->
@@ -139,7 +138,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 			</ul>
 			<!--placeimage(smallsize)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:unless="${list.isTitle}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
+				<img th:unless="${list.isTitle.toString().equals('N')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		</br>
 		</br>
@@ -340,10 +339,11 @@ $(document).ready(function(){
 			dataType:'json',
 			contentType:'application/json; charset= utf-8'
 		}).done(function(resp){
+			console.log(resp.data);
 			if(resp.data==false){
-				alert("위시리스트에서 삭제합니다.");
-			}else if(resp.data==true){
-				alert("위시리스트에 추가합니다.");
+				alert("위시리스트에서 추가합니다.");
+			}else {
+				alert("이미 위시리스트에 추가되었습니다.");
 			}
 		});
 		console.log(userid);

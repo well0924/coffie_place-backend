@@ -34,7 +34,6 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final FileHandler fileHandler;
     private final PlaceImageRepository placeImageRepository;
-    private final PlaceImageService placeImageService;
     private final ObjectMapper objectMapper;
 
     /*
@@ -125,10 +124,6 @@ public class PlaceService {
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
-            /*for (PlaceImage placeImage : imageList) {
-                place.addPlaceImage(placeImageRepository.save(placeImage));
-                log.info("??"+placeImage);
-            }*/
         }
         return registerResult;
     }
@@ -156,7 +151,7 @@ public class PlaceService {
     }
 
     /*
-     *
+     * 가게 엑셀 목록 출력
      */
     public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 

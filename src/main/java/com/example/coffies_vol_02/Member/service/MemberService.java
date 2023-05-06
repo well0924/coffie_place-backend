@@ -34,10 +34,6 @@ public class MemberService {
     public Page<MemberDto.MemberResponseDto> findAll(Pageable pageable){
         Page<Member>list = memberRepository.findAll(pageable);
 
-        if(list.isEmpty()){
-            throw new CustomExceptionHandler(ERRORCODE.NOT_MEMBER);
-        }
-
         return list.map(member->new MemberDto.MemberResponseDto(
                 member.getId(),
                 member.getUserId(),
@@ -59,6 +55,7 @@ public class MemberService {
         Page<MemberDto.MemberResponseDto>result = memberRepository.findByAllSearch(searchVal,pageable);
         return result;
     }
+
 
     /*
      * 회원 단일 조회
@@ -88,7 +85,6 @@ public class MemberService {
 
     /*
      * 회원가입기능
-     * @param :
      */
     @Transactional
     public Integer memberSave(MemberDto.MemberCreateDto memberCreateDto){
@@ -140,8 +136,13 @@ public class MemberService {
      */
     @Transactional
     public void memberDelete(Integer id){
-        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+        Optional<Member>detail = Optional
+                .ofNullable(
+                        memberRepository
+                            .findById(id)
+                                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         Member member = null;
+
         if(detail.isPresent()){
             member = detail.get();
         }
@@ -172,12 +173,15 @@ public class MemberService {
     @Transactional(readOnly = true)
     public String findByMembernameAndUseremail(String membername, String userEmail){
         Optional<Member> member = memberRepository.findByMemberNameAndUserEmail(membername, userEmail);
-        Member detail = null;
+
+        Member detail = new Member();
 
         if(member.isPresent()){
             detail = member.get();
         }
+
         String userid = detail.getUserId();
+
         return userid;
     }
 
@@ -188,13 +192,16 @@ public class MemberService {
     @Transactional
     public Integer updatePassword(Integer id, MemberDto.MemberCreateDto dto){
         Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+
         detail.ifPresent(member -> {
             if(dto.getPassword()!=null){
                 detail.get().setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
             }
             memberRepository.save(member);
         });
+
         int updateResult = detail.get().getId();
+
         return updateResult;
     }
 
@@ -209,10 +216,12 @@ public class MemberService {
         ArrayList<String> resultlist = new ArrayList<>();
 
         List<Member>list = memberRepository.findByUserIdStartsWith(searchVal, Sort.by(Sort.Direction.DESC, "userId"));
+
         for (Member member:list){
             String str = member.getUserId();
             resultlist.add(str);
         }
+
         for(String str : resultlist){
             jsonObj = new JSONObject();
             jsonObj.put("data",str);

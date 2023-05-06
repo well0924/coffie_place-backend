@@ -28,7 +28,8 @@ public class NoticeController {
     private final AttachService attachService;
 
     @GetMapping("/list")
-    public ModelAndView noticeList(@RequestParam String searchVal, @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+    public ModelAndView noticeList(@RequestParam(value = "searchVal",required = false) String searchVal,
+                                   @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
 
         Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeSearchList(searchVal, pageable);

@@ -81,7 +81,7 @@
 		<div class="d-none d-md-block">
 			<ul class="pagination justify-content-center">
 				<li class="page-item" th:classappend="${memberlist.first} ? 'disabled'">
-					<a th:href="${memberlist.first} ? '#' : @{/page/admin/adminlist(page=${pageNumber-1})}" class="page-link">이전</a>
+					<a th:href="@{/page/admin/adminlist(page=${pageNumber -1})}" class="page-link">이전</a>
 				</li>
 				<li class="page-item" th:each="page: ${#numbers.sequence(startPage, endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
 					<a th:href="@{/page/admin/adminlist(page=${page - 1})}" class="page-link">[[${page}]]</a>

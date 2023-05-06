@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class CommentDto {
@@ -13,7 +14,7 @@ public class CommentDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CommentRequestDto{
+    public static class CommentRequestDto implements Serializable {
         private String replyWriter;
         private String replyContents;
         private Integer replyPoint;
@@ -22,7 +23,7 @@ public class CommentDto {
     @ToString
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CommentResponseDto{
+    public static class CommentResponseDto implements Serializable{
         private Integer id;
         private String replyWriter;
         private String replyContents;

@@ -27,7 +27,7 @@ layout:decorate="~{layout/leafframe}">
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:if="${not #lists.isEmpty(boardlist)}" th:each="list : ${boardlist}">
+					<tr th:if="${not #lists.isEmpty(boardList)}" th:each="list : ${boardList}">
 						<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
 						<td><a th:href="@{'/page/board/detail/'+ ${list.id}}">[[${list.boardTitle}]]</a></td>
 						<td class="text-center d-none d-md-table-cell">[[${list.boardAuthor}]]</td>
@@ -35,29 +35,29 @@ layout:decorate="~{layout/leafframe}">
 						<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 						
 					</tr>
-					<tr th:unless="${not #lists.isEmpty(boardlist)}">
+					<tr th:unless="${not #lists.isEmpty(boardList)}">
 						<td>조회된 게시글이 없습니다.</td>
 					</tr>
 				</tbody>
 			</table>
-			
 			<!--paging -->
-			<div th:if="${!boardlist.isEmpty()}">
-				<nav th:with="pageNumber = ${boardlist.pageable.pageNumber},
-				pageSize = ${boardlist.pageable.pageSize},
-				totalPages= ${boardlist.totalPages},
+			<div th:if="${boardList}">
+				<nav th:with=
+			   "pageNumber = ${boardList.pageable.pageNumber},
+				pageSize = ${boardList.pageable.pageSize},
+				totalPages= ${boardList.totalPages},
 				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
 				tempEndPage=${startPage+pageSize - 1},
 				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
 					<div class="d-none d-md-block">
 						<ul class="pagination justify-content-center">
-							<li class="page-item" th:classappend="${boardlist.first}?'disabled'">
-								<a class="page-link" th:href="${boardlist.first}? '#' : @{/page/board/list(page=${pageNumber-1})}">이전</a>
+							<li class="page-item" th:classappend="${boardList.first}?'disabled'">
+								<a class="page-link" th:href="@{/page/board/list(page=${pageNumber -1})}">이전</a>
 							</li>
 							<li class="page-item" th:each="page: ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
 								<a class="page-link">[[${page}]]</a>
 							</li>
-							<li class="page-item" th:classappend="${boardlist.last}?'disabled'">
+							<li class="page-item" th:classappend="${boardList.last}?'disabled'">
 								<a class="page-link" th:href="@{/page/board/list(page=${pageNumber+1})}">다음</a>
 							</li>
 						</ul>

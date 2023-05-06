@@ -51,7 +51,7 @@ public class PlaceImageDto {
 
         @Builder
         public PlaceImageResponseDto(PlaceImage placeImage){
-
+            this.id = placeImage.getId();
             this.fileGroupId = placeImage.getFileGroupId();
             this.fileType = placeImage.getFileType();
             this.imgGroup = placeImage.getImgGroup();

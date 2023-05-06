@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,48 +26,78 @@ public class FavoriteApiController {
 
     @ApiOperation("위시리스트 목록")
     @GetMapping(path = "/{user_id}")
-    public CommonResponse<List<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@PathVariable("user_id")String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        List<FavoritePlaceDto.FavoriteResponseDto>list= favoritePlaceService.findByMemberId(userId);
+    public CommonResponse<List<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@PathVariable("user_id")String userId){
+
+        List<FavoritePlaceDto.FavoriteResponseDto>list= new ArrayList<>();
+
+        try{
+            list= favoritePlaceService.findByMemberId(userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @ApiOperation("위시리스트 중복 체크")
     @GetMapping(path = "/check/{member_id}/{place_id}")
-    public CommonResponse<?>wishListCheck(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId,Integer wishId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        boolean checkResult = favoritePlaceService.hasWishPlace(placeId,memberId);
-        if(checkResult == false){
-            wishListAdd(memberId,placeId,customUserDetails);
-        }else if(checkResult == true){//checkResult 가 true인 경우
-            wishListDelete(wishId);
+    public CommonResponse<?>wishListCheck(@PathVariable("member_id")String memberId, @PathVariable("place_id") Integer placeId,Integer wishId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        boolean checkResult = false;
+        try{
+            checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return new CommonResponse<>(HttpStatus.OK.value(),checkResult);
     }
 
     @ApiOperation("가게 위시리스트에 추가")
     @PostMapping(path = "/{member_id}/{place_id}")
-    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        favoritePlaceService.wishListAdd(memberId,placeId);
+    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        try{
+            favoritePlaceService.wishListAdd(memberId,placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),"wishList Add");
     }
 
     @ApiOperation("위시리스트 삭제")
-    @DeleteMapping(path = "/{wish_id}")
-    public CommonResponse<String>wishListDelete(@PathVariable("wish_id")Integer wishId){
-        favoritePlaceService.wishDelete(wishId);
+    @DeleteMapping(path = "/{place_id}")
+    public CommonResponse<String>wishListDelete(@PathVariable("place_id")Integer placeId){
+        try{
+            favoritePlaceService.wishDelete(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),"wishlist delete!");
     }
 
     @ApiOperation(value = "로그인한 회원이 작성한 글")
     @GetMapping(path = "/contents/{id}")
     public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @AuthenticationPrincipal CustomUserDetails customUserDetails, @PageableDefault Pageable pageable){
-        Page<BoardDto.BoardResponseDto> list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
+        Page<BoardDto.BoardResponseDto> list = null;
+
+        try{
+            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     
     @ApiOperation(value = "로그인한 회원이 작성한 댓글")
     @GetMapping(path = "/comment/{id}")
     public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
-        List<CommentDto.CommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
+        List<CommentDto.CommentResponseDto>list = new ArrayList<>();
+
+        try{
+            list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 }

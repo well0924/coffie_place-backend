@@ -73,9 +73,6 @@ public class FavoritePlaceService {
         FavoritePlace favoritePlace = favoritePlaceRepository.findById(wishId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_WISHLIST));
         favoritePlaceRepository.delete(favoritePlace);
     }
-    public void deleteById(Integer placeId,Integer memberId){
-        favoritePlaceRepository.deleteByPlaceIdAndMemberId(placeId,memberId);
-    }
 
     /*
      * 내가 작성한 글 확인하기.

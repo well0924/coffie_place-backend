@@ -44,7 +44,12 @@ public class PlaceApiController {
     @ApiOperation(value = "가게 단일 조회")
     @GetMapping(path = "/detail/{place_id}")
     public CommonResponse<PlaceDto.PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
-        PlaceDto.PlaceResponseDto placeDetail = placeService.placeDetail(placeId);
+        PlaceDto.PlaceResponseDto placeDetail = new PlaceDto.PlaceResponseDto();
+        try{
+            placeDetail = placeService.placeDetail(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),placeDetail);
     }
     
@@ -52,22 +57,38 @@ public class PlaceApiController {
     @PostMapping(path="/register",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto, BindingResult bindingResult) throws Exception {
-        int registerResult = 0;
-        registerResult = placeService.placeRegister(dto,imageRequestDto);
+        Integer registerResult = 0;
+
+        try{
+            registerResult = placeService.placeRegister(dto,imageRequestDto);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
     
     @ApiOperation(value = "가게 수정")
     @PutMapping(path = "/update/{place_id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public CommonResponse<Integer>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto) throws Exception {
-        int placeUpdateResult = 0;
-        placeUpdateResult = placeService.placeModify(placeId,dto,imageRequestDto);
+        Integer placeUpdateResult = 0;
+
+        try{
+            placeUpdateResult = placeService.placeModify(placeId,dto,imageRequestDto);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),placeUpdateResult);
     }
 
     @DeleteMapping(path = "/delete/{place_id}")
     public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId) throws Exception {
-        placeService.placeDelete(placeId);
+
+        try{
+            placeService.placeDelete(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 }

@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.example.coffies_vol_02.Place.service.PlaceImageService;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Log4j2
 @Controller
 @AllArgsConstructor
 @RequestMapping("/page/place")
@@ -42,7 +44,7 @@ public class PlaceViewController {
 
         PlaceDto.PlaceResponseDto detail  = placeService.placeDetail(placeId);
         List<PlaceImageDto.PlaceImageResponseDto> imageResponseDtoList = placeImageService.placeImageResponseDtoList(placeId);
-
+        log.info(imageResponseDtoList);
         mv.addObject("detail",detail);
         mv.addObject("imagelist",imageResponseDtoList);
 

@@ -45,7 +45,7 @@ public class Board extends BaseTime implements Serializable {
 
     private String fileGroupId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "useridx")
     private Member member;
 

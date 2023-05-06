@@ -27,9 +27,13 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
     //회원 검색기능
     @Override
     public Page<MemberDto.MemberResponseDto> findByAllSearch(String searchVal, Pageable pageable) {
+
         List<Member>memberList = getMemberSearch(searchVal,pageable);
+
         List<MemberDto.MemberResponseDto>responseDto = new ArrayList<>();
+
         Long count = searchCount(searchVal);
+
         for(Member memberlist : memberList){
             MemberDto.MemberResponseDto dto = MemberDto.MemberResponseDto
                     .builder()
@@ -51,6 +55,7 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
         }
         return new PageImpl<>(responseDto,pageable,count);
     }
+
     private List<Member>getMemberSearch(String searchVal,Pageable pageable){
         List<Member>memberList = jpaQueryFactory
                 .select(QMember.member)
@@ -63,6 +68,7 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
 
         return memberList;
     }
+
     //검색시 회원 수
     private Long searchCount(String searchVal){
         Long count = jpaQueryFactory

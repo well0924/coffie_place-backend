@@ -6,16 +6,19 @@ import com.example.coffies_vol_02.Member.domain.Member;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Entity
+@Proxy(lazy = false)
 @Table(name = "tbl_like")
 @ToString(exclude = {"member","board"})
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Like {
+public class Like implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

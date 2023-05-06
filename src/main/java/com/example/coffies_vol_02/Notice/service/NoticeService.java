@@ -28,26 +28,26 @@ public class NoticeService {
     private final AttachService attachService;
     private final FileHandler fileHandler;
 
-    /*
-    * 공지글 목록
-    */
+    /**
+    *   공지글 목록
+    **/
     @Transactional(readOnly = true)
     public Page<NoticeBoardDto.BoardResponseDto>noticeList(Pageable pageable){
         return noticeBoardRepository.findAllList(pageable);
     }
 
-    /*
-    * 공지 게시물 검색
-    */
+    /**
+    *   공지 게시물 검색
+    **/
     @Transactional(readOnly = true)
     public Page<NoticeBoardDto.BoardResponseDto>noticeSearchList(String searchVal,Pageable pageable){
         Page<NoticeBoardDto.BoardResponseDto>noticeSearchList = noticeBoardRepository.findAllSearchList(searchVal,pageable);
         return noticeSearchList;
     }
 
-    /*
+    /**
     *   공지글 단일 조회
-    */
+    **/
     @Transactional(readOnly = true)
     public NoticeBoardDto.BoardResponseDto noticeDetail(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
@@ -59,9 +59,9 @@ public class NoticeService {
                 .build();
     }
 
-    /*
-    *  공지글 작성
-    */
+    /**
+    *   공지글 작성
+    **/
     @Transactional
     public Integer noticeWrite(NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
 
@@ -92,9 +92,9 @@ public class NoticeService {
         return noticeInsertResult;
     }
     
-    /*
+    /**
     * 공지 게시글 수정
-    */
+    **/
     @Transactional
     public Integer noticeUpdate(Integer noticeId,NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));

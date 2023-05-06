@@ -7,18 +7,21 @@ import com.example.coffies_vol_02.Like.domain.Like;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Place.domain.Place;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Getter
+@Proxy(lazy = false)
 @Entity
 @ToString(exclude = {"member","board","place","likes"})
 @Table(name = "tbl_board_reply")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment extends BaseTime {
+public class Comment extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

@@ -31,18 +31,17 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         List<NoticeBoard>result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
-                .join(QNoticeBoard.noticeBoard)
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .fetch();
 
         Long count = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .fetchOne();
 
         for(NoticeBoard noticeBoard:result){
@@ -66,7 +65,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .where(noticeTitleEq(searchVal)
                         .or(noticeAuthorEq(searchVal))
                         .or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.id.desc())
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -77,14 +76,16 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .where(noticeTitleEq(searchVal)
                         .or(noticeAuthorEq(searchVal))
                         .or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.id.desc())
+                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
                 .fetchOne();
 
         for(NoticeBoard noticeBoard:result){
+
             NoticeBoardDto.BoardResponseDto responseDto = NoticeBoardDto.BoardResponseDto
                     .builder()
                     .noticeBoard(noticeBoard)
                     .build();
+
             searchResult.add(responseDto);
         }
 
@@ -100,6 +101,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
     BooleanBuilder noticeAuthorEq(String searchVal){
         return nullSafeBuilder(()-> QNoticeBoard.noticeBoard.noticeWriter.contains(searchVal));
     }
+
     BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
             return new BooleanBuilder(f.get());
