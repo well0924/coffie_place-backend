@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -29,6 +31,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class MemberServiceTest {
     @InjectMocks
     private MemberService memberService;
@@ -47,6 +50,7 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원 목록(페이징)")
     public void memberList(){
+
         List<Member>list = new ArrayList<>();
         list.add(member);
         PageRequest pageable = PageRequest.of(0,5, Sort.by("id").descending());
@@ -55,6 +59,7 @@ public class MemberServiceTest {
         when(memberRepository.findAll(pageable)).thenReturn(pageList);
 
         Page<MemberDto.MemberResponseDto>result = memberService.findAll(pageable);
+
         result.map(member ->new MemberDto.MemberResponseDto(
                 member.getId(),
                 member.getUserId(),
@@ -71,6 +76,7 @@ public class MemberServiceTest {
                 member.getUpdatedTime()));
 
         assertThat(result).isNotNull();
+        assertThat(result.get().toList().get(0).getMemberName()).isEqualTo(memberDto().getMemberName());
     }
     @Test
     @DisplayName("회원 단일 조회")
@@ -138,7 +144,8 @@ public class MemberServiceTest {
         responseDto = memberService.findMemberById(member.getId());
         Integer updateResult = memberService.memberUpdate(dto.getId(),dto);
 
-        assertThat(responseDto.getId()).isEqualTo(member.getId());
+        //then
+        assertThat(updateResult).isEqualTo(member.getId());
     }
 
     @Test

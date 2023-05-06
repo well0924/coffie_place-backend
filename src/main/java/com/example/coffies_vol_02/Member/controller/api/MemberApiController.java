@@ -159,7 +159,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
     }
 
-    @ApiOperation(value = "회원 자동 검색")
+   /* @ApiOperation(value = "회원 자동 검색")
     @GetMapping(path = "/auto-compete-keyword")
     public void memberNameAutoComplete(HttpServletRequest request, HttpServletResponse response){
         String searchValue;
@@ -178,7 +178,7 @@ public class MemberApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Operation(summary = "회원선택삭제 api",description = "어드민페이지에서 회원 선택삭제하는 기능")
     @PostMapping(path = "/select-delete")

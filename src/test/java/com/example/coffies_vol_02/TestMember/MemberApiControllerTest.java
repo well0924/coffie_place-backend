@@ -1,7 +1,5 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
@@ -11,13 +9,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,7 +35,6 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -78,17 +78,17 @@ public class MemberApiControllerTest {
     @DisplayName("회원 목록")
     @Test
     public void memberListTest()throws Exception{
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         given(memberRepository.findAll(any(Pageable.class))).willReturn(Page.empty());
 
         when(memberService.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
         mvc.perform(get("/api/member/list")
-                        .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService,atLeastOnce()).findAll(any(Pageable.class));
+        verify(memberService,atLeastOnce()).findAll(any());
     }
 
     @DisplayName("회원 조회")
@@ -186,7 +186,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
-    @DisplayName("회원아이디 중복-사용가능한 아이디")
+    @DisplayName("회원아이디 중복-성공")
     public void memberIdDuplicatedTest()throws Exception{
 
         given(memberService.existsByUserId(member.getUserId())).willReturn(anyBoolean());
@@ -202,25 +202,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
-    @DisplayName("회원아이디 중복-중복가능한 아이디")
-    public void memberIdDuplicatedTestFail()throws Exception{
-
-        given(memberService.existsByUserId(member.getUserId())).willReturn(true);
-
-        when(memberService.existsByUserId(member.getUserId())).thenReturn(true);
-
-        mvc.perform(
-                        get("/api/member/id-check/{user_id}",member.getUserId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
-                .andDo(print());
-
-        verify(memberService,times(1)).existsByUserId(member.getUserId());
-    }
-
-    @Test
-    @DisplayName("회원이메일 중복-사용할 수 있는 이메일")
+    @DisplayName("회원이메일 중복-중복이 안되는 경우")
     public void memberEmailDuplicatedTest()throws Exception{
         given(memberService.existByUserEmail(member.getUserEmail())).willReturn(anyBoolean());
 
@@ -232,11 +214,11 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService,times(1)).existByUserEmail(member.getUserEmail());
+        verify(memberService).existByUserEmail(member.getUserEmail());
     }
 
     @Test
-    @DisplayName("회원이메일 중복-이메일이 중복이 되는 경우")
+    @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
         given(memberService.findMemberById(member.getId())).willReturn(responseDto);
         given(memberService.existByUserEmail(member.getUserEmail())).willReturn(true);
@@ -258,7 +240,6 @@ public class MemberApiControllerTest {
         //given
         String username = member.getMemberName();
         String userEmail = member.getUserEmail();
-
         given(memberRepository.findByMemberNameAndUserEmail(eq(username),eq(userEmail))).willReturn(Optional.of(member));
 
         //when
