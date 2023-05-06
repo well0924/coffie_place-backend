@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.TestMember;
 import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.Member.service.MemberService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -72,18 +75,22 @@ public class MemberViewControllerTest {
 
     @Test
     @DisplayName("어드민 목록 페이지-성공")
-    @WithMockUser(username = "well4149",roles = "ADMIN")
     public void adminMemberListPageTest()throws Exception{
-        BDDMockito.given(memberService.findAll(any(Pageable.class))).willReturn(Page.empty());
+        given(memberService.findAll(any(Pageable.class))).willReturn(Page.empty());
+        given(memberService.findByAllSearch(any(),any(Pageable.class))).willReturn(Page.empty());
+
+        when(memberService.findByAllSearch(any(),any(Pageable.class))).thenReturn(Page.empty());
 
         mvc.perform(
                 get("/page/admin/adminlist")
-                .contentType(MediaType.TEXT_HTML))
+                .contentType(MediaType.TEXT_HTML)
+                .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("memberlist"))
                 .andExpect(view().name("/admin/adminlist"))
                 .andDo(print());
 
+        then(memberService).should().findByAllSearch(any(),any(Pageable.class));
     }
 
     @Test

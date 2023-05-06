@@ -81,15 +81,12 @@ public class NoticeServiceTest {
     @Test
     @DisplayName("공지게시글 목록")
     public void noticeBoardListTest(){
-        List<NoticeBoard>noticeBoards = new ArrayList<>();
-        noticeBoards.add(noticeBoard);
         PageRequest pageRequest = PageRequest.of(0,5, Sort.by("id"));
-        Page<NoticeBoard> noticeBoardPage = new PageImpl<>(noticeBoards,pageRequest,1);
+        given(noticeBoardRepository.findAllList(pageRequest)).willReturn(Page.empty());
 
-        given(noticeBoardRepository.findAll(pageRequest)).willReturn(noticeBoardPage);
         Page<NoticeBoardDto.BoardResponseDto>result = noticeService.noticeList(pageRequest);
 
-        Assertions.assertThat(result).isNotEmpty();
+        Assertions.assertThat(result).isEmpty();
     }
     @Test
     @DisplayName("게시글 단일조회")

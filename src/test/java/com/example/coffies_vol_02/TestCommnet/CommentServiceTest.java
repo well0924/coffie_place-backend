@@ -7,10 +7,12 @@ import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
 import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Commnet.service.CommentService;
+import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
 import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
@@ -29,6 +32,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -37,22 +41,34 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class CommentServiceTest {
+
     @InjectMocks
     private CommentService commentService;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private CommentRepository commentRepository;
+
     @Mock
     private PlaceRepository placeRepository;
 
+    @Mock
+    private MemberRepository memberRepository;
+
     Member member;
+
     Board board;
+
     Place place;
+
     Comment comment;
 
     MemberDto.MemberResponseDto responseDto;
+
     BoardDto.BoardResponseDto boardResponseDto;
+
     CommentDto.CommentResponseDto commentResponseDto;
 
     @BeforeEach
@@ -89,20 +105,16 @@ public class CommentServiceTest {
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
         given(commentService.replyWrite(anyInt(),member,commentRequestDto)).willReturn(0);
+
         when(commentService.replyWrite(anyInt(),member,commentRequestDto)).thenReturn(0);
+
         then(commentService.replyWrite(anyInt(),member,commentRequestDto));
     }
-    @Test
-    @DisplayName("댓글 삭제-성공")
-    public void CommentDeleteTest(){
-        given(boardRepository.findById(board().getId())).willReturn(Optional.of(board));
-        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
-        commentService.commentDelete(comment.getId(),member);
-    }
     @Test
     @DisplayName("게시판 댓글작성 실패-로그인이 안된 경우")
     public void CommentWriteFail(){
+        given(memberRepository.findById(anyInt())).willReturn(Optional.empty());
         given(boardRepository.findById(anyInt())).willReturn(Optional.of(board));
 
         member= null;
@@ -112,21 +124,46 @@ public class CommentServiceTest {
         commentRequestDto.setReplyWriter(null);
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        assertThatThrownBy(()->commentService.replyWrite(anyInt(),member,commentRequestDto))
+        assertThatThrownBy(()->commentService.replyWrite(anyInt(),null,commentRequestDto))
                 .isInstanceOf(CustomExceptionHandler.class);
+    }
+
+    @Test
+    @DisplayName("댓글 삭제-성공")
+    public void CommentDeleteTest(){
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+        commentService.commentDelete(comment.getId(),member);
+    }
+
+    @Test
+    @DisplayName("댓글 삭제실패-로그인이 안 된 경우")
+    public void CommentDeleteFail1(){
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+            commentService.commentDelete(comment.getId(),null);
+        });
+
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
 
     @Test
     @DisplayName("댓글 삭제실패-작성자가 다른 경우")
     public void CommentDeleteFail2(){
-        given(boardRepository.findById(anyInt())).willReturn(Optional.of(board));
-        given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
         String userid = "well";
         member.setUserId(userid);
 
-        assertThatThrownBy(()->commentService.commentDelete(comment.getId(),member))
-                .isInstanceOf(CustomExceptionHandler.class);
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+            commentService.commentDelete(comment.getId(),member);
+        });
+
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
 
     @Test
@@ -158,12 +195,58 @@ public class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("가게 댓글 작성-실패(로그인을 안한 경우)")
+    public void PlaceCommentCreateTestFail1(){
+        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        member = null;
+        CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
+        commentRequestDto.setReplyContents(comment.getReplyContents());
+        commentRequestDto.setReplyWriter(null);
+        commentRequestDto.setReplyPoint(comment.getReplyPoint());
+
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+            commentService.placeCommentWrite(place.getId(),commentRequestDto,null);
+        });
+
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
+    }
+    
+    @Test
     @DisplayName("가게 댓글 삭제")
     public void PlaceCommentDeleteTest(){
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
         commentService.placeCommentDelete(comment.getId(),member);
+    }
+
+    @Test
+    @DisplayName("가게 댓글 삭제-실패(로그인을 하지 않은경우)")
+    public void PlaceCommentDeleteTestFail1(){
+        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
+            commentService.placeCommentDelete(comment.getId(), null);
+        });
+
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
+    }
+
+    @Test
+    @DisplayName("가게 댓글 삭제-실패(작성자가 다른경우)")
+    public void PlaceCommentDeleteTestFail2(){
+        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+        String userId = "we";
+        member.setUserId(userId);
+
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
+            commentService.placeCommentDelete(comment.getId(), member);
+        });
+
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
 
     private Comment comment(){

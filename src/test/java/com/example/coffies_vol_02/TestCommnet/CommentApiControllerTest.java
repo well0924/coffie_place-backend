@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -30,9 +31,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,13 +62,14 @@ public class CommentApiControllerTest {
     @Mock
     private MemberRepository memberRepository;
     @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private PlaceRepository placeRepository;
+    @MockBean
     private CommentService commentService;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
-    @Autowired
-    private CommentRepository commentRepository;
-    @Autowired
-    private PlaceRepository placeRepository;
+    private List<CommentDto.CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
     @BeforeEach
     public void init(){
@@ -71,12 +77,11 @@ public class CommentApiControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-
         member = memberDto();
         board = board();
         place = place();
         comment = comment();
-
+        commentResponseDtoList.add(commentResponseDto());
         memberRepository.save(member);
         commentRepository.save(comment());
         placeRepository.findById(place().getId());
@@ -86,15 +91,20 @@ public class CommentApiControllerTest {
     @Test
     @DisplayName("게시판 댓글 목록")
     public void boardCommentList()throws Exception{
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
+        when(commentService.replyList(board().getId())).thenReturn(any());
 
         mvc.perform(get("/api/comment/list/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .with(user(customUserDetails)))
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
+        verify(commentService).replyList(board.getId());
     }
 
     @Test
@@ -106,6 +116,12 @@ public class CommentApiControllerTest {
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(commentService.replyWrite(board.getId(),member,commentRequestDto)).willReturn(comment.getId());
+
+        when(commentService.replyWrite(board.getId(),member,commentRequestDto)).thenReturn(comment.getId());
+
         mvc.perform(post("/api/comment/write/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -114,6 +130,7 @@ public class CommentApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
+        verify(commentService).replyWrite(anyInt(),any(),any());
     }
 
     @Test
@@ -122,51 +139,74 @@ public class CommentApiControllerTest {
         given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board().getId())).willReturn(Optional.of(board));
 
-        commentService.commentDelete(comment().getId(),member);
+        doNothing().when(commentService).commentDelete(comment().getId(),member);
 
         mvc.perform(delete("/api/comment/delete/{reply_id}",comment().getId())
-                .with(user(customUserDetails)))
-                .andExpect(status().is4xxClientError())
+                .with(user(customUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
+        verify(commentService).commentDelete(anyInt(),any());
     }
 
     @Test
     @DisplayName("가게 댓글 목록")
     public void placeCommentListTest()throws Exception{
-        mvc.perform(get("/api/comment/placelist/{place_id}",place.getId())
+        given(commentRepository.findByPlaceId(place.getId())).willReturn(anyList());
+
+        when(commentService.placeCommentList(place.getId())).thenReturn(commentResponseDtoList);
+
+        mvc.perform(get("/api/comment/place/list/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8)
                 .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
+
+        verify(commentService).placeCommentList(comment().getId());
     }
 
     @Test
     @DisplayName("가게 댓글 작성")
     public void placeCommentWrite()throws Exception{
+
         CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
         commentRequestDto.setReplyContents(comment.getReplyContents());
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        mvc.perform(post("/api/comment/placewrite/{place_id}",place.getId())
+        given(commentService.placeCommentWrite(place().getId(), commentRequestDto, member)).willReturn(comment().getId());
+
+        when(commentService.placeCommentWrite(place.getId(),commentRequestDto,member)).thenReturn(comment.getId());
+
+        mvc.perform(post("/api/comment/place/write/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8)
                 .content(objectMapper.writeValueAsString(commentRequestDto))
                 .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
+
+        verify(commentService).placeCommentWrite(any(),any(),any());
     }
 
     @Test
     @DisplayName("가게 댓글 삭제")
     public void placeCommentDeleteTest()throws Exception{
-        mvc.perform(delete("/api/comment/place_delete/{place_id}/{reply_id}",place.getId(),comment.getId())
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+        doNothing().when(commentService).placeCommentDelete(comment.getId(),member);
+
+        mvc.perform(delete("/api/comment/place/delete/{place_id}/{reply_id}",place.getId(),comment.getId())
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
+
+        verify(commentService).placeCommentDelete(anyInt(),any());
     }
 
     private Comment comment(){

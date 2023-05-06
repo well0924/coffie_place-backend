@@ -141,9 +141,13 @@ public class TestLikeController {
     @DisplayName("댓글 좋아요+1")
     public void commentLikePlusTest()throws Exception{
 
-        mvc.perform(post("/api/like/plus/{place_id}/{reply_id}",1,7)
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
+        given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
+
+        mvc.perform(post("/api/like/plus/{place_id}/{reply_id}",1,5)
                         .content(objectMapper.writeValueAsString(1))
-                        .content(objectMapper.writeValueAsString(7))
+                        .content(objectMapper.writeValueAsString(5))
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -154,12 +158,13 @@ public class TestLikeController {
     @Test
     @DisplayName("댓글 좋아요-1")
     public void commentLikeMinusTest() throws Exception {
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
         given(commentLikeRepository.findByMemberAndComment(member,comment)).willReturn(Optional.of(commentLike));
 
-        mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",1,7)
+        mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",1,5)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .with(user(customUserDetails)))
@@ -212,7 +217,6 @@ public class TestLikeController {
                 .builder()
                 .board(board)
                 .member(member)
-                .comment(comment)
                 .build();
     }
     private Place getPlace(){
