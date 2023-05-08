@@ -23,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
@@ -32,39 +31,55 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class FavoritePlaceServiceTest {
+
     @InjectMocks
     private FavoritePlaceService favoritePlaceService;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private PlaceRepository placeRepository;
+
     @Mock
     private CommentRepository commentRepository;
+
     @Mock
     private FavoritePlaceRepository favoritePlaceRepository;
+
     private Member member;
+
     private Board board;
+
     private Comment comment;
+
     private Place place;
+
     private FavoritePlace favoritePlace;
+
     MemberDto.MemberResponseDto memberResponseDto;
+
     BoardDto.BoardResponseDto boardResponseDto;
+
     CommentDto.CommentResponseDto commentResponseDto;
+
     FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto;
+
     List<FavoritePlace>list = new ArrayList<>();
+
     @BeforeEach
     public void init(){
         member = memberDto();
@@ -94,7 +109,6 @@ public class FavoritePlaceServiceTest {
         Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest,member,member.getUserId());
 
         assertThat(result).isNotEmpty();
-        System.out.println(result.get().collect(Collectors.toList()));
     }
 
     @Test
@@ -166,7 +180,7 @@ public class FavoritePlaceServiceTest {
 
         favoritePlaceService.wishDelete(favoritePlace.getId());
 
-        verify(favoritePlaceRepository).delete(favoritePlace);
+        verify(favoritePlaceRepository).delete(eq(favoritePlace));
     }
     
     @Test
