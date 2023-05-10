@@ -49,11 +49,13 @@ public class MemberService {
                 member.getCreatedTime(),
                 member.getUpdatedTime()));
     }
-
+    
+    /**
+    *  회원 검색
+    * */
     @Transactional(readOnly = true)
     public Page<MemberDto.MemberResponseDto>findByAllSearch(String searchVal,Pageable pageable){
-        Page<MemberDto.MemberResponseDto>result = memberRepository.findByAllSearch(searchVal,pageable);
-        return result;
+        return memberRepository.findByAllSearch(searchVal,pageable);
     }
 
 
@@ -63,6 +65,7 @@ public class MemberService {
      */
     @Transactional(readOnly = true)
     public MemberDto.MemberResponseDto findMemberById(Integer id){
+
         Member findMemberById = memberRepository.findById(id).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
 
         return MemberDto.MemberResponseDto
@@ -81,6 +84,7 @@ public class MemberService {
                 .createdTime(findMemberById.getCreatedTime())
                 .updatedTime(findMemberById.getUpdatedTime())
                 .build();
+
     }
 
     /*
@@ -108,6 +112,7 @@ public class MemberService {
 
         return member.getId();
     }
+
     /*
      * 회원 수정
      *
@@ -115,39 +120,28 @@ public class MemberService {
     @Transactional
     public Integer memberUpdate(Integer id,MemberDto.MemberCreateDto memberCreateDto){
         //회원 조회
-        Optional<Member>detail = Optional
-                .ofNullable(
-                        memberRepository
-                                .findById(id)
-                                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = null;
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
 
-        if(detail.isPresent()){
-            member = detail.get();
-        }
+        Member member = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
+
         member.updateMember(memberCreateDto);
-        int result = member.getId();
 
-        return result;
+        return member.getId();
     }
+
     /*
      * 회원 삭제
      *
      */
     @Transactional
     public void memberDelete(Integer id){
-        Optional<Member>detail = Optional
-                .ofNullable(
-                        memberRepository
-                            .findById(id)
-                                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = null;
+        Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
 
-        if(detail.isPresent()){
-            member = detail.get();
-        }
+        Member member = detail.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+
         memberRepository.deleteById(member.getId());
     }
+
     /*
      * 회원 아이디 중복처리
      *
@@ -171,18 +165,12 @@ public class MemberService {
      *
      */
     @Transactional(readOnly = true)
-    public String findByMembernameAndUseremail(String membername, String userEmail){
-        Optional<Member> member = memberRepository.findByMemberNameAndUserEmail(membername, userEmail);
+    public String findByMemberNameAndUserEmail(String membername, String userEmail){
+        Optional<Member> member = Optional.ofNullable(memberRepository.findByMemberNameAndUserEmail(membername, userEmail).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)));
 
-        Member detail = new Member();
+        Member detail = member.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
 
-        if(member.isPresent()){
-            detail = member.get();
-        }
-
-        String userid = detail.getUserId();
-
-        return userid;
+        return detail.getUserId();
     }
 
     /*
@@ -200,9 +188,7 @@ public class MemberService {
             memberRepository.save(member);
         });
 
-        int updateResult = detail.get().getId();
-
-        return updateResult;
+        return detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)).getId();
     }
 
     /*
@@ -211,8 +197,9 @@ public class MemberService {
     */
     @Transactional
     public Object autoSearch(String searchVal) throws Exception {
+        //jquery ui가 아닌 다른 방법으로 변경예상....
         JSONArray arrayObj = new JSONArray();
-        JSONObject jsonObj = null;
+        JSONObject jsonObj;
         ArrayList<String> resultlist = new ArrayList<>();
 
         List<Member>list = memberRepository.findByUserIdStartsWith(searchVal, Sort.by(Sort.Direction.DESC, "userId"));

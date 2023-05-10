@@ -2,9 +2,7 @@ package com.example.coffies_vol_02.FavoritePlace.controller.view;
 
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.FavoritePlace.domain.dto.FavoritePlaceDto;
 import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
 import lombok.AllArgsConstructor;
@@ -33,7 +31,7 @@ public class FavoriteController {
         ModelAndView mv = new ModelAndView();
         Page<BoardDto.BoardResponseDto> list = null;
         try {
-            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
+            list = favoritePlaceService.getMyPageBoardList(pageable, userId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -48,7 +46,7 @@ public class FavoriteController {
         List<CommentDto.CommentResponseDto> list = new ArrayList<>();
 
         try {
-            list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
+            list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

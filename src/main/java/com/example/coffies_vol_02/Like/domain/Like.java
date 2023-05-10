@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.Like.domain;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -15,8 +16,6 @@ import java.io.Serializable;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "tbl_like")
-@ToString(exclude = {"member","board"})
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class Like implements Serializable {
     @Id
@@ -24,10 +23,12 @@ public class Like implements Serializable {
     private Integer id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
+    @JsonIgnore
     private Board board;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Member member;
 
     @Builder

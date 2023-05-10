@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,21 +28,18 @@ public class FavoriteApiController {
     @ApiOperation("위시리스트 목록")
     @GetMapping(path = "/{user_id}")
     public CommonResponse<List<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@PathVariable("user_id")String userId){
-
         List<FavoritePlaceDto.FavoriteResponseDto>list= new ArrayList<>();
-
         try{
             list= favoritePlaceService.findByMemberId(userId);
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @ApiOperation("위시리스트 중복 체크")
     @GetMapping(path = "/check/{member_id}/{place_id}")
-    public CommonResponse<?>wishListCheck(@PathVariable("member_id")String memberId, @PathVariable("place_id") Integer placeId,Integer wishId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>wishListCheck(@PathVariable("member_id")String memberId, @PathVariable("place_id") Integer placeId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         boolean checkResult = false;
         try{
             checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
@@ -53,7 +51,7 @@ public class FavoriteApiController {
 
     @ApiOperation("가게 위시리스트에 추가")
     @PostMapping(path = "/{member_id}/{place_id}")
-    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>wishListAdd(@PathVariable("member_id")Integer memberId, @PathVariable("place_id") Integer placeId){
         try{
             favoritePlaceService.wishListAdd(memberId,placeId);
         }catch (Exception e){
@@ -63,7 +61,7 @@ public class FavoriteApiController {
     }
 
     @ApiOperation("위시리스트 삭제")
-    @DeleteMapping(path = "/{place_id}")
+    @DeleteMapping(path = "/delete/{place_id}")
     public CommonResponse<String>wishListDelete(@PathVariable("place_id")Integer placeId){
         try{
             favoritePlaceService.wishDelete(placeId);
@@ -75,11 +73,10 @@ public class FavoriteApiController {
 
     @ApiOperation(value = "로그인한 회원이 작성한 글")
     @GetMapping(path = "/contents/{id}")
-    public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @AuthenticationPrincipal CustomUserDetails customUserDetails, @PageableDefault Pageable pageable){
+    public CommonResponse<Page<BoardDto.BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         Page<BoardDto.BoardResponseDto> list = null;
-
         try{
-            list = favoritePlaceService.getMyPageBoardList(pageable,customUserDetails.getMember(),userId);
+            list = favoritePlaceService.getMyPageBoardList(pageable, userId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -89,15 +86,13 @@ public class FavoriteApiController {
     
     @ApiOperation(value = "로그인한 회원이 작성한 댓글")
     @GetMapping(path = "/comment/{id}")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId,@AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
+    public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId, Pageable pageable){
         List<CommentDto.CommentResponseDto>list = new ArrayList<>();
-
         try{
-            list = favoritePlaceService.getMyPageCommnetList(userId,pageable,customUserDetails.getMember());
+            list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 }

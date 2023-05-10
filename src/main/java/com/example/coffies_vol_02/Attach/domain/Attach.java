@@ -3,18 +3,19 @@ package com.example.coffies_vol_02.Attach.domain;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Config.BaseTime;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
+
 @Getter
+@ToString
+@Proxy(lazy = false)
 @Entity
 @Table(name="tbl_file")
 @NoArgsConstructor
-@AllArgsConstructor
-public class Attach extends BaseTime {
+public class Attach extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -33,6 +34,16 @@ public class Attach extends BaseTime {
     @ManyToOne
     @JoinColumn(name = "notice_id")
     private NoticeBoard noticeBoard;
+
+    @Builder
+    public Attach(Integer id,String originFileName, String filePath, Long fileSize,Board board,NoticeBoard noticeBoard){
+        this.id = id;
+        this.originFileName = originFileName;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.board = board;
+        this.noticeBoard = noticeBoard;
+    }
 
     @Builder
     public Attach(String originFileName, String filePath, Long fileSize){

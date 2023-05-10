@@ -29,8 +29,12 @@ public class CommentApiController {
     @ApiOperation(value = "댓글 목록")
     @GetMapping("/list/{board_id}")
     public CommonResponse<List<CommentDto.CommentResponseDto>>commentList(@PathVariable("board_id")Integer boardId) throws Exception {
-        List<CommentDto.CommentResponseDto> list = commentService.replyList(boardId);
-
+        List<CommentDto.CommentResponseDto> list = new ArrayList<>();
+        try{
+            list = commentService.replyList(boardId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -38,25 +42,34 @@ public class CommentApiController {
     public CommonResponse<Integer>commentWrite(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentDto.CommentRequestDto dto){
         int WriteResult = 0;
 
-        WriteResult = commentService.replyWrite(boardId,customUserDetails.getMember(),dto);
-
+        try{
+            WriteResult = commentService.replyWrite(boardId,customUserDetails.getMember(),dto);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(), WriteResult);
     }
 
     @DeleteMapping("/delete/{reply_id}")
     public CommonResponse<?>commentDelete(@PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-
-        commentService.commentDelete(replyId,customUserDetails.getMember());
+        try{
+            commentService.commentDelete(replyId,customUserDetails.getMember());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
     }
     @ApiOperation(value = "가게 댓글 목록")
     @GetMapping("/place/list/{place_id}")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>placeCommentList(@PathVariable("place_id") Integer placeId) throws Exception {
-        List<CommentDto.CommentResponseDto>commentResponseDtoList = new ArrayList<>();
+    public CommonResponse<List<CommentDto.PlaceCommentResponse>>placeCommentList(@PathVariable("place_id") Integer placeId) throws Exception {
+        List<CommentDto.PlaceCommentResponse>commentResponseDtoList = new ArrayList<>();
 
-        commentResponseDtoList = commentService.placeCommentList(placeId);
-
+        try{
+            commentResponseDtoList = commentService.placeCommentList(placeId);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),commentResponseDtoList);
     }
     
@@ -66,10 +79,13 @@ public class CommentApiController {
     public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody CommentDto.CommentRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
         int insertResult = 0;
 
-        insertResult = commentService.placeCommentWrite(placeId,dto,customUserDetails.getMember());
-        //가게 평점 계산
-        commentService.updateStar(placeId);
-
+        try{
+            insertResult = commentService.placeCommentWrite(placeId,dto,customUserDetails.getMember());
+            //가게 평점 계산
+            commentService.updateStar(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),insertResult);
     }
 
@@ -77,10 +93,13 @@ public class CommentApiController {
     @DeleteMapping("/place/delete/{place_id}/{reply_id}")
     public CommonResponse<?>placeCommentDelete(@PathVariable("place_id")Integer placeId,@PathVariable("reply_id") Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
 
-        commentService.placeCommentDelete(replyId,customUserDetails.getMember());
-
-        commentService.updateStar(placeId);
-
+        try{
+            commentService.placeCommentDelete(replyId,customUserDetails.getMember());
+            //평점 계산
+            commentService.updateStar(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete Comment");
     }
 }

@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.Board.controller.view;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
+import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Board.service.BoardService;
 import com.example.coffies_vol_02.Config.Redis.RedisService;
 import lombok.AllArgsConstructor;
@@ -31,12 +32,17 @@ public class BoardViewController {
     private final RedisService redisService;
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                  @RequestParam(value = "sort",required = false)String sort,
                                   @RequestParam(value = "searchVal",required = false)String searchVal){
-        ModelAndView mv = new ModelAndView();
-        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,pageable);
 
-        mv.addObject("boardlist",boardList);
+        ModelAndView mv = new ModelAndView();
+
+        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,sort,pageable);
+
+        mv.addObject("boardList",boardList);
         mv.addObject("searchVal",searchVal);
+        mv.addObject("sort",sort);
+
         mv.setViewName("/board/boardlist");
 
         return mv;

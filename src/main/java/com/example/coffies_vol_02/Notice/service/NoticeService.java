@@ -41,8 +41,7 @@ public class NoticeService {
     **/
     @Transactional(readOnly = true)
     public Page<NoticeBoardDto.BoardResponseDto>noticeSearchList(String searchVal,Pageable pageable){
-        Page<NoticeBoardDto.BoardResponseDto>noticeSearchList = noticeBoardRepository.findAllSearchList(searchVal,pageable);
-        return noticeSearchList;
+        return noticeBoardRepository.findAllSearchList(searchVal,pageable);
     }
 
     /**
@@ -51,7 +50,8 @@ public class NoticeService {
     @Transactional(readOnly = true)
     public NoticeBoardDto.BoardResponseDto noticeDetail(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        NoticeBoard noticeBoard = detail.get();
+
+        NoticeBoard noticeBoard = detail.orElse(null);
 
         return NoticeBoardDto.BoardResponseDto
                 .builder()
@@ -98,7 +98,7 @@ public class NoticeService {
     @Transactional
     public Integer noticeUpdate(Integer noticeId,NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        NoticeBoard noticeBoard = detail.get();
+        NoticeBoard noticeBoard = detail.orElse(null);
 
         noticeBoard.NoticeUpdate(dto);
 

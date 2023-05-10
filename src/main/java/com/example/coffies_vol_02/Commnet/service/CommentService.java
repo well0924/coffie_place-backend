@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -39,16 +40,7 @@ public class CommentService {
 
         List<Comment>list = commentRepository.findByBoardId(boardId);
 
-        List<CommentDto.CommentResponseDto>result = new ArrayList<>();
-
-        for(Comment co : list){
-            CommentDto.CommentResponseDto dto = CommentDto.CommentResponseDto
-                                                .builder()
-                                                .comment(co)
-                                                .build();
-            result.add(dto);
-        }
-        return result;
+        return list.stream().map(comment ->new CommentDto.CommentResponseDto(comment)).toList();
     }
 
     /**
@@ -102,20 +94,9 @@ public class CommentService {
      * 가게 댓글 목록
      * */
     @Transactional(readOnly = true)
-    public List<CommentDto.CommentResponseDto>placeCommentList(Integer placeId) throws Exception {
+    public List<CommentDto.PlaceCommentResponse>placeCommentList(Integer placeId) throws Exception {
         List<Comment>list = commentRepository.findByPlaceId(placeId);
-
-        List<CommentDto.CommentResponseDto>result = new ArrayList<>();
-
-        for(Comment co : list){
-            CommentDto.CommentResponseDto dto = CommentDto.CommentResponseDto
-                    .builder()
-                    .comment(co)
-                    .build();
-
-            result.add(dto);
-        }
-        return result;
+        return list.stream().map(comment -> new CommentDto.PlaceCommentResponse(comment)).collect(Collectors.toList());
     }
 
     /**
@@ -180,7 +161,7 @@ public class CommentService {
      * 가게 평점 출력
      * */
     @Transactional
-    void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId){
+    public void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId){
         commentRepository.cafeReviewRate(reviewRate,placeId);
     }
 

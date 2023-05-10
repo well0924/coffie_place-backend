@@ -24,6 +24,7 @@ public class PlaceImageDto {
         private String storedName;
         private String originName;
         private String imgUploader;
+        @Builder.Default
         private String isTitle = "N";
         private List<MultipartFile>images;
     }

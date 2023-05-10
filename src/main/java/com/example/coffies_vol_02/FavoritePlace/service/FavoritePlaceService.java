@@ -14,13 +14,11 @@ import com.example.coffies_vol_02.FavoritePlace.repository.FavoritePlaceReposito
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,8 +59,8 @@ public class FavoritePlaceService {
 
         favoritePlaceRepository.save(FavoritePlace
                 .builder()
-                .member(member.get())
-                .place(place.get())
+                .member(member.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)))
+                .place(place.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)))
                 .build());
     }
 
@@ -77,19 +75,19 @@ public class FavoritePlaceService {
     /*
      * 내가 작성한 글 확인하기.
      */
-    public Page<BoardDto.BoardResponseDto> getMyPageBoardList(Pageable pageable, Member member,String userId){
-        member = memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
+    public Page<BoardDto.BoardResponseDto> getMyPageBoardList(Pageable pageable, String userId){
+        Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         Page<Board>list = boardRepository.findByMember(member,pageable);
-        return list.map(board -> new BoardDto.BoardResponseDto(board));
+        return list.map(BoardDto.BoardResponseDto::new);
     }
 
     /*
      * 내가 작성한 댓글
      */
-    public List<CommentDto.CommentResponseDto> getMyPageCommnetList(String userId,Pageable pageable, Member member){
-        member = memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.ONLY_USER));
+    public List<CommentDto.CommentResponseDto> getMyPageCommnetList(String userId,Pageable pageable){
+        Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         List<Comment>list = commentRepository.findByMember(member,pageable);
-        return list.stream().map(comment -> new CommentDto.CommentResponseDto(comment)).collect(Collectors.toList());
+        return list.stream().map(CommentDto.CommentResponseDto::new).collect(Collectors.toList());
     }
 
 }

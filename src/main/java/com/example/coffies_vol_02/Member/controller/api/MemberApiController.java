@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,10 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.PrintWriter;
 import java.util.List;
 
 @Api(tags = "Member api",value = "회원 관련 api 컨트롤러")
@@ -115,7 +111,7 @@ public class MemberApiController {
         String findUser = "";
 
         try{
-            findUser =memberService.findByMembernameAndUseremail(userName,userEmail);
+            findUser =memberService.findByMemberNameAndUserEmail(userName,userEmail);
         }catch (Exception e){
             e.printStackTrace();
         }

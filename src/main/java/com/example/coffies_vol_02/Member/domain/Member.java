@@ -13,7 +13,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@ToString
 @Proxy(lazy = false)
 @NoArgsConstructor
 @Table(name = "tbl_user")

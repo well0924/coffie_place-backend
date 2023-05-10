@@ -14,8 +14,6 @@ public class MemberDto {
 
     @Setter
     @Getter
-    @Builder
-    @ToString
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberCreateDto implements Serializable {
@@ -45,7 +43,6 @@ public class MemberDto {
     }
 
     @Getter
-    @ToString
     @NoArgsConstructor
     public static class MemberResponseDto implements Serializable{
         private Integer id;

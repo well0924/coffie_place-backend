@@ -11,8 +11,6 @@ public class CommentDto {
 
     @Getter
     @Setter
-    @ToString
-    @AllArgsConstructor
     @NoArgsConstructor
     public static class CommentRequestDto implements Serializable {
         private String replyWriter;
@@ -20,9 +18,7 @@ public class CommentDto {
         private Integer replyPoint;
     }
     @Getter
-    @ToString
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class CommentResponseDto implements Serializable{
         private Integer id;
         private String replyWriter;
@@ -34,7 +30,7 @@ public class CommentDto {
         private LocalDateTime updatedTime;
 
         @Builder
-        public CommentResponseDto(Comment comment){
+        public CommentResponseDto (Comment comment){
             this.id = comment.getId();
             this.replyWriter = comment.getMember().getUserId();
             this.replyContents  = comment.getReplyContents();
@@ -46,7 +42,6 @@ public class CommentDto {
 
     @Getter
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class PlaceCommentResponse{
         private Integer id;
         private String replyWriter;

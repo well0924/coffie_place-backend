@@ -45,8 +45,8 @@ public class LikeService {
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
 
         //좋아요 중복체크를 거친 뒤에 중복되지 않으면 카운트,
-        if(hasLikeBoard(detail.get(),member) == false){
-            likeRepository.save(Like.builder().member(member).board(detail.get()).build());
+        if(!hasLikeBoard(detail.orElse(null),member)){
+            likeRepository.save(Like.builder().member(member).board(detail.orElseThrow()).build());
         }
         return LikeSuccess;
     }
@@ -57,7 +57,7 @@ public class LikeService {
     public String cancelLike(Integer boardId, Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
 
-        Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndBoard(member, detail.get()).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
+        Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndBoard(member, detail.orElseThrow()).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
 
         if(like.isPresent()){
             likeRepository.delete(like.get());
@@ -73,7 +73,7 @@ public class LikeService {
 
         Integer likeCount = likeRepository.countByBoard(board).orElse(0);
 
-        List<String> resultData = new ArrayList<>(Arrays.asList(String.valueOf(likeCount)));
+        List<String> resultData = new ArrayList<>(Collections.singletonList(String.valueOf(likeCount)));
 
         if (Objects.nonNull(member)) {
             resultData.add(String.valueOf(hasLikeBoard(board, member)));
@@ -96,9 +96,10 @@ public class LikeService {
      */
     public String commentLikePlus(Integer placeId,Integer replyId,Member member){
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+
         Optional<Comment>commentDetail = Optional.ofNullable(commentRepository.findById(replyId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_REPLY)));
 
-        if(hasCommentLike(member,commentDetail.get())==false){
+        if(!hasCommentLike(member,commentDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY)))){
             commentLikeRepository.save(new CommentLike(member,commentDetail.get()));
         }
         return LikeSuccess;
@@ -110,12 +111,16 @@ public class LikeService {
      */
     public String commentLikeMinus(Integer placeId,Integer replyId,Member member){
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
-        Optional<Comment>commentDetail = Optional.ofNullable(commentRepository.findById(replyId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_REPLY)));
-        Optional<CommentLike>commentLike = Optional.of(commentLikeRepository.findByMemberAndComment(member, commentDetail.get()).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
 
-        if(commentLike.isPresent()){
-            commentLikeRepository.delete(commentLike.get());
-        }
+        Optional<Comment>commentDetail = Optional.ofNullable(commentRepository.findById(replyId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_REPLY)));
+
+        Optional<CommentLike>commentLike = Optional.of(commentLikeRepository
+                .findByMemberAndComment(member, commentDetail
+                        .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY)))
+                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
+
+        commentLikeRepository.delete(commentLike.get());
+
         return LikeCancel;
     }
 
@@ -124,7 +129,7 @@ public class LikeService {
 
         Integer likeCount = commentLikeRepository.countByComment(comment).orElse(0);
 
-        List<String> resultData = new ArrayList<>(Arrays.asList(String.valueOf(likeCount)));
+        List<String> resultData = new ArrayList<>(Collections.singletonList(String.valueOf(likeCount)));
 
         if (Objects.nonNull(member)) {
             resultData.add(String.valueOf(hasCommentLike(member,comment)));

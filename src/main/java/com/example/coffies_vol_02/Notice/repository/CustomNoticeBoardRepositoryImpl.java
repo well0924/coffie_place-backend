@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.Notice.repository;
 
-import com.example.coffies_vol_02.Board.domain.QBoard;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.Notice.domain.QNoticeBoard;
 import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
@@ -31,7 +30,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         List<NoticeBoard>result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -39,7 +38,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         Long count = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetchOne();
@@ -70,14 +69,14 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long searchCount = jpaQueryFactory
+        int searchCount = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
                 .where(noticeTitleEq(searchVal)
                         .or(noticeAuthorEq(searchVal))
                         .or(noticeContentsEq(searchVal)))
                 .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
-                .fetchOne();
+                .fetch().size();
 
         for(NoticeBoard noticeBoard:result){
 

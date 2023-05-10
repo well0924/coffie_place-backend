@@ -5,9 +5,6 @@ import lombok.*;
 
 public class FavoritePlaceDto {
     @Getter
-    @Setter
-    @ToString
-    @AllArgsConstructor
     @NoArgsConstructor
     public static class FavoriteResponseDto{
         private Integer id;

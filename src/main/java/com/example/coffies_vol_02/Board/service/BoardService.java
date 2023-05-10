@@ -49,8 +49,7 @@ public class BoardService {
     **/
     @Transactional(readOnly = true)
     public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal,String sort, Pageable pageable){
-        Page<BoardDto.BoardResponseDto>searchResult = boardRepository.findAllSearch(searchVal,sort,pageable);
-        return searchResult;
+        return boardRepository.findAllSearch(searchVal,sort,pageable);
     }
 
     /**
@@ -60,7 +59,7 @@ public class BoardService {
     public BoardDto.BoardResponseDto boardDetail(Integer boardId){
         Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
-        Board result = boardDetail.get();
+        Board result = boardDetail.orElse(null);
 
         return BoardDto.BoardResponseDto.builder()
                 .id(result.getId())
@@ -123,17 +122,18 @@ public class BoardService {
         }
 
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
+        Board board = detail.orElse(null);
 
-        String boardAuthor = detail.get().getBoardAuthor();
+        String boardAuthor = board.getBoardAuthor();
         String userId = member.getUserId();
 
         if(!boardAuthor.equals(userId)){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
-        detail.get().boardUpdate(dto);
+        board.boardUpdate(dto);
 
-        int UpdateResult = detail.get().getId();
+        int UpdateResult = board.getId();
 
         List<Attach>filelist = attachRepository.findAttachBoard(boardId);
 
@@ -175,7 +175,7 @@ public class BoardService {
 
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
-        Board  board = detail.get();
+        Board  board = detail.orElse(null);
 
         String boardAuthor = board.getBoardAuthor();
         String userId = member.getUserId();
@@ -209,13 +209,9 @@ public class BoardService {
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
 
-        Optional<BoardDto.BoardResponseDto> result = Optional
-                .of(Optional
-                        .ofNullable(
-                                boardRepository.findByPassWdAndId(passWd, id))
-                                    .orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
+        Optional<BoardDto.BoardResponseDto> boardDetail = Optional.of(Optional.ofNullable(boardRepository.findByPassWdAndId(passWd, id)).orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
 
-        return result.get();
+        return boardDetail.orElse(null);
     }
     
     /**
