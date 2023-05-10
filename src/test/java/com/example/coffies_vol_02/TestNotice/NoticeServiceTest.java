@@ -4,7 +4,6 @@ import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
 import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Config.Util.FileHandler;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
@@ -22,7 +21,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -37,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -97,6 +96,23 @@ public class NoticeServiceTest {
 
         Assertions.assertThat(detail).isNotNull();
     }
+    @Test
+    @DisplayName("공지 게시글 검색")
+    public void noticeBoardSearchTest(){
+        String keyword = "well4149";
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+        List<NoticeBoardDto.BoardResponseDto>list = new ArrayList<>();
+        list.add(responseDto);
+        Page<NoticeBoardDto.BoardResponseDto>response = new PageImpl<>(list,pageRequest,1);
+
+        given(noticeBoardRepository.findAllSearchList(keyword,pageRequest)).willReturn(response);
+
+        when(noticeService.noticeSearchList(keyword,pageRequest)).thenReturn(response);
+        response = noticeService.noticeSearchList(keyword,pageRequest);
+
+        assertThat(response.toList().get(0).getNoticeWriter()).isEqualTo(keyword);
+    }
+
     @Test
     @DisplayName("공지 게시글 작성")
     public void noticeBoardWriteTest() throws Exception {

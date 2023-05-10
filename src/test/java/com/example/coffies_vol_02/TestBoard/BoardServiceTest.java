@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,25 +41,39 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class BoardServiceTest {
+
     @InjectMocks
     private BoardService boardService;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private AttachRepository attachRepository;
+
     @Mock
     private AttachService attachService;
+
     @Mock
     private FileHandler fileHandler;
+
     Member member;
+
     MemberDto.MemberResponseDto memberResponseDto;
+
     Board board;
+
     BoardDto.BoardRequestDto boardRequestDto;
+
     BoardDto.BoardResponseDto boardResponseDto;
+
     Attach attach;
+
     List<AttachDto>detailfileList = new ArrayList<>();
+
     List<Attach>filelist = new ArrayList<>();
 
     @BeforeEach
@@ -80,17 +93,16 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 목록")
     public void boardList(){
+
         //given
-        List<Board>boardList = new ArrayList<>();
-        boardList.add(board);
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        Page<Board> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
+        given(boardRepository.boardList(pageRequest)).willReturn(Page.empty());
+
         //when
-        given(boardRepository.findAll(pageRequest)).willReturn(pageBoardList);
         Page<BoardDto.BoardResponseDto>result = boardService.boardAll(pageRequest);
+
         //then
-        assertThat(result).isNotEmpty();
-        assertThat(result.get().collect(Collectors.toList()).get(0).getBoardAuthor()).isEqualTo(board().getBoardAuthor());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -98,18 +110,41 @@ public class BoardServiceTest {
     public void boardDetail(){
         //given
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         //when
         BoardDto.BoardResponseDto result = boardService.boardDetail(board.getId());
+
         //then
         assertThat(result.getBoardAuthor()).isEqualTo(board.getBoardAuthor());
     }
+
     @Test
     @DisplayName("게시글 단일 조회실패")
     public void boardDetailFail(){
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
             BoardDto.BoardResponseDto result = boardService.boardDetail(0);
         });
+
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.BOARD_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("게시물 검색-작성자")
+    public void boardSearchTest(){
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+        List<BoardDto.BoardResponseDto>list = new ArrayList<>();
+        list.add(boardResponseDto);
+
+        Page<BoardDto.BoardResponseDto> result = new PageImpl<>(list,pageRequest,1);
+
+        //작성자
+        String keyword = "well4149";
+        given(boardRepository.findAllSearch(keyword,null,pageRequest)).willReturn(result);
+
+        when(boardService.boardSearchAll(keyword,null,pageRequest)).thenReturn(result);
+        result = boardService.boardSearchAll(keyword,null,pageRequest);
+
+        assertThat(keyword).isEqualTo(result.stream().toList().get(0).getBoardAuthor());
     }
 
     @Test
@@ -127,6 +162,20 @@ public class BoardServiceTest {
         verify(boardRepository).save(any());
         verify(fileHandler,times(3)).parseFileInfo(any());
     }
+
+    @Test
+    @DisplayName("게시글 작성-단순 글 작성")
+    public void boardJustWrite() throws Exception {
+        //given
+        init();
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(boardRepository.save(any())).willReturn(board);
+        boardRequestDto.setFiles(null);
+        boardService.boardSave(boardRequestDto,member);
+
+        verify(boardRepository).save(any());
+    }
+
     @Test
     @DisplayName("게시글 작성-실패(로그인 안한 경우)")
     public void boardWriteFail1(){
@@ -137,13 +186,13 @@ public class BoardServiceTest {
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
-
     }
 
     @Test
     @DisplayName("게시글 삭제")
     public void boardDelete() throws Exception {
         board = board();
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
@@ -248,6 +297,53 @@ public class BoardServiceTest {
         int readCount = boardService.updateView(board.getId());
 
         assertThat(readCount).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("자유게시판 비밀번호입력-성공")
+    public void passwordCheckTest(){
+        //given
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(boardRepository.findByPassWdAndId(board.getPassWd(),board.getId())).willReturn(boardResponseDto);
+        
+        //when
+        when(boardService.passwordCheck(board.getPassWd(),board.getId(),member)).thenReturn(boardResponseDto);
+        BoardDto.BoardResponseDto result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
+        
+        //then
+        assertThat(result).isEqualTo(boardResponseDto);
+    }
+
+    @Test
+    @DisplayName("자유게시판 비밀번호입력-실패(로그인이 안된 경우)")
+    public void passwordCheckTestFail1(){
+        //given
+        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+        given(boardRepository.findByPassWdAndId(board.getPassWd(),board.getId())).willReturn(boardResponseDto);
+
+        //when
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+            boardService.passwordCheck(board.getPassWd(),board.getId(),null);
+        });
+
+        //then
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
+    }
+
+    @Test
+    @DisplayName("자유게시판 비밀번호입력-실패(비밀번호가 일치하지 않은 경우)")
+    public void passwordCheckTestFail2(){
+        //given
+        String wrongPassword = "wqve1234";
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
+        //when
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+            boardService.passwordCheck(wrongPassword,board.getId(),member);
+        });
+
+        //then
+        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_MATCH_PASSWORD);
     }
 
     private Board board(){

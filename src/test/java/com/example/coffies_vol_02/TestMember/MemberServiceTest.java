@@ -19,15 +19,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -86,8 +83,25 @@ public class MemberServiceTest {
 
         MemberDto.MemberResponseDto dto = memberService.findMemberById(1);
 
-        then(memberService.findMemberById(memberDto().getId()));
         assertThat(dto.getMemberName()).isEqualTo(member.getMemberName());
+    }
+
+    @Test
+    @DisplayName("회원 검색")
+    public void memberSearchTest(){
+        String keyword = "well4149";
+
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+        List<MemberDto.MemberResponseDto>list = new ArrayList<>();
+        list.add(responseDto);
+        Page<MemberDto.MemberResponseDto>result = new PageImpl<>(list,pageRequest,1);
+
+        given(memberRepository.findByAllSearch(keyword,pageRequest)).willReturn(result);
+
+        when(memberService.findByAllSearch(keyword,pageRequest)).thenReturn(result);
+        result = memberService.findByAllSearch(keyword,pageRequest);
+
+        assertThat(result.toList().get(0).getUserId()).isEqualTo(keyword);
     }
 
     @Test
@@ -95,10 +109,7 @@ public class MemberServiceTest {
     public void memberDetailTestFail(){
 
         org.junit.jupiter.api.Assertions.assertThrows(Exception.class,()->{
-            Optional<Member>detail = Optional
-                    .ofNullable(
-                            memberRepository.findById(0)
-                                    .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+            Optional<Member>detail = Optional.ofNullable(memberRepository.findById(0).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
         });
     }
 
@@ -172,7 +183,6 @@ public class MemberServiceTest {
         boolean result=memberService.existsByUserId(userid);
 
         //then
-        then(memberService.existsByUserId(userid));
         assertThat(result).isTrue();
     }
 
@@ -185,7 +195,6 @@ public class MemberServiceTest {
         given(memberService.existByUserEmail(userEmail)).willReturn(true);
         boolean result = memberService.existByUserEmail(userEmail);
 
-        then(memberService.existByUserEmail(userEmail));
         assertThat(result).isTrue();
     }
 
@@ -198,9 +207,8 @@ public class MemberServiceTest {
         String userEmail = member.getUserEmail();
 
         given(memberRepository.findByMemberNameAndUserEmail(userName,userEmail)).willReturn(Optional.of(member));
-        String userId =memberService.findByMembernameAndUseremail(userName,userEmail);
+        String userId =memberService.findByMemberNameAndUserEmail(userName,userEmail);
 
-        then(memberService.findByMembernameAndUseremail(userName,userEmail));
         assertThat(userId).isEqualTo(member.getUserId());
     }
     @Test
@@ -210,7 +218,7 @@ public class MemberServiceTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         Optional<Member>detail = Optional.ofNullable(memberRepository.findById(1).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = detail.get();
+        Member member = detail.orElse(null);
 
         String changepassword = "4567";
 
@@ -258,13 +266,18 @@ public class MemberServiceTest {
         memberlist.add(member1);
         memberlist.add(member2);
 
+        List<String>deleteList = new ArrayList<>();
+        deleteList.add(member1.getUserId());
+        deleteList.add(member2.getUserId());
+
+        given(memberRepository.save(member1)).willReturn(member1);
+        given(memberRepository.save(member2)).willReturn(member2);
         given(memberRepository.findAll()).willReturn(memberlist);
-
-        for(int i =0;i<memberlist.size();i++){
-            memberRepository.deleteAllByUserId(Arrays.asList(member1.getUserId(),member2.getUserId()));
-        }
-
-        when(memberRepository.findById(2)).thenReturn(Optional.empty());
+        //when
+        doNothing().when(memberRepository).deleteAllByUserId(deleteList);
+        memberService.selectMemberDelete(deleteList);
+        //then
+        verify(memberRepository,times(2)).deleteAllByUserId(deleteList);
     }
 
     private Member memberDto(){
