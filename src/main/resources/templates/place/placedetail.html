@@ -118,7 +118,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		<h2>가게조회</h2>
 			<!--placeimage(main)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:if="${list.isTitle.toString().equals('1')}" th:src="${list.getImgPath()}" onclick="fnImgPop(this.src)"/>
+				<img th:if="${list.isTitle=='1'}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		<hr>
 			<!-- placedetail -->
@@ -138,7 +138,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 			</ul>
 			<!--placeimage(smallsize)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:unless="${list.isTitle.toString().equals('N')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
+				<img th:unless="${list.isTitle=='1'}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		</br>
 		</br>
@@ -169,8 +169,6 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		</div>
 		<div class="col-lg-6">
 			<h1>주소</h1>
-			<!-- kakaoMap -->
-			<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=07cb9d91b6a6a9acf013db53f9e0306b"></script>
 			<!--지도 나오는 부분-->
 			<div id="map" style="width:100%;height:550px;"></div>
 			</br>

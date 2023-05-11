@@ -12,6 +12,7 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import javax.servlet.MultipartConfigElement;
 import java.util.logging.Filter;
@@ -35,11 +36,9 @@ public class WebConfig implements WebMvcConfigurer {
     }
     @Bean
     public MultipartConfigElement multipartConfigElement() {
-
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize(DataSize.of(30, DataUnit.MEGABYTES));
         factory.setMaxRequestSize(DataSize.of(30, DataUnit.MEGABYTES));
-
         return factory.createMultipartConfig();
     }
     @Bean
@@ -71,6 +70,15 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/","classpath:/template/");
 
-        WebMvcConfigurer.super.addResourceHandlers(registry);
+        registry
+                .addResourceHandler(imgStatic + "**")
+                .addResourceLocations("file:///" + imgPath)
+                .setCachePeriod(0)
+                .resourceChain(true)
+                .addResolver(new PathResourceResolver());
+
+        WebMvcConfigurer
+                .super
+                .addResourceHandlers(registry);
     }
 }
