@@ -103,6 +103,7 @@ public class BoardService {
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
         }
+
         if(!filelist.isEmpty()){
             for(Attach attachFile : filelist){
                 board.addAttach(attachRepository.save(attachFile));
@@ -133,19 +134,17 @@ public class BoardService {
 
         board.boardUpdate(dto);
 
-        int UpdateResult = board.getId();
+        Integer UpdateResult = board.getId();
 
         List<Attach>filelist = attachRepository.findAttachBoard(boardId);
 
         //파일이 있는 경우에 수정하는 경우
         if(!filelist.isEmpty()){
-            for(int i =0; i<filelist.size();i++){
-                String filePath = filelist.get(i).getFilePath();
+            for (Attach attach : filelist) {
+                String filePath = attach.getFilePath();
                 File file = new File(filePath);
 
-                if(file.exists()){
-                    file.delete();
-                }
+                if (file.exists()) file.delete();
                 attachService.deleteBoardAttach(boardId);
             }
             filelist = fileHandler.parseFileInfo(files);
@@ -186,14 +185,12 @@ public class BoardService {
 
         List<AttachDto>attachlist = attachService.boardfilelist(boardId);
 
-        for(int i = 0; i<attachlist.size();i++){
+        for (AttachDto attachDto : attachlist) {
 
-            String filePath = attachlist.get(i).getFilePath();
+            String filePath = attachDto.getFilePath();
             File file = new File(filePath);
 
-            if(file.exists()){
-                file.delete();
-            }
+            if (file.exists()) file.delete();
         }
 
         boardRepository.deleteById(boardId);
@@ -213,12 +210,5 @@ public class BoardService {
 
         return boardDetail.orElse(null);
     }
-    
-    /**
-    * 게시글 조회수 증가
-    **/
-    @Transactional
-    public Integer updateView(Integer boardId){
-        return boardRepository.ReadCountUp(boardId);
-    }
+
 }

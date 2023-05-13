@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoardRepository,QuerydslPredicateExecutor {
     //비밀 번호 확인
@@ -19,9 +23,13 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     //내가 작성한 글
     Page<Board> findByMember(Member member, Pageable pageable);
 
+    //게시글 조회수 확인
+    @Query("select b.readCount from Board b where b.id = :id")
+    Integer ReadCount(@Param("id") Integer id);
+    
     //게시글 조회수 증가
+    @Transactional
     @Modifying
-    @Query("update Board b set b.readCount = b.readCount +1 where b.id = :id")
-    Integer ReadCountUp(@Param("id") Integer id);
-
+    @Query("update Board b set b.readCount = :readCount where b.id = :id")
+    void ReadCountUpToDB(@Param("id")Integer id, @Param("readCount")Integer readCount);
 }
