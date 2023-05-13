@@ -3,29 +3,10 @@
 xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
 <title>내가 작성한 글</title>
-<!-- jquery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
-<!-- jquery ui -->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<!--fontawesome CDN-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-<!-- Bootstrap CDN -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<!-- summernote css/js-->
-<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
-<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
-<!-- Slick 불러오기 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
 <!-- 게시판 목록 css -->
 <link rel="stylesheet" th:href="@{/css/board.css}">
 </head>
@@ -69,28 +50,13 @@ layout:decorate="~{layout/leafframe}">
 						</tbody>
 					</table>
 				</div>
-				<script type="text/javascript">
-					
-					//회원탈뢰 
-					function memberDelete(){
-						var id = $('#user_id').val();
-											
-						$.ajax({
-							url:'/api/admin/memberdelete/'+id,
-							type:'delete',
-							data:null
-						}).done(function(resp){
-							alert('탈퇴했습니다.');
-							location.href='/page/main/mainpage';
-						});
-					}
-				</script>
-					<a th:href="@{/page/main/mainpage}" class="btn btn-primary" style="margin-top: 5px; margin-left: 16px;">메인</a>
+				<a th:href="@{/page/main/main}" class="btn btn-primary" style="margin-top: 5px; margin-left: 16px;">메인</a>
 				</div>
 			</div>
 		</div>	
 	</div>
 </div>
+<script type="text/javascript" th:src="@{/js/wish/wishlist.js}"></script>
 </th:block>
 </body>
 </html>

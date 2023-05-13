@@ -2,35 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" 
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
 <title>마이 페이지</title>
-<!-- jquery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
-<!-- jquery ui -->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<!--fontawesome CDN-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-<!-- Bootstrap CDN -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<!-- summernote css/js-->
-<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
-<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
-<!-- Slick 불러오기 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
-<style>
-	.inner-star::before{color: #FF9600;}
-	.outer-star {position: relative;display: inline-block;color: #CCCCCC;}
-	.inner-star {position: absolute;left: 0;top: 0;width: 0%;overflow: hidden;white-space: nowrap;}
-	.outer-star::before, .inner-star::before {content: '\f005';font-family: 'Font Awesome 5 free';font-weight: 900;color: #FF9600;}
-</style>
+<link rel="stylesheet" th:src="@{/css/wishlist.css}">
 </head>
 <body>
 <th:block layout:fragment="content">
@@ -77,41 +53,7 @@ layout:decorate="~{layout/leafframe}">
 		</div>	
 	</div>
 </div>
-<script type="text/javascript">
-function deleteWish(){
-	const isConfirm = confirm("위시리스트를 삭제하시겠습니까?");
-	
-	let favoriteid = $('#favoriteid').val();
-	
-	if(isConfirm){
-		
-		$.ajax({
-			url:'/api/mypage/delete/'+favoriteid,
-			type:'delete',
-			dataType:'json',
-			data:null,
-			contentType:'application/json; charset = utf-8'
-		}).done(function(resp){
-			alert('삭제되었습니다.');
-			location.href="/page/mypage/page/"+userid;
-		});
-	}
-}
-//회원탈뢰 
-function memberDelete(){
-	let id = $('#user_id').val();
-
-	$.ajax({
-		url:'/api/admin/memberDelete/'+id,
-		type:'delete',
-		data:null
-	}).done(function(resp){
-		alert('탈퇴했습니다.');
-		location.href='/page/main/mainpage';
-	});
-	return false;
-}
-</script>
+<script type="text/javascript" th:src="@{/js/wish/wishlist.js}"></script>
 </th:block>
 </body>
 </html>

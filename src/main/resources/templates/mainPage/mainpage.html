@@ -1,36 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	data-layout-decorate="~{layout/leafframe}" 
-	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  data-layout-decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>메인 화면</title>
-<!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
-<!-- Slick 불러오기 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
-<!-- Bootstrap CDN -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<!--fontawesome CDN-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-<style>
-	.inner-star::before{color: #FF9600;}
-	.outer-star {position: relative;display: inline-block;color: #CCCCCC;}
-	.inner-star {position: absolute;left: 0;top: 0;width: 0%;overflow: hidden;white-space: nowrap;}
-	.outer-star::before, .inner-star::before {content: '\f005';font-family: 'Font Awesome 5 free';font-weight: 900;color: #FF9600;}
-	#imageslider{
-		display: flex;
-		flex-direction: row;
-		flex-flow: row;
-	}
-</style>
+<link rel="stylesheet" th:href="@{/css/mainpage.css}">
 </head>
 <body>
 	<!-- 헤더부분 -->
@@ -129,30 +106,20 @@
 										<th>작성날짜</th>
 									</tr>
 								</thead>
-								<tbody>
-								<tr th:if="${list.isFixed=='Y'}" th:each="list : ${noticelist}">
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='Y'}"><strong>[[${list.noticeGroup}]]</strong></td>
-									<td><a
-										th:href="@{'/page/notice/noticedetail/'+${list.id}}"
-										th:if="${list.isFixed=='Y'}"><strong>[[${list.noticeTitle}]]</strong></a></td>
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='Y'}">[[${list.noticeAuthor}]]</td>
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='Y'}">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
+								<tbody th:each="list : ${noticelist}">
+								<tr th:if="${list.isFixed.toString().equals('Y')}">
+									<td class="text-center d-none d-md-table-cell"><strong>[[${list.noticeGroup}]]</strong></td>
+									<td><a th:href="@{'/page/notice/noticedetail/'+${list.id}}"><strong>[[${list.noticeTitle}]]</strong></a></td>
+									<td class="text-center d-none d-md-table-cell">[[${list.noticeWriter}]]</td>
+									<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 								</tr>
-								<tr th:if="${list.isFixed=='N'}" th:each="list : ${noticeList}">
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='N'}">[[${list.id}]]</td>
-									<td><a
-										th:href="@{'/page/notice/noticedetail/'+${list.id}}"
-										th:if="${list.isFixed=='N'}">[[${list.noticeTitle}]]</a></td>
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='N'}">[[${list.noticeAuthor}]]</td>
-									<td class="text-center d-none d-md-table-cell"
-										th:if="${list.isFixed=='N'}">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
+								<tr th:if="${list.isFixed.toString().equals('N')}">
+									<td class="text-center d-none d-md-table-cell">[[${list.id}]]</td>
+									<td><a th:href="@{'/page/notice/noticedetail/'+${list.id}}">[[${list.noticeTitle}]]</a></td>
+									<td class="text-center d-none d-md-table-cell">[[${list.noticeWriter}]]</td>
+									<td class="text-center d-none d-md-table-cell">[[${#temporals.format(list.createdTime,'yyyy-MM-dd')}]]</td>
 								</tr>
-								<tr th:if="${not #lists.isEmpty(noticelist)}">
+								<tr th:unless="${not #lists.isEmpty(noticelist)}">
 									<td>조회된 게시글이 없습니다.</td>
 								</tr>
 								</tbody>
@@ -165,33 +132,24 @@
 			</div>
 		</div>
 	</th:block>
-	<!-- contents end -->
-	<script type="text/javascript">
-	//회원탈뢰 
-	function memberDelete(){
-		var id = $('#user_id').val();
-		console.log("???");
-		$.ajax({
-			url:'/api/admin/memberdelete/'+id,
-			type:'delete',
-			data:null
-		}).done(function(resp){
-			alert('탈퇴했습니다.');
-			location.href='/page/main/mainpage';
-		});
-		return false;
-	}
-	</script>
+<!-- contents end -->
+<script type="text/javascript">
+//회원탈퇸
+function memberDelete(){
+	let id = $('#user_id').val();
+
+	$.ajax({
+		url:'/api/admin/memberdelete/'+id,
+		type:'delete',
+		data:null
+	}).done(function(resp){
+		alert('탈퇴했습니다.');
+		location.href='/page/main/mainpage';
+	});
+	return false;
+}
+</script>
 	<!--푸터부분-->
-	<th:block th:replace="layout/fragment/footer :: footerfragment"></th:block>	
+	<th:block th:replace="layout/fragment/footer :: footerfragment"></th:block>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

@@ -69,28 +69,6 @@ layout:decorate="~{layout/leafframe}">
 		let filegroupid = $('#fileGroupId').val();
 		console.log(filegroupid);
 	});
-
-	//에디터 이미지 업로드 기능o.k
-	function sendImage(file,el){
-		var formdate = new FormData();
-		formdate.append('file',file);
-		formdate.append('fileGroupId',$('#fileGroupId').val());
-
-		$.ajax({
-			url:'api/board/el/upload',
-			type:'post',
-			data: formdate,
-			processData: false,
-			contentType : false,
-			cache:false,
-			enctype: 'multipart/form-data',
-		}).done(function(resp){
-			console.log(resp);
-			$(el).summernote('insertImage',data.url,function($image){
-				$image.css('width',"25%")
-			});
-		});
-	}
 </script>
 <script th:src="@{/js/board/boardWrite.js}"></script>
 </th:block>
