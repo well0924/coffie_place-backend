@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.Board.domain.dto;
 
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.querydsl.core.annotations.QueryDelegate;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,13 +9,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BoardDto {
     @Setter
     @Getter
-    @ToString
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -33,7 +30,6 @@ public class BoardDto {
     }
     @Getter
     @Builder
-    @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BoardResponseDto implements Serializable{

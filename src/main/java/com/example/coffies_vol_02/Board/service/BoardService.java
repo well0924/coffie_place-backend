@@ -4,6 +4,8 @@ import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.repository.AttachRepository;
 import com.example.coffies_vol_02.Attach.service.AttachService;
+import com.example.coffies_vol_02.Config.Redis.CacheKey;
+import com.example.coffies_vol_02.Config.Redis.RedisService;
 import com.example.coffies_vol_02.Config.Util.FileHandler;
 import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
@@ -15,13 +17,17 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Log4j2
 @Service
@@ -29,6 +35,8 @@ import java.util.Optional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+
+    private final RedisService redisService;
 
     private final FileHandler fileHandler;
 
@@ -211,4 +219,40 @@ public class BoardService {
         return boardDetail.orElse(null);
     }
 
+    //게시글 조회수
+    public void boardViewCount(Integer boardId){
+        String countKey = CacheKey.BOARD+"viewCount"+"::"+boardId;
+
+        if(redisService.getData(countKey)==null){
+            //조회가 처음이면 redis의 값을 저장한다.
+            redisService.setValues(countKey,String.valueOf(boardRepository.ReadCount(boardId)+1), Duration.ofMinutes(CacheKey.BOARD_EXPIRE_SEC));
+        }else if(redisService.getData(countKey)!=null){
+            //값이 있으면 조회수를 증가.
+            redisService.increasement(countKey);
+        }
+    }
+
+    //게시글 조회수 반영(추후에 개선 필요...) 10초마다 실행.
+    @Scheduled(cron = "0/10 * * * * ?",zone = "Asia/Seoul")
+    public void boardViewCountDB(){
+        Set<String> viewKeys = redisService.keys("boardviewCount*");
+
+        log.info("boardViewCount::"+viewKeys);
+
+        if(Objects.requireNonNull(viewKeys).isEmpty())return;
+
+        for(String viewKey : viewKeys){
+
+            Integer boardId = Integer.parseInt(viewKey.split("::")[1]);
+            Integer viewCount = Integer.parseInt(redisService.getData(viewKey));
+
+            log.info("게시글 번호:"+boardId);
+            log.info("조회수:"+viewCount);
+
+            boardRepository.ReadCountUpToDB(boardId,viewCount);
+
+            redisService.deleteValues(viewKey);
+            redisService.deleteValues(CacheKey.BOARD+"viewCount"+"::"+boardId);
+        }
+    }
 }
