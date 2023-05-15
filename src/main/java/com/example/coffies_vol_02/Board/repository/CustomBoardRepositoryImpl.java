@@ -4,6 +4,8 @@ import com.example.coffies_vol_02.Board.domain.Board;
 import com.example.coffies_vol_02.Board.domain.QBoard;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.domain.dto.QBoardDto_BoardResponseDto;
+import com.example.coffies_vol_02.Like.domain.QLike;
+import com.example.coffies_vol_02.Member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -32,28 +35,54 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     @Override
     public Page<BoardDto.BoardResponseDto> boardList(Pageable pageable) {
 
-        List<BoardDto.BoardResponseDto>result = jpaQueryFactory
-                .select(new QBoardDto_BoardResponseDto(QBoard.board))
-                .from(QBoard.board)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
+        List<BoardDto.BoardResponseDto> boardList = new ArrayList<>();
+
+        QBoard qBoard = QBoard.board;
+        QMember qMember = QMember.member;
+        QLike qLike = QLike.like;
+
+        List<Board>result = jpaQueryFactory
+                .select(qBoard)
+                .from(qBoard)
+                .join(qBoard.member,qMember).fetchJoin()
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .distinct()
                 .fetch();
 
         Integer totalCount = jpaQueryFactory
                 .select(QBoard.board.count())
                 .from(QBoard.board)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
-                .fetch().size();
+                .distinct()
+                .fetch()
+                .size();
 
-        return new PageImpl<>(result,pageable,totalCount);
+        for (Board board : result) {
+            BoardDto.BoardResponseDto responseDto = BoardDto.BoardResponseDto
+                    .builder()
+                    .id(board.getId())
+                    .boardTitle(board.getBoardTitle())
+                    .boardContents(board.getBoardContents())
+                    .boardAuthor(board.getBoardAuthor())
+                    .passWd(board.getPassWd())
+                    .liked(board.getLikes().size())
+                    .fileGroupId(board.getFileGroupId())
+                    .readCount(board.getReadCount())
+                    .createdTime(board.getCreatedTime())
+                    .updatedTime(board.getUpdatedTime())
+                    .build();
+
+            boardList.add(responseDto);
+        }
+
+        return new PageImpl<>(boardList,pageable,totalCount);
     }
 
     //게시물 검색
     @Override
-    public Page<BoardDto.BoardResponseDto> findAllSearch(String searchVal, String sort,Pageable pageable) {
+    public Page<BoardDto.BoardResponseDto> findAllSearch(String searchVal,Pageable pageable) {
 
         List<BoardDto.BoardResponseDto> boardSearchResult = new ArrayList<>();
 
@@ -61,23 +90,24 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         List<Board> result = jpaQueryFactory
                 .select(QBoard.board)
                 .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member).fetchJoin()
                 .where(boardContentsEq(searchVal)
                         .or(boardAuthorEq(searchVal))
                         .or(boardTitleEq(searchVal)))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .distinct()
                 .fetch();
 
         //검색시 게시물 갯수
-        Long resultCount = jpaQueryFactory
+        Integer resultCount = jpaQueryFactory
                 .select(QBoard.board.count())
                 .from(QBoard.board)
                 .where(boardAuthorEq(searchVal).or(boardContentsEq(searchVal)).or(boardTitleEq(searchVal)))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetchOne();
+                .fetch()
+                .size();
 
 
         for (Board board : result) {
