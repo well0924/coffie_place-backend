@@ -6,23 +6,22 @@ import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Like.domain.Like;
 import com.example.coffies_vol_02.Config.BaseTime;
 import com.example.coffies_vol_02.Member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
 @Proxy(lazy = false)
-@ToString(exclude = {"commentList","likes","attachList","member"})
 @NoArgsConstructor
 @Table(name = "tbl_board",
         indexes = {
@@ -47,17 +46,24 @@ public class Board extends BaseTime implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "useridx")
+    @JsonIgnore
     private Member member;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private List<Comment>commentList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board",cascade = CascadeType.ALL)
-    private Set<Like> likes = new HashSet<>();
+    @BatchSize(size = 1000)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<Like> likes = new LinkedHashSet<>();
 
     //게시글이 삭제되면 첨부파일도 같이 삭제가 된다.
     //여기서는 CascadeType.REMOVE 와 orphanRemoval = true 차이점 알아보기.
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private List<Attach>attachList = new ArrayList<>();
 
     @Builder
