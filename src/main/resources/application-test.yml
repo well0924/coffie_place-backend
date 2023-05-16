@@ -1,0 +1,25 @@
+server:
+  port: 8082
+  file:
+    upload: C:\\UploadFile\\
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  #db
+  datasource:
+    url: jdbc:h2:~/test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  #jpa
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true

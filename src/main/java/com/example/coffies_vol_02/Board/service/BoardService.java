@@ -56,8 +56,8 @@ public class BoardService {
     *  게시글 검색
     **/
     @Transactional(readOnly = true)
-    public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal,String sort, Pageable pageable){
-        return boardRepository.findAllSearch(searchVal,sort,pageable);
+    public Page<BoardDto.BoardResponseDto> boardSearchAll(String searchVal, Pageable pageable){
+        return boardRepository.findAllSearch(searchVal,pageable);
     }
 
     /**
@@ -67,7 +67,7 @@ public class BoardService {
     public BoardDto.BoardResponseDto boardDetail(Integer boardId){
         Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
-        Board result = boardDetail.orElse(null);
+        Board result = boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST));
 
         return BoardDto.BoardResponseDto.builder()
                 .id(result.getId())
@@ -151,18 +151,22 @@ public class BoardService {
             for (Attach attach : filelist) {
                 String filePath = attach.getFilePath();
                 File file = new File(filePath);
-
+                //파일 경로 삭제
                 if (file.exists()) file.delete();
+                //DB에 있는 파일 삭제
                 attachService.deleteBoardAttach(boardId);
             }
+            //재업로드
             filelist = fileHandler.parseFileInfo(files);
-
+            //다시 저장
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
         }else{
+            //게시글만 작성하고 파일은 첨부를 하지 않은 경우
+            //업로드
             filelist = fileHandler.parseFileInfo(files);
-
+            //파일 저장
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
@@ -182,7 +186,7 @@ public class BoardService {
 
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
-        Board  board = detail.orElse(null);
+        Board  board = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST));
 
         String boardAuthor = board.getBoardAuthor();
         String userId = member.getUserId();
@@ -221,7 +225,7 @@ public class BoardService {
 
     //게시글 조회수
     public void boardViewCount(Integer boardId){
-        String countKey = CacheKey.BOARD+"viewCount"+"::"+boardId;
+        String countKey = CacheKey.BOARD+"ViewCount"+"::"+boardId;
 
         if(redisService.getData(countKey)==null){
             //조회가 처음이면 redis의 값을 저장한다.
@@ -232,10 +236,10 @@ public class BoardService {
         }
     }
 
-    //게시글 조회수 반영(추후에 개선 필요...) 10초마다 실행.
+    //게시글 조회수 반영 10초마다 실행.
     @Scheduled(cron = "0/10 * * * * ?",zone = "Asia/Seoul")
     public void boardViewCountDB(){
-        Set<String> viewKeys = redisService.keys("boardviewCount*");
+        Set<String> viewKeys = redisService.keys("boardViewCount*");
 
         log.info("boardViewCount::"+viewKeys);
 
@@ -252,7 +256,7 @@ public class BoardService {
             boardRepository.ReadCountUpToDB(boardId,viewCount);
 
             redisService.deleteValues(viewKey);
-            redisService.deleteValues(CacheKey.BOARD+"viewCount"+"::"+boardId);
+            redisService.deleteValues(CacheKey.BOARD+"ViewCount"+"::"+boardId);
         }
     }
 }

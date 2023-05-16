@@ -29,7 +29,7 @@ import java.util.UUID;
 public class BoardViewController {
     private final BoardService boardService;
     private final AttachService attachService;
-    private final RedisService redisService;
+
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(value = "sort",required = false)String sort,
@@ -37,7 +37,7 @@ public class BoardViewController {
 
         ModelAndView mv = new ModelAndView();
 
-        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,sort,pageable);
+        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,pageable);
 
         mv.addObject("boardList",boardList);
         mv.addObject("searchVal",searchVal);
@@ -55,7 +55,7 @@ public class BoardViewController {
         BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
         List<AttachDto> attachList = attachService.boardfilelist(boardId);
         //조회수 증가(캐시 적용)
-        redisService.boardViewCount(boardId);
+        boardService.boardViewCount(boardId);
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
