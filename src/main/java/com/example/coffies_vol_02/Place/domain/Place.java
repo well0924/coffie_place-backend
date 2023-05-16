@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.Place.domain;
 
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Config.BaseTime;
+import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import lombok.*;
 
@@ -38,7 +39,7 @@ public class Place extends BaseTime {
     private List<PlaceImage> placeImageList = new ArrayList<>();
     
     @Builder
-    public Place(Integer id,String placeName,String placeAuthor,String placeStart,String placeClose,String placePhone,String placeAddr1,String placeAddr2,String fileGroupId,Double placeLng,Double placeLat,Double reviewRate){
+    public Place(Integer id, String placeName, String placeAuthor, String placeStart, String placeClose, String placePhone, String placeAddr1, String placeAddr2, String fileGroupId, Double placeLng, Double placeLat, Double reviewRate, List<PlaceImage>placeImages){
         this.id = id;
         this.placeName = placeName;
         this.placeAuthor = placeAuthor;
@@ -51,6 +52,7 @@ public class Place extends BaseTime {
         this.placeLng = placeLng;
         this.placeLat = placeLat;
         this.reviewRate = 0.0;
+        this.placeImageList = placeImages;
     }
 
     //이미지 첨부

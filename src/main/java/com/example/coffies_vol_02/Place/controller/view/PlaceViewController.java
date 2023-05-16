@@ -7,6 +7,7 @@ import com.example.coffies_vol_02.Place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +29,16 @@ public class PlaceViewController {
 
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable){
+
         ModelAndView mv = new ModelAndView();
 
-        Page<PlaceDto.PlaceResponseDto>placeList = placeService.placeList(pageable);
+        Page<PlaceDto.PlaceResponseDto>placeList = null;
+
+        try{
+            placeList = placeService.placeList(pageable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("placelist",placeList);
         mv.setViewName("/place/placelist");
@@ -39,12 +47,19 @@ public class PlaceViewController {
     }
 
     @GetMapping("/detail/{place_id}")
-    public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId) throws Exception {
+    public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId){
         ModelAndView mv = new ModelAndView();
 
-        PlaceDto.PlaceResponseDto detail  = placeService.placeDetail(placeId);
-        List<PlaceImageDto.PlaceImageResponseDto> imageResponseDtoList = placeImageService.placeImageResponseDtoList(placeId);
-        log.info(imageResponseDtoList);
+        PlaceDto.PlaceResponseDto detail  = new PlaceDto.PlaceResponseDto();
+        List<PlaceImageDto.PlaceImageResponseDto> imageResponseDtoList = new ArrayList<>();
+
+        try{
+            detail  = placeService.placeDetail(placeId);
+            imageResponseDtoList = placeImageService.placeImageResponseDtoList(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         mv.addObject("detail",detail);
         mv.addObject("imagelist",imageResponseDtoList);
 
@@ -70,7 +85,13 @@ public class PlaceViewController {
     public ModelAndView placeModify(@PathVariable("place_id")Integer placeId){
         ModelAndView mv = new ModelAndView();
 
-        PlaceDto.PlaceResponseDto detail = placeService.placeDetail(placeId);
+        PlaceDto.PlaceResponseDto detail = new PlaceDto.PlaceResponseDto();
+
+        try{
+            detail = placeService.placeDetail(placeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("detail",detail);
         mv.setViewName("/place/placemodify");

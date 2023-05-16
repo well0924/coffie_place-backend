@@ -83,6 +83,7 @@ function ReviewList(){
         }
     });
 }
+
 //댓글 유효성 검사.o.k
 function validation(){
     let comment = $('#reviewContents').val();
@@ -93,6 +94,7 @@ function validation(){
     }
     return true;
 }
+
 //댓글 작성 o.k
 function replyPost(){
 
@@ -128,6 +130,7 @@ function replyPost(){
         });
     }
 }
+
 //댓글 삭제 o.k
 function deleteReply(replyId,placeId){
     $.ajax({
@@ -141,14 +144,16 @@ function deleteReply(replyId,placeId){
         ReviewList();
     });
 }
+
 //별점 계산o.k
 function getStarRange(starScore) {
     console.log(starScore);
-    var score = starScore * 20;
+    let score = starScore * 20;
     console.log(score);
     return score + 1.5;
 }
-//위시리스트 확인기능
+
+//위시리스트 확인기능 o.k
 function WishCheck(){
     let userid = $('#userid').val();
     let placeId = $('#placeid').val();
@@ -168,6 +173,11 @@ function WishCheck(){
     });
     console.log(userid);
     console.log(placeId);
+}
+
+//댓글 좋아요 기능
+function LikeCheck(placeId){
+    
 }
 
 //이미지 팝업기능 o.k
