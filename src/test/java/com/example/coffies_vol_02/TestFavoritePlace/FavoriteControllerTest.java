@@ -79,9 +79,9 @@ public class FavoriteControllerTest {
         List<BoardDto.BoardResponseDto> list = new ArrayList<>();
         list.add(boardResponseDto);
         Page<BoardDto.BoardResponseDto> result = new PageImpl<>(list,pageable,1);
-        given(favoritePlaceService.getMyPageBoardList(pageable,member,member.getUserId())).willReturn(result);
+        given(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).willReturn(result);
 
-        when(favoritePlaceService.getMyPageBoardList(pageable,member,member.getUserId())).thenReturn(result);
+        when(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).thenReturn(result);
         mvc.perform(get("/page/mypage/contents/{id}",member.getUserId())
                 .with(user(customUserDetails))
                 .contentType(MediaType.TEXT_HTML)
@@ -89,7 +89,7 @@ public class FavoriteControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(favoritePlaceService).getMyPageBoardList(any(),any(),any());
+        verify(favoritePlaceService).getMyPageBoardList(any(), any());
     }
 
     @Test
@@ -98,9 +98,9 @@ public class FavoriteControllerTest {
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
         List<CommentDto.CommentResponseDto> list = new ArrayList<>();
         list.add(commentResponseDto);
-        given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable,member)).willReturn(list);
+        given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).willReturn(list);
 
-        when(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable,member)).thenReturn(list);
+        when(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).thenReturn(list);
         mvc.perform(get("/page/mypage/comment/{id}",member.getUserId())
                 .with(user(customUserDetails))
                 .contentType(MediaType.TEXT_HTML)
@@ -108,7 +108,7 @@ public class FavoriteControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(favoritePlaceService).getMyPageCommnetList(any(),any(),any());
+        verify(favoritePlaceService).getMyPageCommnetList(any(),any());
     }
 
     @Test

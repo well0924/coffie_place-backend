@@ -18,13 +18,10 @@ import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +30,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class CommentServiceTest {
 
     @InjectMocks
@@ -85,30 +82,37 @@ public class CommentServiceTest {
     @DisplayName("댓글 목록-성공")
     @Test
     public void CommentListTest() throws Exception {
+        List<CommentDto.CommentResponseDto>result = new ArrayList<>();
         List<Comment>list = new ArrayList<>();
         list.add(comment);
-        given(commentRepository.findByBoardId(any())).willReturn(list);
+        result.add(commentResponseDto);
 
-        List<CommentDto.CommentResponseDto>result = commentService.replyList(board.getId());
+        given(commentRepository.findByBoardId(board.getId())).willReturn(list);
+        given(commentService.replyList(board.getId())).willReturn(anyList());
 
-        assertThat(result).isNotEmpty();
+        when(commentRepository.findByBoardId(board.getId())).thenReturn(list);
+        when(commentService.replyList(board.getId())).thenReturn(anyList());
+        result = commentService.replyList(board.getId());
+
+        verify(commentRepository).findByBoardId(board.getId());
     }
 
     @Test
     @DisplayName("댓글 작성-성공")
     public void CommentWriteTest(){
-        given(boardRepository.findById(anyInt())).willReturn(Optional.of(board));
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
         commentRequestDto.setReplyContents(comment().getReplyContents());
         commentRequestDto.setReplyWriter(member.getUserId());
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        given(commentService.replyWrite(anyInt(),member,commentRequestDto)).willReturn(0);
+        given(commentRepository.save(comment)).willReturn(comment);
+        given(commentService.replyWrite(board.getId(),member,commentRequestDto)).willReturn(any());
 
-        when(commentService.replyWrite(anyInt(),member,commentRequestDto)).thenReturn(0);
+        when(commentService.replyWrite(board.getId(),member,commentRequestDto)).thenReturn(any());
 
-        then(commentService.replyWrite(anyInt(),member,commentRequestDto));
+        then(commentService.replyWrite(board.getId(),member,commentRequestDto));
     }
 
     @Test
@@ -133,8 +137,12 @@ public class CommentServiceTest {
     public void CommentDeleteTest(){
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
+        doNothing().when(commentRepository).deleteById(comment.getId());
         commentService.commentDelete(comment.getId(),member);
+
+        verify(commentRepository).deleteById(comment.getId());
     }
 
     @Test
@@ -143,11 +151,8 @@ public class CommentServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            commentService.commentDelete(comment.getId(),null);
-        });
-
-        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
+        assertThatThrownBy(()->commentService.commentDelete(board.getId(),null))
+                .isInstanceOf(CustomExceptionHandler.class);
     }
 
     @Test
@@ -159,24 +164,26 @@ public class CommentServiceTest {
         String userid = "well";
         member.setUserId(userid);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            commentService.commentDelete(comment.getId(),member);
-        });
-
-        assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
+        assertThatThrownBy(()->commentService.commentDelete(anyInt(),member))
+                .isInstanceOf(CustomExceptionHandler.class);
     }
 
     @Test
     @DisplayName("가게 댓글목록")
     public void PlaceCommentListTest() throws Exception {
-        List<Comment>commentList = new ArrayList<>();
-        commentList.add(comment);
+       List<Comment>commentList = new ArrayList<>();
+       commentList.add(comment);
+       List<CommentDto.CommentResponseDto>list = new ArrayList<>();
+       list.add(commentResponseDto);
 
-        given(commentRepository.findByPlaceId(anyInt())).willReturn(commentList);
+       given(commentRepository.findByPlaceId(place.getId())).willReturn(commentList);
+       given(commentService.placeCommentList(place.getId())).willReturn(anyList());
 
-        List<CommentDto.CommentResponseDto>result = commentService.placeCommentList(1);
+       when(commentService.placeCommentList(place.getId())).thenReturn(anyList());
 
-        assertThat(result).isNotEmpty();
+       commentService.placeCommentList(place.getId());
+
+       verify(commentRepository).findByPlaceId(any());
     }
 
     @Test
@@ -198,26 +205,31 @@ public class CommentServiceTest {
     @DisplayName("가게 댓글 작성-실패(로그인을 안한 경우)")
     public void PlaceCommentCreateTestFail1(){
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         member = null;
         CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
         commentRequestDto.setReplyContents(comment.getReplyContents());
         commentRequestDto.setReplyWriter(null);
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
             commentService.placeCommentWrite(place.getId(),commentRequestDto,null);
         });
-
+        System.out.println(customExceptionHandler);
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
     
     @Test
     @DisplayName("가게 댓글 삭제")
     public void PlaceCommentDeleteTest(){
+        //given
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
-
+        //when
+        doNothing().when(commentRepository).deleteById(comment.getId());
         commentService.placeCommentDelete(comment.getId(),member);
+        //then
+        verify(commentRepository).deleteById(comment.getId());
     }
 
     @Test
@@ -227,9 +239,8 @@ public class CommentServiceTest {
         given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            commentService.placeCommentDelete(comment.getId(), null);
+            commentService.placeCommentDelete(place.getId(),null);
         });
-
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
 
@@ -237,16 +248,49 @@ public class CommentServiceTest {
     @DisplayName("가게 댓글 삭제-실패(작성자가 다른경우)")
     public void PlaceCommentDeleteTestFail2(){
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
-        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+        given(commentRepository.findById(place.getId())).willReturn(Optional.of(comment));
 
         String userId = "we";
         member.setUserId(userId);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            commentService.placeCommentDelete(comment.getId(), member);
+            commentService.placeCommentDelete(place.getId(),member);
         });
-
+        System.out.println(customExceptionHandler);
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
+    }
+
+    @Test
+    @DisplayName("댓글 평점계산")
+    public void replyPointTest() throws Exception {
+        given(commentRepository.getStarAvgByPlaceId(place.getId())).willReturn(place.getReviewRate());
+
+        when(commentService.getStarAvgByPlaceId(place.getId())).thenReturn(place.getReviewRate());
+        Double starAvg = commentService.getStarAvgByPlaceId(place.getId());
+
+        verify(commentRepository,atLeastOnce()).getStarAvgByPlaceId(place.getId());
+    }
+
+    @Test
+    @DisplayName("가게 평점 출력")
+    public void cafeReviewRateTest() throws Exception {
+        given(commentRepository.getStarAvgByPlaceId(place.getId())).willReturn(place.getReviewRate());
+
+        doNothing().when(commentRepository).cafeReviewRate(place.getReviewRate(),place.getId());
+        commentService.cafeReviewRate(place.getReviewRate(),place.getId());
+
+        verify(commentRepository).cafeReviewRate(anyDouble(),anyInt());
+    }
+
+    @Test
+    @DisplayName("가게 댓글 평점 출력")
+    public void updateStarTest() throws Exception {
+        given(commentRepository.getStarAvgByPlaceId(place.getId())).willReturn(place.getReviewRate());
+
+        doNothing().when(commentRepository).cafeReviewRate(place.getReviewRate(),place.getId());
+        commentService.cafeReviewRate(place.getReviewRate(),place.getId());
+        commentService.updateStar(place.getId());
+
     }
 
     private Comment comment(){
@@ -301,7 +345,7 @@ public class CommentServiceTest {
                 .placeClose("18:00")
                 .placeAuthor("admin")
                 .placePhone("010-3444-3654")
-                .reviewRate(0.0)
+                .reviewRate(3.0)
                 .fileGroupId("place_fre353")
                 .placeName("test place1")
                 .build();

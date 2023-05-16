@@ -31,8 +31,10 @@ public class BoardRepositoryTest {
 
         Page<Board>result1 = boardRepository.findAll(pageable);
         Page<BoardDto.BoardResponseDto>list = boardRepository.boardList(pageable);
+
         System.out.println(list.stream().toList());
         System.out.println(result1.stream().toList());
+
         assertThat(list.get().toList()).isNotEmpty();
         assertThat(result1.get().toList()).isNotEmpty();
     }
@@ -44,8 +46,7 @@ public class BoardRepositoryTest {
 
         Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
         
-        Page<BoardDto.BoardResponseDto>list = boardRepository.findAllSearch(searchKeyword,null,pageable);
-        
-        System.out.println(list.get().toList());
+        Page<BoardDto.BoardResponseDto>list = boardRepository.findAllSearch(searchKeyword,pageable);
+        assertThat(list.toList()).isNotEmpty();
     }
 }

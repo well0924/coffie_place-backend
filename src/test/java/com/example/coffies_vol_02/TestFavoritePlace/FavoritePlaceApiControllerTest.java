@@ -17,6 +17,7 @@ import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,14 +73,17 @@ public class FavoritePlaceApiControllerTest {
     private Member member;
     private Board board;
     private Place place;
+    private PlaceImage placeImage;
     private Comment comment;
     private FavoritePlace favoritePlace;
+    private List<PlaceImage>placeImageList = new ArrayList<>();
     MemberDto.MemberResponseDto memberResponseDto;
     BoardDto.BoardResponseDto boardResponseDto;
     CommentDto.CommentResponseDto commentResponseDto;
     FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto;
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
+
 
     @BeforeEach
     public void init(){
@@ -92,12 +96,15 @@ public class FavoritePlaceApiControllerTest {
         comment = comment();
         place = place();
         favoritePlace = favoritePlace();
+        placeImage = placeImage();
+        placeImageList.add(placeImage());
         memberResponseDto =responseDto();
         boardResponseDto = boardResponseDto();
         commentResponseDto = commentResponseDto();
         favoriteResponseDto = favoriteResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
+
     @Test
     @DisplayName("내가 작성한 게시글")
     public void boardListTest() throws Exception {
@@ -113,7 +120,7 @@ public class FavoritePlaceApiControllerTest {
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
         given(boardRepository.findByMember(eq(member),eq(pageRequest))).willReturn(boardPage);
 
-        when(favoritePlaceService.getMyPageBoardList(eq(pageRequest),eq(member),eq(member.getUserId()))).thenReturn(pageBoardList);
+        when(favoritePlaceService.getMyPageBoardList(eq(pageRequest), eq(member.getUserId()))).thenReturn(pageBoardList);
 
         mvc.perform(get("/api/mypage/contents/{id}",member.getUserId())
                         .with(user(customUserDetails))
@@ -122,8 +129,9 @@ public class FavoritePlaceApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(favoritePlaceService).getMyPageBoardList(any(),any(),any());
+        verify(favoritePlaceService).getMyPageBoardList(any(), any());
     }
+
     @Test
     @DisplayName("내가 작성한 댓글")
     public void myCommentListTest() throws Exception {
@@ -137,7 +145,7 @@ public class FavoritePlaceApiControllerTest {
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
         given(commentRepository.findByMember(eq(member),eq(pageRequest))).willReturn(list);
 
-        when(favoritePlaceService.getMyPageCommnetList(eq(member.getUserId()),eq(pageRequest),eq(member))).thenReturn(result);
+        when(favoritePlaceService.getMyPageCommnetList(eq(member.getUserId()),eq(pageRequest))).thenReturn(result);
 
         mvc.perform(get("/api/mypage/comment/{id}",member.getUserId())
                         .with(user(customUserDetails))
@@ -211,9 +219,10 @@ public class FavoritePlaceApiControllerTest {
 
         doNothing().when(favoritePlaceService).wishDelete(eq(favoritePlace.getId()));
 
-        mvc.perform(delete("/api/mypage/{place_id}",place.getId())
+        mvc.perform(delete("/api/mypage/delete/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding(StandardCharsets.UTF_8).with(user(customUserDetails)))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
@@ -260,6 +269,7 @@ public class FavoritePlaceApiControllerTest {
                 .place(place)
                 .build();
     }
+
     private Place place(){
         return Place
                 .builder()
@@ -275,8 +285,25 @@ public class FavoritePlaceApiControllerTest {
                 .reviewRate(0.0)
                 .fileGroupId("place_fre353")
                 .placeName("test place1")
+                .placeImages(placeImageList)
                 .build();
     }
+
+    private PlaceImage placeImage(){
+        return PlaceImage
+                .builder()
+                .fileGroupId("place_ereg34593")
+                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
+                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
+                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
+                .storedName("다운로드 (1).jpg")
+                .originName("1320441218420200.jpg")
+                .imgUploader(member.getUserId())
+                .imgGroup("coffieplace")
+                .isTitle("1")
+                .build();
+    }
+
     private FavoritePlace favoritePlace(){
         return FavoritePlace
                 .builder()
@@ -286,12 +313,14 @@ public class FavoritePlaceApiControllerTest {
                 .member(memberDto())
                 .build();
     }
+
     private FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto(){
         return FavoritePlaceDto.FavoriteResponseDto
                 .builder()
                 .favoritePlace(favoritePlace)
                 .build();
     }
+
     private MemberDto.MemberResponseDto responseDto(){
         return MemberDto.MemberResponseDto
                 .builder()
@@ -309,6 +338,7 @@ public class FavoritePlaceApiControllerTest {
                 .updatedTime(LocalDateTime.now())
                 .build();
     }
+
     private BoardDto.BoardResponseDto boardResponseDto(){
         return BoardDto.BoardResponseDto.builder()
                 .id(board().getId())
@@ -322,10 +352,12 @@ public class FavoritePlaceApiControllerTest {
                 .createdTime(LocalDateTime.now())
                 .build();
     }
+
     private CommentDto.CommentResponseDto commentResponseDto(){
         return CommentDto.CommentResponseDto
                 .builder()
                 .comment(comment())
                 .build();
     }
+
 }

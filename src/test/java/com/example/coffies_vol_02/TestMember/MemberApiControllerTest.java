@@ -243,7 +243,7 @@ public class MemberApiControllerTest {
         given(memberRepository.findByMemberNameAndUserEmail(eq(username),eq(userEmail))).willReturn(Optional.of(member));
 
         //when
-        when(memberService.findByMembernameAndUseremail(eq(username),eq(userEmail))).thenReturn(member.getUserId());
+        when(memberService.findByMemberNameAndUserEmail(eq(username),eq(userEmail))).thenReturn(member.getUserId());
 
         mvc.perform(get("/api/member/find-id/{user_name}/{user_email}",username,userEmail)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -252,7 +252,7 @@ public class MemberApiControllerTest {
                 .andDo(print());
 
         //then
-        verify(memberService).findByMembernameAndUseremail(eq(username),eq(userEmail));
+        verify(memberService).findByMemberNameAndUserEmail(eq(username),eq(userEmail));
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,6 +69,8 @@ public class FavoritePlaceServiceTest {
 
     private Place place;
 
+    private PlaceImage placeImage;
+
     private FavoritePlace favoritePlace;
 
     MemberDto.MemberResponseDto memberResponseDto;
@@ -80,6 +83,8 @@ public class FavoritePlaceServiceTest {
 
     List<FavoritePlace>list = new ArrayList<>();
 
+    List<PlaceImage> placeImages = new ArrayList<>();
+
     @BeforeEach
     public void init(){
         member = memberDto();
@@ -87,11 +92,13 @@ public class FavoritePlaceServiceTest {
         board = board();
         place = place();
         favoritePlace = favoritePlace();
+        placeImage = placeImage();
+        list.add(favoritePlace);
+        placeImages.add(placeImage);
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         commentResponseDto = commentResponseDto();
         favoriteResponseDto = favoriteResponseDto();
-        list.add(favoritePlace);
     }
 
     @Test
@@ -106,7 +113,8 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
-        Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest,member,member.getUserId());
+
+        Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
 
         assertThat(result).isNotEmpty();
     }
@@ -123,7 +131,7 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest,member,member.getUserId());
+            Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
         });
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -137,7 +145,7 @@ public class FavoritePlaceServiceTest {
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
-        List<CommentDto.CommentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest,member);
+        List<CommentDto.CommentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
         assertThat(result).isNotEmpty();
     }
 
@@ -151,7 +159,7 @@ public class FavoritePlaceServiceTest {
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            List<CommentDto.CommentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest, member);
+            List<CommentDto.CommentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
@@ -249,6 +257,7 @@ public class FavoritePlaceServiceTest {
                 .reviewRate(0.0)
                 .fileGroupId("place_fre353")
                 .placeName("test place1")
+                .placeImages(placeImages)
                 .build();
     }
     private FavoritePlace favoritePlace(){
@@ -260,6 +269,22 @@ public class FavoritePlaceServiceTest {
                 .fileGroupId(place.getFileGroupId())
                 .build();
     }
+
+    private PlaceImage placeImage(){
+        return PlaceImage
+                .builder()
+                .fileGroupId("place_ereg34593")
+                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
+                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
+                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
+                .storedName("다운로드 (1).jpg")
+                .originName("1320441218420200.jpg")
+                .imgUploader(member.getUserId())
+                .imgGroup("coffieplace")
+                .isTitle("1")
+                .build();
+    }
+
     private MemberDto.MemberResponseDto responseDto(){
         return MemberDto.MemberResponseDto
                 .builder()
@@ -300,7 +325,7 @@ public class FavoritePlaceServiceTest {
     private FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto(){
         return FavoritePlaceDto.FavoriteResponseDto
                 .builder()
-                .favoritePlace(favoritePlace())
+                .favoritePlace(favoritePlace)
                 .build();
     }
 }

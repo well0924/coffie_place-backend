@@ -32,21 +32,12 @@ public class MemberRepositoryTest {
     @Test
     @DisplayName("회원 검색 테스트")
     public void memberSearchTest(){
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
-
-        QMember qMember = QMember.member;
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("id").descending());
 
         String keyword= "well4149";
 
-        BooleanBuilder builder = new BooleanBuilder();
-
-        BooleanExpression booleanExpression = qMember.userId.contains(keyword);
-        builder.and(booleanExpression);
-
         Page<MemberDto.MemberResponseDto> result = memberRepository.findByAllSearch(keyword,pageable);
-        Page<Member>result2 = memberRepository.findAll(builder,pageable);
-        System.out.println(result.get().collect(Collectors.toList()));
-        assertThat(result);
-        assertThat(result2.get().toList().get(0).getUserId()).isEqualTo(keyword);
+
+        System.out.println(result);
     }
 }

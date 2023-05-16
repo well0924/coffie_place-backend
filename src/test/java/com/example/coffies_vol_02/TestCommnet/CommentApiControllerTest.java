@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.TestCommnet;
 
 import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
@@ -11,7 +10,6 @@ import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
 import com.example.coffies_vol_02.Place.domain.Place;
 import com.example.coffies_vol_02.Place.repository.PlaceRepository;
@@ -30,7 +28,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +67,7 @@ public class CommentApiControllerTest {
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
     private List<CommentDto.CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+    private List<CommentDto.PlaceCommentResponse> placeCommentResponses = new ArrayList<>();
 
     @BeforeEach
     public void init(){
@@ -82,6 +80,7 @@ public class CommentApiControllerTest {
         place = place();
         comment = comment();
         commentResponseDtoList.add(commentResponseDto());
+        placeCommentResponses.add(placeCommentResponse());
         memberRepository.save(member);
         commentRepository.save(comment());
         placeRepository.findById(place().getId());
@@ -156,7 +155,7 @@ public class CommentApiControllerTest {
     public void placeCommentListTest()throws Exception{
         given(commentRepository.findByPlaceId(place.getId())).willReturn(anyList());
 
-        when(commentService.placeCommentList(place.getId())).thenReturn(commentResponseDtoList);
+        when(commentService.placeCommentList(place.getId())).thenReturn(placeCommentResponses);
 
         mvc.perform(get("/api/comment/place/list/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -251,6 +250,7 @@ public class CommentApiControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
+
     private Place place(){
         return Place
                 .builder()
@@ -269,39 +269,15 @@ public class CommentApiControllerTest {
                 .build();
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private CommentDto.CommentResponseDto commentResponseDto(){
+        return CommentDto.CommentResponseDto
                 .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
-    }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
+                .comment(comment())
                 .build();
     }
 
-    private CommentDto.CommentResponseDto commentResponseDto(){
-        return CommentDto.CommentResponseDto
+    private CommentDto.PlaceCommentResponse placeCommentResponse(){
+        return CommentDto.PlaceCommentResponse
                 .builder()
                 .comment(comment())
                 .build();

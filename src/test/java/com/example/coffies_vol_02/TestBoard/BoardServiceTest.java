@@ -139,10 +139,10 @@ public class BoardServiceTest {
 
         //작성자
         String keyword = "well4149";
-        given(boardRepository.findAllSearch(keyword,null,pageRequest)).willReturn(result);
+        given(boardRepository.findAllSearch(keyword,pageRequest)).willReturn(result);
 
-        when(boardService.boardSearchAll(keyword,null,pageRequest)).thenReturn(result);
-        result = boardService.boardSearchAll(keyword,null,pageRequest);
+        when(boardService.boardSearchAll(keyword,pageRequest)).thenReturn(result);
+        result = boardService.boardSearchAll(keyword,pageRequest);
 
         assertThat(keyword).isEqualTo(result.stream().toList().get(0).getBoardAuthor());
     }
@@ -284,19 +284,6 @@ public class BoardServiceTest {
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
-    }
-    @Test
-    @DisplayName("게시물 조회시 조회수 증가")
-    public void increaseViewCountTest(){
-        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(boardRepository.ReadCountUp(board.getId())).willReturn(board.getReadCount()+1);
-
-        //게시물 조회시 카운트 증가.
-        when(boardService.updateView(board.getId())).thenReturn(board.getReadCount()+1);
-
-        int readCount = boardService.updateView(board.getId());
-
-        assertThat(readCount).isEqualTo(2);
     }
 
     @Test

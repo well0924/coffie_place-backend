@@ -116,7 +116,6 @@ public class BoardApiControllerTest {
         List<BoardDto.BoardResponseDto>responseDtoList = new ArrayList<>();
         responseDtoList.add(boardResponseDto);
         Page<BoardDto.BoardResponseDto>list = new PageImpl<>(responseDtoList,pageRequest,1);
-        System.out.println(list);
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
         when(boardService.boardAll(pageRequest)).thenReturn(list);
@@ -131,6 +130,27 @@ public class BoardApiControllerTest {
                 .andDo(print());
 
         verify(boardService,atLeastOnce()).boardAll(any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("게시물 검색")
+    public void boardSearchTest()throws Exception{
+        String keyword = "well4149";
+        Pageable pageable = PageRequest.of(1,5,Sort.by("id").descending());
+        List<BoardDto.BoardResponseDto>list = new ArrayList<>();
+        list.add(boardResponseDto);
+        Page<BoardDto.BoardResponseDto>searchList = new PageImpl<>(list,pageable,1);
+        given(boardService.boardSearchAll(keyword,pageable)).willReturn(searchList);
+
+        mvc.perform(get("/api/board/search")
+                .param("keyword",keyword)
+                .with(user(customUserDetails))
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
+
+        verify(boardService).boardSearchAll(any(),any());
     }
     
     @Test
@@ -195,6 +215,7 @@ public class BoardApiControllerTest {
     @Test
     @DisplayName("자유게시판 수정")
     public void boardUpdateTest()throws Exception{
+
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
         boardRequestDto.setFiles(List.of(updateFile));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));

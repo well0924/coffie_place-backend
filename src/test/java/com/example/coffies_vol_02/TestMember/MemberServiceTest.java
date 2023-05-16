@@ -273,9 +273,12 @@ public class MemberServiceTest {
         given(memberRepository.save(member1)).willReturn(member1);
         given(memberRepository.save(member2)).willReturn(member2);
         given(memberRepository.findAll()).willReturn(memberlist);
+
         //when
         doNothing().when(memberRepository).deleteAllByUserId(deleteList);
+
         memberService.selectMemberDelete(deleteList);
+
         //then
         verify(memberRepository,times(2)).deleteAllByUserId(deleteList);
     }

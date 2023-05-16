@@ -111,7 +111,7 @@ public class BoardControllerTest {
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardService.boardDetail(board.getId())).willReturn(boardResponseDto());
-        given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
+       //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
 
         mvc.perform(
                 get("/page/board/detail/{board_id}",board.getId())
@@ -158,7 +158,7 @@ public class BoardControllerTest {
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardService.boardDetail(board.getId())).willReturn(boardResponseDto());
-        given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
+        //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
 
         mvc.perform(
                         get("/page/board/modify/{board_id}",board.getId())
