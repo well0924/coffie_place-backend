@@ -6,6 +6,7 @@ import com.example.coffies_vol_02.Place.domain.dto.PlaceImageDto;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -27,21 +28,21 @@ import javax.validation.Valid;
 public class PlaceApiController {
     private final PlaceService placeService;
     
-    @ApiOperation(value = "가게 목록 조회",notes = "가게 목록을 조회한다")
+    @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
     @GetMapping(path = "/list")
     public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         Page<PlaceDto.PlaceResponseDto> list = placeService.placeList(pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @ApiOperation(value = "가게 목록 검색",notes = "가게 목록페이지에서 가게를 검색을 한다.")
+    @Operation(summary = "가게 목록 검색",description = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
     public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         Page<PlaceDto.PlaceResponseDto> list = placeService.placeListAll(keyword,pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     
-    @ApiOperation(value = "가게 단일 조회",notes = "가게 목록에서 가게를 조회를 한다.")
+    @Operation(summary = "가게 단일 조회",description = "가게 목록에서 가게를 조회를 한다.")
     @GetMapping(path = "/detail/{place_id}")
     public CommonResponse<PlaceDto.PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
         PlaceDto.PlaceResponseDto placeDetail = new PlaceDto.PlaceResponseDto();
@@ -53,7 +54,7 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),placeDetail);
     }
     
-    @ApiOperation(value = "가게 등록",notes = "어드민 페이지에서 가게를 등록을 한다.")
+    @Operation(summary = "가게 등록",description = "어드민 페이지에서 가게를 등록을 한다.")
     @PostMapping(path="/register",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto, BindingResult bindingResult){
@@ -67,7 +68,7 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),registerResult);
     }
     
-    @ApiOperation(value = "가게 수정",notes="등록된 가게를 수정을 한다.")
+    @Operation(summary = "가게 수정",description = "등록된 가게를 수정을 한다.")
     @PutMapping(path = "/update/{place_id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public CommonResponse<Integer>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto){
         Integer placeUpdateResult = 0;
@@ -81,7 +82,7 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),placeUpdateResult);
     }
 
-    @ApiOperation(value = "가게 삭제",notes = "등록된 가게를 삭제한다.")
+    @Operation(summary = "가게 삭제",description = "등록된 가게를 삭제한다.")
     @DeleteMapping(path = "/delete/{place_id}")
     public CommonResponse<?>placeDelete(@PathVariable("place_id")Integer placeId){
 

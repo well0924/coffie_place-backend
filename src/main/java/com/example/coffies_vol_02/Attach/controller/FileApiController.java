@@ -6,6 +6,7 @@ import com.example.coffies_vol_02.Config.Exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.Place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -31,7 +32,7 @@ public class FileApiController {
     private final AttachService attachService;
     private final PlaceService placeService;
 
-    @ApiOperation(value = "자유게시판 첨부파일 다운로드")
+    @Operation(summary = "자유게시판 첨부파일 다운로드",description = "자유게시판에서 첨부파일을 다운로드한다.")
     @GetMapping("/download/{file_name}")
     public ResponseEntity<Resource>BoardFileDownload(@PathVariable("file_name")String fileName) throws IOException {
         AttachDto getFile = attachService.getFreeBoardFile(fileName);
@@ -44,7 +45,7 @@ public class FileApiController {
                 .body(resource);
     }
 
-    @ApiOperation(value = "공지게시판 첨부파일 다운로드")
+    @Operation(summary = "공지게시판 첨부파일 다운로드",description = "공지게시판에서 첨부파일을 다운로드한다.")
     @GetMapping("/notice/download/{file_name}")
     public ResponseEntity<Resource>NoticeFileDownload(@PathVariable("file_name")String fileName) throws IOException {
         AttachDto getFile = attachService.getNoticeBoardFile(fileName);
@@ -56,7 +57,7 @@ public class FileApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
-    @ApiOperation("가게 목록 엑셀 다운로드")
+    @Operation(summary = "가게 목록 엑셀 다운로드",description = "가게 목록을 엑셀파일로 다운로드한다.")
     @GetMapping("/place-download")
     public ResponseEntity getPlaceListDownload(HttpServletResponse response, boolean excelDownload){
         return ResponseEntity.ok(placeService.getPlaceList(response,excelDownload));

@@ -15,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class MemberApiController {
 
     @Operation(summary = "회원 목록 api",description = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
-    public CommonResponse<Page<MemberDto.MemberResponseDto>> memberList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
+    public CommonResponse<Page<MemberDto.MemberResponseDto>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
         Page<MemberDto.MemberResponseDto> list = null;
 
         try{
@@ -40,9 +42,7 @@ public class MemberApiController {
     }
     @Operation(summary = "회원 검색 api",description = "회원목록에서 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<MemberDto.MemberResponseDto>>memberSearch(
-            @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("searchVal") String searchVal){
+    public CommonResponse<Page<MemberDto.MemberResponseDto>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
 
         Page<MemberDto.MemberResponseDto> list = null;
 
@@ -51,6 +51,7 @@ public class MemberApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -64,6 +65,7 @@ public class MemberApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 

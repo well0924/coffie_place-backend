@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
 import com.example.coffies_vol_02.Notice.service.NoticeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -23,9 +25,9 @@ import javax.validation.Valid;
 public class NoticeApiController {
     private final NoticeService noticeService;
 
-    @ApiOperation(value = "공지 게시판 목록")
+    @Operation(summary = "공지 게시판 목록",description = "공지게시판페이지에서 목록을 보여준다.")
     @GetMapping("/list")
-    public CommonResponse<Page<NoticeBoardDto.BoardResponseDto>>noticeList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+    public CommonResponse<Page<NoticeBoardDto.BoardResponseDto>>noticeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<NoticeBoardDto.BoardResponseDto> list = null;
 
         try{
@@ -38,7 +40,7 @@ public class NoticeApiController {
 
     @ApiOperation(value = "공지 게시판 검색")
     @GetMapping("/search")
-    public CommonResponse<Page<NoticeBoardDto.BoardResponseDto>>noticeSearchList(@RequestParam String searchVal,@PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+    public CommonResponse<Page<NoticeBoardDto.BoardResponseDto>>noticeSearchList(@RequestParam String searchVal,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<NoticeBoardDto.BoardResponseDto> list = null;
 
         try{
@@ -48,8 +50,8 @@ public class NoticeApiController {
         }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
-    
-    @ApiOperation(value = "공지게시글 단일 조회")
+
+    @Operation(summary = "공지게시글 조회",description = "공지게시글을 단일 조회한다.")
     @GetMapping("/detail/{notice_id}")
     public CommonResponse<NoticeBoardDto.BoardResponseDto>noticeDetail(@PathVariable("notice_id")Integer noticeId){
         NoticeBoardDto.BoardResponseDto detail = new NoticeBoardDto.BoardResponseDto();
@@ -62,7 +64,7 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @ApiOperation(value = "공지게시글 작성")
+    @Operation(summary = "공지게시글 작성",description = "공지게시글 작성화면에서 게시글을 작성한다.")
     @PostMapping(value = "/write")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>noticeWrite(@Valid @ModelAttribute NoticeBoardDto.BoardRequestDto dto, BindingResult bindingResult){
@@ -76,7 +78,7 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),InsertResult);
     }
 
-    @ApiOperation(value = "공지게시글 수정")
+    @Operation(summary = "공지게시글 수정",description = "공지게시글 수정화면에서 게시글을 수정한다.")
     @PatchMapping("/update/{notice_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>noticeUpdate(@PathVariable("notice_id")Integer noticeId,@ModelAttribute NoticeBoardDto.BoardRequestDto dto){
@@ -90,7 +92,7 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
     
-    @ApiOperation(value = "공지게시글 삭제")
+    @Operation(summary = "공지게시글 삭제",description = "공지게시글 수정화면에서 게시글을 삭제한다.")
     @DeleteMapping("/delete/{notice_id}")
     public CommonResponse<?>noticeDelete(@PathVariable("notice_id")Integer noticeId){
         try{
