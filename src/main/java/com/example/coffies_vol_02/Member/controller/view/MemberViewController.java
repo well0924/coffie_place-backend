@@ -54,7 +54,7 @@ public class MemberViewController {
         MemberDto.MemberResponseDto dto = null;
 
         try{
-            dto = memberService.findMemberById(useridx);
+            dto = memberService.findMember(useridx);
         }catch(Exception e){
             e.printStackTrace();
         }

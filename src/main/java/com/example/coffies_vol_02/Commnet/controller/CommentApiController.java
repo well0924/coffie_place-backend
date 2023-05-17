@@ -38,11 +38,11 @@ public class CommentApiController {
 
     @Operation(summary = "댓글 작성",description = "게시글 목록에서 댓글을 작성한다.")
     @PostMapping("/write/{board_id}")
-    public CommonResponse<Integer>commentWrite(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentDto.CommentRequestDto dto){
+    public CommonResponse<Integer>commentCreate(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentDto.CommentRequestDto dto){
         int WriteResult = 0;
 
         try{
-            WriteResult = commentService.replyWrite(boardId,customUserDetails.getMember(),dto);
+            WriteResult = commentService.commentCreate(boardId,customUserDetails.getMember(),dto);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -80,7 +80,7 @@ public class CommentApiController {
         int insertResult = 0;
 
         try{
-            insertResult = commentService.placeCommentWrite(placeId,dto,customUserDetails.getMember());
+            insertResult = commentService.placeCommentCreate(placeId,dto,customUserDetails.getMember());
             //가게 평점 계산
             commentService.updateStar(placeId);
         }catch (Exception e){

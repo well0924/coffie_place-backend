@@ -64,7 +64,7 @@ public class MemberService {
      *
      */
     @Transactional(readOnly = true)
-    public MemberDto.MemberResponseDto findMemberById(Integer id){
+    public MemberDto.MemberResponseDto findMember(Integer id){
 
         Member findMemberById = memberRepository.findById(id).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
 
@@ -91,7 +91,7 @@ public class MemberService {
      * 회원가입기능
      */
     @Transactional
-    public Integer memberSave(MemberDto.MemberCreateDto memberCreateDto){
+    public Integer memberCreate(MemberDto.MemberCreateDto memberCreateDto){
 
         Member member = Member
                 .builder()
@@ -147,7 +147,7 @@ public class MemberService {
      *
      */
     @Transactional
-    public Boolean existsByUserId(String userId){
+    public Boolean memberIdCheck(String userId){
         return memberRepository.existsByUserId(userId);
     }
 
@@ -156,7 +156,7 @@ public class MemberService {
      *
      */
     @Transactional
-    public Boolean existByUserEmail(String userEmail){
+    public Boolean memberEmailCheck(String userEmail){
         return memberRepository.existsByUserEmail(userEmail);
     }
 
@@ -165,7 +165,7 @@ public class MemberService {
      *
      */
     @Transactional(readOnly = true)
-    public String findByMemberNameAndUserEmail(String membername, String userEmail){
+    public String findUserId(String membername, String userEmail){
         Optional<Member> member = Optional.ofNullable(memberRepository.findByMemberNameAndUserEmail(membername, userEmail).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)));
 
         Member detail = member.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));

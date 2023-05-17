@@ -48,7 +48,7 @@ public class BoardService {
     * 게시글 목록
     **/
     @Transactional(readOnly = true)
-    public Page<BoardDto.BoardResponseDto> boardAll(Pageable pageable){
+    public Page<BoardDto.BoardResponseDto> boardAllList(Pageable pageable){
         return boardRepository.boardList(pageable);
     }
 
@@ -64,7 +64,7 @@ public class BoardService {
     *  게시글 단일 조회
     **/
     @Transactional(readOnly = true)
-    public BoardDto.BoardResponseDto boardDetail(Integer boardId){
+    public BoardDto.BoardResponseDto findBoard(Integer boardId){
         Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         Board result = boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST));
@@ -86,7 +86,7 @@ public class BoardService {
     * 글작성(파일 첨부)
     **/
     @Transactional
-    public Integer boardSave(BoardDto.BoardRequestDto requestDto, Member member) throws Exception {
+    public Integer boardCreate(BoardDto.BoardRequestDto requestDto, Member member) throws Exception {
 
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);

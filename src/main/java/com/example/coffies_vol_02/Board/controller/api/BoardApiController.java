@@ -36,7 +36,7 @@ public class BoardApiController {
         Page<BoardDto.BoardResponseDto> list = null;
 
         try {
-            list = boardService.boardAll(pageable);
+            list = boardService.boardAllList(pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -60,15 +60,14 @@ public class BoardApiController {
 
     @Operation(summary = "게시글 단일 조회",description = "자유게시판 단일 조회")
     @GetMapping(path = "/detail/{id}")
-    public CommonResponse<BoardDto.BoardResponseDto>boardDetail(@PathVariable("id") Integer boardId){
+    public CommonResponse<BoardDto.BoardResponseDto>findBoard(@PathVariable("id") Integer boardId){
         BoardDto.BoardResponseDto detail = new BoardDto.BoardResponseDto();
 
         try {
-            detail = boardService.boardDetail(boardId);
+            detail = boardService.findBoard(boardId);
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
@@ -79,7 +78,7 @@ public class BoardApiController {
         Integer WriteResult = 0;
 
         try {
-            boardService.boardSave(dto,customUserDetails.getMember());
+            boardService.boardCreate(dto,customUserDetails.getMember());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -115,7 +114,7 @@ public class BoardApiController {
 
     @Operation(summary = "자유게시판 비밀번호 입력",description = "게시글에 비밀번호가 있는 경우에는 비밀번호를 입력해")
     @GetMapping(path = "/password/{board_id}/{password}")
-    public CommonResponse<BoardDto.BoardResponseDto>passwordChange(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<BoardDto.BoardResponseDto>passwordCheck(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         BoardDto.BoardResponseDto result = new BoardDto.BoardResponseDto();
 
         try{

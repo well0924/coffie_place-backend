@@ -3,9 +3,7 @@ package com.example.coffies_vol_02.Board.controller.view;
 import com.example.coffies_vol_02.Attach.domain.AttachDto;
 import com.example.coffies_vol_02.Attach.service.AttachService;
 import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
 import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Config.Redis.RedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,16 +31,20 @@ public class BoardViewController {
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                  @RequestParam(value = "sort",required = false)String sort,
                                   @RequestParam(value = "searchVal",required = false)String searchVal){
 
         ModelAndView mv = new ModelAndView();
 
-        Page<BoardDto.BoardResponseDto> boardList = boardService.boardSearchAll(searchVal,pageable);
+        Page<BoardDto.BoardResponseDto> boardList = null;
+
+        try {
+            boardList = boardService.boardSearchAll(searchVal,pageable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("boardList",boardList);
         mv.addObject("searchVal",searchVal);
-        mv.addObject("sort",sort);
 
         mv.setViewName("/board/boardlist");
 
@@ -50,12 +53,20 @@ public class BoardViewController {
 
     @GetMapping("/detail/{board_id}")
     public ModelAndView boardDetail(@PathVariable("board_id") Integer boardId)throws Exception{
+
         ModelAndView mv = new ModelAndView();
 
-        BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
-        List<AttachDto> attachList = attachService.boardfilelist(boardId);
-        //조회수 증가(캐시 적용)
-        boardService.boardViewCount(boardId);
+        BoardDto.BoardResponseDto detail = new BoardDto.BoardResponseDto();
+        List<AttachDto> attachList = new ArrayList<>();
+
+        try{
+            detail = boardService.findBoard(boardId);
+            attachList = attachService.boardfilelist(boardId);
+            //조회수 증가(캐시 적용)
+            boardService.boardViewCount(boardId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
@@ -83,7 +94,13 @@ public class BoardViewController {
     public ModelAndView passwordCheck(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
 
-        BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
+        BoardDto.BoardResponseDto detail = new BoardDto.BoardResponseDto();
+
+        try{
+            detail = boardService.findBoard(boardId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("pwd",detail);
         mv.setViewName("/board/passwordcheck");
@@ -92,12 +109,18 @@ public class BoardViewController {
     }
 
     @GetMapping("/modify/{board_id}")
-    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) throws Exception {
+    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) {
         ModelAndView mv = new ModelAndView();
 
-        BoardDto.BoardResponseDto detail = boardService.boardDetail(boardId);
-        List<AttachDto> attachList=attachService.boardfilelist(boardId);
+        BoardDto.BoardResponseDto detail = new BoardDto.BoardResponseDto();
+        List<AttachDto> attachList= new ArrayList<>();
 
+        try{
+            detail = boardService.findBoard(boardId);
+            attachList=attachService.boardfilelist(boardId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
         mv.setViewName("/board/boardmodify");

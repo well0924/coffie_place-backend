@@ -47,7 +47,7 @@ public class CommentService {
     *   댓글 작성(자유게시판)
     **/
     @Transactional
-    public Integer replyWrite(Integer boardId,Member member,CommentDto.CommentRequestDto dto){
+    public Integer commentCreate(Integer boardId,Member member,CommentDto.CommentRequestDto dto){
 
         Optional<Board>boardDetail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
@@ -103,7 +103,7 @@ public class CommentService {
      * 가게 댓글 작성
      * */
     @Transactional
-    public Integer placeCommentWrite(Integer placeId,CommentDto.CommentRequestDto dto,Member member){
+    public Integer placeCommentCreate(Integer placeId,CommentDto.CommentRequestDto dto,Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);

@@ -99,7 +99,7 @@ public class BoardServiceTest {
         given(boardRepository.boardList(pageRequest)).willReturn(Page.empty());
 
         //when
-        Page<BoardDto.BoardResponseDto>result = boardService.boardAll(pageRequest);
+        Page<BoardDto.BoardResponseDto>result = boardService.boardAllList(pageRequest);
 
         //then
         assertThat(result).isEmpty();
@@ -112,7 +112,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
         //when
-        BoardDto.BoardResponseDto result = boardService.boardDetail(board.getId());
+        BoardDto.BoardResponseDto result = boardService.findBoard(board.getId());
 
         //then
         assertThat(result.getBoardAuthor()).isEqualTo(board.getBoardAuthor());
@@ -122,7 +122,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회실패")
     public void boardDetailFail(){
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            BoardDto.BoardResponseDto result = boardService.boardDetail(0);
+            BoardDto.BoardResponseDto result = boardService.findBoard(0);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.BOARD_NOT_FOUND);
@@ -157,7 +157,7 @@ public class BoardServiceTest {
         given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        boardService.boardSave(boardRequestDto,member);
+        boardService.boardCreate(boardRequestDto,member);
 
         verify(boardRepository).save(any());
         verify(fileHandler,times(3)).parseFileInfo(any());
@@ -171,7 +171,7 @@ public class BoardServiceTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.save(any())).willReturn(board);
         boardRequestDto.setFiles(null);
-        boardService.boardSave(boardRequestDto,member);
+        boardService.boardCreate(boardRequestDto,member);
 
         verify(boardRepository).save(any());
     }
@@ -181,9 +181,7 @@ public class BoardServiceTest {
     public void boardWriteFail1(){
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.boardSave(boardRequestDto,null);
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.boardCreate(boardRequestDto,null));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -213,9 +211,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.BoardDelete(board.getId(),null);
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardDelete(board.getId(),null));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -229,9 +225,7 @@ public class BoardServiceTest {
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.BoardDelete(board.getId(),member);
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardDelete(board.getId(),member));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -262,9 +256,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.BoardUpdate(board.getId(),getBoardRequestDto(),null,getBoardRequestDto().getFiles());
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),getBoardRequestDto(),null,getBoardRequestDto().getFiles()));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -279,9 +271,7 @@ public class BoardServiceTest {
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.BoardUpdate(board.getId(),getBoardRequestDto(),member,getBoardRequestDto().getFiles());
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),getBoardRequestDto(),member,getBoardRequestDto().getFiles()));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -309,9 +299,7 @@ public class BoardServiceTest {
         given(boardRepository.findByPassWdAndId(board.getPassWd(),board.getId())).willReturn(boardResponseDto);
 
         //when
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.passwordCheck(board.getPassWd(),board.getId(),null);
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.passwordCheck(board.getPassWd(),board.getId(),null));
 
         //then
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
@@ -325,9 +313,7 @@ public class BoardServiceTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         //when
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            boardService.passwordCheck(wrongPassword,board.getId(),member);
-        });
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.passwordCheck(wrongPassword,board.getId(),member));
 
         //then
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_MATCH_PASSWORD);

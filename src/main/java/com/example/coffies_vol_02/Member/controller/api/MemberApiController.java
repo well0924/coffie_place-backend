@@ -57,11 +57,11 @@ public class MemberApiController {
 
     @Operation(summary = "회원 단일 조회 api",description = "회원을 단일  조회한다.")
     @GetMapping(path = "/detail/{user_idx}")
-    public CommonResponse<MemberDto.MemberResponseDto>memberDetail(@PathVariable("user_idx")Integer userIdx){
+    public CommonResponse<MemberDto.MemberResponseDto>findMember(@PathVariable("user_idx")Integer userIdx){
         MemberDto.MemberResponseDto detail = new MemberDto.MemberResponseDto();
 
         try{
-            detail = memberService.findMemberById(userIdx);
+            detail = memberService.findMember(userIdx);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -72,11 +72,11 @@ public class MemberApiController {
     @Operation(summary = "회원가입 api",description = "회원가입 기능.")
     @PostMapping(path = "/join")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>memberJoin(@Valid @RequestBody MemberDto.MemberCreateDto dto, BindingResult bindingResult){
+    public CommonResponse<Integer>memberCreate(@Valid @RequestBody MemberDto.MemberCreateDto dto, BindingResult bindingResult){
         Integer JoinResult = 0;
 
         try{
-            JoinResult = memberService.memberSave(dto);
+            JoinResult = memberService.memberCreate(dto);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -113,7 +113,7 @@ public class MemberApiController {
         String findUser = "";
 
         try{
-            findUser =memberService.findByMemberNameAndUserEmail(userName,userEmail);
+            findUser =memberService.findUserId(userName,userEmail);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -125,7 +125,7 @@ public class MemberApiController {
         boolean result = false;
 
         try{
-            result = memberService.existsByUserId(userId);
+            result = memberService.memberIdCheck(userId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -134,11 +134,10 @@ public class MemberApiController {
 
     @Operation(summary = "회원 이메일 중복 api")
     @GetMapping(path = "/email-check/{user_email}")
-    public CommonResponse<Boolean>userEmailDuplicated(@PathVariable("user_email")String userEmail){
+    public CommonResponse<Boolean>memberEmailCheck(@PathVariable("user_email")String userEmail){
         boolean result = false;
-
         try{
-            result = memberService.existByUserEmail(userEmail);
+            result = memberService.memberEmailCheck(userEmail);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -146,7 +145,7 @@ public class MemberApiController {
     }
     @Operation(summary = "회원비밀번호 변경 api",description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
     @PatchMapping(path = "/password/{user_id}")
-    public CommonResponse<Integer>passwordChange(@PathVariable("user_id")Integer id,@RequestBody MemberDto.MemberCreateDto dto){
+    public CommonResponse<Integer>passwordUpdate(@PathVariable("user_id")Integer id,@RequestBody MemberDto.MemberCreateDto dto){
         int updateResult = 0;
 
         try{
@@ -181,7 +180,7 @@ public class MemberApiController {
     @Operation(summary = "회원선택삭제 api",description = "어드민페이지에서 회원 선택삭제하는 기능")
     @PostMapping(path = "/select-delete")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>MemberDelete(@RequestBody List<String> userId){
+    public CommonResponse<?>selectMemberDelete(@RequestBody List<String> userId){
         try{
             memberService.selectMemberDelete(userId);
         }catch (Exception e){

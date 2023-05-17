@@ -117,9 +117,9 @@ public class CommentApiControllerTest {
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(commentService.replyWrite(board.getId(),member,commentRequestDto)).willReturn(comment.getId());
+        given(commentService.commentCreate(board.getId(),member,commentRequestDto)).willReturn(comment.getId());
 
-        when(commentService.replyWrite(board.getId(),member,commentRequestDto)).thenReturn(comment.getId());
+        when(commentService.commentCreate(board.getId(),member,commentRequestDto)).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/write/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +129,7 @@ public class CommentApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(commentService).replyWrite(anyInt(),any(),any());
+        verify(commentService).commentCreate(anyInt(),any(),any());
     }
 
     @Test
@@ -176,9 +176,9 @@ public class CommentApiControllerTest {
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        given(commentService.placeCommentWrite(place().getId(), commentRequestDto, member)).willReturn(comment().getId());
+        given(commentService.placeCommentCreate(place().getId(), commentRequestDto, member)).willReturn(comment().getId());
 
-        when(commentService.placeCommentWrite(place.getId(),commentRequestDto,member)).thenReturn(comment.getId());
+        when(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/place/write/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -188,7 +188,7 @@ public class CommentApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(commentService).placeCommentWrite(any(),any(),any());
+        verify(commentService).placeCommentCreate(any(),any(),any());
     }
 
     @Test

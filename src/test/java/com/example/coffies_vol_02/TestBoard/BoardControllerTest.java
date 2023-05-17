@@ -13,7 +13,6 @@ import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Member.domain.Role;
 import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -93,7 +91,7 @@ public class BoardControllerTest {
     @DisplayName("자유게시판 목록화면")
     public void freeBoardListPage()throws Exception{
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(boardService.boardAll(any(Pageable.class))).willReturn(Page.empty());
+        given(boardService.boardAllList(any(Pageable.class))).willReturn(Page.empty());
 
         mvc.perform(get("/page/board/list")
                 .with(user(customUserDetails))
@@ -110,7 +108,7 @@ public class BoardControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(boardService.boardDetail(board.getId())).willReturn(boardResponseDto());
+        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto());
        //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
 
         mvc.perform(
@@ -139,7 +137,7 @@ public class BoardControllerTest {
     @Test
     @DisplayName("자유게시판 비밀번호 조회화면")
     public void freeBoardPasswordCheckPage()throws Exception{
-        given(boardService.boardDetail(board.getId())).willReturn(boardResponseDto);
+        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
 
         mvc.perform(get("/page/board/passwordCheck/{board_id}",board.getId())
                 .with(user(customUserDetails))
@@ -157,7 +155,7 @@ public class BoardControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(boardService.boardDetail(board.getId())).willReturn(boardResponseDto());
+        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto());
         //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
 
         mvc.perform(

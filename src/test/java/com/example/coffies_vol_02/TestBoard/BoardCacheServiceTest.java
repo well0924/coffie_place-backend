@@ -11,6 +11,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -72,5 +75,13 @@ public class BoardCacheServiceTest {
         //캐시 삭제시 조회수 및 캐시 키 삭제
         verify(redisService,times(2)).deleteValues(any());
     }
+    
+    @Test
+    @DisplayName("redis로 조회수 동시성 테스트")
+    public void redisTest()throws Exception{
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        CountDownLatch countDownLatch = new CountDownLatch(100);
 
+
+    }
 }

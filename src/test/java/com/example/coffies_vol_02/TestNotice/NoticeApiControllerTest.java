@@ -109,25 +109,25 @@ public class NoticeApiControllerTest {
         List<NoticeBoardDto.BoardResponseDto>list = new ArrayList<>();
         list.add(responseDto);
         Page<NoticeBoardDto.BoardResponseDto>result = new PageImpl<>(list,pageRequest,1);
-        given(noticeService.noticeList(pageRequest)).willReturn(result);
+        given(noticeService.noticeAllList(pageRequest)).willReturn(result);
 
-        when(noticeService.noticeList(pageRequest)).thenReturn(result);
+        when(noticeService.noticeAllList(pageRequest)).thenReturn(result);
         mvc.perform(get("/api/notice/list")
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService,atLeastOnce()).noticeList(pageRequest);
+        verify(noticeService,atLeastOnce()).noticeAllList(pageRequest);
     }
 
     @Test
     @DisplayName("공지게시판 단일 조회")
     public void NoticeBoardDetailTest()throws Exception{
 
-        given(noticeService.noticeDetail(noticeBoard.getId())).willReturn(responseDto);
+        given(noticeService.findNotice(noticeBoard.getId())).willReturn(responseDto);
 
-        when(noticeService.noticeDetail(noticeBoard.getId())).thenReturn(responseDto);
+        when(noticeService.findNotice(noticeBoard.getId())).thenReturn(responseDto);
 
         mvc.perform(get("/api/notice/detail/{notice_id}",noticeBoard.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -135,14 +135,14 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService).noticeDetail(noticeBoard.getId());
+        verify(noticeService).findNotice(noticeBoard.getId());
     }
 
     @Test
     @DisplayName("공지게시판 작성")
     public void NoticeBoardWriteTest()throws Exception{
 
-        when(noticeService.noticeWrite(noticeRequestDto(),noticeRequestDto().getFiles())).thenReturn(noticeBoard.getId());
+        when(noticeService.noticeCreate(noticeRequestDto(),noticeRequestDto().getFiles())).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/write")
                         .file("files",noticeRequestDto().getFiles().get(0).getBytes())

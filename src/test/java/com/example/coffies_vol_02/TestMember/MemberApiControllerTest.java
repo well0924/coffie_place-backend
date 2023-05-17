@@ -9,16 +9,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -78,7 +75,6 @@ public class MemberApiControllerTest {
     @DisplayName("회원 목록")
     @Test
     public void memberListTest()throws Exception{
-        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         given(memberRepository.findAll(any(Pageable.class))).willReturn(Page.empty());
 
         when(memberService.findAll(any(Pageable.class))).thenReturn(Page.empty());
@@ -97,7 +93,7 @@ public class MemberApiControllerTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        when(memberService.findMemberById(member.getId())).thenReturn(responseDto);
+        when(memberService.findMember(member.getId())).thenReturn(responseDto);
 
         mvc.perform(get("/api/member/detail/{user_idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -105,7 +101,7 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService).findMemberById(member.getId());
+        verify(memberService).findMember(member.getId());
     }
 
     @DisplayName("회원 가입-성공")
@@ -126,9 +122,9 @@ public class MemberApiControllerTest {
         dto.setUserAddr2(member.getUserAddr2());
         dto.setRole(member.getRole());
 
-        given(memberService.memberSave(eq(dto))).willReturn(member.getId());
+        given(memberService.memberCreate(eq(dto))).willReturn(member.getId());
 
-        when(memberService.memberSave(eq(dto))).thenReturn(member.getId());
+        when(memberService.memberCreate(eq(dto))).thenReturn(member.getId());
 
         mvc.perform(post("/api/member/join")
                         .content(objectMapper.writeValueAsString(dto))
@@ -137,7 +133,7 @@ public class MemberApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
         
-        verify(memberService).memberSave(any());
+        verify(memberService).memberCreate(any());
     }
 
     @DisplayName("회원 수정")
@@ -189,7 +185,7 @@ public class MemberApiControllerTest {
     @DisplayName("회원아이디 중복-성공")
     public void memberIdDuplicatedTest()throws Exception{
 
-        given(memberService.existsByUserId(member.getUserId())).willReturn(anyBoolean());
+        given(memberService.memberIdCheck(member.getUserId())).willReturn(anyBoolean());
 
         mvc.perform(
                         get("/api/member/id-check/{user_id}",member.getUserId())
@@ -198,15 +194,15 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService).existsByUserId(member.getUserId());
+        verify(memberService).memberIdCheck(member.getUserId());
     }
 
     @Test
     @DisplayName("회원이메일 중복-중복이 안되는 경우")
     public void memberEmailDuplicatedTest()throws Exception{
-        given(memberService.existByUserEmail(member.getUserEmail())).willReturn(anyBoolean());
+        given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(anyBoolean());
 
-        when(memberService.existByUserEmail(member.getUserEmail())).thenReturn(anyBoolean());
+        when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(anyBoolean());
 
         mvc.perform(get("/api/member/email-check/{user_email}",member.getUserEmail())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,16 +210,16 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService).existByUserEmail(member.getUserEmail());
+        verify(memberService).memberEmailCheck(member.getUserEmail());
     }
 
     @Test
     @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
-        given(memberService.findMemberById(member.getId())).willReturn(responseDto);
-        given(memberService.existByUserEmail(member.getUserEmail())).willReturn(true);
+        given(memberService.findMember(member.getId())).willReturn(responseDto);
+        given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(true);
 
-        when(memberService.existByUserEmail(member.getUserEmail())).thenReturn(true);
+        when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
 
         mvc.perform(get("/api/member/email-check/{user_email}",member.getUserEmail())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -231,7 +227,7 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(memberService).existByUserEmail(member.getUserEmail());
+        verify(memberService).memberEmailCheck(member.getUserEmail());
     }
 
     @Test
@@ -243,7 +239,7 @@ public class MemberApiControllerTest {
         given(memberRepository.findByMemberNameAndUserEmail(eq(username),eq(userEmail))).willReturn(Optional.of(member));
 
         //when
-        when(memberService.findByMemberNameAndUserEmail(eq(username),eq(userEmail))).thenReturn(member.getUserId());
+        when(memberService.findUserId(eq(username),eq(userEmail))).thenReturn(member.getUserId());
 
         mvc.perform(get("/api/member/find-id/{user_name}/{user_email}",username,userEmail)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -252,7 +248,7 @@ public class MemberApiControllerTest {
                 .andDo(print());
 
         //then
-        verify(memberService).findByMemberNameAndUserEmail(eq(username),eq(userEmail));
+        verify(memberService).findUserId(eq(username),eq(userEmail));
     }
 
     @Test

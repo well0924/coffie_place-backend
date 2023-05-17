@@ -81,7 +81,7 @@ public class MemberServiceTest {
 
         given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
 
-        MemberDto.MemberResponseDto dto = memberService.findMemberById(1);
+        MemberDto.MemberResponseDto dto = memberService.findMember(1);
 
         assertThat(dto.getMemberName()).isEqualTo(member.getMemberName());
     }
@@ -130,9 +130,9 @@ public class MemberServiceTest {
         dto.setUserAddr2(memberDto().getUserAddr2());
         dto.setUserId(memberDto().getUserId());
 
-        given(memberService.memberSave(dto)).willReturn(dto.getId());
+        given(memberService.memberCreate(dto)).willReturn(dto.getId());
 
-        int result = memberService.memberSave(dto);
+        int result = memberService.memberCreate(dto);
 
         assertThat(result).isEqualTo(1);
     }
@@ -152,7 +152,7 @@ public class MemberServiceTest {
 
         //when
         member.updateMember(dto);
-        responseDto = memberService.findMemberById(member.getId());
+        responseDto = memberService.findMember(member.getId());
         Integer updateResult = memberService.memberUpdate(dto.getId(),dto);
 
         //then
@@ -179,8 +179,8 @@ public class MemberServiceTest {
         String userid = member.getUserId();
 
         //when
-        given(memberService.existsByUserId(userid)).willReturn(true);
-        boolean result=memberService.existsByUserId(userid);
+        given(memberService.memberIdCheck(userid)).willReturn(true);
+        boolean result=memberService.memberIdCheck(userid);
 
         //then
         assertThat(result).isTrue();
@@ -192,8 +192,8 @@ public class MemberServiceTest {
         given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
         String userEmail = member.getUserEmail();
 
-        given(memberService.existByUserEmail(userEmail)).willReturn(true);
-        boolean result = memberService.existByUserEmail(userEmail);
+        given(memberService.memberEmailCheck(userEmail)).willReturn(true);
+        boolean result = memberService.memberEmailCheck(userEmail);
 
         assertThat(result).isTrue();
     }
@@ -207,7 +207,7 @@ public class MemberServiceTest {
         String userEmail = member.getUserEmail();
 
         given(memberRepository.findByMemberNameAndUserEmail(userName,userEmail)).willReturn(Optional.of(member));
-        String userId =memberService.findByMemberNameAndUserEmail(userName,userEmail);
+        String userId =memberService.findUserId(userName,userEmail);
 
         assertThat(userId).isEqualTo(member.getUserId());
     }

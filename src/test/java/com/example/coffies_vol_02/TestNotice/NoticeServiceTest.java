@@ -83,7 +83,7 @@ public class NoticeServiceTest {
         PageRequest pageRequest = PageRequest.of(0,5, Sort.by("id"));
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(Page.empty());
 
-        Page<NoticeBoardDto.BoardResponseDto>result = noticeService.noticeList(pageRequest);
+        Page<NoticeBoardDto.BoardResponseDto>result = noticeService.noticeAllList(pageRequest);
 
         Assertions.assertThat(result).isEmpty();
     }
@@ -92,7 +92,7 @@ public class NoticeServiceTest {
     public void noticeBoardDetailTest(){
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
 
-        NoticeBoardDto.BoardResponseDto detail = noticeService.noticeDetail(noticeBoard.getId());
+        NoticeBoardDto.BoardResponseDto detail = noticeService.findNotice(noticeBoard.getId());
 
         Assertions.assertThat(detail).isNotNull();
     }
@@ -107,8 +107,8 @@ public class NoticeServiceTest {
 
         given(noticeBoardRepository.findAllSearchList(keyword,pageRequest)).willReturn(response);
 
-        when(noticeService.noticeSearchList(keyword,pageRequest)).thenReturn(response);
-        response = noticeService.noticeSearchList(keyword,pageRequest);
+        when(noticeService.noticeSearchAll(keyword,pageRequest)).thenReturn(response);
+        response = noticeService.noticeSearchAll(keyword,pageRequest);
 
         assertThat(response.toList().get(0).getNoticeWriter()).isEqualTo(keyword);
     }
@@ -121,7 +121,7 @@ public class NoticeServiceTest {
         given(fileHandler.parseFileInfo(noticeRequestDto().getFiles())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        noticeService.noticeWrite(noticeRequestDto(),noticeRequestDto().getFiles());
+        noticeService.noticeCreate(noticeRequestDto(),noticeRequestDto().getFiles());
 
         Mockito.verify(noticeBoardRepository).save(ArgumentMatchers.any());
         verify(fileHandler,times(2)).parseFileInfo(any());

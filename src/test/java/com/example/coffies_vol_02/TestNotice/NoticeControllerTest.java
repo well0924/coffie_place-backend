@@ -91,7 +91,7 @@ public class NoticeControllerTest {
     @DisplayName("공지게시판 목록 화면")
     public void noticeBoardListTest()throws Exception{
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(noticeBoardService.noticeList(any(Pageable.class))).willReturn(Page.empty());
+        given(noticeBoardService.noticeAllList(any(Pageable.class))).willReturn(Page.empty());
 
         mvc.perform(get("/page/notice/list")
                 .with(user(customUserDetails))
@@ -109,7 +109,7 @@ public class NoticeControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.findById(noticeBoard().getId())).willReturn(Optional.of(noticeBoard));
         given(attachRepository.findAttachNoticeBoard(noticeBoard().getId())).willReturn(filelist);
-        given(noticeBoardService.noticeDetail(noticeBoard.getId())).willReturn(responseDto());
+        given(noticeBoardService.findNotice(noticeBoard.getId())).willReturn(responseDto());
 
         mvc.perform(get("/page/notice/detail/{notice_id}",noticeBoard.getId())
                 .with(user(customUserDetails))

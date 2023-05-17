@@ -108,11 +108,11 @@ public class CommentServiceTest {
         commentRequestDto.setReplyWriter(member.getUserId());
 
         given(commentRepository.save(comment)).willReturn(comment);
-        given(commentService.replyWrite(board.getId(),member,commentRequestDto)).willReturn(any());
+        given(commentService.commentCreate(board.getId(),member,commentRequestDto)).willReturn(any());
 
-        when(commentService.replyWrite(board.getId(),member,commentRequestDto)).thenReturn(any());
+        when(commentService.commentCreate(board.getId(),member,commentRequestDto)).thenReturn(any());
 
-        then(commentService.replyWrite(board.getId(),member,commentRequestDto));
+        then(commentService.commentCreate(board.getId(),member,commentRequestDto));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class CommentServiceTest {
         commentRequestDto.setReplyWriter(null);
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        assertThatThrownBy(()->commentService.replyWrite(anyInt(),null,commentRequestDto))
+        assertThatThrownBy(()->commentService.commentCreate(anyInt(),null,commentRequestDto))
                 .isInstanceOf(CustomExceptionHandler.class);
     }
 
@@ -196,9 +196,9 @@ public class CommentServiceTest {
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
-        given(commentService.placeCommentWrite(place.getId(),commentRequestDto,member)).willReturn(anyInt());
-        when(commentService.placeCommentWrite(place.getId(),commentRequestDto,member)).thenReturn(anyInt());
-        then(commentService.placeCommentWrite(place.getId(),commentRequestDto,member));
+        given(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).willReturn(anyInt());
+        when(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).thenReturn(anyInt());
+        then(commentService.placeCommentCreate(place.getId(),commentRequestDto,member));
     }
 
     @Test
@@ -213,7 +213,7 @@ public class CommentServiceTest {
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            commentService.placeCommentWrite(place.getId(),commentRequestDto,null);
+            commentService.placeCommentCreate(place.getId(),commentRequestDto,null);
         });
         System.out.println(customExceptionHandler);
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);

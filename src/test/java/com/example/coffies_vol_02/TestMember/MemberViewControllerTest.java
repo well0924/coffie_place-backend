@@ -97,7 +97,7 @@ public class MemberViewControllerTest {
     @DisplayName("회원 수정 화면")
     @WithMockUser(username = "well4149",roles = "ADMIN")
     public void adminDetailPageTest()throws Exception{
-        given(memberService.findMemberById(anyInt())).willReturn(responseDto());
+        given(memberService.findMember(anyInt())).willReturn(responseDto());
 
         mvc.perform(
                 get("/page/login/modify/{id}",responseDto().getId())

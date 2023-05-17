@@ -31,7 +31,7 @@ public class NoticeApiController {
         Page<NoticeBoardDto.BoardResponseDto> list = null;
 
         try{
-            list = noticeService.noticeList(pageable);
+            list = noticeService.noticeAllList(pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -44,7 +44,7 @@ public class NoticeApiController {
         Page<NoticeBoardDto.BoardResponseDto> list = null;
 
         try{
-            list = noticeService.noticeSearchList(searchVal,pageable);
+            list = noticeService.noticeSearchAll(searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -57,7 +57,7 @@ public class NoticeApiController {
         NoticeBoardDto.BoardResponseDto detail = new NoticeBoardDto.BoardResponseDto();
 
         try{
-            detail = noticeService.noticeDetail(noticeId);
+            detail = noticeService.findNotice(noticeId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -71,7 +71,7 @@ public class NoticeApiController {
         Integer InsertResult = 0;
 
         try{
-            InsertResult = noticeService.noticeWrite(dto,dto.getFiles());
+            InsertResult = noticeService.noticeCreate(dto,dto.getFiles());
         }catch (Exception e){
             e.printStackTrace();
         }

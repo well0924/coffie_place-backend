@@ -118,7 +118,7 @@ public class BoardApiControllerTest {
         Page<BoardDto.BoardResponseDto>list = new PageImpl<>(responseDtoList,pageRequest,1);
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
-        when(boardService.boardAll(pageRequest)).thenReturn(list);
+        when(boardService.boardAllList(pageRequest)).thenReturn(list);
 
         mvc.perform(get("/api/board/list")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -129,7 +129,7 @@ public class BoardApiControllerTest {
                 .andExpect(jsonPath("$.data.content[0].boardTitle").value("test"))
                 .andDo(print());
 
-        verify(boardService,atLeastOnce()).boardAll(any(Pageable.class));
+        verify(boardService,atLeastOnce()).boardAllList(any(Pageable.class));
     }
 
     @Test
@@ -158,7 +158,7 @@ public class BoardApiControllerTest {
     public void boardDetailTest()throws Exception{
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
-        when(boardService.boardDetail(board.getId())).thenReturn(boardResponseDto);
+        when(boardService.findBoard(board.getId())).thenReturn(boardResponseDto);
 
         mvc.perform(get("/api/board/detail/{id}",board.getId())
                         .with(user(customUserDetails))
@@ -167,14 +167,14 @@ public class BoardApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).boardDetail(board.getId());
+        verify(boardService).findBoard(board.getId());
     }
 
     @Test
     @DisplayName("게시글 작성")
     public void boardWriteTest()throws Exception{
 
-        when(boardService.boardSave(boardRequestDto,customUserDetails.getMember())).thenReturn(board.getId());
+        when(boardService.boardCreate(boardRequestDto,customUserDetails.getMember())).thenReturn(board.getId());
 
         mvc.perform(multipart("/api/board/write")
                         .file("files",boardRequestDto.getFiles().get(0).getBytes())
@@ -194,7 +194,7 @@ public class BoardApiControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print());
 
-        verify(boardService).boardSave(any(),any());
+        verify(boardService).boardCreate(any(),any());
         assertThat(boardRequestDto.getFiles().size()).isEqualTo(2);
     }
 

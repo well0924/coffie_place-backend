@@ -32,7 +32,7 @@ public class NoticeService {
     *   공지글 목록
     **/
     @Transactional(readOnly = true)
-    public Page<NoticeBoardDto.BoardResponseDto>noticeList(Pageable pageable){
+    public Page<NoticeBoardDto.BoardResponseDto>noticeAllList(Pageable pageable){
         return noticeBoardRepository.findAllList(pageable);
     }
 
@@ -40,7 +40,7 @@ public class NoticeService {
     *   공지 게시물 검색
     **/
     @Transactional(readOnly = true)
-    public Page<NoticeBoardDto.BoardResponseDto>noticeSearchList(String searchVal,Pageable pageable){
+    public Page<NoticeBoardDto.BoardResponseDto>noticeSearchAll(String searchVal,Pageable pageable){
         return noticeBoardRepository.findAllSearchList(searchVal,pageable);
     }
 
@@ -48,7 +48,7 @@ public class NoticeService {
     *   공지글 단일 조회
     **/
     @Transactional(readOnly = true)
-    public NoticeBoardDto.BoardResponseDto noticeDetail(Integer noticeId){
+    public NoticeBoardDto.BoardResponseDto findNotice(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         NoticeBoard noticeBoard = detail.orElse(null);
@@ -63,7 +63,7 @@ public class NoticeService {
     *   공지글 작성
     **/
     @Transactional
-    public Integer noticeWrite(NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
+    public Integer noticeCreate(NoticeBoardDto.BoardRequestDto dto,List<MultipartFile>files) throws Exception {
 
         NoticeBoard noticeBoard = NoticeBoard
                 .builder()
