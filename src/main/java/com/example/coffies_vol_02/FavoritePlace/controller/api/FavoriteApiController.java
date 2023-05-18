@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +29,15 @@ public class FavoriteApiController {
 
     @Operation(summary = "위시리스트 목록",description = "가게조회 페이지에서 위시리스트를 추가한 목록을 마이페이지에서 볼 수 있다.")
     @GetMapping(path = "/{user_id}")
-    public CommonResponse<List<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@PathVariable("user_id")String userId){
-        List<FavoritePlaceDto.FavoriteResponseDto>list= new ArrayList<>();
+    public CommonResponse<Page<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@ApiIgnore @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable, @PathVariable("user_id")String userId){
+        Page<FavoritePlaceDto.FavoriteResponseDto>list= null;
+
         try{
-            list= favoritePlaceService.findByMemberId(userId);
+            list = favoritePlaceService.MyWishList(pageable,userId);
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -42,11 +45,13 @@ public class FavoriteApiController {
     @GetMapping(path = "/check/{member_id}/{place_id}")
     public CommonResponse<?>wishListCheck(@PathVariable("member_id")String memberId, @PathVariable("place_id") Integer placeId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         boolean checkResult = false;
+
         try{
             checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),checkResult);
     }
 

@@ -43,6 +43,13 @@ public class FavoritePlaceService {
         return wishList.stream().map(FavoritePlaceDto.FavoriteResponseDto::new).collect(Collectors.toList());
     }
 
+    /**
+     * 위시 리스트 목록
+     **/
+    public Page<FavoritePlaceDto.FavoriteResponseDto>MyWishList(Pageable pageable,String userId){
+        return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
+    }
+
     /*
      * 위시 리스트 중복처리
      */
@@ -89,5 +96,4 @@ public class FavoritePlaceService {
         List<Comment>list = commentRepository.findByMember(member,pageable);
         return list.stream().map(CommentDto.CommentResponseDto::new).collect(Collectors.toList());
     }
-
 }

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.FavoritePlace.domain.dto;
 
 import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 
 public class FavoritePlaceDto {
@@ -20,6 +21,7 @@ public class FavoritePlaceDto {
         private String isTitle;
         private String thumbFileImagePath;
         @Builder
+        @QueryProjection
         public FavoriteResponseDto(FavoritePlace favoritePlace){
             this.id = favoritePlace.getId();
             this.placeId = favoritePlace.getPlace().getId();
@@ -30,6 +32,8 @@ public class FavoritePlaceDto {
             this.placeClose = favoritePlace.getPlace().getPlaceClose();
             this.placeAddr1 = favoritePlace.getPlace().getPlaceAddr1();
             this.placeAddr2 = favoritePlace.getPlace().getPlaceAddr2();
+            this.isTitle = favoritePlace.getPlace().getPlaceImageList().get(0).getIsTitle();
+            this.thumbFileImagePath = favoritePlace.getPlace().getPlaceImageList().get(0).getThumbFileImagePath();
         }
     }
 }

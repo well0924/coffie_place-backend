@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.FavoritePlace.domain;
 
 import com.example.coffies_vol_02.Member.domain.Member;
 import com.example.coffies_vol_02.Place.domain.Place;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -15,11 +14,9 @@ public class FavoritePlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Place place;
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Member member;
     private String fileGroupId;
 
