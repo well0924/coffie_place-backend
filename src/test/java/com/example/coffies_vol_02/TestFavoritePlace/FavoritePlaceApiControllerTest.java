@@ -27,10 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -158,10 +155,16 @@ public class FavoritePlaceApiControllerTest {
     @Test
     @DisplayName("위시리스트 목록")
     public void wishListTest()throws Exception{
+
+        Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
         List<FavoritePlaceDto.FavoriteResponseDto>list = new ArrayList<>();
         list.add(favoriteResponseDto());
+        Page<FavoritePlaceDto.FavoriteResponseDto>result = new PageImpl<>(list,pageable,1);
+
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
-        when(favoritePlaceService.findByMemberId(eq(member.getUserId()))).thenReturn(list);
+        given(favoritePlaceRepository.favoritePlaceWishList(eq(pageable),eq(member.getUserId()))).willReturn(result);
+
+        when(favoritePlaceService.MyWishList(eq(pageable),eq(member.getUserId()))).thenReturn(result);
 
         mvc.perform(get("/api/mypage/{user_id}",member.getUserId())
                         .with(user(customUserDetails))
@@ -170,7 +173,7 @@ public class FavoritePlaceApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(favoritePlaceService).findByMemberId(member.getUserId());
+        verify(favoritePlaceService,times(1)).MyWishList(eq(pageable),eq(member.getUserId()));
     }
 
     @Test
