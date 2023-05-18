@@ -32,7 +32,7 @@ public class NoticeController {
                                    @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
 
-        Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeSearchList(searchVal, pageable);
+        Page<NoticeBoardDto.BoardResponseDto> list = noticeService.noticeSearchAll(searchVal, pageable);
 
         mv.addObject("noticelist",list);
         mv.addObject("searchVal",searchVal);
@@ -46,7 +46,7 @@ public class NoticeController {
     public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId) throws Exception {
         ModelAndView mv = new ModelAndView();
 
-        NoticeBoardDto.BoardResponseDto list = noticeService.noticeDetail(noticeId);
+        NoticeBoardDto.BoardResponseDto list = noticeService.findNotice(noticeId);
         List<AttachDto> attachList = attachService.noticefilelist(noticeId);
 
         mv.addObject("filelist",attachList);
@@ -74,7 +74,7 @@ public class NoticeController {
     public ModelAndView noticeModify(@PathVariable("notice_id")Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeBoardDto.BoardResponseDto list = noticeService.noticeDetail(noticeId);
+        NoticeBoardDto.BoardResponseDto list = noticeService.findNotice(noticeId);
 
         mv.addObject("detail",list);
         mv.setViewName("/notice/noticemodify");

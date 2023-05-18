@@ -31,17 +31,17 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
+                .distinct()
                 .fetch();
 
-        Long count = jpaQueryFactory
+        int count = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
-                .fetchOne();
+                .fetch()
+                .size();
 
         for(NoticeBoard noticeBoard:result){
             NoticeBoardDto.BoardResponseDto responseDto = NoticeBoardDto.BoardResponseDto
@@ -61,10 +61,8 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         List<NoticeBoard> result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal)
-                        .or(noticeAuthorEq(searchVal))
-                        .or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
+                .where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal)).or(noticeContentsEq(searchVal)))
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -72,11 +70,10 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         int searchCount = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal)
-                        .or(noticeAuthorEq(searchVal))
-                        .or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.id.desc(),QNoticeBoard.noticeBoard.isFixed.desc())
-                .fetch().size();
+                .where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal)).or(noticeContentsEq(searchVal)))
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
+                .fetch()
+                .size();
 
         for(NoticeBoard noticeBoard:result){
 

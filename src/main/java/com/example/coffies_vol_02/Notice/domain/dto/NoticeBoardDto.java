@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.Notice.domain.dto;
 
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
 import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -13,7 +12,6 @@ import java.util.List;
 public class NoticeBoardDto {
     @Setter
     @Getter
-    @ToString
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -32,7 +30,6 @@ public class NoticeBoardDto {
     @Getter
     @ToString
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class BoardResponseDto{
         private Integer id;
         private String noticeGroup;

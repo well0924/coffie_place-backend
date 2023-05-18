@@ -3,7 +3,9 @@ package com.example.coffies_vol_02.Notice.domain;
 import com.example.coffies_vol_02.Attach.domain.Attach;
 import com.example.coffies_vol_02.Config.BaseTime;
 import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +14,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@ToString(exclude = {"attachList"})
 @Table(name = "tbl_notice",
         indexes = {
         @Index(name = "notice_index1",columnList = "id"),
@@ -32,6 +33,9 @@ public class NoticeBoard extends BaseTime implements Serializable {
     private String noticeContents;
     private String fileGroupId;
     private Character isFixed;
+
+    @JsonIgnore
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "noticeBoard",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attach> attachList = new ArrayList<>();
 
