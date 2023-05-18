@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.Place.domain.dto;
 
 import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.Place.domain.PlaceImage;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +50,8 @@ public class PlaceDto {
         private String placeStart;
         private String placeClose;
         private String fileGroupId;
+        private String isTitle;
+        private String thumbFileImagePath;
 
         @Builder
         public PlaceResponseDto(Place place){
@@ -63,6 +66,10 @@ public class PlaceDto {
             this.placeStart = place.getPlaceStart();
             this.placeClose = place.getPlaceClose();
             this.placePhone = place.getPlacePhone();
+            this.fileGroupId = place.getFileGroupId();
+            this.isTitle = place.getPlaceImageList().get(0).getIsTitle();
+            //만약 이미지가 없이 가게를 등록을 한 경우에는 기본 이미지로 나오게끔 해야 됨...
+            this.thumbFileImagePath = place.getPlaceImageList().get(0).getThumbFileImagePath();
         }
     }
 }

@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +51,13 @@ public class PlaceService {
         Page<Place>list = placeRepository.findAll(pageable);
         return list.map(PlaceDto.PlaceResponseDto::new);
     }
-    
+
+    /**
+    * 가게 목록(무한 스크롤)
+    * */
+    public Slice<PlaceDto.PlaceResponseDto> placeSlideList(Pageable pageable, String keyword){
+        return placeRepository.placeList(pageable,keyword);
+    }
     /*
     * 가게 검색
     */

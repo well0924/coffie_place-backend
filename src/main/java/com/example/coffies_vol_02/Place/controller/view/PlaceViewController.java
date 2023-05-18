@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,19 +29,21 @@ public class PlaceViewController {
     private final PlaceImageService placeImageService;
 
     @GetMapping("/list")
-    public ModelAndView placeList(Pageable pageable){
+    public ModelAndView placeList(Pageable pageable,String keyword){
 
         ModelAndView mv = new ModelAndView();
 
-        Page<PlaceDto.PlaceResponseDto>placeList = null;
+        Slice<PlaceDto.PlaceResponseDto>list = null;
 
         try{
-            placeList = placeService.placeList(pageable);
+            //placeList = placeService.placeList(pageable);
+            list = placeService.placeSlideList(pageable,keyword);
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        mv.addObject("placelist",placeList);
+        mv.addObject("placelist",list);
+        mv.addObject("keyword",keyword);
         mv.setViewName("/place/placelist");
 
         return mv;

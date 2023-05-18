@@ -11,12 +11,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -27,18 +29,32 @@ import javax.validation.Valid;
 @RequestMapping("/api/place")
 public class PlaceApiController {
     private final PlaceService placeService;
-    
+
     @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
     @GetMapping(path = "/list")
-    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeList(@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
-        Page<PlaceDto.PlaceResponseDto> list = placeService.placeList(pageable);
+    public CommonResponse<Slice<PlaceDto.PlaceResponseDto>>placeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,@RequestParam(value = "keyword",required = false) String keyword){
+        Slice<PlaceDto.PlaceResponseDto> list = null;
+
+        try{
+            list = placeService.placeSlideList(pageable,keyword);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @Operation(summary = "가게 목록 검색",description = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
-        Page<PlaceDto.PlaceResponseDto> list = placeService.placeListAll(keyword,pageable);
+    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+        Page<PlaceDto.PlaceResponseDto> list = null;
+
+        try{
+            list = placeService.placeListAll(keyword,pageable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
     
@@ -46,6 +62,7 @@ public class PlaceApiController {
     @GetMapping(path = "/detail/{place_id}")
     public CommonResponse<PlaceDto.PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
         PlaceDto.PlaceResponseDto placeDetail = new PlaceDto.PlaceResponseDto();
+
         try{
             placeDetail = placeService.placeDetail(placeId);
         }catch (Exception e){
@@ -91,6 +108,20 @@ public class PlaceApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
+    }
+
+    @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
+    @GetMapping(path = "/top5list")
+    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeTop5List(@PageableDefault Pageable pageable){
+        Page<PlaceDto.PlaceResponseDto>top5list = null;
+
+        try{
+            top5list = placeService.placeTop5(pageable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new CommonResponse<>(HttpStatus.OK.value(),top5list);
     }
 }

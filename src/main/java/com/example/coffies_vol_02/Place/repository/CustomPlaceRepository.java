@@ -10,4 +10,6 @@ public interface CustomPlaceRepository {
     Page<PlaceDto.PlaceResponseDto> placeListSearch(String keyword, Pageable pageable);
     //가게 평점 top5
     Page<PlaceDto.PlaceResponseDto>placeTop5(Pageable pageable);
+    //가게 목록 (무한 스크롤)
+    Slice<PlaceDto.PlaceResponseDto>placeList(Pageable pageable,String keyword);
 }

@@ -1,15 +1,19 @@
 package com.example.coffies_vol_02.Place.repository;
 
+import com.example.coffies_vol_02.Member.domain.Member;
+import com.example.coffies_vol_02.Member.domain.QMember;
 import com.example.coffies_vol_02.Place.domain.Place;
 import com.example.coffies_vol_02.Place.domain.QPlace;
+import com.example.coffies_vol_02.Place.domain.QPlaceImage;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -46,14 +50,15 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         }
 
         //가게 검색 결과수
-        Long count = jpaQueryFactory
+        int count = jpaQueryFactory
                 .select(QPlace.place.count())
                 .from(QPlace.place)
                 .where(placeName(keyword).or(placeAdder(keyword)))
                 .orderBy(QPlace.place.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetchOne();
+                .fetch()
+                .size();
 
         return new PageImpl<>(placeList,pageable,count);
     }
@@ -61,13 +66,69 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     //가게 평점 top5
     @Override
     public Page<PlaceDto.PlaceResponseDto> placeTop5(Pageable pageable) {
+        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
+
         List<Place>list = jpaQueryFactory
                 .select(QPlace.place)
                 .from(QPlace.place)
-                .where(QPlace.place.placeImageList.get(1).isTitle.eq(String.valueOf(1)))
+                .orderBy(QPlace.place.reviewRate.desc())
                 .limit(5L)
+                .offset(pageable.getOffset())
                 .fetch();
-        return null;
+
+        for(Place place : list){
+
+            PlaceDto.PlaceResponseDto dto = PlaceDto.PlaceResponseDto
+                    .builder()
+                    .place(place)
+                    .build();
+
+            result.add(dto);
+        }
+
+        int size = jpaQueryFactory
+                .select(QPlace.place.count())
+                .from(QPlace.place)
+                .orderBy(QPlace.place.reviewRate.desc())
+                .limit(5)
+                .offset(pageable.getOffset())
+                .fetch()
+                .size();
+
+        return new PageImpl<>(result,pageable,size);
+    }
+
+    //가게목록 무한스크롤
+    @Override
+    public Slice<PlaceDto.PlaceResponseDto> placeList(Pageable pageable,String keyword) {
+        List<Place>placelist = jpaQueryFactory
+                .select(QPlace.place)
+                .from(QPlace.place)
+                .where(placeName(keyword).or(placeAdder(keyword)))
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .limit(pageable.getPageSize()+1)
+                .fetch();//limit보다 한개를 더 들고 온다.
+
+        //total page개수를 가져오지 않는다는 점이 page와 다른점
+        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
+
+        for(Place place : placelist){
+
+            PlaceDto.PlaceResponseDto placeResponseDto = PlaceDto.PlaceResponseDto
+                    .builder()
+                    .place(place)
+                    .build();
+
+            result.add(placeResponseDto);
+        }
+        boolean hasNext= false;
+
+        if (result.size() > pageable.getPageSize()) {
+            result.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(result,pageable,hasNext);
     }
 
     //가게 이름 조건
@@ -78,10 +139,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     BooleanBuilder placeAdder(String keyword){
         return new BooleanBuilder(nullSafeBuilder(()->QPlace.place.placeName.contains(keyword)));
     }
-    //평점 정렬
-    BooleanBuilder placeReviewRate(double reviewRate){
-        return new BooleanBuilder(nullSafeBuilder(()->QPlace.place.reviewRate.eq(reviewRate)));
-    }
+
     //null 여부를 체크
     BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
@@ -89,5 +147,27 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         } catch (Exception e) {
             return new BooleanBuilder();
         }
+    }
+
+    //동적 정렬(평점,가게 이름)
+    private List<OrderSpecifier> getAllOrderSpecifiers(Sort sort) {
+        List<OrderSpecifier>orders =  new ArrayList<>();
+
+        sort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+
+            String prop = order.getProperty();
+
+            System.out.println(order);
+            System.out.println("direction:"+direction);
+            System.out.println("prop:"+prop);
+
+            PathBuilder<Place> orderByExpression =  new PathBuilder<>(QPlace.place.getType(), QPlace.place.getMetadata());
+            System.out.println("orderByExpression:"+orderByExpression.get(prop));
+
+            orders.add(new OrderSpecifier(direction,orderByExpression.get(prop)));
+        });
+
+        return orders;
     }
 }

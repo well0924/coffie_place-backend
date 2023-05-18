@@ -2,9 +2,10 @@ package com.example.coffies_vol_02.Place.domain;
 
 import com.example.coffies_vol_02.Commnet.domain.Comment;
 import com.example.coffies_vol_02.Config.BaseTime;
-import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.Place.domain.dto.PlaceDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,9 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "tbl_place")
-@ToString(exclude = {"placeImageList","commentList"})
 @NoArgsConstructor
-@AllArgsConstructor
 public class Place extends BaseTime {
     @Id
     @Column(name = "place_id")
@@ -32,9 +31,15 @@ public class Place extends BaseTime {
     private String placeStart;
     private String placeClose;
     private String fileGroupId;
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "place")
+
+    @BatchSize(size = 1000)
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment>commentList = new ArrayList<>();
+
     //가게글이 삭제가 되면 가게 이미지도 같이 삭제가 된다.
+    @BatchSize(size = 1000)
+    @JsonIgnore
     @OneToMany(fetch =FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PlaceImage> placeImageList = new ArrayList<>();
     
