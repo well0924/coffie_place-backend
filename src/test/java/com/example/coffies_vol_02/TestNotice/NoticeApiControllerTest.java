@@ -1,18 +1,19 @@
 package com.example.coffies_vol_02.TestNotice;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.Util.FileHandler;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
-import com.example.coffies_vol_02.Notice.repository.NoticeBoardRepository;
-import com.example.coffies_vol_02.Notice.service.NoticeService;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.notice.domain.NoticeBoard;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
+import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,9 +69,9 @@ public class NoticeApiControllerTest {
 
     private NoticeBoard noticeBoard;
 
-    private NoticeBoardDto.BoardResponseDto responseDto;
+    private NoticeResponseDto responseDto;
 
-    private NoticeBoardDto.BoardRequestDto requestDto;
+    private NoticeRequestDto requestDto;
 
     private MemberDto.MemberResponseDto memberResponseDto;
 
@@ -106,9 +107,9 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 목록")
     public void NoticeBoardListTest()throws Exception{
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<NoticeBoardDto.BoardResponseDto>list = new ArrayList<>();
+        List<NoticeResponseDto>list = new ArrayList<>();
         list.add(responseDto);
-        Page<NoticeBoardDto.BoardResponseDto>result = new PageImpl<>(list,pageRequest,1);
+        Page<NoticeResponseDto>result = new PageImpl<>(list,pageRequest,1);
         given(noticeService.noticeAllList(pageRequest)).willReturn(result);
 
         when(noticeService.noticeAllList(pageRequest)).thenReturn(result);
@@ -246,8 +247,8 @@ public class NoticeApiControllerTest {
                 .fileGroupId("notice_gr23411")
                 .build();
     }
-    private NoticeBoardDto.BoardRequestDto noticeRequestDto(){
-        return NoticeBoardDto.BoardRequestDto
+    private NoticeRequestDto noticeRequestDto(){
+        return NoticeRequestDto
                 .builder()
                 .noticeGroup("공지게시판")
                 .noticeContents("ㅅㄷㄴㅅ")
@@ -260,10 +261,17 @@ public class NoticeApiControllerTest {
                         new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())))
                 .build();
     }
-    private NoticeBoardDto.BoardResponseDto NoticeResponseDto(){
-        return NoticeBoardDto.BoardResponseDto
+    private NoticeResponseDto NoticeResponseDto(){
+        return NoticeResponseDto
                 .builder()
-                .noticeBoard(noticeBoard)
+                .id(noticeBoard.getId())
+                .noticeWriter(member.getUserId())
+                .noticeContents(noticeBoard.getNoticeContents())
+                .noticeGroup(noticeBoard.getNoticeGroup())
+                .noticeTitle(noticeBoard.getNoticeTitle())
+                .fileGroupId(noticeBoard.getFileGroupId())
+                .createdTime(noticeBoard.getCreatedTime())
+                .updatedTime(noticeBoard.getUpdatedTime())
                 .build();
     }
     private Attach attach(){

@@ -1,16 +1,16 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Commnet.domain.Comment;
-import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Place.domain.Place;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.place.domain.Place;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,19 +42,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class FavoriteControllerTest {
+
     @Autowired
     private MockMvc mvc;
     @Autowired
     private WebApplicationContext context;
+
     @MockBean
     private FavoritePlaceService favoritePlaceService;
+
     private Member member;
+
     private Board board;
+
     private Place place;
+
     MemberDto.MemberResponseDto memberResponseDto;
-    BoardDto.BoardResponseDto boardResponseDto;
+
+    BoardResponseDto boardResponseDto;
+
     CommentDto.CommentResponseDto commentResponseDto;
+
     private CustomUserDetails customUserDetails;
+
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
     @BeforeEach
@@ -76,9 +86,9 @@ public class FavoriteControllerTest {
     @DisplayName("내가 작성한 글 페이지")
     public void myContentPage()throws Exception{
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardDto.BoardResponseDto> list = new ArrayList<>();
+        List<BoardResponseDto> list = new ArrayList<>();
         list.add(boardResponseDto);
-        Page<BoardDto.BoardResponseDto> result = new PageImpl<>(list,pageable,1);
+        Page<BoardResponseDto> result = new PageImpl<>(list,pageable,1);
         given(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).willReturn(result);
 
         when(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).thenReturn(result);
@@ -202,8 +212,8 @@ public class FavoriteControllerTest {
                 .build();
     }
 
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

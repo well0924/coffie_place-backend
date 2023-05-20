@@ -1,12 +1,10 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.service.MemberService;
-import org.junit.jupiter.api.Disabled;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

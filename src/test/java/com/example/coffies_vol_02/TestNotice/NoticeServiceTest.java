@@ -1,18 +1,19 @@
 package com.example.coffies_vol_02.TestNotice;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Config.Util.FileHandler;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
-import com.example.coffies_vol_02.Notice.repository.NoticeBoardRepository;
-import com.example.coffies_vol_02.Notice.service.NoticeService;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.notice.domain.NoticeBoard;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
+import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,8 +60,8 @@ public class NoticeServiceTest {
     private MemberDto.MemberResponseDto memberResponseDto;
     private Attach attach;
     private NoticeBoard noticeBoard;
-    private NoticeBoardDto.BoardRequestDto requestDto;
-    private NoticeBoardDto.BoardResponseDto responseDto;
+    private NoticeRequestDto requestDto;
+    private NoticeResponseDto responseDto;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
 
@@ -83,7 +84,7 @@ public class NoticeServiceTest {
         PageRequest pageRequest = PageRequest.of(0,5, Sort.by("id"));
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(Page.empty());
 
-        Page<NoticeBoardDto.BoardResponseDto>result = noticeService.noticeAllList(pageRequest);
+        Page<NoticeResponseDto>result = noticeService.noticeAllList(pageRequest);
 
         Assertions.assertThat(result).isEmpty();
     }
@@ -92,7 +93,7 @@ public class NoticeServiceTest {
     public void noticeBoardDetailTest(){
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
 
-        NoticeBoardDto.BoardResponseDto detail = noticeService.findNotice(noticeBoard.getId());
+        NoticeResponseDto detail = noticeService.findNotice(noticeBoard.getId());
 
         Assertions.assertThat(detail).isNotNull();
     }
@@ -101,9 +102,9 @@ public class NoticeServiceTest {
     public void noticeBoardSearchTest(){
         String keyword = "well4149";
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<NoticeBoardDto.BoardResponseDto>list = new ArrayList<>();
+        List<NoticeResponseDto>list = new ArrayList<>();
         list.add(responseDto);
-        Page<NoticeBoardDto.BoardResponseDto>response = new PageImpl<>(list,pageRequest,1);
+        Page<NoticeResponseDto>response = new PageImpl<>(list,pageRequest,1);
 
         given(noticeBoardRepository.findAllSearchList(keyword,pageRequest)).willReturn(response);
 
@@ -188,8 +189,8 @@ public class NoticeServiceTest {
                 .fileGroupId("notice_few3432")
                 .build();
     }
-    private NoticeBoardDto.BoardRequestDto noticeRequestDto(){
-        return NoticeBoardDto.BoardRequestDto
+    private NoticeRequestDto noticeRequestDto(){
+        return NoticeRequestDto
                 .builder()
                 .noticeGroup("공지게시판")
                 .noticeContents("ㅅㄷㄴㅅ")
@@ -202,10 +203,18 @@ public class NoticeServiceTest {
                         new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())))
                 .build();
     }
-    private NoticeBoardDto.BoardResponseDto NoticeResponseDto(){
-        return NoticeBoardDto.BoardResponseDto
+    private NoticeResponseDto NoticeResponseDto(){
+        return NoticeResponseDto
                 .builder()
-                .noticeBoard(noticeBoard)
+                .id(noticeBoard.getId())
+                .noticeTitle(noticeBoard.getNoticeTitle())
+                .noticeWriter(member.getUserId())
+                .noticeContents(noticeBoard.getNoticeContents())
+                .noticeGroup(noticeBoard.getNoticeGroup())
+                .fileGroupId(noticeBoard.getFileGroupId())
+                .isFixed(noticeBoard.getIsFixed())
+                .createdTime(noticeBoard.getCreatedTime())
+                .updatedTime(noticeBoard.getUpdatedTime())
                 .build();
     }
     private MemberDto.MemberResponseDto responseDto(){

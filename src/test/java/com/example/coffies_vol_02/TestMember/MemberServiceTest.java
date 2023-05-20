@@ -1,12 +1,12 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Member.service.MemberService;
+import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

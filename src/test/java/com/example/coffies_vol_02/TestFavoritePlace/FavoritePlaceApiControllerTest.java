@@ -1,24 +1,24 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Commnet.domain.Comment;
-import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.FavoritePlace.domain.dto.FavoritePlaceDto;
-import com.example.coffies_vol_02.FavoritePlace.repository.FavoritePlaceRepository;
-import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.domain.PlaceImage;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.repository.CommentRepository;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
+import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.domain.PlaceImage;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class FavoritePlaceApiControllerTest {
     private FavoritePlace favoritePlace;
     private List<PlaceImage>placeImageList = new ArrayList<>();
     MemberDto.MemberResponseDto memberResponseDto;
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardResponseDto boardResponseDto;
     CommentDto.CommentResponseDto commentResponseDto;
     FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto;
     private CustomUserDetails customUserDetails;
@@ -106,11 +106,11 @@ public class FavoritePlaceApiControllerTest {
     @DisplayName("내가 작성한 게시글")
     public void boardListTest() throws Exception {
         List<Board>list = new ArrayList<>();
-        List<BoardDto.BoardResponseDto> boardList = new ArrayList<>();
+        List<BoardResponseDto> boardList = new ArrayList<>();
         boardList.add(boardResponseDto);
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         Page<Board>boardPage = new PageImpl<>(list,pageRequest,1);
-        Page<BoardDto.BoardResponseDto> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
+        Page<BoardResponseDto> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
 
         System.out.println(pageBoardList.toList());
 
@@ -342,8 +342,8 @@ public class FavoritePlaceApiControllerTest {
                 .build();
     }
 
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

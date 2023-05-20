@@ -1,18 +1,19 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.Util.FileHandler;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -77,9 +78,9 @@ public class BoardApiControllerTest {
 
     private Board board;
 
-    BoardDto.BoardRequestDto boardRequestDto;
+    BoardRequestDto boardRequestDto;
 
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardResponseDto boardResponseDto;
 
     Attach attach;
 
@@ -113,9 +114,9 @@ public class BoardApiControllerTest {
     public void boardList()throws Exception{
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardDto.BoardResponseDto>responseDtoList = new ArrayList<>();
+        List<BoardResponseDto>responseDtoList = new ArrayList<>();
         responseDtoList.add(boardResponseDto);
-        Page<BoardDto.BoardResponseDto>list = new PageImpl<>(responseDtoList,pageRequest,1);
+        Page<BoardResponseDto>list = new PageImpl<>(responseDtoList,pageRequest,1);
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
         when(boardService.boardAllList(pageRequest)).thenReturn(list);
@@ -137,9 +138,9 @@ public class BoardApiControllerTest {
     public void boardSearchTest()throws Exception{
         String keyword = "well4149";
         Pageable pageable = PageRequest.of(1,5,Sort.by("id").descending());
-        List<BoardDto.BoardResponseDto>list = new ArrayList<>();
+        List<BoardResponseDto>list = new ArrayList<>();
         list.add(boardResponseDto);
-        Page<BoardDto.BoardResponseDto>searchList = new PageImpl<>(list,pageable,1);
+        Page<BoardResponseDto>searchList = new PageImpl<>(list,pageable,1);
         given(boardService.boardSearchAll(keyword,pageable)).willReturn(searchList);
 
         mvc.perform(get("/api/board/search")
@@ -293,8 +294,8 @@ public class BoardApiControllerTest {
                 .build();
     }
 
-    private BoardDto.BoardRequestDto getBoardRequestDto(){
-        return BoardDto.BoardRequestDto
+    private BoardRequestDto getBoardRequestDto(){
+        return BoardRequestDto
                 .builder()
                 .boardAuthor(member.getUserId())
                 .boardContents("test!")
@@ -308,8 +309,8 @@ public class BoardApiControllerTest {
                 ))
                 .build();
     }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

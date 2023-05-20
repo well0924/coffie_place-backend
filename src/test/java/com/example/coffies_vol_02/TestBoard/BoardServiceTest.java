@@ -1,20 +1,21 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.Config.Util.FileHandler;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,9 +67,9 @@ public class BoardServiceTest {
 
     Board board;
 
-    BoardDto.BoardRequestDto boardRequestDto;
+    BoardRequestDto boardRequestDto;
 
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardResponseDto boardResponseDto;
 
     Attach attach;
 
@@ -99,7 +100,7 @@ public class BoardServiceTest {
         given(boardRepository.boardList(pageRequest)).willReturn(Page.empty());
 
         //when
-        Page<BoardDto.BoardResponseDto>result = boardService.boardAllList(pageRequest);
+        Page<BoardResponseDto>result = boardService.boardAllList(pageRequest);
 
         //then
         assertThat(result).isEmpty();
@@ -112,7 +113,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
         //when
-        BoardDto.BoardResponseDto result = boardService.findBoard(board.getId());
+        BoardResponseDto result = boardService.findBoard(board.getId());
 
         //then
         assertThat(result.getBoardAuthor()).isEqualTo(board.getBoardAuthor());
@@ -122,7 +123,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회실패")
     public void boardDetailFail(){
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            BoardDto.BoardResponseDto result = boardService.findBoard(0);
+            BoardResponseDto result = boardService.findBoard(0);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.BOARD_NOT_FOUND);
@@ -132,10 +133,10 @@ public class BoardServiceTest {
     @DisplayName("게시물 검색-작성자")
     public void boardSearchTest(){
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardDto.BoardResponseDto>list = new ArrayList<>();
+        List<BoardResponseDto>list = new ArrayList<>();
         list.add(boardResponseDto);
 
-        Page<BoardDto.BoardResponseDto> result = new PageImpl<>(list,pageRequest,1);
+        Page<BoardResponseDto> result = new PageImpl<>(list,pageRequest,1);
 
         //작성자
         String keyword = "well4149";
@@ -285,7 +286,7 @@ public class BoardServiceTest {
         
         //when
         when(boardService.passwordCheck(board.getPassWd(),board.getId(),member)).thenReturn(boardResponseDto);
-        BoardDto.BoardResponseDto result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
+        BoardResponseDto result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
         
         //then
         assertThat(result).isEqualTo(boardResponseDto);
@@ -366,8 +367,8 @@ public class BoardServiceTest {
                 .updatedTime(LocalDateTime.now())
                 .build();
     }
-    private BoardDto.BoardRequestDto getBoardRequestDto(){
-        return BoardDto.BoardRequestDto
+    private BoardRequestDto getBoardRequestDto(){
+        return BoardRequestDto
                 .builder()
                 .boardAuthor(member.getUserId())
                 .boardContents("test!")
@@ -383,8 +384,8 @@ public class BoardServiceTest {
                 )
                 .build();
     }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

@@ -1,10 +1,10 @@
 package com.example.coffies_vol_02.TestNotice;
 
-import com.example.coffies_vol_02.Config.TestQueryDslConfig;
-import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.Notice.domain.QNoticeBoard;
-import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
-import com.example.coffies_vol_02.Notice.repository.NoticeBoardRepository;
+import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.notice.domain.NoticeBoard;
+import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.junit.jupiter.api.DisplayName;
@@ -29,21 +29,21 @@ public class NoticeBoardRepositoryTest {
 
     @Test
     @DisplayName("공지게시판 목록")
-    public void noticeBoardList()throws Exception{
+    public void noticeBoardList(){
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
         Page<NoticeBoard>list1  = noticeBoardRepository.findAll(pageable);
         System.out.println(list1.stream().toList());
         assertThat(list1).isNotEmpty();
 
-        Page<NoticeBoardDto.BoardResponseDto>list2 = noticeBoardRepository.findAllList(pageable);
+        Page<NoticeResponseDto>list2 = noticeBoardRepository.findAllList(pageable);
         System.out.println(list2.get().toList());
         assertThat(list2).isNotEmpty();
     }
 
     @Test
     @DisplayName("공지게시판 검색")
-    public void noticeBoardSearch()throws Exception{
+    public void noticeBoardSearch(){
         String keyword = "well4149";
 
         QNoticeBoard qNoticeBoard = QNoticeBoard.noticeBoard;
@@ -53,10 +53,10 @@ public class NoticeBoardRepositoryTest {
         builder.and(booleanExpression);
 
         Page<NoticeBoard>result1 = noticeBoardRepository.findAll(builder,pageable);
-        Page<NoticeBoardDto.BoardResponseDto>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
+        Page<NoticeResponseDto>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
         System.out.println(result1.get().toList());
         System.out.println(result2.get().toList());
-        assertThat(result1);
-        assertThat(result2);
+        assertThat(result1).isNotEmpty();
+        assertThat(result2).isNotEmpty();
     }
 }

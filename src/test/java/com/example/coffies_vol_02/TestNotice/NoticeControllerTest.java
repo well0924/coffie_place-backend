@@ -1,19 +1,19 @@
 package com.example.coffies_vol_02.TestNotice;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.Notice.domain.dto.NoticeBoardDto;
-import com.example.coffies_vol_02.Notice.repository.NoticeBoardRepository;
-import com.example.coffies_vol_02.Notice.service.NoticeService;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.notice.domain.NoticeBoard;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
+import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,8 +62,8 @@ public class NoticeControllerTest {
     private Member member;
     private NoticeBoard noticeBoard;
     private Attach attach;
-    NoticeBoardDto.BoardResponseDto responseDto;
-    NoticeBoardDto.BoardRequestDto requestDto;
+    NoticeResponseDto responseDto;
+    NoticeRequestDto requestDto;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
     private CustomUserDetails customUserDetails;
@@ -172,8 +172,8 @@ public class NoticeControllerTest {
                 .isFixed('Y')
                 .build();
     }
-    private NoticeBoardDto.BoardRequestDto requestDto(){
-        return NoticeBoardDto.BoardRequestDto
+    private NoticeRequestDto requestDto(){
+        return NoticeRequestDto
                 .builder()
                 .noticeGroup(noticeBoard().getNoticeGroup())
                 .isFixed(noticeBoard().getIsFixed())
@@ -189,10 +189,18 @@ public class NoticeControllerTest {
                 )
                 .build();
     }
-    private NoticeBoardDto.BoardResponseDto responseDto(){
-        return NoticeBoardDto.BoardResponseDto
+    private NoticeResponseDto responseDto(){
+        return NoticeResponseDto
                 .builder()
-                .noticeBoard(noticeBoard())
+                .id(noticeBoard.getId())
+                .noticeTitle(noticeBoard.getNoticeTitle())
+                .noticeWriter(member.getUserId())
+                .noticeContents(noticeBoard.getNoticeContents())
+                .noticeGroup(noticeBoard.getNoticeGroup())
+                .fileGroupId(noticeBoard.getFileGroupId())
+                .isFixed(noticeBoard.getIsFixed())
+                .createdTime(noticeBoard.getCreatedTime())
+                .updatedTime(noticeBoard.getUpdatedTime())
                 .build();
     }
     private Attach attach(){

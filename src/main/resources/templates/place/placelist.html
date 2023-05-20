@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" 
-xmlns:th="http://www.thymeleaf.org" 
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-layout:decorate="~{layout/leafframe}">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:list="http://www.w3.org/1999/xhtml"
+	  layout:decorate="~{layout/leafframe}" lang="">
 <head>
 <meta charset="UTF-8">
 <title>가게 목록</title>
@@ -28,107 +28,33 @@ layout:decorate="~{layout/leafframe}">
 			<!--search end-->
 			<a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
 			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
-			<table class="table table-hover" id='board_list'>
-				<thead>
-					<tr>
-						<th>번호</th>
-						<th>가게이름</th>
-						<th>주소</th>
-						<th>평점</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each= "list : ${placelist}">
-						<td class="text-center d-none d-md-table-cell">
-							[[${list.id}]]
-						</td>
-						<td>
-							<a th:href="@{'/page/place/detail/'+${list.id}}">
-							[[${list.placeName}]]	
-							</a>
-						</td>
-						<td class="text-center d-none d-md-table-cell">
-							[[${list.placeAddr1}]]
-						</td>
-						<td class="text-center d-none d-md-table-cell">
+			<!---->
+			<div class="row" style="margin-top:10px">
+				<div class="col-4" th:each="list:${placelist}">
+					<div class="card">
+						<th:block>
+						<img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" class="card-img-top">
+						</th:block>
+						<div class="card-body">
+							<h5 class="card-title">[[${list.placeName}]]</h5>
 							<div class='RatingStar'>
 								<div class='RatingScore'>
-						  			<div class='outer-star'>
-						  				<div class='inner-star'>
-						  				</div>
-						  			</div>
-						  			[[${list.reviewRate}]]
+									<div class='outer-star'>
+										<div class='inner-star'></div>
+									</div>
 								</div>
 							</div>
-						</td>
-					</tr>
-					<tr th:if="${ #lists.isEmpty(placelist)}">
-						<td>조회된 가게가 없습니다.</td>
-					</tr>
-				</tbody>
-			</table>
-			<!--paging -->
-			<div class="d-none d-md-block" th:if="${!placelist.isEmpty()}">
-				<ul class="pagination justify-content-center"
-				th:with="pageNumber = ${placelist.pageable.pageNumber},
-				pageSize = ${placelist.pageable.pageSize},
-				totalPages= ${placelist.totalPages},
-				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
-				tempEndPage=${startPage+pageSize - 1},
-				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
-					<li class="page-item" th:classappend="${placelist.first}?'disabled'">
-						<a th:href="${placelist.first}? '#': @{/page/place/list(page=${pageNumber-1})}" class="page-link">이전</a>
-					</li>
-					<li class="page-item" th:each="page : ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
-						<a class="page-link">[[${page}]]</a>
-					</li>
-					<li class="page-item" th:classappend="${placelist.last}?'disabled'">
-						<a th:href="@{/page/place/list(page=${pageNumber+1})}" class="page-link">다음</a>
-					</li>
-				</ul>
+							<p class="card-text">[[${list.reviewRate}]]</p>
+						</div>
+					</div>
+				</div>
 			</div>
-			<!--paging end-->
+			<!---->
 		</div>
 	</div>
 </div>
 <script type="text/javascript">
-//가게 자동완성기능
-$('#autocomplete').autocomplete({
-	 source : function(request, response) {
-		 $.ajax({
-			 url:'/api/place/autocompletekeyword',
-			 type:'post',
-			 dataType:'json',
-			 data:{value: request.term}
-		 }).done(function(data){
-			 console.log(data);
-			 console.log(data.value);
-			 response(
-					$.map(data.resultList,function(item){
-						return{
-							label: item.place_name,
-							value: item.place_name,
-							idx  : item.place_id
-						};				
-					}) 
-			);//response end
-		}).fail(function(error){
-			console.log("오류가 발생했습니다.");
-			console.log(error);
-		});
-	 }
-	 
-	 ,focus: function(event,ui){//
-		 return false;
-	 },
-	 minLength: 1,// 최소 글자수
-	 delay: 100,
-	 select : function(evt,ui){
-		 console.log(ui.item.label);
-		 console.log(ui.item.idx);
-	 }
-});
-
+//가게 등록화면 이동
 function placeregister(){
 	location.href='/page/place/placeregister';
 }

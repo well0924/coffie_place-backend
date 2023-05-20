@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Config.Redis.RedisService;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

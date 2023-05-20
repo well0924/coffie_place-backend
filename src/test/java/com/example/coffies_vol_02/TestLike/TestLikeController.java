@@ -1,19 +1,19 @@
 package com.example.coffies_vol_02.TestLike;
 
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Commnet.domain.Comment;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Like.domain.CommentLike;
-import com.example.coffies_vol_02.Like.domain.Like;
-import com.example.coffies_vol_02.Like.repository.CommentLikeRepository;
-import com.example.coffies_vol_02.Like.repository.LikeRepository;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.repository.CommentRepository;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.like.domain.CommentLike;
+import com.example.coffies_vol_02.like.domain.Like;
+import com.example.coffies_vol_02.like.repository.CommentLikeRepository;
+import com.example.coffies_vol_02.like.repository.LikeRepository;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -129,7 +129,7 @@ public class TestLikeController {
     @DisplayName("댓글 좋아요 카운트")
     public void commentLikeCountTest() throws Exception {
         mvc.perform(
-                        get("/api/like/comment/{reply_id}",comment.getId())
+                        get("/api/like/comment/{reply_id}",360)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8)
                                 .with(user(customUserDetails)))
@@ -145,9 +145,9 @@ public class TestLikeController {
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
 
-        mvc.perform(post("/api/like/plus/{place_id}/{reply_id}",1,5)
-                        .content(objectMapper.writeValueAsString(1))
-                        .content(objectMapper.writeValueAsString(5))
+        mvc.perform(post("/api/like/plus/{place_id}/{reply_id}",22,360)
+                        .content(objectMapper.writeValueAsString(22))
+                        .content(objectMapper.writeValueAsString(360))
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -159,12 +159,12 @@ public class TestLikeController {
     @DisplayName("댓글 좋아요-1")
     public void commentLikeMinusTest() throws Exception {
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
         given(commentLikeRepository.findByMemberAndComment(member,comment)).willReturn(Optional.of(commentLike));
+        given(commentLikeRepository.save(commentLike)).willReturn(commentLike);
 
-        mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",1,5)
+        mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",22,360)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .with(user(customUserDetails)))

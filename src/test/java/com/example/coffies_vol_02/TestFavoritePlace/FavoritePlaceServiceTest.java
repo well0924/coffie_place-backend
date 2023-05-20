@@ -1,24 +1,24 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Commnet.domain.Comment;
-import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.FavoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.FavoritePlace.domain.dto.FavoritePlaceDto;
-import com.example.coffies_vol_02.FavoritePlace.repository.FavoritePlaceRepository;
-import com.example.coffies_vol_02.FavoritePlace.service.FavoritePlaceService;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.domain.PlaceImage;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.repository.CommentRepository;
+import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
+import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.domain.PlaceImage;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class FavoritePlaceServiceTest {
 
     MemberDto.MemberResponseDto memberResponseDto;
 
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardResponseDto boardResponseDto;
 
     CommentDto.CommentResponseDto commentResponseDto;
 
@@ -114,7 +114,7 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
 
-        Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
+        Page<BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
 
         assertThat(result).isNotEmpty();
     }
@@ -131,7 +131,7 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            Page<BoardDto.BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
+            Page<BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
         });
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -302,8 +302,8 @@ public class FavoritePlaceServiceTest {
                 .updatedTime(LocalDateTime.now())
                 .build();
     }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

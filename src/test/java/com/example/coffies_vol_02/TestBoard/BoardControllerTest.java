@@ -1,18 +1,19 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.Attach.domain.Attach;
-import com.example.coffies_vol_02.Attach.domain.AttachDto;
-import com.example.coffies_vol_02.Attach.repository.AttachRepository;
-import com.example.coffies_vol_02.Attach.service.AttachService;
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Board.service.BoardService;
-import com.example.coffies_vol_02.Config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.Config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
+import com.example.coffies_vol_02.attach.domain.Attach;
+import com.example.coffies_vol_02.attach.domain.AttachDto;
+import com.example.coffies_vol_02.attach.repository.AttachRepository;
+import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,8 +63,8 @@ public class BoardControllerTest {
     private Member member;
     private Board board;
     private Attach attach;
-    BoardDto.BoardRequestDto boardRequestDto;
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardRequestDto boardRequestDto;
+    BoardResponseDto boardResponseDto;
     List<AttachDto>detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
     private CustomUserDetails customUserDetails;
@@ -98,7 +99,7 @@ public class BoardControllerTest {
                 .contentType(MediaType.TEXT_HTML)
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("/board/boardlist"))
+                .andExpect(view().name("board/boardList"))
                 .andDo(print());
     }
 
@@ -119,7 +120,7 @@ public class BoardControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(model().attributeExists("file"))
-                .andExpect(view().name("/board/detailboard"))
+                .andExpect(view().name("board/detailBoard"))
                 .andDo(print());
     }
     @Test
@@ -131,7 +132,7 @@ public class BoardControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("fileGroupId"))
-                .andExpect(view().name("/board/writeboard"))
+                .andExpect(view().name("/board/writeBoard"))
                 .andDo(print());
     }
     @Test
@@ -145,7 +146,7 @@ public class BoardControllerTest {
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("pwd"))
-                .andExpect(view().name("/board/passwordcheck"))
+                .andExpect(view().name("/board/passWordCheck"))
                 .andDo(print());
     }
 
@@ -166,7 +167,7 @@ public class BoardControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(model().attributeExists("file"))
-                .andExpect(view().name("/board/boardmodify"))
+                .andExpect(view().name("/board/boardModify"))
                 .andDo(print());
 
     }
@@ -200,8 +201,8 @@ public class BoardControllerTest {
                 .member(memberDto())
                 .build();
     }
-    private BoardDto.BoardRequestDto getBoardRequestDto(){
-        return BoardDto.BoardRequestDto
+    private BoardRequestDto getBoardRequestDto(){
+        return BoardRequestDto
                 .builder()
                 .boardAuthor(member.getUserId())
                 .boardContents("test!")
@@ -217,8 +218,8 @@ public class BoardControllerTest {
                 )
                 .build();
     }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())

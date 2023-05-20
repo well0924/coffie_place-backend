@@ -1,20 +1,20 @@
 package com.example.coffies_vol_02.TestCommnet;
 
-import com.example.coffies_vol_02.Board.domain.Board;
-import com.example.coffies_vol_02.Board.domain.dto.BoardDto;
-import com.example.coffies_vol_02.Board.repository.BoardRepository;
-import com.example.coffies_vol_02.Commnet.domain.Comment;
-import com.example.coffies_vol_02.Commnet.domain.dto.CommentDto;
-import com.example.coffies_vol_02.Commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.Commnet.service.CommentService;
-import com.example.coffies_vol_02.Config.Exception.ERRORCODE;
-import com.example.coffies_vol_02.Config.Exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.Member.domain.Member;
-import com.example.coffies_vol_02.Member.domain.Role;
-import com.example.coffies_vol_02.Member.domain.dto.MemberDto;
-import com.example.coffies_vol_02.Member.repository.MemberRepository;
-import com.example.coffies_vol_02.Place.domain.Place;
-import com.example.coffies_vol_02.Place.repository.PlaceRepository;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.repository.CommentRepository;
+import com.example.coffies_vol_02.commnet.service.CommentService;
+import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ public class CommentServiceTest {
 
     MemberDto.MemberResponseDto responseDto;
 
-    BoardDto.BoardResponseDto boardResponseDto;
+    BoardResponseDto boardResponseDto;
 
     CommentDto.CommentResponseDto commentResponseDto;
 
@@ -368,8 +368,8 @@ public class CommentServiceTest {
                 .updatedTime(LocalDateTime.now())
                 .build();
     }
-    private BoardDto.BoardResponseDto boardResponseDto(){
-        return BoardDto.BoardResponseDto.builder()
+    private BoardResponseDto boardResponseDto(){
+        return BoardResponseDto.builder()
                 .id(board().getId())
                 .boardTitle(board().getBoardTitle())
                 .boardAuthor(board().getBoardAuthor())
