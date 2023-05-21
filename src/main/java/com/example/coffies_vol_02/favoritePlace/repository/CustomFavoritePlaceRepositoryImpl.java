@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.favoritePlace.repository;
 
+import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.QFavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.QFavoritePlaceDto_FavoriteResponseDto;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.QPlace;
@@ -30,9 +30,11 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
     
     //위시리스트 목록
     @Override
-    public Page<FavoritePlaceDto.FavoriteResponseDto> favoritePlaceWishList(Pageable pageable, String userId) {
-        List<FavoritePlaceDto.FavoriteResponseDto> wishList = jpaQueryFactory
-                .select(new QFavoritePlaceDto_FavoriteResponseDto(QFavoritePlace.favoritePlace))
+    public Page<FavoritePlaceDto> favoritePlaceWishList(Pageable pageable, String userId) {
+        List<FavoritePlaceDto>favoritePlaceDtoList = new ArrayList<>();
+
+        List<FavoritePlace> wishList = jpaQueryFactory
+                .select(QFavoritePlace.favoritePlace)
                 .from(QFavoritePlace.favoritePlace)
                 .join(QFavoritePlace.favoritePlace.member, QMember.member).fetchJoin()
                 .join(QFavoritePlace.favoritePlace.place, QPlace.place).fetchJoin()
@@ -41,8 +43,15 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
                 .distinct()
                 .fetch();
 
+        for(FavoritePlace favoritePlace : wishList){
+            FavoritePlaceDto result = FavoritePlaceDto
+                    .builder()
+                    .favoritePlace(favoritePlace)
+                    .build();
+            favoritePlaceDtoList.add(result);
+        }
         int wishListSize = jpaQueryFactory
-                .select(new QFavoritePlaceDto_FavoriteResponseDto(QFavoritePlace.favoritePlace))
+                .select(QFavoritePlace.favoritePlace)
                 .from(QFavoritePlace.favoritePlace)
                 .where(QFavoritePlace.favoritePlace.member.userId.eq(userId))
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
@@ -52,7 +61,7 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
                 .fetch()
                 .size();
 
-        return new PageImpl<>(wishList,pageable,wishListSize);
+        return new PageImpl<>(favoritePlaceDtoList,pageable,wishListSize);
     }
 
     //동적정렬

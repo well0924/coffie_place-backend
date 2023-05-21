@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestPlace;
 
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ public class PlaceRepositoryTest {
     public void Top5ListTest(){
         
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
-        Page<PlaceDto.PlaceResponseDto>top5List = placeRepository.placeTop5(pageable);
+        Page<PlaceResponseDto>top5List = placeRepository.placeTop5(pageable);
         
         System.out.println(top5List);
         
@@ -40,7 +40,7 @@ public class PlaceRepositoryTest {
     public void placeListTest(){
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
-        Slice<PlaceDto.PlaceResponseDto>placeList = placeRepository.placeList(pageable,null);
+        Slice<PlaceResponseDto>placeList = placeRepository.placeList(pageable,null);
 
         System.out.println(placeList);
         assertThat(placeList);

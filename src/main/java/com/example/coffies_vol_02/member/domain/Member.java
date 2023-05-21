@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.member.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Proxy(lazy = false)
 @NoArgsConstructor
 @Table(name = "tbl_user",indexes = {
         @Index(name = "member_index1",columnList = "userId"),
@@ -63,7 +62,7 @@ public class Member extends BaseTime implements Serializable {
     }
 
     //회원 수정(Dirty Checking)
-    public void updateMember(MemberDto.MemberCreateDto memberCreateDto){
+    public void updateMember(MemberRequestDto memberCreateDto){
         this.userId = memberCreateDto.getUserId();
         this.memberName = memberCreateDto.getMemberName();
         this.userAge = memberCreateDto.getUserAge();

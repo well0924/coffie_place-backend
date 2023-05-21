@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Schema(description = "게시물 리스트 응답DTO")
-@Setter
 @Getter
 @ToString
 @Builder
@@ -40,7 +39,6 @@ public class BoardResponseDto implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updatedTime;
 
-    @Builder
     @QueryProjection
     public BoardResponseDto(Board board){
         this.id = board.getId();

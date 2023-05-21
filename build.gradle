@@ -45,6 +45,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    //직렬화 이슈로 추가한 라이브러리
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     //ImageScaling
     implementation 'com.jhlabs:filters:2.0.235-1'
     implementation 'com.mortennobel:java-image-scaling:0.8.6'
@@ -66,7 +68,6 @@ dependencies {
 
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'

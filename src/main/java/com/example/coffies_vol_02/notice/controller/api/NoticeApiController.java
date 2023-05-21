@@ -96,12 +96,12 @@ public class NoticeApiController {
     @Operation(summary = "공지게시글 삭제",description = "공지게시글 수정화면에서 게시글을 삭제한다.")
     @DeleteMapping("/delete/{notice_id}")
     public CommonResponse<?>noticeDelete(@PathVariable("notice_id")Integer noticeId){
+
         try{
             noticeService.noticeDelete(noticeId);
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 }

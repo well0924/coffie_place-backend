@@ -3,15 +3,18 @@ package com.example.coffies_vol_02.config.security.auth;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.annotations.Proxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Log4j2
 @Getter
-public class CustomUserDetails implements UserDetails {
+@Proxy(lazy = false)
+public class CustomUserDetails implements UserDetails,Serializable {
     private Member member;
     
     public CustomUserDetails(Member member){

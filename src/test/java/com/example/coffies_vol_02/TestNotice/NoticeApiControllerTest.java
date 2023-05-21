@@ -8,7 +8,7 @@ import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
@@ -73,7 +73,7 @@ public class NoticeApiControllerTest {
 
     private NoticeRequestDto requestDto;
 
-    private MemberDto.MemberResponseDto memberResponseDto;
+    private MemberResponseDto memberResponseDto;
 
     Attach attach;
 
@@ -219,8 +219,8 @@ public class NoticeApiControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

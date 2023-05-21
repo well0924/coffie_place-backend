@@ -22,6 +22,8 @@ layout:decorate="~{layout/leafframe}">
 						<div class="form-group">
 							<label for="board_writer_name">공지종류</label>
 							<input type="text" id="board_writer_name" name="noticeGroup" class="form-control" th:value="${detail.noticeGroup}" disabled="disabled"/>
+							<label for="board_writer_name">작성일</label>
+							<input type="text" name="createdTime" class="form-control" th:value="${detail.createdTime}" disabled="disabled"/>
 						</div>
 						<div class="form-group">
 							<label for="noticeAuthor">작성자</label>

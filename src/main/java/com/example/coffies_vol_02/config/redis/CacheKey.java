@@ -15,6 +15,6 @@ public class CacheKey {
     public static final int BOARD_EXPIRE_SEC = 60 * 1; // 1 minutes
     public static final String LIKE = "like";
     public static final int LIKE_EXPIRE_SEC = 60 * 10; // 10 minutes
-
-
+    public static final String NOTICE_BOARD="notice";
+    public static final int NOTICE_BOARD_EXPIRE_SEC = 60 * 1; // 1 minutes
 }

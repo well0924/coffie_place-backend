@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.member.repository;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.QMember;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -30,9 +30,9 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
 
     //회원 검색기능
     @Override
-    public Page<MemberDto.MemberResponseDto> findByAllSearch(String searchVal, Pageable pageable) {
+    public Page<MemberResponseDto> findByAllSearch(String searchVal, Pageable pageable) {
 
-        List<MemberDto.MemberResponseDto>responseDto = new ArrayList<>();
+        List<MemberResponseDto>responseDto = new ArrayList<>();
 
         List<Member>memberList = jpaQueryFactory
                 .select(QMember.member)
@@ -54,7 +54,7 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
                 .size();
 
         for(Member memberlist : memberList){
-            MemberDto.MemberResponseDto dto = MemberDto.MemberResponseDto
+            MemberResponseDto dto = MemberResponseDto
                     .builder()
                     .id(memberlist.getId())
                     .userId(memberlist.getUserId())

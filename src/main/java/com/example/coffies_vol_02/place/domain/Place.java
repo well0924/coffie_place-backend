@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.place.domain;
 
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.config.BaseTime;
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -68,7 +68,7 @@ public class Place extends BaseTime {
         }
     }
 
-    public void placeUpadate(PlaceDto.PlaceRequestDto dto){
+    public void placeUpadate(PlaceRequestDto dto){
         this.placeLat = dto.getPlaceLat();
         this.placeLng = dto.getPlaceLng();
         this.placeStart = dto.getPlaceStart();

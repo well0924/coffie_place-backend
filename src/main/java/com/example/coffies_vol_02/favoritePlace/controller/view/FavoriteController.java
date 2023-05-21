@@ -60,7 +60,7 @@ public class FavoriteController {
     public ModelAndView myWishList(@PageableDefault Pageable pageable,@PathVariable("user_id")String userId){
         ModelAndView mv = new ModelAndView();
 
-        Page<FavoritePlaceDto.FavoriteResponseDto>list = favoritePlaceService.MyWishList(pageable,userId);
+        Page<FavoritePlaceDto>list = favoritePlaceService.MyWishList(pageable,userId);
 
         mv.addObject("wishlist",list);
         mv.setViewName("/mypage/wishlist");

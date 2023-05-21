@@ -14,7 +14,7 @@ import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceReposito
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
@@ -74,10 +74,10 @@ public class FavoritePlaceApiControllerTest {
     private Comment comment;
     private FavoritePlace favoritePlace;
     private List<PlaceImage>placeImageList = new ArrayList<>();
-    MemberDto.MemberResponseDto memberResponseDto;
+    MemberResponseDto memberResponseDto;
     BoardResponseDto boardResponseDto;
     CommentDto.CommentResponseDto commentResponseDto;
-    FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto;
+    FavoritePlaceDto favoriteResponseDto;
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
@@ -157,9 +157,9 @@ public class FavoritePlaceApiControllerTest {
     public void wishListTest()throws Exception{
 
         Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
-        List<FavoritePlaceDto.FavoriteResponseDto>list = new ArrayList<>();
+        List<FavoritePlaceDto>list = new ArrayList<>();
         list.add(favoriteResponseDto());
-        Page<FavoritePlaceDto.FavoriteResponseDto>result = new PageImpl<>(list,pageable,1);
+        Page<FavoritePlaceDto>result = new PageImpl<>(list,pageable,1);
 
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
         given(favoritePlaceRepository.favoritePlaceWishList(eq(pageable),eq(member.getUserId()))).willReturn(result);
@@ -317,15 +317,15 @@ public class FavoritePlaceApiControllerTest {
                 .build();
     }
 
-    private FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto(){
-        return FavoritePlaceDto.FavoriteResponseDto
+    private FavoritePlaceDto favoriteResponseDto(){
+        return FavoritePlaceDto
                 .builder()
                 .favoritePlace(favoritePlace)
                 .build();
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

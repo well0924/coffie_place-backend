@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.place.service;
 
 import com.example.coffies_vol_02.place.domain.PlaceImage;
-import com.example.coffies_vol_02.place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,19 +19,31 @@ public class PlaceImageService {
     * 가게 이미지 목록
     */
     @Transactional(readOnly = true)
-    public List<PlaceImageDto.PlaceImageResponseDto>placeImageResponseDtoList(Integer placeId) throws Exception {
+    public List<PlaceImageResponseDto>placeImageResponseDtoList(Integer placeId) throws Exception {
         List<PlaceImage> placeImageList = placeImageRepository.findPlaceImagePlace(placeId);
         return getPlaceImage(placeImageList);
     }
 
     @Transactional(readOnly = true)
-    public PlaceImageDto.PlaceImageResponseDto getImage(String fileName){
+    public PlaceImageResponseDto getImage(String fileName){
         PlaceImage image = placeImageRepository.findByOriginName(fileName);
 
-        PlaceImageDto.PlaceImageResponseDto placeImageResponseDto
-                = PlaceImageDto.PlaceImageResponseDto
+        PlaceImageResponseDto placeImageResponseDto
+                = PlaceImageResponseDto
                 .builder()
-                .placeImage(image)
+                .id(image.getId())
+                .imgPath(image.getImgPath())
+                .fileType(image.getFileType())
+                .imgGroup(image.getImgGroup())
+                .originName(image.getOriginName())
+                .storedName(image.getStoredName())
+                .fileGroupId(image.getFileGroupId())
+                .imgUploader(image.getImgUploader())
+                .isTitle(image.getIsTitle())
+                .thumbFilePath(image.getThumbFilePath())
+                .thumbFileImagePath(image.getThumbFileImagePath())
+                .createdTime(image.getCreatedTime())
+                .updatedTime(image.getUpdatedTime())
                 .build();
 
         return placeImageResponseDto;
@@ -42,14 +54,26 @@ public class PlaceImageService {
             placeImageRepository.delete(image);
         }
     }
-    private List<PlaceImageDto.PlaceImageResponseDto>getPlaceImage(List<PlaceImage>placeImageList){
-        List<PlaceImageDto.PlaceImageResponseDto>result = new ArrayList<>();
+    private List<PlaceImageResponseDto>getPlaceImage(List<PlaceImage>placeImageList){
+        List<PlaceImageResponseDto>result = new ArrayList<>();
 
         for(PlaceImage image:placeImageList){
-            PlaceImageDto.PlaceImageResponseDto placeImageResponseDto
-                    = PlaceImageDto.PlaceImageResponseDto
+            PlaceImageResponseDto placeImageResponseDto
+                    = PlaceImageResponseDto
                     .builder()
-                    .placeImage(image)
+                    .id(image.getId())
+                    .imgPath(image.getImgPath())
+                    .fileType(image.getFileType())
+                    .imgGroup(image.getImgGroup())
+                    .originName(image.getOriginName())
+                    .storedName(image.getStoredName())
+                    .fileGroupId(image.getFileGroupId())
+                    .imgUploader(image.getImgUploader())
+                    .isTitle(image.getIsTitle())
+                    .thumbFilePath(image.getThumbFilePath())
+                    .thumbFileImagePath(image.getThumbFileImagePath())
+                    .createdTime(image.getCreatedTime())
+                    .updatedTime(image.getUpdatedTime())
                     .build();
 
             result.add(placeImageResponseDto);

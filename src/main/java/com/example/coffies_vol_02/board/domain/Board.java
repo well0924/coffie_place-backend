@@ -85,6 +85,11 @@ public class Board extends BaseTime implements Serializable {
         this.boardContents = dto.getBoardContents();
     }
 
+    //조회수 증가
+    public void readCountUp(){
+        this.readCount++;
+    }
+
     //파일 첨부
     public void addAttach(Attach attachFile){
         this.attachList.add(attachFile);

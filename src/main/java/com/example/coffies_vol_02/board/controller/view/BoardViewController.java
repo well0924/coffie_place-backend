@@ -62,8 +62,8 @@ public class BoardViewController {
         try{
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
-            //조회수 증가(캐시 적용)
-            boardService.boardViewCount(boardId);
+            //조회수 증가
+
         }catch (Exception e){
             e.printStackTrace();
         }

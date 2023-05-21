@@ -7,7 +7,7 @@ import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
@@ -57,7 +57,7 @@ public class NoticeServiceTest {
     @Mock
     private AttachService attachService;
     private Member member;
-    private MemberDto.MemberResponseDto memberResponseDto;
+    private MemberResponseDto memberResponseDto;
     private Attach attach;
     private NoticeBoard noticeBoard;
     private NoticeRequestDto requestDto;
@@ -217,8 +217,8 @@ public class NoticeServiceTest {
                 .updatedTime(noticeBoard.getUpdatedTime())
                 .build();
     }
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

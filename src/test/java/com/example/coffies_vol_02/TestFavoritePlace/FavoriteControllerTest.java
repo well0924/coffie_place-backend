@@ -9,7 +9,7 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.place.domain.Place;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class FavoriteControllerTest {
 
     private Place place;
 
-    MemberDto.MemberResponseDto memberResponseDto;
+    MemberResponseDto memberResponseDto;
 
     BoardResponseDto boardResponseDto;
 
@@ -194,8 +194,8 @@ public class FavoriteControllerTest {
                 .build();
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

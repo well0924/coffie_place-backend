@@ -37,16 +37,16 @@ public class FavoritePlaceService {
      * 
      * 위시 리스트 목록
      */
-    public List<FavoritePlaceDto.FavoriteResponseDto>findByMemberId(String userId){
+    public List<FavoritePlaceDto>findByMemberId(String userId){
         Optional<Member>member = Optional.of(memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)));
         List<FavoritePlace>wishList = member.get().getWishList();
-        return wishList.stream().map(FavoritePlaceDto.FavoriteResponseDto::new).collect(Collectors.toList());
+        return wishList.stream().map(FavoritePlaceDto::new).collect(Collectors.toList());
     }
 
     /**
      * 위시 리스트 목록
      **/
-    public Page<FavoritePlaceDto.FavoriteResponseDto>MyWishList(Pageable pageable,String userId){
+    public Page<FavoritePlaceDto>MyWishList(Pageable pageable,String userId){
         return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
     }
 

@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.notice.service;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -11,6 +12,7 @@ import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class NoticeService {
     /**
     *   공지글 단일 조회
     **/
+    @Cacheable(value = CacheKey.NOTICE_BOARD, key = "#noticeId")
     @Transactional(readOnly = true)
     public NoticeResponseDto findNotice(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));

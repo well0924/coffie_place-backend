@@ -29,7 +29,7 @@ public class FavoritePlaceRepositoryTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
-        Page<FavoritePlaceDto.FavoriteResponseDto>list = favoritePlaceRepository.favoritePlaceWishList(pageable,"well4149");
+        Page<FavoritePlaceDto>list = favoritePlaceRepository.favoritePlaceWishList(pageable,"well4149");
 
         System.out.println(list.toList());
 

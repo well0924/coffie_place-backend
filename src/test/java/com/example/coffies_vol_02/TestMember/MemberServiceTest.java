@@ -4,7 +4,8 @@ import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +38,7 @@ public class MemberServiceTest {
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     Member member;
-    MemberDto.MemberResponseDto responseDto;
+    MemberResponseDto responseDto;
 
     @BeforeEach
     public void init(){
@@ -55,9 +56,9 @@ public class MemberServiceTest {
 
         when(memberRepository.findAll(pageable)).thenReturn(pageList);
 
-        Page<MemberDto.MemberResponseDto>result = memberService.findAll(pageable);
+        Page<MemberResponseDto>result = memberService.findAll(pageable);
 
-        result.map(member ->new MemberDto.MemberResponseDto(
+        result.map(member ->new MemberResponseDto(
                 member.getId(),
                 member.getUserId(),
                 member.getPassword(),
@@ -81,7 +82,7 @@ public class MemberServiceTest {
 
         given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
 
-        MemberDto.MemberResponseDto dto = memberService.findMember(1);
+        MemberResponseDto dto = memberService.findMember(1);
 
         assertThat(dto.getMemberName()).isEqualTo(member.getMemberName());
     }
@@ -92,9 +93,9 @@ public class MemberServiceTest {
         String keyword = "well4149";
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<MemberDto.MemberResponseDto>list = new ArrayList<>();
+        List<MemberResponseDto>list = new ArrayList<>();
         list.add(responseDto);
-        Page<MemberDto.MemberResponseDto>result = new PageImpl<>(list,pageRequest,1);
+        Page<MemberResponseDto>result = new PageImpl<>(list,pageRequest,1);
 
         given(memberRepository.findByAllSearch(keyword,pageRequest)).willReturn(result);
 
@@ -116,7 +117,7 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원 가입")
     public void memberJoinTest(){
-        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+        MemberRequestDto dto = new MemberRequestDto();
 
         dto.setId(memberDto().getId());
         dto.setPassword(memberDto().getPassword());
@@ -143,7 +144,7 @@ public class MemberServiceTest {
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+        MemberRequestDto dto = new MemberRequestDto();
         dto.setId(1);
         dto.setMemberName("update name");
         dto.setUserId("test update");
@@ -222,7 +223,7 @@ public class MemberServiceTest {
 
         String changepassword = "4567";
 
-        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+        MemberRequestDto dto = new MemberRequestDto();
         dto.setPassword(changepassword);
 
         given(memberService.updatePassword(member.getId(),dto)).willReturn(member.getId());
@@ -300,8 +301,8 @@ public class MemberServiceTest {
                 .build();
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

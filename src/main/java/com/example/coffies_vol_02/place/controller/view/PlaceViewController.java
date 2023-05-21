@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.place.controller.view;
 
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
-import com.example.coffies_vol_02.place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceImageService;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class PlaceViewController {
 
         ModelAndView mv = new ModelAndView();
 
-        Slice<PlaceDto.PlaceResponseDto>list = null;
+        Slice<PlaceResponseDto>list = null;
 
         try{
             //placeList = placeService.placeList(pageable);
@@ -51,8 +51,8 @@ public class PlaceViewController {
     public ModelAndView placeDetail(@PathVariable("place_id") Integer placeId){
         ModelAndView mv = new ModelAndView();
 
-        PlaceDto.PlaceResponseDto detail  = new PlaceDto.PlaceResponseDto();
-        List<PlaceImageDto.PlaceImageResponseDto> imageResponseDtoList = new ArrayList<>();
+        PlaceResponseDto detail  = new PlaceResponseDto();
+        List<PlaceImageResponseDto> imageResponseDtoList = new ArrayList<>();
 
         try{
             detail  = placeService.placeDetail(placeId);
@@ -86,7 +86,7 @@ public class PlaceViewController {
     public ModelAndView placeModify(@PathVariable("place_id")Integer placeId){
         ModelAndView mv = new ModelAndView();
 
-        PlaceDto.PlaceResponseDto detail = new PlaceDto.PlaceResponseDto();
+        PlaceResponseDto detail = new PlaceResponseDto();
 
         try{
             detail = placeService.placeDetail(placeId);

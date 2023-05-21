@@ -4,7 +4,8 @@ import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -31,10 +32,10 @@ public class MemberService {
     *
     */
     @Transactional(readOnly = true)
-    public Page<MemberDto.MemberResponseDto> findAll(Pageable pageable){
+    public Page<MemberResponseDto> findAll(Pageable pageable){
         Page<Member>list = memberRepository.findAll(pageable);
 
-        return list.map(member->new MemberDto.MemberResponseDto(
+        return list.map(member->new MemberResponseDto(
                 member.getId(),
                 member.getUserId(),
                 member.getPassword(),
@@ -54,7 +55,7 @@ public class MemberService {
     *  회원 검색
     * */
     @Transactional(readOnly = true)
-    public Page<MemberDto.MemberResponseDto>findByAllSearch(String searchVal,Pageable pageable){
+    public Page<MemberResponseDto>findByAllSearch(String searchVal, Pageable pageable){
         return memberRepository.findByAllSearch(searchVal,pageable);
     }
 
@@ -64,11 +65,11 @@ public class MemberService {
      *
      */
     @Transactional(readOnly = true)
-    public MemberDto.MemberResponseDto findMember(Integer id){
+    public MemberResponseDto findMember(Integer id){
 
         Member findMemberById = memberRepository.findById(id).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER));
 
-        return MemberDto.MemberResponseDto
+        return MemberResponseDto
                 .builder()
                 .id(findMemberById.getId())
                 .memberName(findMemberById.getMemberName())
@@ -91,7 +92,7 @@ public class MemberService {
      * 회원가입기능
      */
     @Transactional
-    public Integer memberCreate(MemberDto.MemberCreateDto memberCreateDto){
+    public Integer memberCreate(MemberRequestDto memberCreateDto){
 
         Member member = Member
                 .builder()
@@ -118,7 +119,7 @@ public class MemberService {
      *
      */
     @Transactional
-    public Integer memberUpdate(Integer id,MemberDto.MemberCreateDto memberCreateDto){
+    public Integer memberUpdate(Integer id,MemberRequestDto memberCreateDto){
         //회원 조회
         Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
 
@@ -178,7 +179,7 @@ public class MemberService {
      *
      */
     @Transactional
-    public Integer updatePassword(Integer id, MemberDto.MemberCreateDto dto){
+    public Integer updatePassword(Integer id, MemberRequestDto dto){
         Optional<Member>detail = Optional.ofNullable(memberRepository.findById(id).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
 
         detail.ifPresent(member -> {

@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class MemberRepositoryTest {
 
         String keyword= "well4149";
 
-        Page<MemberDto.MemberResponseDto> result = memberRepository.findByAllSearch(keyword,pageable);
+        Page<MemberResponseDto> result = memberRepository.findByAllSearch(keyword,pageable);
 
         System.out.println(result);
     }

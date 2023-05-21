@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CustomFavoritePlaceRepository {
-    Page<FavoritePlaceDto.FavoriteResponseDto> favoritePlaceWishList(Pageable pageable,String userId);
+    Page<FavoritePlaceDto> favoritePlaceWishList(Pageable pageable,String userId);
 }

@@ -28,8 +28,8 @@ public class FavoriteApiController {
 
     @Operation(summary = "위시리스트 목록",description = "가게조회 페이지에서 위시리스트를 추가한 목록을 마이페이지에서 볼 수 있다.")
     @GetMapping(path = "/{user_id}")
-    public CommonResponse<Page<FavoritePlaceDto.FavoriteResponseDto>>MyWishList(@ApiIgnore @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable, @PathVariable("user_id")String userId){
-        Page<FavoritePlaceDto.FavoriteResponseDto>list= null;
+    public CommonResponse<Page<FavoritePlaceDto>>MyWishList(@ApiIgnore @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable, @PathVariable("user_id")String userId){
+        Page<FavoritePlaceDto>list= null;
 
         try{
             list = favoritePlaceService.MyWishList(pageable,userId);

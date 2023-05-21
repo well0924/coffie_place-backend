@@ -3,7 +3,8 @@ package com.example.coffies_vol_02.commnet.service;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -35,24 +36,24 @@ public class CommentService {
     *   댓글 목록(자유게시판)
     **/
     @Transactional(readOnly = true)
-    public List<CommentDto.CommentResponseDto> replyList(Integer boardId) throws Exception {
+    public List<commentResponseDto> replyList(Integer boardId) throws Exception {
 
         List<Comment>list = commentRepository.findByBoardId(boardId);
 
-        return list.stream().map(comment ->new CommentDto.CommentResponseDto(comment)).toList();
+        return list.stream().map(commentResponseDto::new).toList();
     }
 
     /**
     *   댓글 작성(자유게시판)
     **/
     @Transactional
-    public Integer commentCreate(Integer boardId,Member member,CommentDto.CommentRequestDto dto){
-
-        Optional<Board>boardDetail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
+    public Integer commentCreate(Integer boardId, Member member, commentRequestDto dto){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
+
+        Optional<Board>boardDetail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         Comment comment = Comment
                 .builder()
@@ -93,16 +94,16 @@ public class CommentService {
      * 가게 댓글 목록
      * */
     @Transactional(readOnly = true)
-    public List<CommentDto.PlaceCommentResponse>placeCommentList(Integer placeId) throws Exception {
+    public List<commentResponseDto>placeCommentList(Integer placeId) throws Exception {
         List<Comment>list = commentRepository.findByPlaceId(placeId);
-        return list.stream().map(comment -> new CommentDto.PlaceCommentResponse(comment)).collect(Collectors.toList());
+        return list.stream().map(commentResponseDto::new).collect(Collectors.toList());
     }
 
     /**
      * 가게 댓글 작성
      * */
     @Transactional
-    public Integer placeCommentCreate(Integer placeId,CommentDto.CommentRequestDto dto,Member member){
+    public Integer placeCommentCreate(Integer placeId, commentRequestDto dto, Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -121,9 +122,7 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        Integer insertResult = comment.getId();
-
-        return insertResult;
+        return comment.getId();
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.member.controller.view;
 
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -51,7 +51,7 @@ public class MemberViewController {
     public ModelAndView memberModifyPage(@PathVariable("id")Integer useridx){
         ModelAndView mv = new ModelAndView();
 
-        MemberDto.MemberResponseDto dto = null;
+        MemberResponseDto dto = new MemberResponseDto();
 
         try{
             dto = memberService.findMember(useridx);

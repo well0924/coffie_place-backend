@@ -2,7 +2,8 @@ package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +59,7 @@ public class MemberApiControllerTest {
 
     private Member member;
 
-    private MemberDto.MemberResponseDto responseDto;
+    private MemberResponseDto responseDto;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -108,7 +109,7 @@ public class MemberApiControllerTest {
     @Test
     public void memberJoinTest()throws Exception{
 
-        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+        MemberRequestDto dto = new MemberRequestDto();
 
         dto.setId(member.getId());
         dto.setUserId(member.getUserId());
@@ -142,7 +143,7 @@ public class MemberApiControllerTest {
         //given
         given(memberRepository.findById(1)).willReturn(Optional.of(member));
 
-        MemberDto.MemberCreateDto dto = new MemberDto.MemberCreateDto();
+        MemberRequestDto dto = new MemberRequestDto();
         dto.setMemberName("update name");
         dto.setUserId("test update");
         dto.setRole(Role.ROLE_USER);
@@ -258,7 +259,7 @@ public class MemberApiControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         int id =member.getId();
         String password = "4567qwer!!";
-        MemberDto.MemberCreateDto dto =  new MemberDto.MemberCreateDto();
+        MemberRequestDto dto =  new MemberRequestDto();
         dto.setPassword(bCryptPasswordEncoder.encode(password));
 
         //when
@@ -296,8 +297,8 @@ public class MemberApiControllerTest {
         verify(memberService,times(1)).selectMemberDelete(userid);
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")

@@ -5,8 +5,9 @@ import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandle
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
-import com.example.coffies_vol_02.place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,33 +37,31 @@ import java.util.stream.Collectors;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
-
     private final FileHandler fileHandler;
     private final PlaceImageService placeImageService;
     private final PlaceImageRepository placeImageRepository;
-
     private final ObjectMapper objectMapper;
 
     /*
     * 가게 목록
     */
     @Transactional(readOnly = true)
-    public Page<PlaceDto.PlaceResponseDto>placeList(Pageable pageable){
+    public Page<PlaceResponseDto>placeList(Pageable pageable){
         Page<Place>list = placeRepository.findAll(pageable);
-        return list.map(PlaceDto.PlaceResponseDto::new);
+        return list.map(PlaceResponseDto::new);
     }
 
     /**
     * 가게 목록(무한 스크롤)
     * */
-    public Slice<PlaceDto.PlaceResponseDto> placeSlideList(Pageable pageable, String keyword){
+    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable, String keyword){
         return placeRepository.placeList(pageable,keyword);
     }
     /*
     * 가게 검색
     */
     @Transactional(readOnly = true)
-    public Page<PlaceDto.PlaceResponseDto>placeListAll(String keyword,Pageable pageable){
+    public Page<PlaceResponseDto>placeListAll(String keyword, Pageable pageable){
         return placeRepository.placeListSearch(keyword,pageable);
     }
 
@@ -70,7 +69,7 @@ public class PlaceService {
     * 가게 top5
     */
     @Transactional(readOnly = true)
-    public Page<PlaceDto.PlaceResponseDto>placeTop5(Pageable pageable){
+    public Page<PlaceResponseDto>placeTop5(Pageable pageable){
         return placeRepository.placeTop5(pageable);
     }
 
@@ -78,12 +77,24 @@ public class PlaceService {
     *  가게 단일 조회
     */
     @Transactional
-    public PlaceDto.PlaceResponseDto placeDetail(Integer placeId){
+    public PlaceResponseDto placeDetail(Integer placeId){
         Optional<Place> place = Optional.of(placeRepository.findById(placeId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
-        Place detail = place.get();
-        return PlaceDto.PlaceResponseDto
+        Place detail = place.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
+        return PlaceResponseDto
                 .builder()
-                .place(detail)
+                .id(detail.getId())
+                .placeLat(detail.getPlaceLat())
+                .placeLng(detail.getPlaceLng())
+                .placeAuthor(detail.getPlaceAuthor())
+                .placePhone(detail.getPlacePhone())
+                .placeStart(detail.getPlaceStart())
+                .placeClose(detail.getPlaceClose())
+                .placeAddr1(detail.getPlaceAddr1())
+                .placeAddr2(detail.getPlaceAddr2())
+                .fileGroupId(detail.getFileGroupId())
+                .reviewRate(detail.getReviewRate())
+                .isTitle(detail.getPlaceImageList().get(0).getIsTitle())
+                .thumbFileImagePath(detail.getPlaceImageList().get(0).getThumbFileImagePath())
                 .build();
     }
 
@@ -91,7 +102,7 @@ public class PlaceService {
     * 가게 등록
     */
     @Transactional
-    public Integer placeRegister(PlaceDto.PlaceRequestDto dto,PlaceImageDto.PlaceImageRequestDto imageRequestDto) throws Exception {
+    public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
                 .builder()
                 .placeLat(dto.getPlaceLat())
@@ -142,7 +153,7 @@ public class PlaceService {
      * 가게 수정
      */
     @Transactional
-    public Integer placeModify(Integer placeId,PlaceDto.PlaceRequestDto dto,PlaceImageDto.PlaceImageRequestDto imageDto) throws Exception {
+    public Integer placeModify(Integer placeId,PlaceRequestDto dto,PlaceImageRequestDto imageDto) throws Exception {
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
         Place place = placeDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
 

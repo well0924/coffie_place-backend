@@ -29,9 +29,9 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("----security login in....");
         log.info(username);
-        Optional<Member>userdetail = Optional.ofNullable(memberRepository.findByUserId(username).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = userdetail.get();
-        log.info(userdetail);
+        Optional<Member>userDetail = Optional.ofNullable(memberRepository.findByUserId(username).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+        Member member = userDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+        log.info(userDetail);
         return new CustomUserDetails(member);
     }
 }

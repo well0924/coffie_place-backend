@@ -14,7 +14,7 @@ import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceReposito
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.MemberDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
@@ -73,13 +73,13 @@ public class FavoritePlaceServiceTest {
 
     private FavoritePlace favoritePlace;
 
-    MemberDto.MemberResponseDto memberResponseDto;
+    MemberResponseDto memberResponseDto;
 
     BoardResponseDto boardResponseDto;
 
     CommentDto.CommentResponseDto commentResponseDto;
 
-    FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto;
+    FavoritePlaceDto favoriteResponseDto;
 
     List<FavoritePlace>list = new ArrayList<>();
 
@@ -285,8 +285,8 @@ public class FavoritePlaceServiceTest {
                 .build();
     }
 
-    private MemberDto.MemberResponseDto responseDto(){
-        return MemberDto.MemberResponseDto
+    private MemberResponseDto responseDto(){
+        return MemberResponseDto
                 .builder()
                 .id(1)
                 .userId("well4149")
@@ -322,8 +322,8 @@ public class FavoritePlaceServiceTest {
                 .build();
     }
     
-    private FavoritePlaceDto.FavoriteResponseDto favoriteResponseDto(){
-        return FavoritePlaceDto.FavoriteResponseDto
+    private FavoritePlaceDto favoriteResponseDto(){
+        return FavoritePlaceDto
                 .builder()
                 .favoritePlace(favoritePlace)
                 .build();

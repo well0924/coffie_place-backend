@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.place.repository;
 
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.QPlace;
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -25,8 +25,8 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     //가게 검색
     @Override
-    public Page<PlaceDto.PlaceResponseDto> placeListSearch(String keyword, Pageable pageable) {
-        List<PlaceDto.PlaceResponseDto>placeList= new ArrayList<>();
+    public Page<PlaceResponseDto> placeListSearch(String keyword, Pageable pageable) {
+        List<PlaceResponseDto>placeList= new ArrayList<>();
 
         List<Place>result = jpaQueryFactory
                 .select(QPlace.place)
@@ -38,9 +38,21 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                 .fetch();
 
         for(Place place : result){
-            PlaceDto.PlaceResponseDto dto = PlaceDto.PlaceResponseDto
+            PlaceResponseDto dto = PlaceResponseDto
                     .builder()
-                    .place(place)
+                    .id(place.getId())
+                    .placeLat(place.getPlaceLat())
+                    .placeLng(place.getPlaceLng())
+                    .placeAuthor(place.getPlaceAuthor())
+                    .placePhone(place.getPlacePhone())
+                    .placeStart(place.getPlaceStart())
+                    .placeClose(place.getPlaceClose())
+                    .placeAddr1(place.getPlaceAddr1())
+                    .placeAddr2(place.getPlaceAddr2())
+                    .fileGroupId(place.getFileGroupId())
+                    .reviewRate(place.getReviewRate())
+                    .isTitle(place.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(place.getPlaceImageList().get(0).getThumbFileImagePath())
                     .build();
             placeList.add(dto);
         }
@@ -61,8 +73,8 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     //가게 평점 top5
     @Override
-    public Page<PlaceDto.PlaceResponseDto> placeTop5(Pageable pageable) {
-        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
+    public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
+        List<PlaceResponseDto>result = new ArrayList<>();
 
         List<Place>list = jpaQueryFactory
                 .select(QPlace.place)
@@ -74,9 +86,21 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
         for(Place place : list){
 
-            PlaceDto.PlaceResponseDto dto = PlaceDto.PlaceResponseDto
+            PlaceResponseDto dto = PlaceResponseDto
                     .builder()
-                    .place(place)
+                    .id(place.getId())
+                    .placeLat(place.getPlaceLat())
+                    .placeLng(place.getPlaceLng())
+                    .placeAuthor(place.getPlaceAuthor())
+                    .placePhone(place.getPlacePhone())
+                    .placeStart(place.getPlaceStart())
+                    .placeClose(place.getPlaceClose())
+                    .placeAddr1(place.getPlaceAddr1())
+                    .placeAddr2(place.getPlaceAddr2())
+                    .fileGroupId(place.getFileGroupId())
+                    .reviewRate(place.getReviewRate())
+                    .isTitle(place.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(place.getPlaceImageList().get(0).getThumbFileImagePath())
                     .build();
 
             result.add(dto);
@@ -96,7 +120,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     //가게목록 무한스크롤
     @Override
-    public Slice<PlaceDto.PlaceResponseDto> placeList(Pageable pageable,String keyword) {
+    public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
         List<Place>placelist = jpaQueryFactory
                 .select(QPlace.place)
                 .from(QPlace.place)
@@ -106,13 +130,25 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                 .fetch();//limit보다 한개를 더 들고 온다.
 
         //total page개수를 가져오지 않는다는 점이 page와 다른점
-        List<PlaceDto.PlaceResponseDto>result = new ArrayList<>();
+        List<PlaceResponseDto>result = new ArrayList<>();
 
         for(Place place : placelist){
 
-            PlaceDto.PlaceResponseDto placeResponseDto = PlaceDto.PlaceResponseDto
+            PlaceResponseDto placeResponseDto = PlaceResponseDto
                     .builder()
-                    .place(place)
+                    .id(place.getId())
+                    .placeLat(place.getPlaceLat())
+                    .placeLng(place.getPlaceLng())
+                    .placeAuthor(place.getPlaceAuthor())
+                    .placePhone(place.getPlacePhone())
+                    .placeStart(place.getPlaceStart())
+                    .placeClose(place.getPlaceClose())
+                    .placeAddr1(place.getPlaceAddr1())
+                    .placeAddr2(place.getPlaceAddr2())
+                    .fileGroupId(place.getFileGroupId())
+                    .reviewRate(place.getReviewRate())
+                    .isTitle(place.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(place.getPlaceImageList().get(0).getThumbFileImagePath())
                     .build();
 
             result.add(placeResponseDto);

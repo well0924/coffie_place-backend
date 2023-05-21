@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +33,13 @@ public class NoticeController {
                                    @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
 
-        Page<NoticeResponseDto> list = noticeService.noticeSearchAll(searchVal, pageable);
+        Page<NoticeResponseDto> list = null;
+
+        try {
+            list = noticeService.noticeSearchAll(searchVal, pageable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("noticelist",list);
         mv.addObject("searchVal",searchVal);
@@ -43,11 +50,18 @@ public class NoticeController {
     }
 
     @GetMapping("/detail/{notice_id}")
-    public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId) throws Exception {
+    public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponseDto list = noticeService.findNotice(noticeId);
-        List<AttachDto> attachList = attachService.noticefilelist(noticeId);
+        NoticeResponseDto list = new NoticeResponseDto();
+        List<AttachDto> attachList = new ArrayList<>();
+
+        try{
+            list = noticeService.findNotice(noticeId);
+            attachList = attachService.noticefilelist(noticeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         mv.addObject("filelist",attachList);
         mv.addObject("detail",list);
@@ -74,8 +88,13 @@ public class NoticeController {
     public ModelAndView noticeModify(@PathVariable("notice_id")Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponseDto list = noticeService.findNotice(noticeId);
+        NoticeResponseDto list = new NoticeResponseDto();
 
+        try{
+            list = noticeService.findNotice(noticeId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         mv.addObject("detail",list);
         mv.setViewName("/notice/noticemodify");
 

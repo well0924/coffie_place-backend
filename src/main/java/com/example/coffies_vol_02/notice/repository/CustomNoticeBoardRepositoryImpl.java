@@ -56,6 +56,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                     .createdTime(noticeBoard.getCreatedTime())
                     .updatedTime(noticeBoard.getUpdatedTime())
                     .build();
+
             noticeList.add(responseDto);
         }
         return new PageImpl<>(noticeList,pageable,count);

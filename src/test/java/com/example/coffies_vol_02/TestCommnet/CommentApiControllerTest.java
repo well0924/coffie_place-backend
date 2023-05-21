@@ -3,7 +3,8 @@ package com.example.coffies_vol_02.TestCommnet;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
@@ -66,8 +67,7 @@ public class CommentApiControllerTest {
     private CommentService commentService;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
-    private List<CommentDto.CommentResponseDto> commentResponseDtoList = new ArrayList<>();
-    private List<CommentDto.PlaceCommentResponse> placeCommentResponses = new ArrayList<>();
+    private List<commentResponseDto> commentResponseDtoList = new ArrayList<>();
 
     @BeforeEach
     public void init(){
@@ -80,7 +80,6 @@ public class CommentApiControllerTest {
         place = place();
         comment = comment();
         commentResponseDtoList.add(commentResponseDto());
-        placeCommentResponses.add(placeCommentResponse());
         memberRepository.save(member);
         commentRepository.save(comment());
         placeRepository.findById(place().getId());
@@ -110,7 +109,7 @@ public class CommentApiControllerTest {
     @DisplayName("게시판 댓글 작성")
     public void boardCommentWrite()throws Exception{
 
-        CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
+        commentRequestDto commentRequestDto = new commentRequestDto();
         commentRequestDto.setReplyContents(comment.getReplyContents());
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
@@ -155,7 +154,7 @@ public class CommentApiControllerTest {
     public void placeCommentListTest()throws Exception{
         given(commentRepository.findByPlaceId(place.getId())).willReturn(anyList());
 
-        when(commentService.placeCommentList(place.getId())).thenReturn(placeCommentResponses);
+        when(commentService.placeCommentList(place.getId())).thenReturn(commentResponseDtoList);
 
         mvc.perform(get("/api/comment/place/list/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +170,7 @@ public class CommentApiControllerTest {
     @DisplayName("가게 댓글 작성")
     public void placeCommentWrite()throws Exception{
 
-        CommentDto.CommentRequestDto commentRequestDto = new CommentDto.CommentRequestDto();
+        commentRequestDto commentRequestDto = new commentRequestDto();
         commentRequestDto.setReplyContents(comment.getReplyContents());
         commentRequestDto.setReplyWriter(member.getUserId());
         commentRequestDto.setReplyPoint(comment.getReplyPoint());
@@ -269,15 +268,15 @@ public class CommentApiControllerTest {
                 .build();
     }
 
-    private CommentDto.CommentResponseDto commentResponseDto(){
-        return CommentDto.CommentResponseDto
+    private commentResponseDto commentResponseDto(){
+        return commentResponseDto
                 .builder()
                 .comment(comment())
                 .build();
     }
 
-    private CommentDto.PlaceCommentResponse placeCommentResponse(){
-        return CommentDto.PlaceCommentResponse
+    private commentResponseDto placeCommentResponse(){
+        return commentResponseDto
                 .builder()
                 .comment(comment())
                 .build();

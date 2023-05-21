@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.config.util;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
-import com.example.coffies_vol_02.place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.MultiStepRescaleOp;
 import lombok.extern.log4j.Log4j2;
@@ -154,7 +154,7 @@ public class FileHandler {
                         }
                     }
 
-                    PlaceImageDto.PlaceImageRequestDto placeImageRequestDto = PlaceImageDto.PlaceImageRequestDto
+                    PlaceImageRequestDto placeImageRequestDto = PlaceImageRequestDto
                             .builder()
                             .fileGroupId(fileGroupId)
                             .fileType("images")

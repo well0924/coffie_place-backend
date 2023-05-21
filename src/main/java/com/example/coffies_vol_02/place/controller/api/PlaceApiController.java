@@ -1,8 +1,9 @@
 package com.example.coffies_vol_02.place.controller.api;
 
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.place.domain.dto.PlaceDto;
-import com.example.coffies_vol_02.place.domain.dto.PlaceImageDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +32,8 @@ public class PlaceApiController {
 
     @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
     @GetMapping(path = "/list")
-    public CommonResponse<Slice<PlaceDto.PlaceResponseDto>>placeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,@RequestParam(value = "keyword",required = false) String keyword){
-        Slice<PlaceDto.PlaceResponseDto> list = null;
+    public CommonResponse<Slice<PlaceResponseDto>>placeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam(value = "keyword",required = false) String keyword){
+        Slice<PlaceResponseDto> list = null;
 
         try{
             list = placeService.placeSlideList(pageable,keyword);
@@ -45,8 +46,8 @@ public class PlaceApiController {
 
     @Operation(summary = "가게 목록 검색",description = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
-        Page<PlaceDto.PlaceResponseDto> list = null;
+    public CommonResponse<Page<PlaceResponseDto>>placeListSearch(@RequestParam String keyword,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+        Page<PlaceResponseDto> list = null;
 
         try{
             list = placeService.placeListAll(keyword,pageable);
@@ -59,8 +60,8 @@ public class PlaceApiController {
     
     @Operation(summary = "가게 단일 조회",description = "가게 목록에서 가게를 조회를 한다.")
     @GetMapping(path = "/detail/{place_id}")
-    public CommonResponse<PlaceDto.PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
-        PlaceDto.PlaceResponseDto placeDetail = new PlaceDto.PlaceResponseDto();
+    public CommonResponse<PlaceResponseDto>placeDetail(@PathVariable("place_id")Integer placeId){
+        PlaceResponseDto placeDetail = new PlaceResponseDto();
 
         try{
             placeDetail = placeService.placeDetail(placeId);
@@ -73,7 +74,7 @@ public class PlaceApiController {
     @Operation(summary = "가게 등록",description = "어드민 페이지에서 가게를 등록을 한다.")
     @PostMapping(path="/register",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto, BindingResult bindingResult){
+    public CommonResponse<Integer>placeRegister(@Valid @ModelAttribute PlaceRequestDto dto, @ModelAttribute PlaceImageRequestDto imageRequestDto, BindingResult bindingResult){
         Integer registerResult = 0;
 
         try{
@@ -86,7 +87,7 @@ public class PlaceApiController {
     
     @Operation(summary = "가게 수정",description = "등록된 가게를 수정을 한다.")
     @PutMapping(path = "/update/{place_id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonResponse<Integer>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceDto.PlaceRequestDto dto, @ModelAttribute PlaceImageDto.PlaceImageRequestDto imageRequestDto){
+    public CommonResponse<Integer>placeUpdate(@PathVariable("place_id") Integer placeId, @ModelAttribute PlaceRequestDto dto, @ModelAttribute PlaceImageRequestDto imageRequestDto){
         Integer placeUpdateResult = 0;
 
         try{
@@ -113,8 +114,8 @@ public class PlaceApiController {
 
     @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
     @GetMapping(path = "/top5list")
-    public CommonResponse<Page<PlaceDto.PlaceResponseDto>>placeTop5List(@PageableDefault Pageable pageable){
-        Page<PlaceDto.PlaceResponseDto>top5list = null;
+    public CommonResponse<Page<PlaceResponseDto>>placeTop5List(@PageableDefault Pageable pageable){
+        Page<PlaceResponseDto>top5list = null;
 
         try{
             top5list = placeService.placeTop5(pageable);
