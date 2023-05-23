@@ -1,6 +1,9 @@
 package com.example.coffies_vol_02.board.domain.dto.response;
 
+import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +11,9 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Schema(description = "게시물 리스트 응답DTO")
 @Getter
@@ -32,6 +38,8 @@ public class BoardResponseDto implements Serializable {
     private Integer liked;
     @Schema(description = "게시물 파일 그룹 아이디")
     private String fileGroupId;
+    @Schema(description = "댓글 목록")
+    private List<commentResponseDto>commentList = new ArrayList<>();
     @Schema(description = "게시물 작성일")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdTime;
@@ -49,6 +57,10 @@ public class BoardResponseDto implements Serializable {
         this.passWd = board.getPassWd();
         this.liked = board.getLikes().size();
         this.fileGroupId = board.getFileGroupId();
+        this.commentList = board.getCommentList()
+                .stream()
+                .map(comment->new commentResponseDto(comment))
+                .collect(Collectors.toList());
         this.createdTime = board.getCreatedTime();
         this.updatedTime = board.getUpdatedTime();
     }

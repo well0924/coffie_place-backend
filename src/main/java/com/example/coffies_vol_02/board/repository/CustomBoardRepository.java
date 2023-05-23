@@ -9,4 +9,6 @@ public interface CustomBoardRepository {
     Page<BoardResponseDto>boardList(Pageable pageable);
     //게시글 검색
     Page<BoardResponseDto>findAllSearch(String searchVal, Pageable pageable);
+    //게시글 조회
+    BoardResponseDto boardDetail(int boardId);
 }

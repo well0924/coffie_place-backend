@@ -1,8 +1,12 @@
 package com.example.coffies_vol_02.board.repository;
 
+import com.example.coffies_vol_02.attach.domain.QAttach;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponseDto;
+import com.example.coffies_vol_02.commnet.domain.QComment;
+import com.example.coffies_vol_02.like.domain.QLike;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -100,6 +104,19 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
             boardSearchResult.add(responseDto);
         }
         return new PageImpl<>(boardSearchResult, pageable, resultCount);
+    }
+
+    @Override
+    public BoardResponseDto boardDetail(int boardId) {
+        BoardResponseDto result = jpaQueryFactory
+                .select(new QBoardResponseDto(QBoard.board))
+                .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .where(QBoard.board.id.eq(boardId))
+                .distinct()
+                .fetchOne();
+
+        return result;
     }
 
     BooleanBuilder boardContentsEq(String searchVal){
