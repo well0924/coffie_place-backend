@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "Member api",value = "회원 관련 api 컨트롤러")
@@ -162,27 +163,6 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
     }
 
-   /* @ApiOperation(value = "회원 자동 검색")
-    @GetMapping(path = "/auto-compete-keyword")
-    public void memberNameAutoComplete(HttpServletRequest request, HttpServletResponse response){
-        String searchValue;
-
-        try {
-            searchValue = request.getParameter("searchValue");
-
-            JSONArray jsonArray = (JSONArray) memberService.autoSearch(searchValue);
-            response.setCharacterEncoding("UTF-8");
-
-            PrintWriter pw = response.getWriter();
-            pw.print(jsonArray);
-            pw.flush();
-            pw.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }*/
-
     @Operation(summary = "회원선택삭제 api",description = "어드민페이지에서 회원 선택삭제하는 기능")
     @PostMapping(path = "/select-delete")
     @ResponseStatus(HttpStatus.CREATED)
@@ -193,5 +173,19 @@ public class MemberApiController {
             e.printStackTrace();
         }
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
+    }
+
+    @Operation(summary = "회원 검색 자동완성",description = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성하기.")
+    @GetMapping(path = "/autocomplete/{id}")
+    public  CommonResponse<List<String>>memberAutoComplete(@PathVariable(value = "id") String userId){
+        List<String>list = new ArrayList<>();
+
+        try{
+            list = memberService.memberAutoSearch(userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 }

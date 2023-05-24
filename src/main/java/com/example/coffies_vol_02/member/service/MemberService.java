@@ -2,35 +2,40 @@ package com.example.coffies_vol_02.member.service;
 
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.config.redis.CacheKey;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RedisService redisService;
 
-    /*
+    /**
     * 회원 목록
     *
-    */
+    **/
     @Transactional(readOnly = true)
     public Page<MemberResponseDto> findAll(Pageable pageable){
         Page<Member>list = memberRepository.findAll(pageable);
@@ -197,25 +202,27 @@ public class MemberService {
     *
     */
     @Transactional
-    public Object autoSearch(String searchVal) throws Exception {
-        //jquery ui가 아닌 다른 방법으로 변경예상....
-        JSONArray arrayObj = new JSONArray();
-        JSONObject jsonObj;
-        ArrayList<String> resultlist = new ArrayList<>();
+    public List<String> memberAutoSearch(String userId){
+        HashOperations<String,String,Integer>hashOperations = redisService.hashOperations();
 
-        List<Member>list = memberRepository.findByUserIdStartsWith(searchVal, Sort.by(Sort.Direction.DESC, "userId"));
+        List<Member>nameList = memberRepository.findAll();
 
-        for (Member member:list){
-            String str = member.getUserId();
-            resultlist.add(str);
+        Map<String,Integer> nameDateMap = nameList.stream().collect(Collectors.toMap(Member::getUserId,Member::getId));
+        //redis에 저장
+        hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
+
+        ScanOptions scanOptions = ScanOptions.scanOptions().match(userId+"*").build();
+
+        Cursor<Map.Entry<String,Integer>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
+
+        List<String> searchList = new ArrayList<>();
+
+        while(cursor.hasNext()){
+            Map.Entry<String,Integer> entry = cursor.next();
+            searchList.add(entry.getKey());
         }
 
-        for(String str : resultlist){
-            jsonObj = new JSONObject();
-            jsonObj.put("data",str);
-            arrayObj.put(jsonObj);
-        }
-        return arrayObj;
+        return searchList;
     }
 
     /*
