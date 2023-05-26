@@ -7,20 +7,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
-public class commentResponseDto {
+public class placeCommentResponseDto {
     private Integer id;
     private String replyWriter;
     private String replyContents;
+    private Integer reviewPoint;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdTime;
 
     @Builder
-    public commentResponseDto(Comment comment){
+    public placeCommentResponseDto(Comment comment){
         this.id = comment.getId();
         this.replyWriter = comment.getMember().getUserId();
         this.replyContents  = comment.getReplyContents();
+        this.reviewPoint = comment.getReplyPoint();
         this.createdTime = comment.getCreatedTime();
     }
 }

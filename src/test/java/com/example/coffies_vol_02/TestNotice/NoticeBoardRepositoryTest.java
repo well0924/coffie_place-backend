@@ -33,11 +33,15 @@ public class NoticeBoardRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
         Page<NoticeBoard>list1  = noticeBoardRepository.findAll(pageable);
+
         System.out.println(list1.stream().toList());
+
         assertThat(list1).isNotEmpty();
 
         Page<NoticeResponseDto>list2 = noticeBoardRepository.findAllList(pageable);
+
         System.out.println(list2.get().toList());
+
         assertThat(list2).isNotEmpty();
     }
 
@@ -47,16 +51,19 @@ public class NoticeBoardRepositoryTest {
         String keyword = "well4149";
 
         QNoticeBoard qNoticeBoard = QNoticeBoard.noticeBoard;
+
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+
         BooleanBuilder builder = new BooleanBuilder();
+
         BooleanExpression booleanExpression = qNoticeBoard.noticeWriter.contains(keyword);
+
         builder.and(booleanExpression);
 
-        Page<NoticeBoard>result1 = noticeBoardRepository.findAll(builder,pageable);
         Page<NoticeResponseDto>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
-        System.out.println(result1.get().toList());
+
         System.out.println(result2.get().toList());
-        assertThat(result1).isNotEmpty();
+
         assertThat(result2).isNotEmpty();
     }
 }

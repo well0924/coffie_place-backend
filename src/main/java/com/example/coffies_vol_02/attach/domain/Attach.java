@@ -44,6 +44,23 @@ public class Attach extends BaseTime implements Serializable {
         this.board = board;
         this.noticeBoard = noticeBoard;
     }
+    @Builder
+    public Attach(Integer id,String originFileName, String filePath, Long fileSize,Board board){
+        this.id = id;
+        this.originFileName = originFileName;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.board = board;
+     }
+
+    @Builder
+    public Attach(Integer id,String originFileName, String filePath, Long fileSize,NoticeBoard noticeBoard){
+        this.id = id;
+        this.originFileName = originFileName;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.noticeBoard = noticeBoard;
+    }
 
     @Builder
     public Attach(String originFileName, String filePath, Long fileSize){

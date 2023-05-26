@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
@@ -76,7 +76,7 @@ public class FavoritePlaceApiControllerTest {
     private List<PlaceImage>placeImageList = new ArrayList<>();
     MemberResponseDto memberResponseDto;
     BoardResponseDto boardResponseDto;
-    CommentDto.CommentResponseDto commentResponseDto;
+    commentResponseDto responseDto;
     FavoritePlaceDto favoriteResponseDto;
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
@@ -97,7 +97,7 @@ public class FavoritePlaceApiControllerTest {
         placeImageList.add(placeImage());
         memberResponseDto =responseDto();
         boardResponseDto = boardResponseDto();
-        commentResponseDto = commentResponseDto();
+        responseDto = commentResponseDto();
         favoriteResponseDto = favoriteResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
@@ -136,8 +136,8 @@ public class FavoritePlaceApiControllerTest {
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<Comment>list = new ArrayList<>();
         list.add(comment);
-        List<CommentDto.CommentResponseDto>result = new ArrayList<>();
-        result.add(commentResponseDto);
+        List<commentResponseDto>result = new ArrayList<>();
+        result.add(responseDto);
 
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
         given(commentRepository.findByMember(eq(member),eq(pageRequest))).willReturn(list);
@@ -356,8 +356,8 @@ public class FavoritePlaceApiControllerTest {
                 .build();
     }
 
-    private CommentDto.CommentResponseDto commentResponseDto(){
-        return CommentDto.CommentResponseDto
+    private commentResponseDto commentResponseDto(){
+        return commentResponseDto
                 .builder()
                 .comment(comment())
                 .build();

@@ -10,10 +10,7 @@ import java.io.Serializable;
 
 @Setter
 @Getter
-@ToString
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class MemberRequestDto implements Serializable {
     private Integer id;
     @NotBlank(message = "아이디를 입력해주세요.")

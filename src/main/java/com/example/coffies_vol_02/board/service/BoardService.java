@@ -75,7 +75,8 @@ public class BoardService {
                 .updatedTime(result.getUpdatedTime())
                 .build();
          */
-        return boardRepository.boardDetail(boardId);
+        BoardResponseDto result = Optional.ofNullable(boardRepository.boardDetail(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        return result;
     }
 
     /**

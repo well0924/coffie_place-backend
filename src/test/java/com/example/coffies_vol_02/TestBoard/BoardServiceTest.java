@@ -112,11 +112,10 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회")
     public void boardDetail(){
         //given
-        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-
+        given(boardRepository.boardDetail(board.getId())).willReturn(boardResponseDto);
         //when
         BoardResponseDto result = boardService.findBoard(board.getId());
-
+        System.out.println(result);
         //then
         assertThat(result.getBoardAuthor()).isEqualTo(board.getBoardAuthor());
     }

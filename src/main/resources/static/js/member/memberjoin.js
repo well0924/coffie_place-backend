@@ -50,6 +50,26 @@ function checkvalid(chk){
     }
 }
 
+//이메일 중복체크
+function emailCheck(){
+    let userEmail = document.getElementById('user_email');
+
+    $.ajax({
+        url:'/api/member/email-check/'+userEmail,
+        type:'GET',
+        dataType:'json',
+        contentType:"application/json; charset=UTF-8"
+    }).done(function (resp){
+        if(resp.data == true){
+        document.getElementById('emailExists').innerHTML = '</br>이메일이 중복!';
+        document.getElementById('emailExists').style.color='red';
+    }else{
+        document.getElementById('emailExists').innerHTML = '</br>사용가능한 이메일입니다.';
+        document.getElementById('emailExists').style.color='blue';
+    }
+    });
+}
+
 //주소api기능o.k
 function AddressCode(){
     new daum.Postcode({

@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.favoritePlace.controller.view;
 
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.place.service.PlaceImageService;
@@ -44,7 +44,7 @@ public class FavoriteController {
     @GetMapping("/comment/{id}")
     public ModelAndView myComment(@PathVariable("id")String userId, @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
-        List<CommentDto.CommentResponseDto> list = new ArrayList<>();
+        List<commentResponseDto> list = new ArrayList<>();
 
         try {
             list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
@@ -60,8 +60,13 @@ public class FavoriteController {
     public ModelAndView myWishList(@PageableDefault Pageable pageable,@PathVariable("user_id")String userId){
         ModelAndView mv = new ModelAndView();
 
-        Page<FavoritePlaceDto>list = favoritePlaceService.MyWishList(pageable,userId);
+        Page<FavoritePlaceDto>list = null;
 
+        try{
+            list = favoritePlaceService.MyWishList(pageable,userId);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         mv.addObject("wishlist",list);
         mv.setViewName("/mypage/wishlist");
 

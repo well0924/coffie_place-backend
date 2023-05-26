@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
 import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
@@ -67,7 +68,7 @@ public class CommentApiControllerTest {
     private CommentService commentService;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
-    private List<commentResponseDto> commentResponseDtoList = new ArrayList<>();
+    private List<placeCommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
     @BeforeEach
     public void init(){
@@ -79,7 +80,7 @@ public class CommentApiControllerTest {
         board = board();
         place = place();
         comment = comment();
-        commentResponseDtoList.add(commentResponseDto());
+        commentResponseDtoList.add(placeCommentResponse());
         memberRepository.save(member);
         commentRepository.save(comment());
         placeRepository.findById(place().getId());
@@ -275,10 +276,10 @@ public class CommentApiControllerTest {
                 .build();
     }
 
-    private commentResponseDto placeCommentResponse(){
-        return commentResponseDto
+    private placeCommentResponseDto placeCommentResponse(){
+        return placeCommentResponseDto
                 .builder()
-                .comment(comment())
+                .comment(comment)
                 .build();
     }
 }

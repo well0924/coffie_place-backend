@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,8 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RedisTemplate<String,Object> redisTemplate;
     private final RedisService redisService;
-
     /**
     * 회원 목록
     *
@@ -197,28 +198,28 @@ public class MemberService {
         return detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)).getId();
     }
 
-    /*
+    /**
     *  회원 이름 자동완성기능
     *
     */
-    @Transactional
     public List<String> memberAutoSearch(String userId){
-        HashOperations<String,String,Integer>hashOperations = redisService.hashOperations();
+
+        HashOperations<String,String,Object>hashOperations = redisTemplate.opsForHash();
 
         List<Member>nameList = memberRepository.findAll();
 
-        Map<String,Integer> nameDateMap = nameList.stream().collect(Collectors.toMap(Member::getUserId,Member::getId));
+        Map<String,Object> nameDateMap = nameList.stream().collect(Collectors.toMap(Member::getUserId,Member::getId));
         //redis에 저장
         hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
 
         ScanOptions scanOptions = ScanOptions.scanOptions().match(userId+"*").build();
 
-        Cursor<Map.Entry<String,Integer>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
+        Cursor<Map.Entry<String,Object>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
 
         List<String> searchList = new ArrayList<>();
 
         while(cursor.hasNext()){
-            Map.Entry<String,Integer> entry = cursor.next();
+            Map.Entry<String,Object> entry = cursor.next();
             searchList.add(entry.getKey());
         }
 

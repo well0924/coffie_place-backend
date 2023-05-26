@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -32,16 +32,6 @@ public class FavoritePlaceService {
     private final CommentRepository commentRepository;
     private final PlaceRepository placeRepository;
     private final FavoritePlaceRepository favoritePlaceRepository;
-
-    /*
-     * 
-     * 위시 리스트 목록
-     */
-    public List<FavoritePlaceDto>findByMemberId(String userId){
-        Optional<Member>member = Optional.of(memberRepository.findByUserId(userId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_MEMBER)));
-        List<FavoritePlace>wishList = member.get().getWishList();
-        return wishList.stream().map(FavoritePlaceDto::new).collect(Collectors.toList());
-    }
 
     /**
      * 위시 리스트 목록
@@ -71,7 +61,7 @@ public class FavoritePlaceService {
                 .build());
     }
 
-    /*
+    /**
     * 위시 리스트 삭제
     */
     public void wishDelete(Integer wishId){
@@ -79,7 +69,7 @@ public class FavoritePlaceService {
         favoritePlaceRepository.delete(favoritePlace);
     }
 
-    /*
+    /**
      * 내가 작성한 글 확인하기.
      */
     public Page<BoardResponseDto> getMyPageBoardList(Pageable pageable, String userId){
@@ -88,12 +78,13 @@ public class FavoritePlaceService {
         return list.map(BoardResponseDto::new);
     }
 
-    /*
+    /**
      * 내가 작성한 댓글
      */
-    public List<CommentDto.CommentResponseDto> getMyPageCommnetList(String userId,Pageable pageable){
+    public List<commentResponseDto> getMyPageCommnetList(String userId, Pageable pageable){
         Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         List<Comment>list = commentRepository.findByMember(member,pageable);
-        return list.stream().map(CommentDto.CommentResponseDto::new).collect(Collectors.toList());
+        return list.stream().map(commentResponseDto::new).collect(Collectors.toList());
     }
+
 }

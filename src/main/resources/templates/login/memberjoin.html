@@ -69,7 +69,11 @@ layout:decorate="~{layout/leafframe}">
 							<label for="user_email">이메일</label>
 							<div class="input-group">
 								<input type="text" id="user_email" name="userEmail" class="form-control"/>
+								<div class="input-group-append">
+									<button type="button" class="btn btn-primary" onclick="emailCheck()">중복확인</button>
+								</div>
 							</div>
+							<div id="emailExists"></div>
 						</div>
 						<div id="valid_userEmail"></div>
 						<div class="form-group">

@@ -46,15 +46,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         for(NoticeBoard noticeBoard:result){
             NoticeResponseDto responseDto = NoticeResponseDto
                     .builder()
-                    .id(noticeBoard.getId())
-                    .noticeTitle(noticeBoard.getNoticeTitle())
-                    .noticeWriter(noticeBoard.getNoticeWriter())
-                    .noticeContents(noticeBoard.getNoticeContents())
-                    .noticeGroup(noticeBoard.getNoticeGroup())
-                    .fileGroupId(noticeBoard.getFileGroupId())
-                    .isFixed(noticeBoard.getIsFixed())
-                    .createdTime(noticeBoard.getCreatedTime())
-                    .updatedTime(noticeBoard.getUpdatedTime())
+                    .noticeBoard(noticeBoard)
                     .build();
 
             noticeList.add(responseDto);
@@ -88,15 +80,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
 
             NoticeResponseDto responseDto = NoticeResponseDto
                     .builder()
-                    .id(noticeBoard.getId())
-                    .noticeTitle(noticeBoard.getNoticeTitle())
-                    .noticeWriter(noticeBoard.getNoticeWriter())
-                    .noticeContents(noticeBoard.getNoticeContents())
-                    .noticeGroup(noticeBoard.getNoticeGroup())
-                    .fileGroupId(noticeBoard.getFileGroupId())
-                    .isFixed(noticeBoard.getIsFixed())
-                    .createdTime(noticeBoard.getCreatedTime())
-                    .updatedTime(noticeBoard.getUpdatedTime())
+                    .noticeBoard(noticeBoard)
                     .build();
 
             searchResult.add(responseDto);

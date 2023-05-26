@@ -264,14 +264,7 @@ public class NoticeApiControllerTest {
     private NoticeResponseDto NoticeResponseDto(){
         return NoticeResponseDto
                 .builder()
-                .id(noticeBoard.getId())
-                .noticeWriter(member.getUserId())
-                .noticeContents(noticeBoard.getNoticeContents())
-                .noticeGroup(noticeBoard.getNoticeGroup())
-                .noticeTitle(noticeBoard.getNoticeTitle())
-                .fileGroupId(noticeBoard.getFileGroupId())
-                .createdTime(noticeBoard.getCreatedTime())
-                .updatedTime(noticeBoard.getUpdatedTime())
+                .noticeBoard(noticeBoard)
                 .build();
     }
     private Attach attach(){

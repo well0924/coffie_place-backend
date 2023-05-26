@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
@@ -69,6 +70,8 @@ public class CommentServiceTest {
 
     com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto commentResponseDto;
 
+    placeCommentResponseDto placeCommentResponseDto;
+
     @BeforeEach
     public void init(){
         member = memberDto();
@@ -76,6 +79,7 @@ public class CommentServiceTest {
         comment = comment();
         commentRequestDto = commentRequestDto();
         commentResponseDto = commentResponseDto();
+        placeCommentResponseDto = placeCommentResponseDto();
         boardResponseDto = boardResponseDto();
         board = board();
         place = place();
@@ -172,8 +176,8 @@ public class CommentServiceTest {
     public void PlaceCommentListTest() throws Exception {
        List<Comment>commentList = new ArrayList<>();
        commentList.add(comment);
-       List<com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto>list = new ArrayList<>();
-       list.add(commentResponseDto);
+       List<placeCommentResponseDto>list = new ArrayList<>();
+       list.add(placeCommentResponseDto());
 
        given(commentRepository.findByPlaceId(place.getId())).willReturn(commentList);
        given(commentService.placeCommentList(place.getId())).willReturn(anyList());
@@ -386,6 +390,13 @@ public class CommentServiceTest {
         return com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto
                 .builder()
                 .comment(comment())
+                .build();
+    }
+
+    private placeCommentResponseDto placeCommentResponseDto(){
+        return placeCommentResponseDto
+                .builder()
+                .comment(comment)
                 .build();
     }
 }

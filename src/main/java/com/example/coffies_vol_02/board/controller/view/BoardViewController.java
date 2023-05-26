@@ -2,7 +2,9 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +29,7 @@ import java.util.UUID;
 @RequestMapping("/page/board")
 public class BoardViewController {
     private final BoardService boardService;
+    private final BoardRepository boardRepository;
     private final AttachService attachService;
 
     @GetMapping("/list")
@@ -62,8 +65,8 @@ public class BoardViewController {
         try{
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
-            //조회수 증가
-
+            //조회수 증가.
+            boardRepository.ReadCountUpToDB(boardId,detail.getReadCount());
         }catch (Exception e){
             e.printStackTrace();
         }

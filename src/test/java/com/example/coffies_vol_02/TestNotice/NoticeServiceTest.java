@@ -206,15 +206,7 @@ public class NoticeServiceTest {
     private NoticeResponseDto NoticeResponseDto(){
         return NoticeResponseDto
                 .builder()
-                .id(noticeBoard.getId())
-                .noticeTitle(noticeBoard.getNoticeTitle())
-                .noticeWriter(member.getUserId())
-                .noticeContents(noticeBoard.getNoticeContents())
-                .noticeGroup(noticeBoard.getNoticeGroup())
-                .fileGroupId(noticeBoard.getFileGroupId())
-                .isFixed(noticeBoard.getIsFixed())
-                .createdTime(noticeBoard.getCreatedTime())
-                .updatedTime(noticeBoard.getUpdatedTime())
+                .noticeBoard(noticeBoard)
                 .build();
     }
     private MemberResponseDto responseDto(){

@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -77,7 +77,7 @@ public class FavoritePlaceServiceTest {
 
     BoardResponseDto boardResponseDto;
 
-    CommentDto.CommentResponseDto commentResponseDto;
+    commentResponseDto ResponseDto;
 
     FavoritePlaceDto favoriteResponseDto;
 
@@ -97,7 +97,7 @@ public class FavoritePlaceServiceTest {
         placeImages.add(placeImage);
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
-        commentResponseDto = commentResponseDto();
+        ResponseDto = commentResponseDto();
         favoriteResponseDto = favoriteResponseDto();
     }
 
@@ -145,7 +145,7 @@ public class FavoritePlaceServiceTest {
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
-        List<CommentDto.CommentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
+        List<commentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
         assertThat(result).isNotEmpty();
     }
 
@@ -159,7 +159,7 @@ public class FavoritePlaceServiceTest {
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            List<CommentDto.CommentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
+            List<commentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
@@ -194,12 +194,22 @@ public class FavoritePlaceServiceTest {
     @Test
     @DisplayName("위시리스트 목록.")
     public void wishListTest(){
+        //given
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(favoritePlaceRepository.save(favoritePlace())).willReturn(favoritePlace);
 
-        List<FavoritePlace>list = member.getWishList();
-        System.out.println(list);
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+        List<FavoritePlaceDto>re = new ArrayList<>();
+        re.add(favoriteResponseDto);
+        Page<FavoritePlaceDto>result = new PageImpl<>(re,pageRequest,0);
+
+        //when
+        result = favoritePlaceService.MyWishList(pageRequest,member.getUserId());
+        //then
+        then(favoritePlaceRepository.favoritePlaceWishList(pageRequest,member.getUserId()));
+
+        verify(favoritePlaceRepository,atLeastOnce()).favoritePlaceWishList(pageRequest,member.getUserId());
     }
     
     private Comment comment(){
@@ -315,8 +325,8 @@ public class FavoritePlaceServiceTest {
                 .createdTime(LocalDateTime.now())
                 .build();
     }
-    private CommentDto.CommentResponseDto commentResponseDto(){
-        return CommentDto.CommentResponseDto
+    private commentResponseDto commentResponseDto(){
+        return commentResponseDto
                 .builder()
                 .comment(comment())
                 .build();

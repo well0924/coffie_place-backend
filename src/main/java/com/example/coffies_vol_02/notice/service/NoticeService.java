@@ -59,15 +59,7 @@ public class NoticeService {
 
         return NoticeResponseDto
                 .builder()
-                .id(noticeBoard.getId())
-                .noticeTitle(noticeBoard.getNoticeTitle())
-                .noticeWriter(noticeBoard.getNoticeWriter())
-                .noticeContents(noticeBoard.getNoticeContents())
-                .noticeGroup(noticeBoard.getNoticeGroup())
-                .fileGroupId(noticeBoard.getFileGroupId())
-                .isFixed(noticeBoard.getIsFixed())
-                .createdTime(noticeBoard.getCreatedTime())
-                .updatedTime(noticeBoard.getUpdatedTime())
+                .noticeBoard(noticeBoard)
                 .build();
     }
 
@@ -109,8 +101,10 @@ public class NoticeService {
     **/
     @Transactional
     public Integer noticeUpdate(Integer noticeId,NoticeRequestDto dto,List<MultipartFile>files) throws Exception {
+
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        NoticeBoard noticeBoard = detail.orElse(null);
+
+        NoticeBoard noticeBoard = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
 
         noticeBoard.NoticeUpdate(dto);
 
@@ -142,12 +136,14 @@ public class NoticeService {
     */
     @Transactional
     public void noticeDelete(Integer noticeId)throws Exception{
+
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         List<Attach>list = attachRepository.findAttachNoticeBoard(noticeId);
 
         for (Attach attach : list) {
             String filePath = attach.getFilePath();
+
             File file = new File(filePath);
 
             if (file.exists()) {

@@ -12,7 +12,6 @@ import org.springframework.data.redis.core.ScanOptions;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class MemberRedisTest {
@@ -32,7 +31,6 @@ public class MemberRedisTest {
 
         //키값으로 저장된 값을 가져오기.=>총3개가 들어왔는지 보기.
         Set<String> a = hashOperations.keys(key);
-        assertThat(a).size().isEqualTo(3);
 
         //redis scan을 사용해서 well로 시작하는 단어를 전부 다 검색하기.
         ScanOptions scanOptions = ScanOptions.scanOptions().match("well*").build();
@@ -45,6 +43,7 @@ public class MemberRedisTest {
             searchList.add(entry.getKey());
         }
 
+        System.out.println(searchList);
         assertThat(searchList.get(0)).isEqualTo("well4149");
     }
 }

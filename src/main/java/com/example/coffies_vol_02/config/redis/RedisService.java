@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.config.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -16,7 +17,8 @@ import java.util.Set;
 public class RedisService {
 
     private final StringRedisTemplate stringRedisTemplate;
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<Object,Object> redisTemplate;
+    private final RedisTemplate<String,String> hashRedisTemplate;
 
     public void setValues(String key,String value,Duration duration){
         ValueOperations<String,String>values = stringRedisTemplate.opsForValue();

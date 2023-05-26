@@ -43,18 +43,18 @@ public class Board extends BaseTime implements Serializable {
 
     private String fileGroupId;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     @JsonIgnore
     private Member member;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,orphanRemoval = true)
     @JsonIgnore
     private List<Comment>commentList = new ArrayList<>();
 
     @BatchSize(size = 1000)
-    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Like> likes = new LinkedHashSet<>();
 
@@ -85,7 +85,6 @@ public class Board extends BaseTime implements Serializable {
         this.boardContents = dto.getBoardContents();
     }
 
-    //조회수 증가
     public void readCountUp(){
         this.readCount++;
     }

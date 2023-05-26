@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.favoritePlace.controller.api;
 
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
@@ -91,8 +91,8 @@ public class FavoriteApiController {
     
     @Operation(summary = "로그인한 회원이 작성한 댓글",description = "마이페이지에서 로그인한 회원이 작성한 댓글의 목록을 보여준다.")
     @GetMapping(path = "/comment/{id}")
-    public CommonResponse<List<CommentDto.CommentResponseDto>>MyComment(@PathVariable("id") String userId, Pageable pageable){
-        List<CommentDto.CommentResponseDto>list = new ArrayList<>();
+    public CommonResponse<List<commentResponseDto>>MyComment(@PathVariable("id") String userId, Pageable pageable){
+        List<commentResponseDto>list = new ArrayList<>();
         try{
             list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
         }catch (Exception e){

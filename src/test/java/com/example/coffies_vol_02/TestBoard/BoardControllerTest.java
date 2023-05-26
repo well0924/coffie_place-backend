@@ -48,6 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BoardControllerTest {
     @Autowired
     private WebApplicationContext context;
+    @Autowired
+    private MockMvc mvc;
     @Mock
     private MemberRepository memberRepository;
     @Mock
@@ -58,8 +60,6 @@ public class BoardControllerTest {
     private AttachService attachService;
     @MockBean
     private BoardService boardService;
-    @Autowired
-    private MockMvc mvc;
     private Member member;
     private Board board;
     private Attach attach;

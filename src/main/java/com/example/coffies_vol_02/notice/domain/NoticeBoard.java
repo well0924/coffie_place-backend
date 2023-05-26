@@ -22,7 +22,6 @@ import java.util.List;
         @Index(name = "notice_index4",columnList = "noticeTitle")
 })
 @NoArgsConstructor
-@AllArgsConstructor
 public class NoticeBoard extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

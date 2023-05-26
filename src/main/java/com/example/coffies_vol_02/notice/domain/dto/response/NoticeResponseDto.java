@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Schema(description = "공지게시판 응답Dto")
 @Getter
 @ToString
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeResponseDto implements Serializable {

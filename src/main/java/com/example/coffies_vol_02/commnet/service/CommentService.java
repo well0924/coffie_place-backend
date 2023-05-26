@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
 import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -94,9 +95,9 @@ public class CommentService {
      * 가게 댓글 목록
      * */
     @Transactional(readOnly = true)
-    public List<commentResponseDto>placeCommentList(Integer placeId) throws Exception {
+    public List<placeCommentResponseDto>placeCommentList(Integer placeId) throws Exception {
         List<Comment>list = commentRepository.findByPlaceId(placeId);
-        return list.stream().map(commentResponseDto::new).collect(Collectors.toList());
+        return list.stream().map(placeCommentResponseDto::new).collect(Collectors.toList());
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.config.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -38,8 +37,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<?,?> redisTemplate(ObjectMapper objectMapper) {
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+    public RedisTemplate<?,?> redisTemplate() {
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
@@ -64,8 +63,9 @@ public class RedisConfig {
                 .disableCachingNullValues()
                 .entryTtl(Duration.ofSeconds(CacheKey.DEFAULT_EXPIRE_SEC))
                 .computePrefixWith(CacheKeyPrefix.simple())
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                .serializeKeysWith(RedisSerializationContext.
+                        SerializationPair.fromSerializer(new StringRedisSerializer())).serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         Map<String,RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
 
@@ -75,6 +75,9 @@ public class RedisConfig {
         redisCacheConfigurationMap
                 .put(CacheKey.BOARD,
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.BOARD_EXPIRE_SEC)));
+        redisCacheConfigurationMap
+                .put(CacheKey.NOTICE_BOARD,
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.NOTICE_BOARD_EXPIRE_SEC)));
 
         return RedisCacheManager
                 .RedisCacheManagerBuilder
@@ -83,4 +86,6 @@ public class RedisConfig {
                 .withInitialCacheConfigurations(redisCacheConfigurationMap)
                 .build();
     }
+
+
 }

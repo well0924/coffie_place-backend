@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestFavoritePlace;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.CommentDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
@@ -61,7 +61,7 @@ public class FavoriteControllerTest {
 
     BoardResponseDto boardResponseDto;
 
-    CommentDto.CommentResponseDto commentResponseDto;
+    commentResponseDto responseDto;
 
     private CustomUserDetails customUserDetails;
 
@@ -78,7 +78,7 @@ public class FavoriteControllerTest {
         place = place();
         memberResponseDto =responseDto();
         boardResponseDto = boardResponseDto();
-        commentResponseDto = commentResponseDto();
+        responseDto = commentResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -106,8 +106,8 @@ public class FavoriteControllerTest {
     @DisplayName("내가 작성한 댓글 페이지")
     public void myCommentPage()throws Exception{
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        List<CommentDto.CommentResponseDto> list = new ArrayList<>();
-        list.add(commentResponseDto);
+        List<commentResponseDto> list = new ArrayList<>();
+        list.add(responseDto);
         given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).willReturn(list);
 
         when(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).thenReturn(list);
@@ -226,8 +226,8 @@ public class FavoriteControllerTest {
                 .build();
     }
 
-    private CommentDto.CommentResponseDto commentResponseDto(){
-        return CommentDto.CommentResponseDto
+    private commentResponseDto commentResponseDto(){
+        return commentResponseDto
                 .builder()
                 .comment(comment())
                 .build();

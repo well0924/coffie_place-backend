@@ -13,9 +13,19 @@ Coffies vol.02
 
 23.03.21~23.05.09(~ing)
 
-->기본적인 기능 완료(5.12)
+- 기본적인 api 완료(5.12)
 
-->부가적인 기능(5.13~)
+- 부가적인 기능(5.13~)
+
+-[x] QueryDsl n+1 문제 해결
+
+-[ ] redis 캐싱 적용(로그인v,공지사항v,회원자동완성v,가게 평점,좋아요,조회수,가게 검색)
+
+-[ ] DockerCompose를 활용해서 다중 컨테이너 사용
+
+-[ ] Jenkins을 활용한 CI/CD구축
+
+-[ ] Aws 배포
 
 -제작기술
 
@@ -38,14 +48,23 @@ Coffies vol.02
 - fontawesome
 
 #### ETC
--swagger 3.0.0
+- swagger 3.0.0
 
 #### Depoly
 - github Action or jenkins
 - Aws
 - Aws s3
-- Aws lamda
 
+### Git Convention
+
+- feat : 기능 추가
+- test : 테스트 코드 작성
+- refactor : 리팩토링
+- docs : 코드 주석추가 삭제,문서 변경
+
+### ERD
+
+### Api 기능
 
 ### Guides
 
@@ -58,9 +77,7 @@ The following guides illustrate how to use some features concretely:
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 * [Validation](https://spring.io/guides/gs/validating-form-input/)
 
-### Additional Links
+### 문제 해결
 
-These additional references should also help you:
-
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
-
+- Jpa N+1 문제해결하기.
+- 
