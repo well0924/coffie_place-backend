@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.member.repository;
 
 import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,7 +17,6 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMemberRepository, QuerydslPredicateExecutor {
     //페이징 목록
     Page<Member> findAll(Pageable pageable);
-
     //아이디 중복처리
     Boolean existsByUserId(String userId);
 
@@ -29,14 +29,9 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
     //시큐리티 로그인
     Optional<Member>findByUserId(String userId);
 
-    //회원 이름 자동완성기능
-    List<Member>findByUserIdStartsWith(String searchVal, Sort sort);
-
     //회원 선택삭제
     @Transactional
     @Modifying
     @Query("delete from Member m where m.userId in :ids")
     void deleteAllByUserId(List<String>ids);
-
-
 }

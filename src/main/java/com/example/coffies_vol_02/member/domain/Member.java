@@ -2,11 +2,10 @@ package com.example.coffies_vol_02.member.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -62,15 +61,15 @@ public class Member extends BaseTime implements Serializable {
     }
 
     //회원 수정(Dirty Checking)
-    public void updateMember(MemberRequestDto memberCreateDto){
-        this.userId = memberCreateDto.getUserId();
-        this.memberName = memberCreateDto.getMemberName();
-        this.userAge = memberCreateDto.getUserAge();
-        this.userEmail = memberCreateDto.getUserEmail();
-        this.userGender =  memberCreateDto.getUserGender();
-        this.userPhone = memberCreateDto.getUserPhone();
-        this.userAddr1 = memberCreateDto.getUserAddr1();
-        this.userAddr2 = memberCreateDto.getUserAddr2();
+    public void updateMember(MemberRequest memberCreateDto){
+        this.userId = memberCreateDto.userId();
+        this.memberName = memberCreateDto.memberName();
+        this.userAge = memberCreateDto.userAge();
+        this.userEmail = memberCreateDto.userEmail();
+        this.userGender =  memberCreateDto.userGender();
+        this.userPhone = memberCreateDto.userPhone();
+        this.userAddr1 = memberCreateDto.userAddr1();
+        this.userAddr2 = memberCreateDto.userAddr2();
     }
 
 }

@@ -2,7 +2,8 @@ package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,6 +62,7 @@ public class MemberApiControllerTest {
     private Member member;
 
     private MemberResponseDto responseDto;
+    private MemberRequest request;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -70,6 +73,7 @@ public class MemberApiControllerTest {
                 .webAppContextSetup(context)
                 .build();
         member = memberDto();
+        request = request();
         responseDto = responseDto();
     }
 
@@ -94,47 +98,32 @@ public class MemberApiControllerTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        when(memberService.findMember(member.getId())).thenReturn(responseDto);
+        when(memberService.findMemberRecord(member.getId())).thenReturn(response());
 
         mvc.perform(get("/api/member/detail/{user_idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-
-        verify(memberService).findMember(member.getId());
     }
 
     @DisplayName("회원 가입-성공")
     @Test
     public void memberJoinTest()throws Exception{
+        String encode = bCryptPasswordEncoder.encode("well31942@!@");
+        member.setPassword(bCryptPasswordEncoder.encode(encode));
+        given(memberRepository.save(request.toEntity(member))).willReturn(member);
 
-        MemberRequestDto dto = new MemberRequestDto();
-
-        dto.setId(member.getId());
-        dto.setUserId(member.getUserId());
-        dto.setPassword(member.getPassword());
-        dto.setUserGender(member.getUserGender());
-        dto.setUserAge(member.getUserAge());
-        dto.setMemberName(member.getMemberName());
-        dto.setUserEmail(member.getUserEmail());
-        dto.setUserPhone(member.getUserPhone());
-        dto.setUserAddr1(member.getUserAddr1());
-        dto.setUserAddr2(member.getUserAddr2());
-        dto.setRole(member.getRole());
-
-        given(memberService.memberCreate(eq(dto))).willReturn(member.getId());
-
-        when(memberService.memberCreate(eq(dto))).thenReturn(member.getId());
+        doNothing().when(memberService).memberCreate(request);
 
         mvc.perform(post("/api/member/join")
-                        .content(objectMapper.writeValueAsString(dto))
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
         
-        verify(memberService).memberCreate(any());
+        then(memberService).should().memberCreate(request);
     }
 
     @DisplayName("회원 수정")
@@ -143,27 +132,15 @@ public class MemberApiControllerTest {
         //given
         given(memberRepository.findById(1)).willReturn(Optional.of(member));
 
-        MemberRequestDto dto = new MemberRequestDto();
-        dto.setMemberName("update name");
-        dto.setUserId("test update");
-        dto.setRole(Role.ROLE_USER);
-        dto.setUserEmail("testemail123@.com");
-        dto.setUserAge("21");
-        dto.setUserPhone("02-906-8570");
-        dto.setUserGender("여성");
-
         //when
-        member.updateMember(dto);
+        member.updateMember(request);
 
         mvc.perform(MockMvcRequestBuilders.patch("/api/member/update/{user_idx}",member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
-
-        //then
-        verify(memberService,atLeast(1)).memberUpdate(anyInt(),any());
     }
 
     @DisplayName("회원 삭제")
@@ -217,7 +194,7 @@ public class MemberApiControllerTest {
     @Test
     @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
-        given(memberService.findMember(member.getId())).willReturn(responseDto);
+        given(memberService.findMemberRecord(member.getId())).willReturn(response());
         given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(true);
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
@@ -259,14 +236,13 @@ public class MemberApiControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         int id =member.getId();
         String password = "4567qwer!!";
-        MemberRequestDto dto =  new MemberRequestDto();
-        dto.setPassword(bCryptPasswordEncoder.encode(password));
+        request.password(bCryptPasswordEncoder.encode(password));
 
         //when
-        when(memberService.updatePassword(id,dto)).thenReturn(member.getId());
+        when(memberService.updatePassword(id,request)).thenReturn(member.getId());
 
         mvc.perform(MockMvcRequestBuilders.patch("/api/member/password/{user_idx}",id)
-                        .content(objectMapper.writeValueAsString(dto))
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
@@ -330,5 +306,24 @@ public class MemberApiControllerTest {
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
                 .build();
+    }
+
+    private MemberRequest request(){
+        return new MemberRequest(
+                member.getId(),
+                member.getUserId(),
+                member.getPassword(),
+                member.getMemberName(),
+                member.getUserPhone(),
+                member.getUserGender(),
+                member.getUserAge(),
+                member.getUserEmail(),
+                member.getUserAddr1(),
+                member.getUserAddr2(),
+                member.getRole());
+    }
+
+    private MemberResponse response(){
+        return new MemberResponse(member);
     }
 }

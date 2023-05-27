@@ -4,7 +4,8 @@ import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
@@ -31,20 +32,31 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MemberServiceTest {
+
     @InjectMocks
     private MemberService memberService;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     Member member;
+
     MemberResponseDto responseDto;
+
+    MemberRequest memberRequest;
+    MemberResponse memberResponse;
 
     @BeforeEach
     public void init(){
         member = memberDto();
+        memberRequest = request();
         responseDto = responseDto();
+        memberResponse = response();
     }
+
     @Test
     @DisplayName("회원 목록(페이징)")
     public void memberList(){
@@ -76,6 +88,7 @@ public class MemberServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.get().toList().get(0).getMemberName()).isEqualTo(memberDto().getMemberName());
     }
+/**
     @Test
     @DisplayName("회원 단일 조회")
     public void memberDetailTest(){
@@ -85,6 +98,26 @@ public class MemberServiceTest {
         MemberResponseDto dto = memberService.findMember(1);
 
         assertThat(dto.getMemberName()).isEqualTo(member.getMemberName());
+    }
+**/
+    @Test
+    @DisplayName("회원 단일 조회")
+    public void memberDetailTest(){
+
+        given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
+
+        memberResponse = memberService.findMemberRecord(member.getId());
+
+        assertThat(memberResponse.memberName()).isEqualTo(member.getMemberName());
+    }
+
+    @Test
+    @DisplayName("회원 단일 조회실패")
+    public void memberDetailTestFail(){
+
+        org.junit.jupiter.api.Assertions.assertThrows(Exception.class,()->{
+            Optional<Member>detail = Optional.ofNullable(memberRepository.findById(0).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+        });
     }
 
     @Test
@@ -106,36 +139,14 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 단일 조회실패")
-    public void memberDetailTestFail(){
+    @DisplayName("회원가입")
+    public void memberCreateRecordTest(){
+        MemberRequest result = new MemberRequest(member.getId(),member.getUserId(),null,member.getMemberName(),member.getUserPhone(),member.getUserGender(),member.getUserAge(),member.getUserEmail(),member.getUserAddr1(),member.getUserAddr2(),member.getRole());
+        member.setPassword(bCryptPasswordEncoder.encode("well31942@!@"));
 
-        org.junit.jupiter.api.Assertions.assertThrows(Exception.class,()->{
-            Optional<Member>detail = Optional.ofNullable(memberRepository.findById(0).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        });
-    }
+        given(memberRepository.save(result.toEntity(member))).willReturn(member);
 
-    @Test
-    @DisplayName("회원 가입")
-    public void memberJoinTest(){
-        MemberRequestDto dto = new MemberRequestDto();
-
-        dto.setId(memberDto().getId());
-        dto.setPassword(memberDto().getPassword());
-        dto.setMemberName(memberDto().getMemberName());
-        dto.setUserAge(memberDto().getUserAge());
-        dto.setUserGender(memberDto().getUserGender());
-        dto.setUserEmail(memberDto().getUserEmail());
-        dto.setUserPhone(memberDto().getUserPhone());
-        dto.setRole(Role.ROLE_ADMIN);
-        dto.setUserAddr1(memberDto().getUserAddr1());
-        dto.setUserAddr2(memberDto().getUserAddr2());
-        dto.setUserId(memberDto().getUserId());
-
-        given(memberService.memberCreate(dto)).willReturn(dto.getId());
-
-        int result = memberService.memberCreate(dto);
-
-        assertThat(result).isEqualTo(1);
+        memberService.memberCreate(result);
     }
 
     @Test
@@ -143,21 +154,11 @@ public class MemberServiceTest {
     public void memberUpdateTest(){
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-
-        MemberRequestDto dto = new MemberRequestDto();
-        dto.setId(1);
-        dto.setMemberName("update name");
-        dto.setUserId("test update");
-        dto.setRole(Role.ROLE_ADMIN);
-        dto.setUserEmail("testemail.com");
-
         //when
-        member.updateMember(dto);
-        responseDto = memberService.findMember(member.getId());
-        Integer updateResult = memberService.memberUpdate(dto.getId(),dto);
+        member.updateMember(request());
 
-        //then
-        assertThat(updateResult).isEqualTo(member.getId());
+        memberService.memberUpdate(member.getId(),request());
+
     }
 
     @Test
@@ -212,6 +213,7 @@ public class MemberServiceTest {
 
         assertThat(userId).isEqualTo(member.getUserId());
     }
+
     @Test
     @DisplayName("회원 비밀번호 변경")
     public void memberPasswordChangeTest(){
@@ -223,10 +225,9 @@ public class MemberServiceTest {
 
         String changepassword = "4567";
 
-        MemberRequestDto dto = new MemberRequestDto();
-        dto.setPassword(changepassword);
+        memberRequest.password(changepassword);
 
-        given(memberService.updatePassword(member.getId(),dto)).willReturn(member.getId());
+        given(memberService.updatePassword(member.getId(),memberRequest)).willReturn(member.getId());
 
         assertThat(changepassword).isEqualTo("4567");
     }
@@ -317,5 +318,23 @@ public class MemberServiceTest {
                 .createdTime(LocalDateTime.now())
                 .updatedTime(LocalDateTime.now())
                 .build();
+    }
+    private MemberRequest request(){
+        return new MemberRequest(
+                member.getId(),
+                member.getUserId(),
+                member.getPassword(),
+                member.getMemberName(),
+                member.getUserPhone(),
+                member.getUserGender(),
+                member.getUserAge(),
+                member.getUserEmail(),
+                member.getUserAddr1(),
+                member.getUserAddr2(),
+                member.getRole());
+    }
+
+    private MemberResponse response(){
+        return new MemberResponse(member);
     }
 }

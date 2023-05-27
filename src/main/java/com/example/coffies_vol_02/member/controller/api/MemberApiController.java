@@ -1,7 +1,8 @@
 package com.example.coffies_vol_02.member.controller.api;
 
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.member.domain.dto.request.MemberRequestDto;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
@@ -60,11 +61,11 @@ public class MemberApiController {
 
     @Operation(summary = "회원 단일 조회 api",description = "회원을 단일  조회한다.")
     @GetMapping(path = "/detail/{user_idx}")
-    public CommonResponse<MemberResponseDto>findMember(@PathVariable("user_idx")Integer userIdx){
-        MemberResponseDto detail = new MemberResponseDto();
+    public CommonResponse<MemberResponse>findMember(@PathVariable("user_idx")Integer userIdx){
+        MemberResponse detail = memberService.findMemberRecord(userIdx);
 
         try{
-            detail = memberService.findMember(userIdx);
+            detail = memberService.findMemberRecord(userIdx);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -75,30 +76,40 @@ public class MemberApiController {
     @Operation(summary = "회원가입 api",description = "회원가입 기능.")
     @PostMapping(path = "/join")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>memberCreate(@Valid @RequestBody MemberRequestDto dto, BindingResult bindingResult){
-        Integer JoinResult = 0;
+    public CommonResponse<?>memberCreate(@Valid @RequestBody MemberRequest dto, BindingResult bindingResult){
 
         try{
-            JoinResult = memberService.memberCreate(dto);
+            memberService.memberCreate(dto);
         }catch (Exception e){
             e.printStackTrace();
         }
-        return new CommonResponse<>(HttpStatus.OK.value(),JoinResult);
+
+        if(HttpStatus.OK.is2xxSuccessful()){
+            return new CommonResponse<>(HttpStatus.OK.value(),"회원가입이 완료되었습니다.");
+        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원가입에 실패했습니다.");
+        }else{
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+        }
     }
 
     @ApiOperation(value = "회원수정 api")
     @PatchMapping(path = "/update/{user_idx}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>memberUpdate(@PathVariable("user_idx") Integer userIdx,@RequestBody MemberRequestDto dto){
-        Integer UpdateResult = 0;
-
+    public CommonResponse<?>memberUpdate(@PathVariable("user_idx") Integer userIdx,@RequestBody MemberRequest dto){
         try{
-            UpdateResult = memberService.memberUpdate(userIdx,dto);
+            memberService.memberUpdate(userIdx,dto);
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
+        if(HttpStatus.OK.is2xxSuccessful()){
+            return new CommonResponse<>(HttpStatus.OK.value(),"회원정보가 수정되었습니다.");
+        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원수정에 실패했습니다.");
+        }else{
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+        }
     }
 
     @ApiOperation(value = "회원삭제 api")
@@ -114,7 +125,7 @@ public class MemberApiController {
 
     @ApiOperation(value = "회원 아이디 찾기 api")
     @GetMapping(path = "/find-id/{user_name}/{user_email}")
-    public CommonResponse<?>findUserId(@PathVariable(value = "user_name")String userName, @PathVariable("user_email")String userEmail){
+    public CommonResponse<String>findUserId(@PathVariable(value = "user_name")String userName, @PathVariable("user_email")String userEmail){
         String findUser = "";
 
         try{
@@ -152,7 +163,7 @@ public class MemberApiController {
 
     @Operation(summary = "회원비밀번호 변경 api",description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
     @PatchMapping(path = "/password/{user_id}")
-    public CommonResponse<Integer>passwordUpdate(@PathVariable("user_id")Integer id,@RequestBody MemberRequestDto dto){
+    public CommonResponse<Integer>passwordUpdate(@PathVariable("user_id")Integer id,@RequestBody MemberRequest dto){
         int updateResult = 0;
 
         try{

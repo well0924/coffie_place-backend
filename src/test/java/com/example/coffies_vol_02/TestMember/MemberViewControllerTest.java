@@ -1,6 +1,8 @@
 package com.example.coffies_vol_02.TestMember;
 
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
@@ -95,7 +97,7 @@ public class MemberViewControllerTest {
     @DisplayName("회원 수정 화면")
     @WithMockUser(username = "well4149",roles = "ADMIN")
     public void adminDetailPageTest()throws Exception{
-        given(memberService.findMember(anyInt())).willReturn(responseDto());
+        given(memberService.findMemberRecord(anyInt())).willReturn(response());
 
         mvc.perform(
                 get("/page/login/modify/{id}",responseDto().getId())
@@ -104,6 +106,23 @@ public class MemberViewControllerTest {
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(view().name("/login/membermodify"))
                 .andDo(print());
+    }
+
+    private Member memberDto(){
+        return Member
+                .builder()
+                .id(1)
+                .userId("well4149")
+                .password("qwer4149!@#")
+                .memberName("admin1")
+                .userEmail("well41492@gmail.com")
+                .userPhone("010-9999-9999")
+                .userAge("30")
+                .userGender("남자")
+                .userAddr1("xxxxxx시 xxxx")
+                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .role(Role.ROLE_ADMIN)
+                .build();
     }
 
     private MemberResponseDto responseDto(){
@@ -122,5 +141,8 @@ public class MemberViewControllerTest {
                 .createdTime(LocalDateTime.now())
                 .updatedTime(LocalDateTime.now())
                 .build();
+    }
+    private MemberResponse response(){
+        return new MemberResponse(memberDto());
     }
 }

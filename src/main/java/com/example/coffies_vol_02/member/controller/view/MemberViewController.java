@@ -1,5 +1,7 @@
 package com.example.coffies_vol_02.member.controller.view;
 
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import lombok.AllArgsConstructor;
@@ -51,13 +53,7 @@ public class MemberViewController {
     public ModelAndView memberModifyPage(@PathVariable("id")Integer useridx){
         ModelAndView mv = new ModelAndView();
 
-        MemberResponseDto dto = new MemberResponseDto();
-
-        try{
-            dto = memberService.findMember(useridx);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        MemberResponse dto = memberService.findMemberRecord(useridx);
 
         mv.addObject("detail",dto);
         mv.setViewName("/login/membermodify");

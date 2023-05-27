@@ -52,21 +52,21 @@ function checkvalid(chk){
 
 //이메일 중복체크
 function emailCheck(){
-    let userEmail = document.getElementById('user_email');
-
+    let email = $('#user_email').val();
+    console.log(email);
     $.ajax({
-        url:'/api/member/email-check/'+userEmail,
+        url:'/api/member/email-check/'+email,
         type:'GET',
         dataType:'json',
         contentType:"application/json; charset=UTF-8"
     }).done(function (resp){
         if(resp.data == true){
-        document.getElementById('emailExists').innerHTML = '</br>이메일이 중복!';
-        document.getElementById('emailExists').style.color='red';
-    }else{
-        document.getElementById('emailExists').innerHTML = '</br>사용가능한 이메일입니다.';
-        document.getElementById('emailExists').style.color='blue';
-    }
+            document.getElementById('emailExists').innerHTML = '</br>이메일이 중복!';
+            document.getElementById('emailExists').style.color='red';
+        }else{
+            document.getElementById('emailExists').innerHTML = '</br>사용가능한 이메일입니다.';
+            document.getElementById('emailExists').style.color='blue';
+        }
     });
 }
 
