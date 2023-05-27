@@ -3,7 +3,6 @@ package com.example.coffies_vol_02.member.controller.api;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,8 +32,8 @@ public class MemberApiController {
 
     @Operation(summary = "회원 목록 api",description = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
-    public CommonResponse<Page<MemberResponseDto>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
-        Page<MemberResponseDto> list = null;
+    public CommonResponse<Page<MemberResponse>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
+        Page<MemberResponse> list = null;
 
         try{
             list = memberService.findAll(pageable);
@@ -46,9 +45,9 @@ public class MemberApiController {
 
     @Operation(summary = "회원 검색 api",description = "회원목록에서 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<MemberResponseDto>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
+    public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
 
-        Page<MemberResponseDto> list = null;
+        Page<MemberResponse> list = null;
 
         try{
             list = memberService.findByAllSearch(searchVal,pageable);

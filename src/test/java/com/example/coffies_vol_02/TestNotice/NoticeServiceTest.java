@@ -7,7 +7,7 @@ import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
@@ -57,7 +57,7 @@ public class NoticeServiceTest {
     @Mock
     private AttachService attachService;
     private Member member;
-    private MemberResponseDto memberResponseDto;
+    private MemberResponse memberResponseDto;
     private Attach attach;
     private NoticeBoard noticeBoard;
     private NoticeRequestDto requestDto;
@@ -209,22 +209,8 @@ public class NoticeServiceTest {
                 .noticeBoard(noticeBoard)
                 .build();
     }
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse responseDto(){
+        return new MemberResponse(member);
     }
     private Attach attach(){
         return Attach

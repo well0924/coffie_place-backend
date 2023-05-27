@@ -6,7 +6,6 @@ import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,30 +35,16 @@ public class MemberService {
     *
     **/
     @Transactional(readOnly = true)
-    public Page<MemberResponseDto> findAll(Pageable pageable){
+    public Page<MemberResponse> findAll(Pageable pageable){
         Page<Member>list = memberRepository.findAll(pageable);
-
-        return list.map(member->new MemberResponseDto(
-                member.getId(),
-                member.getUserId(),
-                member.getPassword(),
-                member.getMemberName(),
-                member.getUserPhone(),
-                member.getUserGender(),
-                member.getUserAge(),
-                member.getUserEmail(),
-                member.getUserAddr1(),
-                member.getUserAddr2(),
-                member.getRole(),
-                member.getCreatedTime(),
-                member.getUpdatedTime()));
+        return list.map(member->new MemberResponse(member));
     }
     
     /**
     *  회원 검색
     * */
     @Transactional(readOnly = true)
-    public Page<MemberResponseDto>findByAllSearch(String searchVal, Pageable pageable){
+    public Page<MemberResponse>findByAllSearch(String searchVal, Pageable pageable){
         return memberRepository.findByAllSearch(searchVal,pageable);
     }
 

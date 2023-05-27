@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.member.repository;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.QMember;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -30,9 +30,9 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
 
     //회원 검색기능
     @Override
-    public Page<MemberResponseDto> findByAllSearch(String searchVal, Pageable pageable) {
+    public Page<MemberResponse> findByAllSearch(String searchVal, Pageable pageable) {
 
-        List<MemberResponseDto>responseDto = new ArrayList<>();
+        List<MemberResponse>responseDto = new ArrayList<>();
 
         List<Member>memberList = jpaQueryFactory
                 .select(QMember.member)
@@ -54,23 +54,7 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
                 .size();
 
         for(Member memberlist : memberList){
-            MemberResponseDto dto = MemberResponseDto
-                    .builder()
-                    .id(memberlist.getId())
-                    .userId(memberlist.getUserId())
-                    .password(memberlist.getPassword())
-                    .memberName(memberlist.getMemberName())
-                    .userEmail(memberlist.getUserEmail())
-                    .userGender(memberlist.getUserGender())
-                    .userPhone(memberlist.getUserPhone())
-                    .userAge(memberlist.getUserAge())
-                    .userAddr1(memberlist.getUserAddr1())
-                    .userAddr2(memberlist.getUserAddr2())
-                    .role(memberlist.getRole())
-                    .createdTime(memberlist.getCreatedTime())
-                    .updatedTime(memberlist.getUpdatedTime())
-                    .build();
-
+            MemberResponse dto = new MemberResponse(memberlist);
             responseDto.add(dto);
         }
         return new PageImpl<>(responseDto,pageable,count);

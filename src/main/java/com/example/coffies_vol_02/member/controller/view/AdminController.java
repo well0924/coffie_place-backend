@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.member.controller.view;
 
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,7 @@ public class AdminController {
                                       @RequestParam(value = "searchVal",required = false) String searchVal){
         ModelAndView mv = new ModelAndView();
 
-        Page<MemberResponseDto> memberList = memberService.findByAllSearch(searchVal,pageable);
+        Page<MemberResponse> memberList = memberService.findByAllSearch(searchVal,pageable);
 
         mv.addObject("memberlist",memberList);
         mv.addObject("searchVal",searchVal);

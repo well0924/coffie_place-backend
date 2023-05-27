@@ -12,7 +12,7 @@ import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
@@ -63,7 +63,7 @@ public class CommentServiceTest {
 
     Comment comment;
 
-    MemberResponseDto responseDto;
+    MemberResponse responseDto;
 
     BoardResponseDto boardResponseDto;
     com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto;
@@ -75,7 +75,7 @@ public class CommentServiceTest {
     @BeforeEach
     public void init(){
         member = memberDto();
-        responseDto = responseDto();
+        responseDto = response();
         comment = comment();
         commentRequestDto = commentRequestDto();
         commentResponseDto = commentResponseDto();
@@ -348,22 +348,8 @@ public class CommentServiceTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse response(){
+        return new MemberResponse(member);
     }
     private BoardResponseDto boardResponseDto(){
         return BoardResponseDto.builder()

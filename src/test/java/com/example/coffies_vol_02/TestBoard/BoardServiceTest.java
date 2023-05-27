@@ -14,7 +14,7 @@ import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandle
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -64,9 +64,7 @@ public class BoardServiceTest {
     private FileHandler fileHandler;
 
     Member member;
-
-    MemberResponseDto memberResponseDto;
-
+    MemberResponse memberResponse;
     Board board;
 
     BoardRequestDto boardRequestDto;
@@ -82,7 +80,7 @@ public class BoardServiceTest {
     @BeforeEach
     public void init() throws Exception {
         member = memberDto();
-        memberResponseDto = responseDto();
+        memberResponse = response();
         board = board();
         boardRequestDto = getBoardRequestDto();
         boardResponseDto = boardResponseDto();
@@ -351,23 +349,10 @@ public class BoardServiceTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse response(){
+        return new MemberResponse(member);
     }
+
     private BoardRequestDto getBoardRequestDto(){
         return BoardRequestDto
                 .builder()

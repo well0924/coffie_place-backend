@@ -4,7 +4,6 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,8 +60,8 @@ public class MemberApiControllerTest {
 
     private Member member;
 
-    private MemberResponseDto responseDto;
     private MemberRequest request;
+    private MemberResponse response;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -74,7 +73,7 @@ public class MemberApiControllerTest {
                 .build();
         member = memberDto();
         request = request();
-        responseDto = responseDto();
+        response = response();
     }
 
     @DisplayName("회원 목록")
@@ -150,7 +149,7 @@ public class MemberApiControllerTest {
 
         doNothing().when(memberService).memberDelete(member.getId());
 
-        mvc.perform(delete("/api/member/delete/{user_idx}", responseDto.getId())
+        mvc.perform(delete("/api/member/delete/{user_idx}", response.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
@@ -271,24 +270,6 @@ public class MemberApiControllerTest {
                 .andDo(print());
 
         verify(memberService,times(1)).selectMemberDelete(userid);
-    }
-
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("1234")
-                .memberName("admin1")
-                .userEmail("well41492@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
     }
 
     private Member memberDto(){

@@ -9,7 +9,7 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.place.domain.Place;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class FavoriteControllerTest {
 
     private Place place;
 
-    MemberResponseDto memberResponseDto;
+    MemberResponse memberResponseDto;
 
     BoardResponseDto boardResponseDto;
 
@@ -194,22 +194,8 @@ public class FavoriteControllerTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse responseDto(){
+        return new MemberResponse(member);
     }
 
     private BoardResponseDto boardResponseDto(){

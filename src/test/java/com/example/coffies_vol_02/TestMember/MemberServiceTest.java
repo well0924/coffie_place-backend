@@ -6,7 +6,6 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,8 +43,6 @@ public class MemberServiceTest {
 
     Member member;
 
-    MemberResponseDto responseDto;
-
     MemberRequest memberRequest;
     MemberResponse memberResponse;
 
@@ -53,7 +50,6 @@ public class MemberServiceTest {
     public void init(){
         member = memberDto();
         memberRequest = request();
-        responseDto = responseDto();
         memberResponse = response();
     }
 
@@ -68,38 +64,12 @@ public class MemberServiceTest {
 
         when(memberRepository.findAll(pageable)).thenReturn(pageList);
 
-        Page<MemberResponseDto>result = memberService.findAll(pageable);
-
-        result.map(member ->new MemberResponseDto(
-                member.getId(),
-                member.getUserId(),
-                member.getPassword(),
-                member.getMemberName(),
-                member.getUserPhone(),
-                member.getUserGender(),
-                member.getUserAge(),
-                member.getUserEmail(),
-                member.getUserAddr1(),
-                member.getUserAddr2(),
-                member.getRole(),
-                member.getCreatedTime(),
-                member.getUpdatedTime()));
+        Page<MemberResponse>result = memberService.findAll(pageable);
 
         assertThat(result).isNotNull();
-        assertThat(result.get().toList().get(0).getMemberName()).isEqualTo(memberDto().getMemberName());
+        assertThat(result.get().toList().get(0).memberName()).isEqualTo(memberDto().getMemberName());
     }
-/**
-    @Test
-    @DisplayName("회원 단일 조회")
-    public void memberDetailTest(){
 
-        given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
-
-        MemberResponseDto dto = memberService.findMember(1);
-
-        assertThat(dto.getMemberName()).isEqualTo(member.getMemberName());
-    }
-**/
     @Test
     @DisplayName("회원 단일 조회")
     public void memberDetailTest(){
@@ -126,16 +96,17 @@ public class MemberServiceTest {
         String keyword = "well4149";
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<MemberResponseDto>list = new ArrayList<>();
-        list.add(responseDto);
-        Page<MemberResponseDto>result = new PageImpl<>(list,pageRequest,1);
+        List<MemberResponse>list = new ArrayList<>();
+        list.add(response());
+
+        Page<MemberResponse>result = new PageImpl<>(list,pageRequest,1);
 
         given(memberRepository.findByAllSearch(keyword,pageRequest)).willReturn(result);
 
         when(memberService.findByAllSearch(keyword,pageRequest)).thenReturn(result);
         result = memberService.findByAllSearch(keyword,pageRequest);
 
-        assertThat(result.toList().get(0).getUserId()).isEqualTo(keyword);
+        assertThat(result.toList().get(0).userId()).isEqualTo(keyword);
     }
 
     @Test
@@ -302,23 +273,6 @@ public class MemberServiceTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(bCryptPasswordEncoder.encode(member.getPassword()))
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
-    }
     private MemberRequest request(){
         return new MemberRequest(
                 member.getId(),

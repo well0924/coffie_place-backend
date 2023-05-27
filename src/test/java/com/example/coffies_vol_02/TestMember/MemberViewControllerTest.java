@@ -3,7 +3,6 @@ package com.example.coffies_vol_02.TestMember;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,7 +99,7 @@ public class MemberViewControllerTest {
         given(memberService.findMemberRecord(anyInt())).willReturn(response());
 
         mvc.perform(
-                get("/page/login/modify/{id}",responseDto().getId())
+                get("/page/login/modify/{id}",responseDto().id())
                 .contentType(MediaType.TEXT_HTML))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("detail"))
@@ -125,22 +124,8 @@ public class MemberViewControllerTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("sdfsdvw23")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse responseDto(){
+        return new MemberResponse(memberDto());
     }
     private MemberResponse response(){
         return new MemberResponse(memberDto());

@@ -14,7 +14,7 @@ import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceReposito
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponseDto;
+import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
@@ -74,7 +74,7 @@ public class FavoritePlaceApiControllerTest {
     private Comment comment;
     private FavoritePlace favoritePlace;
     private List<PlaceImage>placeImageList = new ArrayList<>();
-    MemberResponseDto memberResponseDto;
+    MemberResponse memberResponseDto;
     BoardResponseDto boardResponseDto;
     commentResponseDto responseDto;
     FavoritePlaceDto favoriteResponseDto;
@@ -95,7 +95,7 @@ public class FavoritePlaceApiControllerTest {
         favoritePlace = favoritePlace();
         placeImage = placeImage();
         placeImageList.add(placeImage());
-        memberResponseDto =responseDto();
+        memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         responseDto = commentResponseDto();
         favoriteResponseDto = favoriteResponseDto();
@@ -324,22 +324,8 @@ public class FavoritePlaceApiControllerTest {
                 .build();
     }
 
-    private MemberResponseDto responseDto(){
-        return MemberResponseDto
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(memberDto().getPassword())
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+    private MemberResponse responseDto(){
+        return new MemberResponse(member);
     }
 
     private BoardResponseDto boardResponseDto(){
