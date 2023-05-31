@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class FavoritePlaceRepositoryTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
-        Page<FavoritePlaceDto>list = favoritePlaceRepository.favoritePlaceWishList(pageable,"well4149");
+        Page<FavoritePlaceResponse>list = favoritePlaceRepository.favoritePlaceWishList(pageable,"well4149");
 
         System.out.println(list.toList());
 

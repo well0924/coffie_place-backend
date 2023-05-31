@@ -10,8 +10,8 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,8 +62,8 @@ public class NoticeControllerTest {
     private Member member;
     private NoticeBoard noticeBoard;
     private Attach attach;
-    NoticeResponseDto responseDto;
-    NoticeRequestDto requestDto;
+    NoticeResponse responseDto;
+    NoticeRequest requestDto;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
     private CustomUserDetails customUserDetails;
@@ -77,8 +77,8 @@ public class NoticeControllerTest {
                 .build();
         member = memberDto();
         noticeBoard = noticeBoard();
-        requestDto = requestDto();
-        responseDto =  responseDto();
+        requestDto = request();
+        responseDto =  response();
         attach = attach();
         attach = attach();
         filelist.add(attach);
@@ -109,7 +109,7 @@ public class NoticeControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.findById(noticeBoard().getId())).willReturn(Optional.of(noticeBoard));
         given(attachRepository.findAttachNoticeBoard(noticeBoard().getId())).willReturn(filelist);
-        given(noticeBoardService.findNotice(noticeBoard.getId())).willReturn(responseDto());
+        given(noticeBoardService.findNotice(noticeBoard.getId())).willReturn(response());
 
         mvc.perform(get("/page/notice/detail/{notice_id}",noticeBoard.getId())
                 .with(user(customUserDetails))
@@ -172,28 +172,21 @@ public class NoticeControllerTest {
                 .isFixed('Y')
                 .build();
     }
-    private NoticeRequestDto requestDto(){
-        return NoticeRequestDto
-                .builder()
-                .noticeGroup(noticeBoard().getNoticeGroup())
-                .isFixed(noticeBoard().getIsFixed())
-                .noticeTitle(noticeBoard().getNoticeTitle())
-                .noticeContents(noticeBoard().getNoticeContents())
-                .noticeWriter(noticeBoard().getNoticeWriter())
-                .fileGroupId(noticeBoard().getFileGroupId())
-                .files(
-                        List.of(
-                                new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                                new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                                new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-                )
-                .build();
+    private NoticeRequest request(){
+        return new NoticeRequest(noticeBoard.getNoticeGroup(),
+                noticeBoard.getIsFixed(),
+                noticeBoard.getNoticeTitle(),
+                noticeBoard.getNoticeWriter(),
+                noticeBoard.getNoticeContents(),
+                noticeBoard.getFileGroupId(),
+                List.of(
+                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
+        );
     }
-    private NoticeResponseDto responseDto(){
-        return NoticeResponseDto
-                .builder()
-                .noticeBoard(noticeBoard)
-                .build();
+    private NoticeResponse response(){
+        return new NoticeResponse(noticeBoard);
     }
     private Attach attach(){
         return Attach

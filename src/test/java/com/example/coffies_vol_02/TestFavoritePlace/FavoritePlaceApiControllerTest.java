@@ -1,15 +1,15 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -34,7 +34,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,9 +74,9 @@ public class FavoritePlaceApiControllerTest {
     private FavoritePlace favoritePlace;
     private List<PlaceImage>placeImageList = new ArrayList<>();
     MemberResponse memberResponseDto;
-    BoardResponseDto boardResponseDto;
-    commentResponseDto responseDto;
-    FavoritePlaceDto favoriteResponseDto;
+    BoardResponse boardResponseDto;
+    CommentResponse responseDto;
+    FavoritePlaceResponse favoriteResponseDto;
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
@@ -106,11 +105,11 @@ public class FavoritePlaceApiControllerTest {
     @DisplayName("내가 작성한 게시글")
     public void boardListTest() throws Exception {
         List<Board>list = new ArrayList<>();
-        List<BoardResponseDto> boardList = new ArrayList<>();
+        List<BoardResponse> boardList = new ArrayList<>();
         boardList.add(boardResponseDto);
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         Page<Board>boardPage = new PageImpl<>(list,pageRequest,1);
-        Page<BoardResponseDto> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
+        Page<BoardResponse> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
 
         System.out.println(pageBoardList.toList());
 
@@ -136,7 +135,7 @@ public class FavoritePlaceApiControllerTest {
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<Comment>list = new ArrayList<>();
         list.add(comment);
-        List<commentResponseDto>result = new ArrayList<>();
+        List<CommentResponse>result = new ArrayList<>();
         result.add(responseDto);
 
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
@@ -157,9 +156,9 @@ public class FavoritePlaceApiControllerTest {
     public void wishListTest()throws Exception{
 
         Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
-        List<FavoritePlaceDto>list = new ArrayList<>();
+        List<FavoritePlaceResponse>list = new ArrayList<>();
         list.add(favoriteResponseDto());
-        Page<FavoritePlaceDto>result = new PageImpl<>(list,pageable,1);
+        Page<FavoritePlaceResponse>result = new PageImpl<>(list,pageable,1);
 
         given(memberRepository.findByUserId(eq(member.getUserId()))).willReturn(Optional.of(member));
         given(favoritePlaceRepository.favoritePlaceWishList(eq(pageable),eq(member.getUserId()))).willReturn(result);
@@ -317,36 +316,20 @@ public class FavoritePlaceApiControllerTest {
                 .build();
     }
 
-    private FavoritePlaceDto favoriteResponseDto(){
-        return FavoritePlaceDto
-                .builder()
-                .favoritePlace(favoritePlace)
-                .build();
+    private FavoritePlaceResponse favoriteResponseDto(){
+        return new FavoritePlaceResponse(favoritePlace());
     }
 
     private MemberResponse responseDto(){
         return new MemberResponse(member);
     }
 
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponseDto(){
+        return new BoardResponse(board);
     }
 
-    private commentResponseDto commentResponseDto(){
-        return commentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
+    private CommentResponse commentResponseDto(){
+        return new CommentResponse(comment);
     }
 
 }

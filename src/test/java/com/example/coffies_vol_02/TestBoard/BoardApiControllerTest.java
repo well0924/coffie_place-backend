@@ -4,8 +4,8 @@ import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
@@ -31,7 +31,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,9 +77,9 @@ public class BoardApiControllerTest {
 
     private Board board;
 
-    BoardRequestDto boardRequestDto;
+    BoardRequest boardRequestDto;
 
-    BoardResponseDto boardResponseDto;
+    BoardResponse boardResponseDto;
 
     Attach attach;
 
@@ -100,11 +99,11 @@ public class BoardApiControllerTest {
                 .build();
         member = memberDto();
         board = board();
-        boardRequestDto = getBoardRequestDto();
-        boardResponseDto = boardResponseDto();
+        boardRequestDto = boardRequestDto();
+        boardResponseDto = boardResponse();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(getBoardRequestDto().getFiles());
+        filelist = fileHandler.parseFileInfo(boardRequestDto().files());
         detailfileList.add(attachDto());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
@@ -114,9 +113,9 @@ public class BoardApiControllerTest {
     public void boardList()throws Exception{
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardResponseDto>responseDtoList = new ArrayList<>();
-        responseDtoList.add(boardResponseDto);
-        Page<BoardResponseDto>list = new PageImpl<>(responseDtoList,pageRequest,1);
+        List<BoardResponse>responseDtoList = new ArrayList<>();
+        responseDtoList.add(boardResponse());
+        Page<BoardResponse>list = new PageImpl<>(responseDtoList,pageRequest,1);
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
         when(boardService.boardAllList(pageRequest)).thenReturn(list);
@@ -138,9 +137,9 @@ public class BoardApiControllerTest {
     public void boardSearchTest()throws Exception{
         String keyword = "well4149";
         Pageable pageable = PageRequest.of(1,5,Sort.by("id").descending());
-        List<BoardResponseDto>list = new ArrayList<>();
+        List<BoardResponse>list = new ArrayList<>();
         list.add(boardResponseDto);
-        Page<BoardResponseDto>searchList = new PageImpl<>(list,pageable,1);
+        Page<BoardResponse>searchList = new PageImpl<>(list,pageable,1);
         given(boardService.boardSearchAll(keyword,pageable)).willReturn(searchList);
 
         mvc.perform(get("/api/board/search")
@@ -178,14 +177,14 @@ public class BoardApiControllerTest {
         when(boardService.boardCreate(boardRequestDto,customUserDetails.getMember())).thenReturn(board.getId());
 
         mvc.perform(multipart("/api/board/write")
-                        .file("files",boardRequestDto.getFiles().get(0).getBytes())
-                        .file("files",boardRequestDto.getFiles().get(1).getBytes())
-                        .param("boardAuthor",boardRequestDto.getBoardAuthor())
-                        .param("boardTitle",boardRequestDto.getBoardTitle())
-                        .param("boardContents",boardRequestDto.getBoardContents())
-                        .param("passWd",boardRequestDto.getPassWd())
-                        .param("readCount",String.valueOf(boardRequestDto.getReadCount()))
-                        .param("fileGroupId",boardRequestDto.getFileGroupId())
+                        .file("files",boardRequestDto.files().get(0).getBytes())
+                        .file("files",boardRequestDto.files().get(1).getBytes())
+                        .param("boardAuthor",boardRequestDto.boardAuthor())
+                        .param("boardTitle",boardRequestDto.boardTitle())
+                        .param("boardContents",boardRequestDto.boardContents())
+                        .param("passWd",boardRequestDto.passWd())
+                        .param("readCount",String.valueOf(boardRequestDto.readCount()))
+                        .param("fileGroupId",boardRequestDto.fileGroupId())
                         .with(user(customUserDetails))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("POST");
@@ -196,7 +195,6 @@ public class BoardApiControllerTest {
                 .andDo(print());
 
         verify(boardService).boardCreate(any(),any());
-        assertThat(boardRequestDto.getFiles().size()).isEqualTo(2);
     }
 
     @Test
@@ -217,22 +215,22 @@ public class BoardApiControllerTest {
     @DisplayName("자유게시판 수정")
     public void boardUpdateTest()throws Exception{
 
-        MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        boardRequestDto.setFiles(List.of(updateFile));
+        boardRequestDto.files().remove(0);
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
         mvc.perform(multipart("/api/board/update/{board_id}",board.getId())
-                        .file("files",boardRequestDto.getFiles().get(0).getBytes())
-                        .param("boardAuthor",boardRequestDto.getBoardAuthor())
+                        .file("files",boardRequestDto.files().get(0).getBytes())
+                        .param("boardAuthor",boardRequestDto.boardAuthor())
                         .param("boardTitle","update Title")
                         .param("boardContents","update contents")
                         .param("passWd","12345")
-                        .param("readCount",String.valueOf(boardRequestDto.getReadCount()))
-                        .param("fileGroupId",boardRequestDto.getFileGroupId())
+                        .param("readCount",String.valueOf(boardRequestDto.readCount()))
+                        .param("fileGroupId",boardRequestDto.fileGroupId())
                         .with(user(customUserDetails))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("PUT");
@@ -250,11 +248,11 @@ public class BoardApiControllerTest {
     @DisplayName("비밀번호 확인")
     public void passwordTest()throws Exception{
         given(memberRepository.findById(customUserDetails.getMember().getId())).willReturn(Optional.of(customUserDetails.getMember()));
-        given(boardRepository.findByPassWdAndId(boardResponseDto.getPassWd(),boardResponseDto.getId())).willReturn(boardResponseDto);
-        given(boardService.passwordCheck(boardResponseDto.getPassWd(),boardResponseDto.getId(),customUserDetails.getMember())).willReturn(boardResponseDto);
+        given(boardRepository.findByPassWdAndId(boardResponseDto.passWd(),boardResponseDto.id())).willReturn(boardResponseDto);
+        given(boardService.passwordCheck(boardResponseDto.passWd(),boardResponseDto.id(),customUserDetails.getMember())).willReturn(boardResponseDto);
 
-        when(boardService.passwordCheck(boardResponseDto.getPassWd(),boardResponseDto.getId(),customUserDetails.getMember())).thenReturn(boardResponseDto);
-        mvc.perform(get("/api/board/password/{board_id}/{password}",boardResponseDto.getId(),boardResponseDto.getPassWd())
+        when(boardService.passwordCheck(boardResponseDto.passWd(),boardResponseDto.id(),customUserDetails.getMember())).thenReturn(boardResponseDto);
+        mvc.perform(get("/api/board/password/{board_id}/{password}",boardResponseDto.id(),boardResponseDto.passWd())
                 .with(user(customUserDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8))
@@ -293,34 +291,22 @@ public class BoardApiControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
-
-    private BoardRequestDto getBoardRequestDto(){
-        return BoardRequestDto
-                .builder()
-                .boardAuthor(member.getUserId())
-                .boardContents("test!")
-                .boardTitle("test title")
-                .fileGroupId("free_teger")
-                .passWd("1234")
-                .readCount(0)
-                .files(List.of(
+    private BoardRequest boardRequestDto(){
+        return new BoardRequest(
+                board.getBoardTitle(),
+                board.getBoardContents(),
+                board.getMember().getUserId(),
+                board.getReadCount(),
+                board.getPassWd(),
+                board.getFileGroupId(),
+                new ArrayList<>(List.of(
                         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes())
-                ))
-                .build();
+                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
+                ));
     }
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponse(){
+        return new BoardResponse(board);
     }
 
     private Attach attach(){

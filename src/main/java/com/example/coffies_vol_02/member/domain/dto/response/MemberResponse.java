@@ -2,6 +2,9 @@ package com.example.coffies_vol_02.member.domain.dto.response;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 
 public record MemberResponse(Integer id,
                              String userId,
@@ -13,7 +16,9 @@ public record MemberResponse(Integer id,
                              String userEmail,
                              String userAddr1,
                              String userAddr2,
-                             Role role) {
+                             Role role,
+                             @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+                             LocalDateTime createdTime) {
     public MemberResponse(Member member){
         this(member.getId(),
             member.getUserId(),
@@ -25,7 +30,8 @@ public record MemberResponse(Integer id,
             member.getUserEmail(),
             member.getUserAddr1(),
             member.getUserAddr2(),
-                member.getRole());
+            member.getRole(),
+            member.getCreatedTime());
     }
 
 }

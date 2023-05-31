@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.notice.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,7 @@ public class NoticeController {
                                    @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
 
-        Page<NoticeResponseDto> list = null;
+        Page<NoticeResponse> list = null;
 
         try {
             list = noticeService.noticeSearchAll(searchVal, pageable);
@@ -53,11 +53,10 @@ public class NoticeController {
     public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponseDto list = new NoticeResponseDto();
+        NoticeResponse list = noticeService.findNotice(noticeId);
         List<AttachDto> attachList = new ArrayList<>();
 
         try{
-            list = noticeService.findNotice(noticeId);
             attachList = attachService.noticefilelist(noticeId);
         }catch (Exception e){
             e.printStackTrace();
@@ -88,13 +87,8 @@ public class NoticeController {
     public ModelAndView noticeModify(@PathVariable("notice_id")Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponseDto list = new NoticeResponseDto();
+        NoticeResponse list = noticeService.findNotice(noticeId);
 
-        try{
-            list = noticeService.findNotice(noticeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         mv.addObject("detail",list);
         mv.setViewName("/notice/noticemodify");
 

@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.notice.domain;
 
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.config.BaseTime;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -49,11 +49,11 @@ public class NoticeBoard extends BaseTime implements Serializable {
         this.isFixed = isFixed;
     }
 
-    public void NoticeUpdate(NoticeRequestDto dto){
-        this.noticeContents = dto.getNoticeContents();
-        this.noticeGroup = dto.getNoticeGroup();
-        this.isFixed = dto.getIsFixed();
-        this.noticeTitle = dto.getNoticeTitle();
+    public void NoticeUpdate(NoticeRequest dto){
+        this.noticeContents = dto.noticeContents();
+        this.noticeGroup = dto.noticeGroup();
+        this.isFixed = dto.isFixed();
+        this.noticeTitle = dto.noticeTitle();
     }
 
     public void addAttach(Attach attachFile){

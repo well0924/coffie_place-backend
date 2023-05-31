@@ -5,8 +5,8 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,8 +62,8 @@ public class BoardControllerTest {
     private Member member;
     private Board board;
     private Attach attach;
-    BoardRequestDto boardRequestDto;
-    BoardResponseDto boardResponseDto;
+    BoardRequest boardRequestDto;
+    BoardResponse boardResponseDto;
     List<AttachDto>detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
     private CustomUserDetails customUserDetails;
@@ -138,7 +137,7 @@ public class BoardControllerTest {
     @Test
     @DisplayName("자유게시판 비밀번호 조회화면")
     public void freeBoardPasswordCheckPage()throws Exception{
-        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
+        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto());
 
         mvc.perform(get("/page/board/passwordCheck/{board_id}",board.getId())
                 .with(user(customUserDetails))
@@ -201,35 +200,22 @@ public class BoardControllerTest {
                 .member(memberDto())
                 .build();
     }
-    private BoardRequestDto getBoardRequestDto(){
-        return BoardRequestDto
-                .builder()
-                .boardAuthor(member.getUserId())
-                .boardContents("test!")
-                .boardTitle("test title")
-                .fileGroupId("free_teger")
-                .passWd("1234")
-                .readCount(0)
-                .files(
-                        List.of(
-                                new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                                new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                                new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-                )
-                .build();
+    private BoardRequest getBoardRequestDto(){
+        return new BoardRequest(
+                board.getBoardTitle(),
+                board.getBoardContents(),
+                board.getMember().getUserId(),
+                board.getReadCount(),
+                board.getPassWd(),
+                board.getFileGroupId(),
+                List.of(
+                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
+        );
     }
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponseDto(){
+        return new BoardResponse(board);
     }
 
     private Attach attach(){

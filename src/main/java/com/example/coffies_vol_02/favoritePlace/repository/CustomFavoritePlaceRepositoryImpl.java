@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.favoritePlace.repository;
 
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.QFavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.QPlace;
@@ -30,8 +30,8 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
     
     //위시리스트 목록
     @Override
-    public Page<FavoritePlaceDto> favoritePlaceWishList(Pageable pageable, String userId) {
-        List<FavoritePlaceDto>favoritePlaceDtoList = new ArrayList<>();
+    public Page<FavoritePlaceResponse> favoritePlaceWishList(Pageable pageable, String userId) {
+        List<FavoritePlaceResponse>favoritePlaceDtoList = new ArrayList<>();
 
         List<FavoritePlace> wishList = jpaQueryFactory
                 .select(QFavoritePlace.favoritePlace)
@@ -44,12 +44,10 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
                 .fetch();
 
         for(FavoritePlace favoritePlace : wishList){
-            FavoritePlaceDto result = FavoritePlaceDto
-                    .builder()
-                    .favoritePlace(favoritePlace)
-                    .build();
+            FavoritePlaceResponse result = new FavoritePlaceResponse(favoritePlace);
             favoritePlaceDtoList.add(result);
         }
+
         int wishListSize = jpaQueryFactory
                 .select(QFavoritePlace.favoritePlace)
                 .from(QFavoritePlace.favoritePlace)

@@ -1,9 +1,9 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +58,9 @@ public class FavoriteControllerTest {
 
     MemberResponse memberResponseDto;
 
-    BoardResponseDto boardResponseDto;
+    BoardResponse boardResponseDto;
 
-    commentResponseDto responseDto;
+    CommentResponse responseDto;
 
     private CustomUserDetails customUserDetails;
 
@@ -86,9 +85,9 @@ public class FavoriteControllerTest {
     @DisplayName("내가 작성한 글 페이지")
     public void myContentPage()throws Exception{
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardResponseDto> list = new ArrayList<>();
+        List<BoardResponse> list = new ArrayList<>();
         list.add(boardResponseDto);
-        Page<BoardResponseDto> result = new PageImpl<>(list,pageable,1);
+        Page<BoardResponse> result = new PageImpl<>(list,pageable,1);
         given(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).willReturn(result);
 
         when(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).thenReturn(result);
@@ -106,7 +105,7 @@ public class FavoriteControllerTest {
     @DisplayName("내가 작성한 댓글 페이지")
     public void myCommentPage()throws Exception{
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        List<commentResponseDto> list = new ArrayList<>();
+        List<CommentResponse> list = new ArrayList<>();
         list.add(responseDto);
         given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).willReturn(list);
 
@@ -198,24 +197,11 @@ public class FavoriteControllerTest {
         return new MemberResponse(member);
     }
 
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponseDto(){
+        return new BoardResponse(board);
     }
 
-    private commentResponseDto commentResponseDto(){
-        return commentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
+    private CommentResponse commentResponseDto(){
+        return new CommentResponse(comment());
     }
 }

@@ -4,8 +4,8 @@ import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -41,7 +41,7 @@ public class BoardService {
     * 게시글 목록
     **/
     @Transactional(readOnly = true)
-    public Page<BoardResponseDto> boardAllList(Pageable pageable){
+    public Page<BoardResponse> boardAllList(Pageable pageable){
         return boardRepository.boardList(pageable);
     }
 
@@ -49,7 +49,7 @@ public class BoardService {
     *  게시글 검색
     **/
     @Transactional(readOnly = true)
-    public Page<BoardResponseDto> boardSearchAll(String searchVal, Pageable pageable){
+    public Page<BoardResponse> boardSearchAll(String searchVal, Pageable pageable){
         return boardRepository.findAllSearch(searchVal,pageable);
     }
 
@@ -57,25 +57,8 @@ public class BoardService {
     *  게시글 단일 조회
     **/
     @Transactional(readOnly = true)
-    public BoardResponseDto findBoard(Integer boardId){
-        /*Optional<Board> boardDetail= Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-        Board result = boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-
-        return BoardResponseDto
-                .builder()
-                .id(result.getId())
-                .boardAuthor(result.getBoardAuthor())
-                .boardTitle(result.getBoardTitle())
-                .boardContents(result.getBoardContents())
-                .readCount(result.getReadCount())
-                .passWd(result.getPassWd())
-                .fileGroupId(result.getFileGroupId())
-                .liked(result.getLikes().size())
-                .createdTime(result.getCreatedTime())
-                .updatedTime(result.getUpdatedTime())
-                .build();
-         */
-        BoardResponseDto result = Optional.ofNullable(boardRepository.boardDetail(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+    public BoardResponse findBoard(Integer boardId){
+        BoardResponse result = Optional.ofNullable(boardRepository.boardDetail(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
         return result;
     }
 
@@ -83,7 +66,7 @@ public class BoardService {
     * 글작성(파일 첨부)
     **/
     @Transactional
-    public Integer boardCreate(BoardRequestDto requestDto, Member member) throws Exception {
+    public Integer boardCreate(BoardRequest requestDto, Member member) throws Exception {
 
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -91,11 +74,11 @@ public class BoardService {
 
         Board board = Board
                 .builder()
-                .boardTitle(requestDto.getBoardTitle())
-                .boardContents(requestDto.getBoardContents())
-                .readCount(0)
-                .passWd(requestDto.getPassWd())
-                .fileGroupId(requestDto.getFileGroupId())
+                .boardTitle(requestDto.boardTitle())
+                .boardContents(requestDto.boardContents())
+                .fileGroupId(requestDto.fileGroupId())
+                .readCount(requestDto.readCount())
+                .passWd(requestDto.passWd())
                 .member(member)
                 .build();
 
@@ -103,7 +86,7 @@ public class BoardService {
 
         Integer InsertResult = board.getId();
 
-        List<Attach>filelist = fileHandler.parseFileInfo(requestDto.getFiles());
+        List<Attach>filelist = fileHandler.parseFileInfo(requestDto.files());
 
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
@@ -119,7 +102,7 @@ public class BoardService {
     *  게시글 수정(파일 첨부)
     **/
     @Transactional
-    public Integer BoardUpdate(Integer boardId, BoardRequestDto dto, Member member,List<MultipartFile>files) throws Exception {
+    public Integer BoardUpdate(Integer boardId, BoardRequest dto, Member member,List<MultipartFile>files) throws Exception {
 
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -207,15 +190,15 @@ public class BoardService {
     * 게시글 비밀번호 확인
     **/
     @Transactional
-    public BoardResponseDto passwordCheck(String passWd,Integer id,Member member){
+    public BoardResponse passwordCheck(String passWd,Integer id,Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
 
-        Optional<BoardResponseDto> boardDetail = Optional.of(Optional.ofNullable(boardRepository.findByPassWdAndId(passWd, id)).orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
+        Optional<BoardResponse> boardDetail = Optional.of(Optional.ofNullable(boardRepository.findByPassWdAndId(passWd, id)).orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
 
-        return boardDetail.orElse(null);
+        return boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
     }
 
 }

@@ -1,10 +1,11 @@
 package com.example.coffies_vol_02.TestCommnet;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
@@ -23,7 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,30 +66,31 @@ public class CommentServiceTest {
 
     MemberResponse responseDto;
 
-    BoardResponseDto boardResponseDto;
-    com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto;
+    BoardResponse boardResponseDto;
 
-    com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto commentResponseDto;
+    CommentRequest commentRequestDto;
+
+    CommentResponse commentResponseDto;
 
     placeCommentResponseDto placeCommentResponseDto;
 
     @BeforeEach
     public void init(){
         member = memberDto();
-        responseDto = response();
+        board = board();
+        place = place();
         comment = comment();
+        responseDto = response();
         commentRequestDto = commentRequestDto();
         commentResponseDto = commentResponseDto();
         placeCommentResponseDto = placeCommentResponseDto();
         boardResponseDto = boardResponseDto();
-        board = board();
-        place = place();
     }
 
     @DisplayName("댓글 목록-성공")
     @Test
     public void CommentListTest() throws Exception {
-        List<com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto>result = new ArrayList<>();
+        List<CommentResponse>result = new ArrayList<>();
         List<Comment>list = new ArrayList<>();
         list.add(comment);
         result.add(commentResponseDto);
@@ -124,11 +126,6 @@ public class CommentServiceTest {
         given(boardRepository.findById(anyInt())).willReturn(Optional.of(board));
 
         member= null;
-
-        com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto = new commentRequestDto();
-        commentRequestDto.setReplyContents(comment.getReplyContents());
-        commentRequestDto.setReplyWriter(null);
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> commentService.commentCreate(board.getId(),null,commentRequestDto));
 
@@ -194,11 +191,6 @@ public class CommentServiceTest {
     public void PlaceCommentCreateTest(){
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
 
-        com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto = new commentRequestDto();
-        commentRequestDto.setReplyContents(comment.getReplyContents());
-        commentRequestDto.setReplyWriter(member.getUserId());
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
-
         given(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).willReturn(anyInt());
         when(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).thenReturn(anyInt());
         then(commentService.placeCommentCreate(place.getId(),commentRequestDto,member));
@@ -210,10 +202,6 @@ public class CommentServiceTest {
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         member = null;
-        com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto = new commentRequestDto();
-        commentRequestDto.setReplyContents(comment.getReplyContents());
-        commentRequestDto.setReplyWriter(null);
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> commentService.placeCommentCreate(place.getId(),commentRequestDto,null));
 
@@ -351,32 +339,17 @@ public class CommentServiceTest {
     private MemberResponse response(){
         return new MemberResponse(member);
     }
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponseDto(){
+        return new BoardResponse(board);
     }
-    private com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto commentRequestDto(){
-        return com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto
-                .builder()
-                .replyPoint(comment.getReplyPoint())
-                .replyContents(comment.getReplyContents())
-                .replyWriter(member.getUserId())
-                .build();
+    private CommentRequest commentRequestDto(){
+        return new CommentRequest(
+                comment.getReplyWriter(),
+                comment.getReplyContents(),
+                comment.getReplyPoint());
     }
-    private com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto commentResponseDto(){
-        return com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
+    private CommentResponse commentResponseDto(){
+        return new CommentResponse(comment);
     }
 
     private placeCommentResponseDto placeCommentResponseDto(){

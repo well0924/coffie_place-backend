@@ -1,12 +1,9 @@
 package com.example.coffies_vol_02.board.repository;
 
-import com.example.coffies_vol_02.attach.domain.QAttach;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
-import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponseDto;
-import com.example.coffies_vol_02.commnet.domain.QComment;
-import com.example.coffies_vol_02.like.domain.QLike;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
+import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -35,10 +32,10 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
     //게시글 목록
     @Override
-    public Page<BoardResponseDto> boardList(Pageable pageable) {
+    public Page<BoardResponse> boardList(Pageable pageable) {
 
-        List<BoardResponseDto>boardList = jpaQueryFactory
-                .select(Projections.constructor(BoardResponseDto.class,QBoard.board))
+        List<BoardResponse>boardList = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class,QBoard.board))
                 .from(QBoard.board)
                 .join(QBoard.board.member,QMember.member).fetchJoin()
                 .groupBy(QBoard.board.id)
@@ -61,9 +58,9 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
     //게시물 검색
     @Override
-    public Page<BoardResponseDto> findAllSearch(String searchVal, Pageable pageable) {
+    public Page<BoardResponse> findAllSearch(String searchVal, Pageable pageable) {
 
-        List<BoardResponseDto> boardSearchResult = new ArrayList<>();
+        List<BoardResponse> boardSearchResult = new ArrayList<>();
 
         //검색시 목록
         List<Board> result = jpaQueryFactory
@@ -88,28 +85,16 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
 
         for (Board board : result) {
-            BoardResponseDto responseDto = BoardResponseDto
-                    .builder()
-                    .id(board.getId())
-                    .boardTitle(board.getBoardTitle())
-                    .boardContents(board.getBoardContents())
-                    .boardAuthor(board.getBoardAuthor())
-                    .passWd(board.getPassWd())
-                    .fileGroupId(board.getFileGroupId())
-                    .readCount(board.getReadCount())
-                    .createdTime(board.getCreatedTime())
-                    .updatedTime(board.getUpdatedTime())
-                    .build();
-
+            BoardResponse responseDto = new BoardResponse(board);
             boardSearchResult.add(responseDto);
         }
         return new PageImpl<>(boardSearchResult, pageable, resultCount);
     }
 
     @Override
-    public BoardResponseDto boardDetail(int boardId) {
-        BoardResponseDto result = jpaQueryFactory
-                .select(new QBoardResponseDto(QBoard.board))
+    public BoardResponse boardDetail(int boardId) {
+        BoardResponse result = jpaQueryFactory
+                .select(new QBoardResponse(QBoard.board))
                 .from(QBoard.board)
                 .join(QBoard.board.member,QMember.member).fetchJoin()
                 .where(QBoard.board.id.eq(boardId))

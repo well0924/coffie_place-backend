@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.favoritePlace.controller.view;
 
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.place.service.PlaceImageService;
 import lombok.AllArgsConstructor;
@@ -29,7 +29,7 @@ public class FavoriteController {
     @GetMapping("/contents/{id}")
     public ModelAndView myContents(@PathVariable("id")String userId, @PageableDefault(direction = Sort.Direction.DESC,size = 5,sort = "id") Pageable pageable){
         ModelAndView mv = new ModelAndView();
-        Page<BoardResponseDto> list = null;
+        Page<BoardResponse> list = null;
 
         try {
             list = favoritePlaceService.getMyPageBoardList(pageable, userId);
@@ -44,7 +44,7 @@ public class FavoriteController {
     @GetMapping("/comment/{id}")
     public ModelAndView myComment(@PathVariable("id")String userId, @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
-        List<commentResponseDto> list = new ArrayList<>();
+        List<CommentResponse> list = new ArrayList<>();
 
         try {
             list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
@@ -60,7 +60,7 @@ public class FavoriteController {
     public ModelAndView myWishList(@PageableDefault Pageable pageable,@PathVariable("user_id")String userId){
         ModelAndView mv = new ModelAndView();
 
-        Page<FavoritePlaceDto>list = null;
+        Page<FavoritePlaceResponse>list = null;
 
         try{
             list = favoritePlaceService.MyWishList(pageable,userId);

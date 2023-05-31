@@ -10,8 +10,8 @@ import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.assertj.core.api.Assertions;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,8 +59,8 @@ public class NoticeServiceTest {
     private MemberResponse memberResponseDto;
     private Attach attach;
     private NoticeBoard noticeBoard;
-    private NoticeRequestDto requestDto;
-    private NoticeResponseDto responseDto;
+    private NoticeRequest request;
+    private NoticeResponse response;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
 
@@ -70,11 +69,11 @@ public class NoticeServiceTest {
         member = memberDto();
         memberResponseDto = responseDto();
         noticeBoard = noticeBoard();
-        requestDto = noticeRequestDto();
-        responseDto = NoticeResponseDto();
+        request = noticeRequest();
+        response = response();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(requestDto.getFiles());
+        filelist = fileHandler.parseFileInfo(request.files());
         detailfileList.add(attachDto());
         detailfileList = attachService.boardfilelist(noticeBoard.getId());
     }
@@ -84,7 +83,7 @@ public class NoticeServiceTest {
         PageRequest pageRequest = PageRequest.of(0,5, Sort.by("id"));
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(Page.empty());
 
-        Page<NoticeResponseDto>result = noticeService.noticeAllList(pageRequest);
+        Page<NoticeResponse>result = noticeService.noticeAllList(pageRequest);
 
         Assertions.assertThat(result).isEmpty();
     }
@@ -93,7 +92,7 @@ public class NoticeServiceTest {
     public void noticeBoardDetailTest(){
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
 
-        NoticeResponseDto detail = noticeService.findNotice(noticeBoard.getId());
+        NoticeResponse detail = noticeService.findNotice(noticeBoard.getId());
 
         Assertions.assertThat(detail).isNotNull();
     }
@@ -102,16 +101,16 @@ public class NoticeServiceTest {
     public void noticeBoardSearchTest(){
         String keyword = "well4149";
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<NoticeResponseDto>list = new ArrayList<>();
-        list.add(responseDto);
-        Page<NoticeResponseDto>response = new PageImpl<>(list,pageRequest,1);
+        List<NoticeResponse>list = new ArrayList<>();
+        list.add(response);
+        Page<NoticeResponse>response = new PageImpl<>(list,pageRequest,1);
 
         given(noticeBoardRepository.findAllSearchList(keyword,pageRequest)).willReturn(response);
 
         when(noticeService.noticeSearchAll(keyword,pageRequest)).thenReturn(response);
         response = noticeService.noticeSearchAll(keyword,pageRequest);
 
-        assertThat(response.toList().get(0).getNoticeWriter()).isEqualTo(keyword);
+        assertThat(response.toList().get(0).noticeWriter()).isEqualTo(keyword);
     }
 
     @Test
@@ -119,10 +118,10 @@ public class NoticeServiceTest {
     public void noticeBoardWriteTest() throws Exception {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.save(noticeBoard)).willReturn(noticeBoard);
-        given(fileHandler.parseFileInfo(noticeRequestDto().getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        noticeService.noticeCreate(noticeRequestDto(),noticeRequestDto().getFiles());
+        noticeService.noticeCreate(noticeRequest(),noticeRequest().files());
 
         Mockito.verify(noticeBoardRepository).save(ArgumentMatchers.any());
         verify(fileHandler,times(2)).parseFileInfo(any());
@@ -133,14 +132,15 @@ public class NoticeServiceTest {
     public void noticeBoardUpdateTest()throws Exception{
 
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        noticeRequestDto().setFiles(List.of(updateFile));
+        noticeRequest().files().add(updateFile);
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
-        given(fileHandler.parseFileInfo(noticeRequestDto().getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
-        noticeService.noticeUpdate(noticeBoard.getId(),noticeRequestDto(),noticeRequestDto().getFiles());
+        noticeService.noticeUpdate(noticeBoard.getId(),noticeRequest(),noticeRequest().files());
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
@@ -150,7 +150,7 @@ public class NoticeServiceTest {
         noticeBoard = noticeBoard();
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(fileHandler.parseFileInfo(noticeRequestDto().getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
@@ -189,29 +189,27 @@ public class NoticeServiceTest {
                 .fileGroupId("notice_few3432")
                 .build();
     }
-    private NoticeRequestDto noticeRequestDto(){
-        return NoticeRequestDto
-                .builder()
-                .noticeGroup("공지게시판")
-                .noticeContents("ㅅㄷㄴㅅ")
-                .noticeWriter(member.getUserId())
-                .fileGroupId("notice_fe2433")
-                .isFixed('Y')
-                .files(List.of(
+    private NoticeRequest noticeRequest(){
+        return new NoticeRequest(
+                noticeBoard.getNoticeGroup(),
+                noticeBoard.getIsFixed(),
+                noticeBoard.getNoticeTitle(),
+                noticeBoard.getNoticeWriter(),
+                noticeBoard.getNoticeContents(),
+                noticeBoard.getFileGroupId(),
+                new ArrayList<>(List.of(
                         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
                         new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())))
-                .build();
+                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
+        ));
     }
-    private NoticeResponseDto NoticeResponseDto(){
-        return NoticeResponseDto
-                .builder()
-                .noticeBoard(noticeBoard)
-                .build();
+    private NoticeResponse response(){
+        return new NoticeResponse(noticeBoard);
     }
     private MemberResponse responseDto(){
         return new MemberResponse(member);
     }
+
     private Attach attach(){
         return Attach
                 .builder()

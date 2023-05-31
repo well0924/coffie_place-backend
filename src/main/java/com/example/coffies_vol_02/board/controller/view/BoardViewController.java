@@ -2,8 +2,7 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import lombok.AllArgsConstructor;
@@ -38,7 +37,7 @@ public class BoardViewController {
 
         ModelAndView mv = new ModelAndView();
 
-        Page<BoardResponseDto> boardList = null;
+        Page<BoardResponse> boardList = null;
 
         try {
             boardList = boardService.boardSearchAll(searchVal,pageable);
@@ -59,14 +58,14 @@ public class BoardViewController {
 
         ModelAndView mv = new ModelAndView();
 
-        BoardResponseDto detail = new BoardResponseDto();
+        BoardResponse detail = null;
         List<AttachDto> attachList = new ArrayList<>();
 
         try{
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
             //조회수 증가.
-            boardRepository.ReadCountUpToDB(boardId,detail.getReadCount());
+            boardRepository.ReadCountUpToDB(boardId,detail.readCount());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -97,7 +96,7 @@ public class BoardViewController {
     public ModelAndView passwordCheck(@PathVariable("board_id") Integer boardId){
         ModelAndView mv = new ModelAndView();
 
-        BoardResponseDto detail = new BoardResponseDto();
+        BoardResponse detail = null;
 
         try{
             detail = boardService.findBoard(boardId);
@@ -115,7 +114,7 @@ public class BoardViewController {
     public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) {
         ModelAndView mv = new ModelAndView();
 
-        BoardResponseDto detail = new BoardResponseDto();
+        BoardResponse detail = null;
         List<AttachDto> attachList= new ArrayList<>();
 
         try{

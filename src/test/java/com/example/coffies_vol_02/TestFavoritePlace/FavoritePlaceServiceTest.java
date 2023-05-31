@@ -1,15 +1,15 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -28,7 +28,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,11 +74,11 @@ public class FavoritePlaceServiceTest {
 
     MemberResponse memberResponseDto;
 
-    BoardResponseDto boardResponseDto;
+    BoardResponse boardResponseDto;
 
-    commentResponseDto ResponseDto;
+    CommentResponse ResponseDto;
 
-    FavoritePlaceDto favoriteResponseDto;
+    FavoritePlaceResponse favoriteResponseDto;
 
     List<FavoritePlace>list = new ArrayList<>();
 
@@ -114,7 +113,7 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
 
-        Page<BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
+        Page<BoardResponse>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
 
         assertThat(result).isNotEmpty();
     }
@@ -131,7 +130,7 @@ public class FavoritePlaceServiceTest {
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            Page<BoardResponseDto>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
+            Page<BoardResponse>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
         });
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -145,7 +144,7 @@ public class FavoritePlaceServiceTest {
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
-        List<commentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
+        List<CommentResponse>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
         assertThat(result).isNotEmpty();
     }
 
@@ -159,7 +158,7 @@ public class FavoritePlaceServiceTest {
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            List<commentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
+            List<CommentResponse> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
@@ -200,9 +199,9 @@ public class FavoritePlaceServiceTest {
         given(favoritePlaceRepository.save(favoritePlace())).willReturn(favoritePlace);
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<FavoritePlaceDto>re = new ArrayList<>();
+        List<FavoritePlaceResponse>re = new ArrayList<>();
         re.add(favoriteResponseDto);
-        Page<FavoritePlaceDto>result = new PageImpl<>(re,pageRequest,0);
+        Page<FavoritePlaceResponse>result = new PageImpl<>(re,pageRequest,0);
 
         //when
         result = favoritePlaceService.MyWishList(pageRequest,member.getUserId());
@@ -298,30 +297,14 @@ public class FavoritePlaceServiceTest {
     private MemberResponse responseDto(){
         return new MemberResponse(member);
     }
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponseDto(){
+        return new BoardResponse(board);
     }
-    private commentResponseDto commentResponseDto(){
-        return commentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
+    private CommentResponse commentResponseDto(){
+        return new CommentResponse(comment());
     }
     
-    private FavoritePlaceDto favoriteResponseDto(){
-        return FavoritePlaceDto
-                .builder()
-                .favoritePlace(favoritePlace)
-                .build();
+    private FavoritePlaceResponse favoriteResponseDto(){
+        return new FavoritePlaceResponse(favoritePlace);
     }
 }

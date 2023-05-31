@@ -105,7 +105,7 @@ public class MemberApiController {
         if(HttpStatus.OK.is2xxSuccessful()){
             return new CommonResponse<>(HttpStatus.OK.value(),"회원정보가 수정되었습니다.");
         }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원수정에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원수정에 실패했습니다.(잘못된 요청입니다.)");
         }else{
             return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
         }
@@ -119,7 +119,13 @@ public class MemberApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
-        return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.K");
+        if(HttpStatus.OK.is2xxSuccessful()){
+            return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.K");
+        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()){
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원삭제에 실패했습니다.(잘못된 요청입니다.)");
+        }else{
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+        }
     }
 
     @ApiOperation(value = "회원 아이디 찾기 api")

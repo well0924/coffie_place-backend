@@ -8,8 +8,8 @@ import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,7 +35,7 @@ public class NoticeService {
     *   공지글 목록
     **/
     @Transactional(readOnly = true)
-    public Page<NoticeResponseDto>noticeAllList(Pageable pageable){
+    public Page<NoticeResponse>noticeAllList(Pageable pageable){
         return noticeBoardRepository.findAllList(pageable);
     }
 
@@ -43,7 +43,7 @@ public class NoticeService {
     *   공지 게시물 검색
     **/
     @Transactional(readOnly = true)
-    public Page<NoticeResponseDto>noticeSearchAll(String searchVal,Pageable pageable){
+    public Page<NoticeResponse>noticeSearchAll(String searchVal,Pageable pageable){
         return noticeBoardRepository.findAllSearchList(searchVal,pageable);
     }
 
@@ -52,34 +52,20 @@ public class NoticeService {
     **/
     @Cacheable(value = CacheKey.NOTICE_BOARD, key = "#noticeId")
     @Transactional(readOnly = true)
-    public NoticeResponseDto findNotice(Integer noticeId){
+    public NoticeResponse findNotice(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-
         NoticeBoard noticeBoard = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-
-        return NoticeResponseDto
-                .builder()
-                .noticeBoard(noticeBoard)
-                .build();
+        NoticeResponse response = new NoticeResponse(noticeBoard);
+        return response;
     }
 
     /**
     *   공지글 작성
     **/
     @Transactional
-    public Integer noticeCreate(NoticeRequestDto dto, List<MultipartFile>files) throws Exception {
-
-        NoticeBoard noticeBoard = NoticeBoard
-                .builder()
-                .noticeContents(dto.getNoticeContents())
-                .noticeGroup(dto.getNoticeGroup())
-                .noticeTitle(dto.getNoticeTitle())
-                .noticeWriter(dto.getNoticeWriter())
-                .isFixed(dto.getIsFixed())
-                .fileGroupId(dto.getFileGroupId())
-                .build();
-
-        noticeBoardRepository.save(noticeBoard);
+    public Integer noticeCreate(NoticeRequest dto, List<MultipartFile>files) throws Exception {
+        NoticeBoard noticeBoard = new NoticeBoard();
+        noticeBoardRepository.save(dto.toEntity(noticeBoard));
 
         Integer noticeInsertResult = noticeBoard.getId();
 
@@ -100,7 +86,7 @@ public class NoticeService {
     * 공지 게시글 수정
     **/
     @Transactional
-    public Integer noticeUpdate(Integer noticeId,NoticeRequestDto dto,List<MultipartFile>files) throws Exception {
+    public Integer noticeUpdate(Integer noticeId,NoticeRequest dto,List<MultipartFile>files) throws Exception {
 
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository.findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
