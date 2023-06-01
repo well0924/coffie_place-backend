@@ -16,6 +16,24 @@ layout:decorate="~{layout/leafframe}">
 	<div class="card shadow">
 		<div class="card-body">
 			<h4 class="card-title" style="text-align: center;">자유게시판</h4>
+			<!--filter select box-->
+			<div class="row" style="width:500px;margin-left:82%;margin-bottom: 2px">
+				<div th:with=
+			   "pageNumber = ${boardList.pageable.pageNumber},
+				pageSize = ${boardList.pageable.pageSize},
+				totalPages= ${boardList.totalPages},
+				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
+				tempEndPage=${startPage+pageSize - 1},
+				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
+
+					<a th:href="@{/page/board/list(sort='createdTime,DESC')}"
+						class="btn btn-sm btn-default" role="button" href="">최신순</a>
+
+					<a th:href="@{/page/board/list(sort='readCount,DESC')}"
+					   class="btn btn-sm btn-default" role="button" href="">조회수순</a>
+				</div>
+			</div>
+			<!--end-->
 			<table class="table table-hover" id='board_list'>
 				<thead>
 					<tr>
@@ -78,14 +96,16 @@ layout:decorate="~{layout/leafframe}">
 					<option th:value="boardAuthor">작성자</option>
 				</select>
 				<input type="text" class="form-control form-control-sm" name="keyword" id="boardkeyword">
-				<button class="btn btn-sm btn-primary" id="btnSearch" onclick="boardSearchResult()">검색</button>
+				<button class="btn btn-sm btn-primary" id="btnSearch" onclick="boardSearchResult([[${page.sortParam}]])">검색</button>
 			</div>
 			</div>
 			<!-- search end -->
 			<script>
-				function boardSearchResult(){
+				function boardSearchResult(searchParam){
 					let searchVal = $('#boardkeyword').val();
-					location.href='/page/board/list?searchVal='+searchVal;
+					let sortValue = $('#sort').val();
+
+					location.href='/page/board/list?searchVal='+searchVal+"&sort="+sortValue;
 				}
 			</script>
 		</div>

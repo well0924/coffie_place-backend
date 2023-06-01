@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.commnet.controller;
 
-import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
@@ -28,8 +28,8 @@ public class CommentApiController {
 
     @Operation(summary = "댓글 목록",description = "게시글 목록에서 댓글목록을 보여준다.")
     @GetMapping("/list/{board_id}")
-    public CommonResponse<List<commentResponseDto>>commentList(@PathVariable("board_id")Integer boardId){
-        List<commentResponseDto> list = new ArrayList<>();
+    public CommonResponse<List<CommentResponse>>commentList(@PathVariable("board_id")Integer boardId){
+        List<CommentResponse> list = new ArrayList<>();
         try{
             list = commentService.replyList(boardId);
         }catch (Exception e){
@@ -40,7 +40,7 @@ public class CommentApiController {
 
     @Operation(summary = "댓글 작성",description = "게시글 목록에서 댓글을 작성한다.")
     @PostMapping("/write/{board_id}")
-    public CommonResponse<Integer>commentCreate(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody commentRequestDto dto){
+    public CommonResponse<Integer>commentCreate(@PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentRequest dto){
         int WriteResult = 0;
 
         try{
@@ -78,7 +78,7 @@ public class CommentApiController {
     @Operation(summary = "댓글 목록",description = "게시글 목록에서 댓글목록을 보여준다.")
     @PostMapping("/place/write/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody commentRequestDto dto, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public CommonResponse<Integer>placeCommentWrite(@PathVariable("place_id") Integer placeId, @RequestBody CommentRequest dto, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         int insertResult = 0;
 
         try{

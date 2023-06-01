@@ -1,10 +1,10 @@
 package com.example.coffies_vol_02.favoritePlace.controller.api;
 
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -28,8 +28,8 @@ public class FavoriteApiController {
 
     @Operation(summary = "위시리스트 목록",description = "가게조회 페이지에서 위시리스트를 추가한 목록을 마이페이지에서 볼 수 있다.")
     @GetMapping(path = "/{user_id}")
-    public CommonResponse<Page<FavoritePlaceDto>>MyWishList(@ApiIgnore @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable, @PathVariable("user_id")String userId){
-        Page<FavoritePlaceDto>list= null;
+    public CommonResponse<Page<FavoritePlaceResponse>>MyWishList(@ApiIgnore @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable, @PathVariable("user_id")String userId){
+        Page<FavoritePlaceResponse>list= null;
 
         try{
             list = favoritePlaceService.MyWishList(pageable,userId);
@@ -78,8 +78,8 @@ public class FavoriteApiController {
 
     @Operation(summary = "로그인한 회원이 작성한 글",description = "마이페이지에서 로그인한 회원이 작성한 글의 목록을 보여준다.")
     @GetMapping(path = "/contents/{id}")
-    public CommonResponse<Page<BoardResponseDto>>MyArticle(@PathVariable("id") String userId, @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
-        Page<BoardResponseDto> list = null;
+    public CommonResponse<Page<BoardResponse>>MyArticle(@PathVariable("id") String userId, @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+        Page<BoardResponse> list = null;
         try{
             list = favoritePlaceService.getMyPageBoardList(pageable, userId);
         }catch (Exception e){
@@ -91,8 +91,8 @@ public class FavoriteApiController {
     
     @Operation(summary = "로그인한 회원이 작성한 댓글",description = "마이페이지에서 로그인한 회원이 작성한 댓글의 목록을 보여준다.")
     @GetMapping(path = "/comment/{id}")
-    public CommonResponse<List<commentResponseDto>>MyComment(@PathVariable("id") String userId, Pageable pageable){
-        List<commentResponseDto>list = new ArrayList<>();
+    public CommonResponse<List<CommentResponse>>MyComment(@PathVariable("id") String userId, Pageable pageable){
+        List<CommentResponse>list = new ArrayList<>();
         try{
             list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
         }catch (Exception e){

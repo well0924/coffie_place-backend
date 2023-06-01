@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestBoard;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ public class BoardRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
         Page<Board>result1 = boardRepository.findAll(pageable);
-        Page<BoardResponseDto>list = boardRepository.boardList(pageable);
+        Page<BoardResponse>list = boardRepository.boardList(pageable);
 
         System.out.println(list.stream().toList());
         System.out.println(result1.stream().toList());
@@ -46,7 +46,15 @@ public class BoardRepositoryTest {
 
         Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
         
-        Page<BoardResponseDto>list = boardRepository.findAllSearch(searchKeyword,pageable);
+        Page<BoardResponse>list = boardRepository.findAllSearch(searchKeyword,pageable);
         assertThat(list.toList()).isNotEmpty();
+    }
+    
+    @Test
+    @DisplayName("게시물 단일 조회")
+    public void BoardDetailTest(){
+        BoardResponse detail = boardRepository.boardDetail(1);
+
+        assertThat(detail.id()).isEqualTo(1);
     }
 }

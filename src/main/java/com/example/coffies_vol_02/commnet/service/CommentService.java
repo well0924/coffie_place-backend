@@ -3,8 +3,8 @@ package com.example.coffies_vol_02.commnet.service;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
@@ -37,18 +37,18 @@ public class CommentService {
     *   댓글 목록(자유게시판)
     **/
     @Transactional(readOnly = true)
-    public List<commentResponseDto> replyList(Integer boardId) throws Exception {
+    public List<CommentResponse> replyList(Integer boardId) throws Exception {
 
         List<Comment>list = commentRepository.findByBoardId(boardId);
 
-        return list.stream().map(commentResponseDto::new).toList();
+        return list.stream().map(CommentResponse::new).toList();
     }
 
     /**
     *   댓글 작성(자유게시판)
     **/
     @Transactional
-    public Integer commentCreate(Integer boardId, Member member, commentRequestDto dto){
+    public Integer commentCreate(Integer boardId, Member member, CommentRequest dto){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -60,7 +60,7 @@ public class CommentService {
                 .builder()
                 .board(boardDetail.get())
                 .replyWriter(member.getUserId())
-                .replyContents(dto.getReplyContents())
+                .replyContents(dto.replyContents())
                 .member(member)
                 .build();
 
@@ -104,7 +104,7 @@ public class CommentService {
      * 가게 댓글 작성
      * */
     @Transactional
-    public Integer placeCommentCreate(Integer placeId, commentRequestDto dto, Member member){
+    public Integer placeCommentCreate(Integer placeId, CommentRequest dto, Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -116,8 +116,8 @@ public class CommentService {
                 .builder()
                 .place(detail.get())
                 .replyWriter(member.getUserId())
-                .replyContents(dto.getReplyContents())
-                .replyPoint(dto.getReplyPoint())
+                .replyContents(dto.replyContents())
+                .replyPoint(dto.replyPoint())
                 .member(member)
                 .build();
 

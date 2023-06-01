@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.board.controller.api;
 
-import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
@@ -33,8 +33,8 @@ public class BoardApiController {
 
     @ApiOperation(value = "게시글 목록",notes = "자유게시판 목록")
     @GetMapping(path = "/list")
-    public CommonResponse<Page<BoardResponseDto>>boardList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
-        Page<BoardResponseDto> list = null;
+    public CommonResponse<Page<BoardResponse>>boardList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+        Page<BoardResponse> list = null;
 
         try {
             list = boardService.boardAllList(pageable);
@@ -46,10 +46,10 @@ public class BoardApiController {
 
     @Operation(summary = "게시글 검색",description = "자유게시판 목록 검색")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<BoardResponseDto>>boardSearch(
+    public CommonResponse<Page<BoardResponse>>boardSearch(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
             @RequestParam(value = "searchVal",required = false) String searchVal){
-        Page<BoardResponseDto> list = null;
+        Page<BoardResponse> list = null;
 
         try {
             list = boardService.boardSearchAll(searchVal,pageable);
@@ -62,7 +62,7 @@ public class BoardApiController {
     @Operation(summary = "게시글 단일 조회",description = "자유게시판 단일 조회")
     @GetMapping(path = "/detail/{id}")
     public CommonResponse<?>findBoard(@PathVariable("id") Integer boardId){
-        BoardResponseDto detail = new BoardResponseDto();
+        BoardResponse detail = null;
 
         try {
             detail = boardService.findBoard(boardId);
@@ -75,7 +75,7 @@ public class BoardApiController {
     @Operation(summary = "게시글 작성",description = "자유게시판에서 게시글 작성 및 파일첨부를 할 수 있다.")
     @PostMapping(path="/write",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>boardWrite(@Valid @ModelAttribute BoardRequestDto dto, BindingResult bindingResult, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>boardWrite(@Valid @ModelAttribute BoardRequest dto, BindingResult bindingResult, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
         Integer WriteResult = 0;
 
         try {
@@ -90,11 +90,11 @@ public class BoardApiController {
     @Operation(summary = "게시글 수정",description = "자유게시판에서 게시글을 수정")
     @PutMapping(path = "/update/{board_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>boardUpdate(@PathVariable("board_id") Integer boardId,@ModelAttribute BoardRequestDto dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<Integer>boardUpdate(@PathVariable("board_id") Integer boardId,@ModelAttribute BoardRequest dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
         Integer UpdateResult = 0;
 
         try{
-            boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),dto.getFiles());
+            boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),dto.files());
         }catch (Exception  e){
             e.printStackTrace();
         }
@@ -115,8 +115,8 @@ public class BoardApiController {
 
     @Operation(summary = "자유게시판 비밀번호 입력",description = "게시글에 비밀번호가 있는 경우에는 비밀번호를 입력해")
     @GetMapping(path = "/password/{board_id}/{password}")
-    public CommonResponse<BoardResponseDto>passwordCheck(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        BoardResponseDto result = new BoardResponseDto();
+    public CommonResponse<BoardResponse>passwordCheck(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        BoardResponse result = null;
 
         try{
             result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());

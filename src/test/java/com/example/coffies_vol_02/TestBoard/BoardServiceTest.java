@@ -5,8 +5,8 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.request.BoardRequestDto;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
@@ -30,7 +30,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,9 +66,9 @@ public class BoardServiceTest {
     MemberResponse memberResponse;
     Board board;
 
-    BoardRequestDto boardRequestDto;
+    BoardRequest boardRequestDto;
 
-    BoardResponseDto boardResponseDto;
+    BoardResponse boardResponseDto;
 
     Attach attach;
 
@@ -80,13 +79,13 @@ public class BoardServiceTest {
     @BeforeEach
     public void init() throws Exception {
         member = memberDto();
-        memberResponse = response();
         board = board();
-        boardRequestDto = getBoardRequestDto();
-        boardResponseDto = boardResponseDto();
+        boardRequestDto = boardRequestDto();
+        boardResponseDto = boardResponse();
+        memberResponse = response();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(getBoardRequestDto().getFiles());
+        filelist = fileHandler.parseFileInfo(boardRequestDto().files());
         detailfileList.add(attachDto());
         detailfileList = attachService.boardfilelist(board.getId());
     }
@@ -100,7 +99,7 @@ public class BoardServiceTest {
         given(boardRepository.boardList(pageRequest)).willReturn(Page.empty());
 
         //when
-        Page<BoardResponseDto>result = boardService.boardAllList(pageRequest);
+        Page<BoardResponse>result = boardService.boardAllList(pageRequest);
 
         //then
         assertThat(result).isEmpty();
@@ -110,19 +109,19 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회")
     public void boardDetail(){
         //given
-        given(boardRepository.boardDetail(board.getId())).willReturn(boardResponseDto);
+        given(boardRepository.boardDetail(board.getId())).willReturn(boardResponse());
         //when
-        BoardResponseDto result = boardService.findBoard(board.getId());
+        BoardResponse result = boardService.findBoard(board.getId());
         System.out.println(result);
         //then
-        assertThat(result.getBoardAuthor()).isEqualTo(board.getBoardAuthor());
+        assertThat(result.boardAuthor()).isEqualTo(board.getBoardAuthor());
     }
 
     @Test
     @DisplayName("게시글 단일 조회실패")
     public void boardDetailFail(){
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            BoardResponseDto result = boardService.findBoard(0);
+            BoardResponse result = boardService.findBoard(0);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.BOARD_NOT_FOUND);
@@ -132,10 +131,10 @@ public class BoardServiceTest {
     @DisplayName("게시물 검색-작성자")
     public void boardSearchTest(){
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<BoardResponseDto>list = new ArrayList<>();
+        List<BoardResponse>list = new ArrayList<>();
         list.add(boardResponseDto);
 
-        Page<BoardResponseDto> result = new PageImpl<>(list,pageRequest,1);
+        Page<BoardResponse> result = new PageImpl<>(list,pageRequest,1);
 
         //작성자
         String keyword = "well4149";
@@ -144,23 +143,22 @@ public class BoardServiceTest {
         when(boardService.boardSearchAll(keyword,pageRequest)).thenReturn(result);
         result = boardService.boardSearchAll(keyword,pageRequest);
 
-        assertThat(keyword).isEqualTo(result.stream().toList().get(0).getBoardAuthor());
+        assertThat(keyword).isEqualTo(result.stream().toList().get(0).boardAuthor());
     }
 
     @Test
     @DisplayName("게시글 작성")
     public void boardWrite() throws Exception {
         //given
-        init();
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.save(any())).willReturn(board);
-        given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
         boardService.boardCreate(boardRequestDto,member);
 
         verify(boardRepository).save(any());
-        verify(fileHandler,times(3)).parseFileInfo(any());
+        verify(fileHandler,times(2)).parseFileInfo(any());
     }
 
     @Test
@@ -170,7 +168,8 @@ public class BoardServiceTest {
         init();
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.save(any())).willReturn(board);
-        boardRequestDto.setFiles(null);
+        boardRequestDto.files().isEmpty();
+
         boardService.boardCreate(boardRequestDto,member);
 
         verify(boardRepository).save(any());
@@ -193,7 +192,7 @@ public class BoardServiceTest {
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
@@ -236,15 +235,15 @@ public class BoardServiceTest {
         //given
         init();
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        boardRequestDto.setFiles(List.of(updateFile));
+        boardRequestDto.files().add(updateFile);
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(fileHandler.parseFileInfo(boardRequestDto.getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
         //when
-        boardService.BoardUpdate(board.getId(),boardRequestDto,member,boardRequestDto.getFiles());
+        boardService.BoardUpdate(board.getId(),boardRequestDto,member,boardRequestDto.files());
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
@@ -256,7 +255,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),getBoardRequestDto(),null,getBoardRequestDto().getFiles()));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),null,boardRequestDto().files()));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -271,7 +270,7 @@ public class BoardServiceTest {
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),getBoardRequestDto(),member,getBoardRequestDto().getFiles()));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),member,boardRequestDto().files()));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -285,7 +284,7 @@ public class BoardServiceTest {
         
         //when
         when(boardService.passwordCheck(board.getPassWd(),board.getId(),member)).thenReturn(boardResponseDto);
-        BoardResponseDto result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
+        BoardResponse result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
         
         //then
         assertThat(result).isEqualTo(boardResponseDto);
@@ -323,11 +322,11 @@ public class BoardServiceTest {
         return Board
                 .builder()
                 .id(1)
-                .boardAuthor(member.getUserId())
                 .boardTitle("test")
+                .boardAuthor(member.getUserId())
                 .boardContents("test!")
-                .passWd("132v")
                 .readCount(1)
+                .passWd("132v")
                 .fileGroupId("free_weft33")
                 .member(member)
                 .build();
@@ -352,38 +351,23 @@ public class BoardServiceTest {
     private MemberResponse response(){
         return new MemberResponse(member);
     }
-
-    private BoardRequestDto getBoardRequestDto(){
-        return BoardRequestDto
-                .builder()
-                .boardAuthor(member.getUserId())
-                .boardContents("test!")
-                .boardTitle("test title")
-                .fileGroupId("free_teger")
-                .passWd("1234")
-                .readCount(0)
-                .files(
-                        List.of(
+    private BoardRequest boardRequestDto(){
+        return new BoardRequest(
+            board.getBoardTitle(),
+                board.getBoardContents(),
+                board.getMember().getUserId(),
+                board.getReadCount(),
+                board.getPassWd(),
+                board.getFileGroupId(),
+                new ArrayList<>(List.of(
                         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
                         new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
                         new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-                )
-                .build();
+        ));
     }
-    private BoardResponseDto boardResponseDto(){
-        return BoardResponseDto.builder()
-                .id(board().getId())
-                .boardTitle(board().getBoardTitle())
-                .boardAuthor(board().getBoardAuthor())
-                .boardContents(board().getBoardContents())
-                .fileGroupId(board().getFileGroupId())
-                .readCount(board().getReadCount())
-                .passWd(board().getPassWd())
-                .updatedTime(LocalDateTime.now())
-                .createdTime(LocalDateTime.now())
-                .build();
+    private BoardResponse boardResponse(){
+        return new BoardResponse(board);
     }
-
     private Attach attach(){
         return Attach
                 .builder()

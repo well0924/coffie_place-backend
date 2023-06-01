@@ -1,15 +1,15 @@
 package com.example.coffies_vol_02.favoritePlace.service;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardResponseDto;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceDto;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -36,7 +36,7 @@ public class FavoritePlaceService {
     /**
      * 위시 리스트 목록
      **/
-    public Page<FavoritePlaceDto>MyWishList(Pageable pageable,String userId){
+    public Page<FavoritePlaceResponse>MyWishList(Pageable pageable, String userId){
         return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
     }
 
@@ -72,19 +72,19 @@ public class FavoritePlaceService {
     /**
      * 내가 작성한 글 확인하기.
      */
-    public Page<BoardResponseDto> getMyPageBoardList(Pageable pageable, String userId){
+    public Page<BoardResponse> getMyPageBoardList(Pageable pageable, String userId){
         Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         Page<Board>list = boardRepository.findByMember(member,pageable);
-        return list.map(BoardResponseDto::new);
+        return list.map(BoardResponse::new);
     }
 
     /**
      * 내가 작성한 댓글
      */
-    public List<commentResponseDto> getMyPageCommnetList(String userId, Pageable pageable){
+    public List<CommentResponse> getMyPageCommnetList(String userId, Pageable pageable){
         Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         List<Comment>list = commentRepository.findByMember(member,pageable);
-        return list.stream().map(commentResponseDto::new).collect(Collectors.toList());
+        return list.stream().map(CommentResponse::new).collect(Collectors.toList());
     }
 
 }

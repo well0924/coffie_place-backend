@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestNotice;
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -38,7 +38,7 @@ public class NoticeBoardRepositoryTest {
 
         assertThat(list1).isNotEmpty();
 
-        Page<NoticeResponseDto>list2 = noticeBoardRepository.findAllList(pageable);
+        Page<NoticeResponse>list2 = noticeBoardRepository.findAllList(pageable);
 
         System.out.println(list2.get().toList());
 
@@ -60,7 +60,7 @@ public class NoticeBoardRepositoryTest {
 
         builder.and(booleanExpression);
 
-        Page<NoticeResponseDto>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
+        Page<NoticeResponse>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
 
         System.out.println(result2.get().toList());
 

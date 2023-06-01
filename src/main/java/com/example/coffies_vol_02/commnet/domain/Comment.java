@@ -20,7 +20,6 @@ import java.util.Set;
 @ToString(exclude = {"member","board","place","likes"})
 @Table(name = "tbl_board_reply")
 @NoArgsConstructor
-@AllArgsConstructor
 public class Comment extends BaseTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

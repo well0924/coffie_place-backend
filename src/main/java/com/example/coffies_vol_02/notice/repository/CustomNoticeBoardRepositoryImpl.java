@@ -2,7 +2,7 @@ package com.example.coffies_vol_02.notice.repository;
 
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,9 +23,9 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
     }
 
     @Override
-    public Page<NoticeResponseDto> findAllList(Pageable pageable) {
+    public Page<NoticeResponse> findAllList(Pageable pageable) {
 
-        List<NoticeResponseDto>noticeList =  new ArrayList<>();
+        List<NoticeResponse>noticeList =  new ArrayList<>();
 
         List<NoticeBoard>result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
@@ -44,20 +44,16 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .size();
 
         for(NoticeBoard noticeBoard:result){
-            NoticeResponseDto responseDto = NoticeResponseDto
-                    .builder()
-                    .noticeBoard(noticeBoard)
-                    .build();
-
+            NoticeResponse responseDto = new NoticeResponse(noticeBoard);
             noticeList.add(responseDto);
         }
         return new PageImpl<>(noticeList,pageable,count);
     }
 
     @Override
-    public Page<NoticeResponseDto> findAllSearchList(String searchVal, Pageable pageable) {
+    public Page<NoticeResponse> findAllSearchList(String searchVal, Pageable pageable) {
 
-        List<NoticeResponseDto>searchResult = new ArrayList<>();
+        List<NoticeResponse>searchResult = new ArrayList<>();
 
         List<NoticeBoard> result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
@@ -77,12 +73,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .size();
 
         for(NoticeBoard noticeBoard:result){
-
-            NoticeResponseDto responseDto = NoticeResponseDto
-                    .builder()
-                    .noticeBoard(noticeBoard)
-                    .build();
-
+            NoticeResponse responseDto = new NoticeResponse(noticeBoard);
             searchResult.add(responseDto);
         }
 

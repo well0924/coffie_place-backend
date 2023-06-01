@@ -3,8 +3,7 @@ package com.example.coffies_vol_02.TestCommnet;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.request.commentRequestDto;
-import com.example.coffies_vol_02.commnet.domain.dto.response.commentResponseDto;
+import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
@@ -110,21 +109,16 @@ public class CommentApiControllerTest {
     @DisplayName("게시판 댓글 작성")
     public void boardCommentWrite()throws Exception{
 
-        commentRequestDto commentRequestDto = new commentRequestDto();
-        commentRequestDto.setReplyContents(comment.getReplyContents());
-        commentRequestDto.setReplyWriter(member.getUserId());
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
-
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(commentService.commentCreate(board.getId(),member,commentRequestDto)).willReturn(comment.getId());
+        given(commentService.commentCreate(board.getId(),member,request())).willReturn(comment.getId());
 
-        when(commentService.commentCreate(board.getId(),member,commentRequestDto)).thenReturn(comment.getId());
+        when(commentService.commentCreate(board.getId(),member,request())).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/write/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(commentRequestDto))
+                        .content(objectMapper.writeValueAsString(request()))
                         .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
@@ -171,19 +165,14 @@ public class CommentApiControllerTest {
     @DisplayName("가게 댓글 작성")
     public void placeCommentWrite()throws Exception{
 
-        commentRequestDto commentRequestDto = new commentRequestDto();
-        commentRequestDto.setReplyContents(comment.getReplyContents());
-        commentRequestDto.setReplyWriter(member.getUserId());
-        commentRequestDto.setReplyPoint(comment.getReplyPoint());
+        given(commentService.placeCommentCreate(place().getId(), request(), member)).willReturn(comment().getId());
 
-        given(commentService.placeCommentCreate(place().getId(), commentRequestDto, member)).willReturn(comment().getId());
-
-        when(commentService.placeCommentCreate(place.getId(),commentRequestDto,member)).thenReturn(comment.getId());
+        when(commentService.placeCommentCreate(place.getId(),request(),member)).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/place/write/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8)
-                .content(objectMapper.writeValueAsString(commentRequestDto))
+                .content(objectMapper.writeValueAsString(request()))
                 .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
@@ -219,6 +208,9 @@ public class CommentApiControllerTest {
                 .member(memberDto())
                 .place(place())
                 .build();
+    }
+    private CommentRequest request(){
+        return new CommentRequest(comment.getReplyWriter(),comment.getReplyContents(),comment.getReplyPoint());
     }
     private Board board(){
         return Board
@@ -269,17 +261,11 @@ public class CommentApiControllerTest {
                 .build();
     }
 
-    private commentResponseDto commentResponseDto(){
-        return commentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
-    }
-
     private placeCommentResponseDto placeCommentResponse(){
         return placeCommentResponseDto
                 .builder()
                 .comment(comment)
                 .build();
     }
+
 }

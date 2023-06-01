@@ -10,8 +10,8 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,9 +68,9 @@ public class NoticeApiControllerTest {
 
     private NoticeBoard noticeBoard;
 
-    private NoticeResponseDto responseDto;
+    private NoticeResponse responseDto;
 
-    private NoticeRequestDto requestDto;
+    private NoticeRequest requestDto;
 
     private MemberResponse memberResponseDto;
 
@@ -94,11 +93,11 @@ public class NoticeApiControllerTest {
         member = memberDto();
         memberResponseDto = responseDto();
         noticeBoard = noticeBoard();
-        requestDto = noticeRequestDto();
-        responseDto = NoticeResponseDto();
+        requestDto = noticeRequest();
+        responseDto = noticeResponse();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(noticeRequestDto().getFiles());
+        filelist = fileHandler.parseFileInfo(noticeRequest().files());
         detailfileList.add(attachDto());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
@@ -107,9 +106,9 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 목록")
     public void NoticeBoardListTest()throws Exception{
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<NoticeResponseDto>list = new ArrayList<>();
-        list.add(responseDto);
-        Page<NoticeResponseDto>result = new PageImpl<>(list,pageRequest,1);
+        List<NoticeResponse>list = new ArrayList<>();
+        list.add(noticeResponse());
+        Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
         given(noticeService.noticeAllList(pageRequest)).willReturn(result);
 
         when(noticeService.noticeAllList(pageRequest)).thenReturn(result);
@@ -126,7 +125,7 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 단일 조회")
     public void NoticeBoardDetailTest()throws Exception{
 
-        given(noticeService.findNotice(noticeBoard.getId())).willReturn(responseDto);
+        given(noticeService.findNotice(noticeBoard.getId())).willReturn(noticeResponse());
 
         when(noticeService.findNotice(noticeBoard.getId())).thenReturn(responseDto);
 
@@ -143,17 +142,17 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 작성")
     public void NoticeBoardWriteTest()throws Exception{
 
-        when(noticeService.noticeCreate(noticeRequestDto(),noticeRequestDto().getFiles())).thenReturn(noticeBoard.getId());
+        when(noticeService.noticeCreate(noticeRequest(),noticeRequest().files())).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/write")
-                        .file("files",noticeRequestDto().getFiles().get(0).getBytes())
-                        .file("files",noticeRequestDto().getFiles().get(1).getBytes())
-                        .param("noticeGroup",noticeRequestDto().getNoticeGroup())
-                        .param("noticeTitle",noticeRequestDto().getNoticeTitle())
-                        .param("noticeWriter",noticeRequestDto().getNoticeWriter())
-                        .param("noticeContents",noticeRequestDto().getNoticeContents())
-                        .param("fileGroupId",noticeRequestDto().getFileGroupId())
-                        .param("isFixed",Character.toString(noticeRequestDto().getIsFixed()))
+                        .file("files",noticeRequest().files().get(0).getBytes())
+                        .file("files",noticeRequest().files().get(1).getBytes())
+                        .param("noticeGroup",noticeRequest().noticeGroup())
+                        .param("noticeTitle",noticeRequest().noticeTitle())
+                        .param("noticeWriter",noticeRequest().noticeWriter())
+                        .param("noticeContents",noticeRequest().noticeContents())
+                        .param("fileGroupId",noticeRequest().fileGroupId())
+                        .param("isFixed",Character.toString(noticeRequest().isFixed()))
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .with(requestPostProcessor -> {
@@ -167,20 +166,20 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 수정")
     public void NoticeBoardUpdateTest()throws Exception{
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        noticeRequestDto().setFiles(List.of(updateFile));
+        noticeRequest().files().add(updateFile);
 
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
-        given(fileHandler.parseFileInfo(noticeRequestDto().getFiles())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
         mvc.perform(multipart("/api/notice/update/{notice_id}",noticeBoard.getId())
-                .file("files",noticeRequestDto().getFiles().get(0).getBytes())
+                .file("files",noticeRequest().files().get(0).getBytes())
                 .param("noticeGroup","자유게시판")
                 .param("noticeTitle","제목")
                 .param("noticeWriter","well4149")
                 .param("noticeContents","내용 테스트")
-                .param("fileGroupId",noticeRequestDto().getFileGroupId())
+                .param("fileGroupId",noticeRequest().fileGroupId())
                 .param("isFixed",Character.toString('N'))
                 .with(requestPostProcessor->{
                     requestPostProcessor.setMethod("PATCH");
@@ -203,6 +202,7 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
     }
+
     private Member memberDto(){
         return Member
                 .builder()
@@ -219,9 +219,11 @@ public class NoticeApiControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
+
     private MemberResponse responseDto(){
         return new MemberResponse(member);
     }
+
     private NoticeBoard noticeBoard(){
         return NoticeBoard.builder()
                 .id(1)
@@ -233,25 +235,23 @@ public class NoticeApiControllerTest {
                 .fileGroupId("notice_gr23411")
                 .build();
     }
-    private NoticeRequestDto noticeRequestDto(){
-        return NoticeRequestDto
-                .builder()
-                .noticeGroup("공지게시판")
-                .noticeContents("ㅅㄷㄴㅅ")
-                .noticeWriter(member.getUserId())
-                .fileGroupId("notice_fe2433")
-                .isFixed('Y')
-                .files(List.of(
+
+    private NoticeRequest noticeRequest(){
+        return new NoticeRequest(
+                noticeBoard.getNoticeGroup(),
+                noticeBoard.getIsFixed(),
+                noticeBoard.getNoticeTitle(),
+                noticeBoard.getNoticeWriter(),
+                noticeBoard.getNoticeContents(),
+                noticeBoard.getFileGroupId(),
+                new ArrayList<>(List.of(
                         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
                         new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())))
-                .build();
+                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
+        ));
     }
-    private NoticeResponseDto NoticeResponseDto(){
-        return NoticeResponseDto
-                .builder()
-                .noticeBoard(noticeBoard)
-                .build();
+    private NoticeResponse noticeResponse(){
+        return new NoticeResponse(noticeBoard);
     }
     private Attach attach(){
         return Attach

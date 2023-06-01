@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.notice.controller.api;
 
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequestDto;
-import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponseDto;
+import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
+import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,8 +28,8 @@ public class NoticeApiController {
 
     @Operation(summary = "공지 게시판 목록",description = "공지게시판페이지에서 목록을 보여준다.")
     @GetMapping("/list")
-    public CommonResponse<Page<NoticeResponseDto>>noticeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
-        Page<NoticeResponseDto> list = null;
+    public CommonResponse<Page<NoticeResponse>>noticeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+        Page<NoticeResponse> list = null;
 
         try{
             list = noticeService.noticeAllList(pageable);
@@ -41,8 +41,8 @@ public class NoticeApiController {
 
     @ApiOperation(value = "공지 게시판 검색")
     @GetMapping("/search")
-    public CommonResponse<Page<NoticeResponseDto>>noticeSearchList(@RequestParam String searchVal,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
-        Page<NoticeResponseDto> list = null;
+    public CommonResponse<Page<NoticeResponse>>noticeSearchList(@RequestParam String searchVal,@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+        Page<NoticeResponse> list = null;
 
         try{
             list = noticeService.noticeSearchAll(searchVal,pageable);
@@ -54,25 +54,19 @@ public class NoticeApiController {
 
     @Operation(summary = "공지게시글 조회",description = "공지게시글을 단일 조회한다.")
     @GetMapping("/detail/{notice_id}")
-    public CommonResponse<NoticeResponseDto>noticeDetail(@PathVariable("notice_id")Integer noticeId){
-        NoticeResponseDto detail = new NoticeResponseDto();
-
-        try{
-            detail = noticeService.findNotice(noticeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    public CommonResponse<NoticeResponse>noticeDetail(@PathVariable("notice_id")Integer noticeId){
+        NoticeResponse detail = noticeService.findNotice(noticeId);
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
     @Operation(summary = "공지게시글 작성",description = "공지게시글 작성화면에서 게시글을 작성한다.")
     @PostMapping(value = "/write")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>noticeWrite(@Valid @ModelAttribute NoticeRequestDto dto, BindingResult bindingResult){
+    public CommonResponse<Integer>noticeWrite(@Valid @ModelAttribute NoticeRequest dto, BindingResult bindingResult){
         Integer InsertResult = 0;
 
         try{
-            InsertResult = noticeService.noticeCreate(dto,dto.getFiles());
+            InsertResult = noticeService.noticeCreate(dto,dto.files());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -82,11 +76,11 @@ public class NoticeApiController {
     @Operation(summary = "공지게시글 수정",description = "공지게시글 수정화면에서 게시글을 수정한다.")
     @PatchMapping("/update/{notice_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>noticeUpdate(@PathVariable("notice_id")Integer noticeId,@ModelAttribute NoticeRequestDto dto){
+    public CommonResponse<Integer>noticeUpdate(@PathVariable("notice_id")Integer noticeId,@ModelAttribute NoticeRequest dto){
         Integer UpdateResult = 0;
 
         try{
-            UpdateResult = noticeService.noticeUpdate(noticeId,dto,dto.getFiles());
+            UpdateResult = noticeService.noticeUpdate(noticeId,dto,dto.files());
         }catch (Exception e){
             e.printStackTrace();
         }
