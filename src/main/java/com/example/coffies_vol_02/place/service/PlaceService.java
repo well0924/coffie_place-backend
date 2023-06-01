@@ -2,7 +2,9 @@ package com.example.coffies_vol_02.place.service;
 
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
@@ -13,7 +15,10 @@ import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,45 +46,65 @@ public class PlaceService {
     private final PlaceImageService placeImageService;
     private final PlaceImageRepository placeImageRepository;
     private final ObjectMapper objectMapper;
+    private final RedisService redisService;
 
     /*
-    * 가게 목록
-    */
+     * 가게 목록
+     */
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto>placeList(Pageable pageable){
-        Page<Place>list = placeRepository.findAll(pageable);
+    public Page<PlaceResponseDto> placeList(Pageable pageable) {
+        Page<Place> list = placeRepository.findAll(pageable);
         return list.map(PlaceResponseDto::new);
     }
 
     /**
-    * 가게 목록(무한 스크롤)
-    * */
-    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable, String keyword){
-        return placeRepository.placeList(pageable,keyword);
+     * 가게 목록(무한 스크롤)
+     */
+    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable, String keyword, String searchType, Member member) {
+        if (member != null && searchType != null) {
+            redisService.setValues(member.getId().toString(), keyword);
+            System.out.println(redisService.getSearchList(member.getId().toString()));
+        }
+        return placeRepository.placeList(pageable, keyword);
     }
-    /*
-    * 가게 검색
-    */
-    @Transactional(readOnly = true)
-    public Page<PlaceResponseDto>placeListAll(String keyword, Pageable pageable){
-        return placeRepository.placeListSearch(keyword,pageable);
+
+    /**
+     * 가게 검색 목록
+     */
+    public List<String> placeSearchList(Member member) {
+        if (member != null) {
+            return redisService.getSearchList(member.getId().toString());
+        }
+        return null;
     }
 
     /*
-    * 가게 top5
-    */
+     * 가게 검색
+     */
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto>placeTop5(Pageable pageable){
+    public Page<PlaceResponseDto> placeListAll(String keyword, Pageable pageable, Member member) {
+        if (member != null) {
+            redisService.setValues(member.getId().toString(), keyword);
+            System.out.println(redisService.getSearchList(member.getId().toString()));
+        }
+        return placeRepository.placeListSearch(keyword, pageable);
+    }
+
+    /*
+     * 가게 top5
+     */
+    @Transactional(readOnly = true)
+    public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         return placeRepository.placeTop5(pageable);
     }
 
     /*
-    *  가게 단일 조회
-    */
+     *  가게 단일 조회
+     */
     @Transactional
-    public PlaceResponseDto placeDetail(Integer placeId){
-        Optional<Place> place = Optional.of(placeRepository.findById(placeId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
-        Place detail = place.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
+    public PlaceResponseDto placeDetail(Integer placeId) {
+        Optional<Place> place = Optional.of(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
+        Place detail = place.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
         return PlaceResponseDto
                 .builder()
                 .id(detail.getId())
@@ -99,8 +124,8 @@ public class PlaceService {
     }
 
     /*
-    * 가게 등록
-    */
+     * 가게 등록
+     */
     @Transactional
     public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
@@ -122,21 +147,21 @@ public class PlaceService {
 
         Integer registerResult = place.getId();
 
-        List<PlaceImage>imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
+        List<PlaceImage> imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
 
         PlaceImage placeImage;
 
-        if(imageList.isEmpty()) return registerResult;
+        if (imageList.isEmpty()) return registerResult;
 
-        if(!imageList.isEmpty()) {
+        if (!imageList.isEmpty()) {
             String resize = "";
-            for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
-                if(i == 0){
+            for (int i = 0; i < imageList.size(); i++) {
+                placeImage = imageList.get(i);
+                if (i == 0) {
                     placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
+                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
+                } else {
+                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
                 }
                 placeImage.setPlace(place);
                 placeImage.setImgGroup("coffieplace");
@@ -153,21 +178,21 @@ public class PlaceService {
      * 가게 수정
      */
     @Transactional
-    public Integer placeModify(Integer placeId,PlaceRequestDto dto,PlaceImageRequestDto imageDto) throws Exception {
-        Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
-        Place place = placeDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
+    public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
+        Optional<Place> placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        Place place = placeDetail.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
 
         place.placeUpadate(dto);
 
         Integer result = place.getId();
 
-        List<PlaceImage>imageList =placeImageRepository.findPlaceImagePlace(placeId);
+        List<PlaceImage> imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
         PlaceImage placeImage;
 
-        if(result > 0){
+        if (result > 0) {
             //이미지가 없는 경우
-            if(imageList.isEmpty())return result;
+            if (imageList.isEmpty()) return result;
 
             //이미지가 있는 경우
             for (PlaceImage image : imageList) {
@@ -192,14 +217,14 @@ public class PlaceService {
 
             String resize = "";
 
-            for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
+            for (int i = 0; i < imageList.size(); i++) {
+                placeImage = imageList.get(i);
 
-                if(i == 0){
+                if (i == 0) {
                     placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
+                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
+                } else {
+                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
                 }
 
                 placeImage.setPlace(place);
@@ -209,20 +234,20 @@ public class PlaceService {
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
-        }else{
+        } else {
             //이미지를 추가하지 않은채로 수정을 하는 경우
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
             String resize = "";
 
-            for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
+            for (int i = 0; i < imageList.size(); i++) {
+                placeImage = imageList.get(i);
 
-                if(i == 0){
+                if (i == 0) {
                     placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
+                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
+                } else {
+                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
                 }
 
                 placeImage.setPlace(place);
@@ -240,11 +265,11 @@ public class PlaceService {
      * 가게 삭제
      */
     public void placeDelete(Integer placeId) throws Exception {
-        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        Optional<Place> detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
-        List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
+        List<PlaceImage> imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
-        for(PlaceImage placeImage : imageList){
+        for (PlaceImage placeImage : imageList) {
             String imgPath = placeImage.getImgPath();
             String thumbPath = placeImage.getThumbFilePath();
 
@@ -258,7 +283,7 @@ public class PlaceService {
                 thumbPaths.delete();
             }
             //디비에서 저장된 값 삭제
-            placeImageService.deletePlaceImage(placeId); 
+            placeImageService.deletePlaceImage(placeId);
         }
         placeRepository.deleteById(placeId);
     }
@@ -270,7 +295,7 @@ public class PlaceService {
 
         List<Place> placePlace = placeRepository.findAll();
 
-        if(excelDownload){
+        if (excelDownload) {
             createExcelDownloadResponse(response, placePlace);
             return null; //없으면 에러!
         }
@@ -286,9 +311,9 @@ public class PlaceService {
     /*
      * 가게 목록 엑셀 다운로드
      */
-    private void createExcelDownloadResponse(HttpServletResponse response, List<Place>placeList) {
+    private void createExcelDownloadResponse(HttpServletResponse response, List<Place> placeList) {
 
-        try{
+        try {
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("등록 가게목록");
 
@@ -296,7 +321,7 @@ public class PlaceService {
             final String fileName = "등록 가게 목록";
 
             //헤더
-            final String[] header = {"번호","가게 이름","등록자","가게전화번호","시작시간", "종료시간","가게 주소1","가게 주소2","가게 평점","파일 번호","가게 위도","가게 경도"};
+            final String[] header = {"번호", "가게 이름", "등록자", "가게전화번호", "시작시간", "종료시간", "가게 주소1", "가게 주소2", "가게 평점", "파일 번호", "가게 위도", "가게 경도"};
 
             Row row = sheet.createRow(0);
 
@@ -350,13 +375,13 @@ public class PlaceService {
             }
 
             response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment;filename="+ URLEncoder.encode(fileName, StandardCharsets.UTF_8)+".xlsx");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".xlsx");
             //파일명은 URLEncoder로 감싸주는게 좋다!
 
             workbook.write(response.getOutputStream());
             workbook.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

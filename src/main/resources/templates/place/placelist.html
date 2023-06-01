@@ -1,64 +1,85 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	  xmlns:th="http://www.thymeleaf.org"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:list="http://www.w3.org/1999/xhtml"
-	  layout:decorate="~{layout/leafframe}" lang="">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:list="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{layout/leafframe}" lang="">
 <head>
-<meta charset="UTF-8">
-<title>가게 목록</title>
-<link rel="stylesheet" th:href="@{/css/placelist.css}">
+    <meta charset="UTF-8">
+    <title>가게 목록</title>
+    <link rel="stylesheet" th:href="@{/css/placelist.css}">
 </head>
 <body>
 <th:block layout:fragment="content">
-<div class="container" style="margin-top:100px">
-	<div class="card shadow">
-		<div class="card-body">
-			<h4 class="card-title" style="text-align: center;">카페 검색</h4>
-			<!--search bar-->
-			<div class="form-inline" style="display: flex; justify-content: center;">
-				<select id="searchType" class="form-control" name="searchType">
-					<option>선택</option>
-					<option th:value="CN">가게이름</option>
-					<option th:value="CA">주소</option> 		
-				</select>
-				<input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
-				<button id="btnSearch"  class="btn btn-primary">Search</button>
-			</div>
-			<!--search end-->
-			<a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
-			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
-			<!---->
-			<div class="row" style="margin-top:10px">
-				<div class="col-4" th:each="list:${placelist}">
-					<div class="card">
-						<th:block>
-						<img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" class="card-img-top">
-						</th:block>
-						<div class="card-body">
-							<h5 class="card-title">[[${list.placeName}]]</h5>
-							<div class='RatingStar'>
-								<div class='RatingScore'>
-									<div class='outer-star'>
-										<div class='inner-star'></div>
-									</div>
-								</div>
-							</div>
-							<p class="card-text">[[${list.reviewRate}]]</p>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!---->
-		</div>
-	</div>
-</div>
-<script type="text/javascript">
-//가게 등록화면 이동
-function placeregister(){
-	location.href='/page/place/placeregister';
-}
-</script>
+    <div class="container" style="margin-top:100px">
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="card-title" style="text-align: center;">카페 검색</h4>
+                <!--search bar-->
+                <div class="form-inline" style="display: flex; justify-content: center;">
+                    <select id="searchType" class="form-control" name="searchType">
+                        <option>선택</option>
+                        <option th:value="CN">가게이름</option>
+                        <option th:value="CA">주소</option>
+                    </select>
+                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
+                    <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
+
+                </div>
+                <!--search end-->
+                <a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary"
+                   style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
+                <button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()"
+                        sec:authorize="hasRole('ROLE_ADMIN')">가게 등록
+                </button>
+                <div class="keywords" style="display: inline-block;">
+                    최근 검색어 =
+                    <ul style="   list-style:none; display: inline-block;    margin:0;    padding:0;">
+                        <li th:each="key : ${keywords}"
+                            style=" margin: 0 15px;    padding: 0 0 0 0;    border : 0;    float: left;">
+                            [[${key}]]
+                        </li>
+                    </ul>
+                </div>
+                <!---->
+                <div class="row" style="margin-top:10px">
+                    <div class="col-4" th:each="list:${placelist}">
+                        <div class="card">
+                            <th:block>
+                                <img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" class="card-img-top">
+                            </th:block>
+                            <div class="card-body">
+                                <h5 class="card-title">[[${list.placeName}]]</h5>
+                                <div class='RatingStar'>
+                                    <div class='RatingScore'>
+                                        <div class='outer-star'>
+                                            <div class='inner-star'></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="card-text">[[${list.reviewRate}]]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!---->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        //가게 등록화면 이동
+        function placeregister() {
+            location.href = '/page/place/placeregister';
+        }
+
+        // 가게 검색
+        function placeSearch() {
+            const searchType = document.getElementById('searchType').value;
+            const keyword = document.getElementById('autocomplete').value;
+
+            location.href = '/page/place/list?keyword=' + keyword + '&searchType=' + searchType;
+        }
+    </script>
 </th:block>
 </body>
 </html>
