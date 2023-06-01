@@ -2,12 +2,10 @@ package com.example.coffies_vol_02.member.domain.dto.request;
 
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.io.Serializable;
 
 public record MemberRequest(Integer id,
                             @NotBlank(message = "아이디를 입력해주세요.")
@@ -37,7 +35,7 @@ public record MemberRequest(Integer id,
                 .builder()
                 .id(id)
                 .userId(userId)
-                .password(password)
+                .password(member.getPassword())
                 .memberName(memberName)
                 .userPhone(userPhone)
                 .userEmail(userEmail)
