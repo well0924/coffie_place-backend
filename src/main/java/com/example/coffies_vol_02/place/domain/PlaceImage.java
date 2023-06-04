@@ -2,16 +2,18 @@ package com.example.coffies_vol_02.place.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Getter
 @Setter
+@Proxy(lazy = false)
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
-@AllArgsConstructor
-public class PlaceImage extends BaseTime {
+public class PlaceImage extends BaseTime implements Serializable {
     @Id
     @Column(name = "img_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +29,7 @@ public class PlaceImage extends BaseTime {
     private String imgUploader;
     private String isTitle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "place_id")
     private Place place;
 
@@ -53,5 +55,12 @@ public class PlaceImage extends BaseTime {
         this.storedName = storedName;
         this.imgUploader = imgUploader;
         this.isTitle = isTitle;
+    }
+
+    public void setPlace(Place place){
+        this.place = place;
+        if(!place.getPlaceImageList().contains(this)){
+            place.getPlaceImageList().add(this);
+        }
     }
 }

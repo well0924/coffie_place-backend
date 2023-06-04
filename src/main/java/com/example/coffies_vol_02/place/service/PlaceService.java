@@ -42,15 +42,6 @@ public class PlaceService {
     private final PlaceImageRepository placeImageRepository;
     private final ObjectMapper objectMapper;
 
-    /*
-    * 가게 목록
-    */
-    @Transactional(readOnly = true)
-    public Page<PlaceResponseDto>placeList(Pageable pageable){
-        Page<Place>list = placeRepository.findAll(pageable);
-        return list.map(PlaceResponseDto::new);
-    }
-
     /**
     * 가게 목록(무한 스크롤)
     * */
@@ -128,23 +119,13 @@ public class PlaceService {
 
         if(imageList.isEmpty()) return registerResult;
 
-        if(!imageList.isEmpty()) {
-            String resize = "";
-            for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
-                if(i == 0){
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
-                }
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+        for (int i = 0; i < imageList.size(); i++) {
+            placeImage = getPlaceImage(place, imageList, i);
 
-                place.addPlaceImage(placeImageRepository.save(placeImage));
-            }
+            log.info("" + placeImage);
+            log.info(imageList);
+
+            place.addPlaceImage(placeImageRepository.save(placeImage));
         }
         return registerResult;
     }
@@ -178,34 +159,16 @@ public class PlaceService {
                 File filePaths = new File(filePath);
                 File thumbPaths = new File(thumbPath);
 
-                if (filePaths.exists()) {
-                    filePaths.delete();
-                }
-                if (thumbPaths.exists()) {
-                    thumbPaths.delete();
-                }
+                if (filePaths.exists()) filePaths.delete();
+                if (thumbPaths.exists()) thumbPaths.delete();
                 //디베
                 placeImageService.deletePlaceImage(placeId);
             }
 
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            String resize = "";
-
             for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
-
-                if(i == 0){
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
-                }
-
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+                placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
@@ -213,22 +176,8 @@ public class PlaceService {
             //이미지를 추가하지 않은채로 수정을 하는 경우
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            String resize = "";
-
             for(int i=0;i< imageList.size();i++){
-                placeImage= imageList.get(i);
-
-                if(i == 0){
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage,360,360);
-                }else{
-                    resize = fileHandler.ResizeImage(placeImage,120,120);
-                }
-
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+                placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
@@ -275,12 +224,10 @@ public class PlaceService {
             return null; //없으면 에러!
         }
 
-        List<Map> placeList = placePlace
+        return placePlace
                 .stream()
                 .map(place -> objectMapper.convertValue(place, Map.class))
                 .collect(Collectors.toList());
-
-        return placeList;
     }
 
     /*
@@ -360,5 +307,24 @@ public class PlaceService {
             e.printStackTrace();
         }
 
+    }
+
+    private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {
+        PlaceImage placeImage;
+        String resize;
+        placeImage= imageList.get(i);
+
+        if(i == 0){
+            placeImage.setIsTitle("1");
+            resize = fileHandler.ResizeImage(placeImage,360,360);
+        }else{
+            resize = fileHandler.ResizeImage(placeImage,120,120);
+        }
+
+        placeImage.setPlace(place);
+        placeImage.setImgGroup("coffieplace");
+        placeImage.setFileType("images");
+        placeImage.setThumbFileImagePath(resize);
+        return placeImage;
     }
 }

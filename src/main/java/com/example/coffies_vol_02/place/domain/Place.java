@@ -38,7 +38,7 @@ public class Place extends BaseTime {
     private List<Comment>commentList = new ArrayList<>();
 
     //가게글이 삭제가 되면 가게 이미지도 같이 삭제가 된다.
-    @BatchSize(size = 1000)
+    @BatchSize(size = 100)
     @JsonIgnore
     @OneToMany(fetch =FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PlaceImage> placeImageList = new ArrayList<>();
@@ -57,7 +57,6 @@ public class Place extends BaseTime {
         this.placeLng = placeLng;
         this.placeLat = placeLat;
         this.reviewRate = 0.0;
-        this.placeImageList = placeImages;
     }
 
     //이미지 첨부

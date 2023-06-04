@@ -29,7 +29,7 @@
 			<a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary" style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
 			<button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()" sec:authorize="hasRole('ROLE_ADMIN')">가게 등록</button>
 			<!---->
-			<div class="row" style="margin-top:10px">
+			<div class="row">
 				<div class="col-4" th:each="list:${placelist}">
 					<div class="card">
 						<th:block>
@@ -37,6 +37,7 @@
 						</th:block>
 						<div class="card-body">
 							<h5 class="card-title">[[${list.placeName}]]</h5>
+							<p class="card-text">[[${list.placeAddr1}]]</p>
 							<div class='RatingStar'>
 								<div class='RatingScore'>
 									<div class='outer-star'>
