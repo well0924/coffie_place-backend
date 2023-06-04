@@ -41,7 +41,7 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final SetPath<com.example.coffies_vol_02.like.domain.Like, com.example.coffies_vol_02.like.domain.QLike> likes = this.<com.example.coffies_vol_02.like.domain.Like, com.example.coffies_vol_02.like.domain.QLike>createSet("likes", com.example.coffies_vol_02.like.domain.Like.class, com.example.coffies_vol_02.like.domain.QLike.class, PathInits.DIRECT2);
+    public final SetPath<com.example.coffies_vol_02.like.domain.Like, com.example.coffies_vol_02.like.domain.QLike> liked = this.<com.example.coffies_vol_02.like.domain.Like, com.example.coffies_vol_02.like.domain.QLike>createSet("liked", com.example.coffies_vol_02.like.domain.Like.class, com.example.coffies_vol_02.like.domain.QLike.class, PathInits.DIRECT2);
 
     public final com.example.coffies_vol_02.member.domain.QMember member;
 

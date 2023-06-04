@@ -77,7 +77,7 @@ public class BoardService {
                 .boardTitle(requestDto.boardTitle())
                 .boardContents(requestDto.boardContents())
                 .fileGroupId(requestDto.fileGroupId())
-                .readCount(requestDto.readCount())
+                .readCount(0)
                 .passWd(requestDto.passWd())
                 .member(member)
                 .build();
