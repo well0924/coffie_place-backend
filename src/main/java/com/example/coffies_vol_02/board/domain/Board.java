@@ -7,9 +7,7 @@ import com.example.coffies_vol_02.like.domain.Like;
 import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Proxy;
 
@@ -21,6 +19,7 @@ import java.util.*;
 @Getter
 @Proxy(lazy = false)
 @NoArgsConstructor
+@ToString
 @Table(name = "tbl_board",
         indexes = {
                 @Index(name = "board_index1",columnList = "boardTitle"),

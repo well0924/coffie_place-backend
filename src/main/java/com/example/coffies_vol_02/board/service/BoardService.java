@@ -5,7 +5,10 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPrevious;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
+import com.example.coffies_vol_02.board.repository.CustomBoardRepository;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -15,6 +18,7 @@ import com.example.coffies_vol_02.member.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +63,21 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponse findBoard(Integer boardId){
         BoardResponse result = Optional.ofNullable(boardRepository.boardDetail(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        return result;
+    }
+
+    /**
+     * 게시글 이전글
+     **/
+    public BoardNextPreviousInterface findPreviousBoard(Integer boardId){
+        BoardNextPreviousInterface result = Optional.ofNullable(boardRepository.findPreviousBoard(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        return result;
+    }
+    /**
+     * 게시글 다음글
+     **/
+    public BoardNextPreviousInterface findNextBoard(Integer boardId){
+        BoardNextPreviousInterface result = Optional.ofNullable(boardRepository.findNextBoard(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
         return result;
     }
 

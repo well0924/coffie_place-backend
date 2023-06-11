@@ -2,16 +2,13 @@ package com.example.coffies_vol_02.board.domain.dto.response;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
-import com.example.coffies_vol_02.like.domain.Like;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Schema(description = "게시판 응답Dto")
