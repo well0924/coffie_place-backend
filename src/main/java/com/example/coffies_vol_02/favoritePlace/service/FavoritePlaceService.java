@@ -40,9 +40,9 @@ public class FavoritePlaceService {
         return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
     }
 
-    /*
+    /**
      * 위시 리스트 중복처리
-     */
+     **/
     public boolean hasWishPlace(Integer placeId,Integer memberId){
         return favoritePlaceRepository.existsByPlaceIdAndMemberId(placeId, memberId);
     }

@@ -22,4 +22,6 @@ public class DocumentDto {
 
     @JsonProperty("distance")
     private double distance;
+
+
 }

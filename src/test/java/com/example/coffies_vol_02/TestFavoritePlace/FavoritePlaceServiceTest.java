@@ -18,7 +18,9 @@ import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
+import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
+import com.example.coffies_vol_02.place.service.PlaceImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +46,8 @@ public class FavoritePlaceServiceTest {
 
     @InjectMocks
     private FavoritePlaceService favoritePlaceService;
-
+    @Mock
+    private PlaceImageService placeImageService;
     @Mock
     private MemberRepository memberRepository;
 
@@ -59,6 +62,8 @@ public class FavoritePlaceServiceTest {
 
     @Mock
     private FavoritePlaceRepository favoritePlaceRepository;
+    @Mock
+    private PlaceImageRepository placeImageRepository;
 
     private Member member;
 
@@ -85,15 +90,16 @@ public class FavoritePlaceServiceTest {
     List<PlaceImage> placeImages = new ArrayList<>();
 
     @BeforeEach
-    public void init(){
+    public void init() throws Exception {
         member = memberDto();
         comment = comment();
         board = board();
         place = place();
-        favoritePlace = favoritePlace();
         placeImage = placeImage();
-        list.add(favoritePlace);
         placeImages.add(placeImage);
+        favoritePlace = favoritePlace();
+        list.add(favoritePlace);
+        placeImages = placeImageRepository.findPlaceImagePlace(place.getId());
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         ResponseDto = commentResponseDto();

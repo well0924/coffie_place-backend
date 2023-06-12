@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:th="http://www.thymeleaf.org"
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:list="http://www.w3.org/1999/xhtml"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	  layout:decorate="~{layout/leafframe}" lang="">
 <head>
 <meta charset="UTF-8">
@@ -36,7 +36,9 @@
 						<img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" class="card-img-top">
 						</th:block>
 						<div class="card-body">
-							<h5 class="card-title">[[${list.placeName}]]</h5>
+							<h5 class="card-title">
+								<a th:href="@{'/page/place/detail/'+${list.id}}">[[${list.placeName}]]</a>
+							</h5>
 							<p class="card-text">[[${list.placeAddr1}]]</p>
 							<div class='RatingStar'>
 								<div class='RatingScore'>

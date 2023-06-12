@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.board.repository;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPrevious;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
 import com.example.coffies_vol_02.member.domain.QMember;

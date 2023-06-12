@@ -13,11 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoApiResponseDto {
-    @ToString.Include
     @JsonProperty("meta")
     private MetaDto metaDto;
 
-    @ToString.Include
     @JsonProperty("documents")
     private List<DocumentDto> documentList;
 }

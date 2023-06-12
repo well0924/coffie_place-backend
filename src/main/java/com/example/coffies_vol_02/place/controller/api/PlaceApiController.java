@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -112,7 +113,7 @@ public class PlaceApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
-    @Operation(summary = "가게 목록 조회",description = "가게 목록을 조회한다")
+    @Operation(summary = "가게 목록 top5 조회",description = "가게 목록을 조회한다")
     @GetMapping(path = "/top5list")
     public CommonResponse<Page<PlaceResponseDto>>placeTop5List(@PageableDefault Pageable pageable){
         Page<PlaceResponseDto>top5list = null;

@@ -45,6 +45,7 @@ public class PlaceImage extends BaseTime implements Serializable {
             String originName,
             String imgUploader,
             String isTitle){
+
         this.fileGroupId = fileGroupId;
         this.fileType = fileType;
         this.imgGroup = imgGroup;

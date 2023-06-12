@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPrevious;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -22,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Log4j2

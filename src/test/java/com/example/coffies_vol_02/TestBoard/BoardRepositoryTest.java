@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.TestBoard;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPrevious;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -16,10 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
