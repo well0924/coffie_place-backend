@@ -56,3 +56,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         format_sql: true
+#kakao map rest api
+kakao:
+  rest:
+    api:
+      key: 5fa5c981cd5398d22e4576996d9ccb4f

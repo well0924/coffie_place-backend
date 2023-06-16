@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
@@ -60,18 +61,38 @@ public class BoardViewController {
 
         BoardResponse detail = null;
         List<AttachDto> attachList = new ArrayList<>();
+        BoardNextPreviousInterface previousBoard = null;
+        BoardNextPreviousInterface nextBoard = null;
 
         try{
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
+
+            previousBoard = boardService.findPreviousBoard(boardId);
+            nextBoard = boardService.findNextBoard(boardId);
             //조회수 증가.
             boardRepository.ReadCountUpToDB(boardId,detail.readCount());
+            log.info("이전글:"+previousBoard.getBoardTitle());
+            log.info("이전글:"+previousBoard.getId());
+            log.info("다음글:"+nextBoard.getBoardTitle());
+            log.info("다음글:"+nextBoard.getId());
         }catch (Exception e){
             e.printStackTrace();
         }
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
+        if(nextBoard !=null){
+            mv.addObject("next",nextBoard);
+        } else if (nextBoard ==null) {
+            mv.addObject("nothing",nextBoard);
+        }
+        mv.addObject("next",nextBoard);
+        if(previousBoard != null){
+            mv.addObject("previous",previousBoard);
+        }else if(previousBoard == null){
+            mv.addObject("nothing",previousBoard);
+        }
 
         mv.setViewName("board/detailBoard");
 

@@ -90,7 +90,8 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         }
         return new PageImpl<>(boardSearchResult, pageable, resultCount);
     }
-
+    
+    //게시물 단일 조회
     @Override
     public BoardResponse boardDetail(int boardId) {
         BoardResponse result = jpaQueryFactory

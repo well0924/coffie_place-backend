@@ -65,6 +65,31 @@ layout:decorate="~{layout/leafframe}">
 						</div>
 					</div>
 				</div>
+
+				<!--이전 글 다음글-->
+				<div class="list-group">
+					<a th:href="@{'/page/board/detail/'+${next.getId()}}"
+					   class="list-group-item list-group-item-action" th:if="${not #strings.isEmpty(next)}?'disabled'">
+						<span style="font-weight: bold;">다음글</span> │
+						<div th:unless="${not #strings.isEmpty(next)}">
+							다음글이 없습니다.
+						</div>
+						<div th:if="${not #strings.isEmpty(next)}">
+							<span style="color: blue;">[[${next.getBoardTitle()}]]</span>
+						</div>
+					</a>
+
+					<a th:href="@{'/page/board/detail/'+${previous.getId()}}"
+					   class="list-group-item list-group-item-action" th:if="${not #strings.isEmpty(previous)}?'disabled'">
+						<span style="font-weight: bold;">이전글</span> │
+						<div th:unless="${not #strings.isEmpty(previous)}">
+							이전글이 없습니다.
+						</div>
+						<div th:if="${not #strings.isEmpty(previous)}">
+							<span style="color: blue;">[[${previous.getBoardTitle()}]]</span>
+						</div>
+					</a>
+				</div>
 				<!-- Comments section-->
 				<div class="card mb-2">
 					<div class="card-header bg-light">
@@ -73,7 +98,7 @@ layout:decorate="~{layout/leafframe}">
 					<div class="card-body">
 						<ul class="list-group list-group-flush">
 						    <li class="list-group-item">
-								<input type="hidden" class="form-control ml-2" id="writer" name="replyWriter"  th:value="${#authentication.name}">
+								<input type="hidden" class="form-control ml-2" id="writer" name="replyWriter">
 								<textarea class="form-control" id="contents" name ="replyContents" rows="3"></textarea>
 								<button type="button" class="btn btn-dark mt-3" onClick="replyWrite();" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_USER')">댓글 작성</button>
 						    </li>

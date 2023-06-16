@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
 public class placeCommentResponseDto {
     private Integer id;
     private String replyWriter;

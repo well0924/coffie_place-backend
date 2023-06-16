@@ -85,7 +85,10 @@ public class FileHandler {
                             .filePath(filePath+File.separator+new_file_name)
                             .build();
 
-                    Attach attachFile = new Attach(attachDto.getOriginFileName(),attachDto.getFilePath(),attachDto.getFileSize());
+                    Attach attachFile = new Attach(
+                            attachDto.getOriginFileName(),
+                            attachDto.getFilePath(),
+                            attachDto.getFileSize());
 
                     list.add(attachFile);
 

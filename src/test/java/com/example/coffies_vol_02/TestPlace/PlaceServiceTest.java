@@ -62,6 +62,7 @@ public class PlaceServiceTest {
     @DisplayName("가게 목록")
     public void placeListTest() throws IOException {
         //given
+
         //when
         //then
     }
@@ -97,5 +98,6 @@ public class PlaceServiceTest {
         //when
         //then
     }
+
 
 }

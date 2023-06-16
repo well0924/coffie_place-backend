@@ -49,11 +49,11 @@ public class PlaceService {
     private final RedisService redisService;
 
     /*
-     * 가게 목록
-     */
+    * 가게 목록
+    */
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto> placeList(Pageable pageable) {
-        Page<Place> list = placeRepository.findAll(pageable);
+    public Page<PlaceResponseDto>placeSlideList(Pageable pageable){
+        Page<Place>list = placeRepository.findAll(pageable);
         return list.map(PlaceResponseDto::new);
     }
 
@@ -147,29 +147,19 @@ public class PlaceService {
 
         Integer registerResult = place.getId();
 
-        List<PlaceImage> imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
+        List<PlaceImage>imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
 
         PlaceImage placeImage;
 
-        if (imageList.isEmpty()) return registerResult;
+        if(imageList.isEmpty()) return registerResult;
 
-        if (!imageList.isEmpty()) {
-            String resize = "";
-            for (int i = 0; i < imageList.size(); i++) {
-                placeImage = imageList.get(i);
-                if (i == 0) {
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
-                } else {
-                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
-                }
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+        for (int i = 0; i < imageList.size(); i++) {
+            placeImage = getPlaceImage(place, imageList, i);
 
-                place.addPlaceImage(placeImageRepository.save(placeImage));
-            }
+            log.info("" + placeImage);
+            log.info(imageList);
+
+            place.addPlaceImage(placeImageRepository.save(placeImage));
         }
         return registerResult;
     }
@@ -203,34 +193,16 @@ public class PlaceService {
                 File filePaths = new File(filePath);
                 File thumbPaths = new File(thumbPath);
 
-                if (filePaths.exists()) {
-                    filePaths.delete();
-                }
-                if (thumbPaths.exists()) {
-                    thumbPaths.delete();
-                }
+                if (filePaths.exists()) filePaths.delete();
+                if (thumbPaths.exists()) thumbPaths.delete();
                 //디베
                 placeImageService.deletePlaceImage(placeId);
             }
 
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            String resize = "";
-
-            for (int i = 0; i < imageList.size(); i++) {
-                placeImage = imageList.get(i);
-
-                if (i == 0) {
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
-                } else {
-                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
-                }
-
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+            for(int i=0;i< imageList.size();i++){
+                placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
@@ -238,22 +210,8 @@ public class PlaceService {
             //이미지를 추가하지 않은채로 수정을 하는 경우
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            String resize = "";
-
-            for (int i = 0; i < imageList.size(); i++) {
-                placeImage = imageList.get(i);
-
-                if (i == 0) {
-                    placeImage.setIsTitle("1");
-                    resize = fileHandler.ResizeImage(placeImage, 360, 360);
-                } else {
-                    resize = fileHandler.ResizeImage(placeImage, 120, 120);
-                }
-
-                placeImage.setPlace(place);
-                placeImage.setImgGroup("coffieplace");
-                placeImage.setFileType("images");
-                placeImage.setThumbFileImagePath(resize);
+            for(int i=0;i< imageList.size();i++){
+                placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
             }
@@ -265,11 +223,11 @@ public class PlaceService {
      * 가게 삭제
      */
     public void placeDelete(Integer placeId) throws Exception {
-        Optional<Place> detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
-        List<PlaceImage> imageList = placeImageRepository.findPlaceImagePlace(placeId);
+        List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
-        for (PlaceImage placeImage : imageList) {
+        for(PlaceImage placeImage : imageList){
             String imgPath = placeImage.getImgPath();
             String thumbPath = placeImage.getThumbFilePath();
 
@@ -283,7 +241,7 @@ public class PlaceService {
                 thumbPaths.delete();
             }
             //디비에서 저장된 값 삭제
-            placeImageService.deletePlaceImage(placeId);
+            placeImageService.deletePlaceImage(placeId); 
         }
         placeRepository.deleteById(placeId);
     }
@@ -300,12 +258,10 @@ public class PlaceService {
             return null; //없으면 에러!
         }
 
-        List<Map> placeList = placePlace
+        return placePlace
                 .stream()
                 .map(place -> objectMapper.convertValue(place, Map.class))
                 .collect(Collectors.toList());
-
-        return placeList;
     }
 
     /*
@@ -375,15 +331,34 @@ public class PlaceService {
             }
 
             response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".xlsx");
+            response.setHeader("Content-Disposition", "attachment;filename="+ URLEncoder.encode(fileName, StandardCharsets.UTF_8)+".xlsx");
             //파일명은 URLEncoder로 감싸주는게 좋다!
 
             workbook.write(response.getOutputStream());
             workbook.close();
 
-        } catch (IOException e) {
+        }catch(IOException e){
             e.printStackTrace();
         }
 
+    }
+
+    private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {
+        PlaceImage placeImage;
+        String resize;
+        placeImage= imageList.get(i);
+
+        if(i == 0){
+            placeImage.setIsTitle("1");
+            resize = fileHandler.ResizeImage(placeImage,360,360);
+        }else{
+            resize = fileHandler.ResizeImage(placeImage,120,120);
+        }
+
+        placeImage.setPlace(place);
+        placeImage.setImgGroup("coffieplace");
+        placeImage.setFileType("images");
+        placeImage.setThumbFileImagePath(resize);
+        return placeImage;
     }
 }

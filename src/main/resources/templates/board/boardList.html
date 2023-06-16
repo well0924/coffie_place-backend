@@ -16,19 +16,10 @@ layout:decorate="~{layout/leafframe}">
 	<div class="card shadow">
 		<div class="card-body">
 			<h4 class="card-title" style="text-align: center;">자유게시판</h4>
-			<!--filter select box-->
 			<div class="row" style="width:500px;margin-left:82%;margin-bottom: 2px">
-				<div th:with=
-			   "pageNumber = ${boardList.pageable.pageNumber},
-				pageSize = ${boardList.pageable.pageSize},
-				totalPages= ${boardList.totalPages},
-				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
-				tempEndPage=${startPage+pageSize - 1},
-				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
-
+				<div>
 					<a th:href="@{/page/board/list(sort='createdTime,DESC')}"
 						class="btn btn-sm btn-default" role="button" href="">최신순</a>
-
 					<a th:href="@{/page/board/list(sort='readCount,DESC')}"
 					   class="btn btn-sm btn-default" role="button" href="">조회수순</a>
 				</div>

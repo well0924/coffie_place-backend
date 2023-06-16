@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.favoritePlace.domain.dto;
 
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Builder;
 
 public record FavoritePlaceResponse(
         Integer id,
@@ -19,7 +18,8 @@ public record FavoritePlaceResponse(
 
     @QueryProjection
     public FavoritePlaceResponse(FavoritePlace favoritePlace){
-        this(favoritePlace.getId(),
+        this(
+                favoritePlace.getId(),
                 favoritePlace.getPlace().getId(),
                 favoritePlace.getMember().getId(),
                 favoritePlace.getPlace().getPlaceName(),

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.TestBoard;
 
 import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.config.TestQueryDslConfig;
@@ -57,4 +58,25 @@ public class BoardRepositoryTest {
 
         assertThat(detail.id()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("게시글 이전글 번호 테스트")
+    public void BoardPrevTest(){
+        BoardNextPreviousInterface result = boardRepository.findPreviousBoard(6);
+
+        System.out.println(result);
+        System.out.println(result.getId());
+        System.out.println(result.getBoardTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 다음글 번호 테스트")
+    public void BoardNextTest(){
+        BoardNextPreviousInterface result = boardRepository.findNextBoard(6);
+
+        System.out.println(result);
+        System.out.println(result.getId());
+        System.out.println(result.getBoardTitle());
+    }
+
 }

@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
@@ -63,6 +64,21 @@ public class BoardService {
     }
 
     /**
+     * 게시글 이전글
+     **/
+    public BoardNextPreviousInterface findPreviousBoard(Integer boardId){
+        BoardNextPreviousInterface result = Optional.ofNullable(boardRepository.findPreviousBoard(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        return result;
+    }
+    /**
+     * 게시글 다음글
+     **/
+    public BoardNextPreviousInterface findNextBoard(Integer boardId){
+        BoardNextPreviousInterface result = Optional.ofNullable(boardRepository.findNextBoard(boardId)).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        return result;
+    }
+
+    /**
     * 글작성(파일 첨부)
     **/
     @Transactional
@@ -77,7 +93,7 @@ public class BoardService {
                 .boardTitle(requestDto.boardTitle())
                 .boardContents(requestDto.boardContents())
                 .fileGroupId(requestDto.fileGroupId())
-                .readCount(requestDto.readCount())
+                .readCount(0)
                 .passWd(requestDto.passWd())
                 .member(member)
                 .build();

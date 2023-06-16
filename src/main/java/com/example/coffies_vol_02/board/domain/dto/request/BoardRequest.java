@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.board.domain.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
@@ -9,26 +8,21 @@ import java.io.Serializable;
 import java.util.List;
 
 @Schema(description = "게시글 requestDto")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BoardRequestDto implements Serializable {
+public record BoardRequest(
     @Schema(description = "게시글 제목")
     @NotBlank(message = "제목을 작성해 주세요.")
-    private String boardTitle;
+    String boardTitle,
     @Schema(description = "게시글 내용")
     @NotBlank(message = "내용을 입력해 주세요.")
-    private String boardContents;
+    String boardContents,
     @Schema(description = "게시글 작성자")
-    private String boardAuthor;
+    String boardAuthor,
     @Schema(description = "게시글 조회수")
-    private Integer readCount;
+    Integer readCount,
     @Schema(description = "게시글 비밀번호")
-    private String passWd;
+    String passWd,
     @Schema(description = "게시글 fileGroupId")
-    private String fileGroupId;
+    String fileGroupId,
     @Schema(description = "게시글 첨부파일")
-    private List<MultipartFile> files;
+    List<MultipartFile> files)implements Serializable {
 }

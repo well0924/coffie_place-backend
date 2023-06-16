@@ -21,13 +21,13 @@
 					<div class="card-body"  th:each= "top5 :${top5}" style="margin-top: 50px">
 						<div class="card shadow">
 						<!-- 이미지 출력부분 -->
-						<!--<th:block th:each= "imagelist : ${top5}">
+						<th:block th:each= "imagelist : ${top5}">
 							<img th:if= "${top5.fileGroupId}==${imagelist.fileGroupId}" th:src="${imagelist.thumbFileImagePath}">
 						</th:block>
-						<img>-->
+						<img>
 						<div class="col-12">		
-							<h5 class="card-title"></h5>
-							<p class="card-text" ></p>
+							<h5 class="card-title">[[${top5.placeName}]]</h5>
+							<p class="card-text" >[[${top5.placeAddr1}]]</p>
 							<div class='RatingStar'>
 								<div class='RatingScore'>
 					  			<div class='outer-star'>
