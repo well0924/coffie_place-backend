@@ -4,12 +4,12 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -36,7 +36,7 @@ public class FavoritePlaceService {
     /**
      * 위시 리스트 목록
      **/
-    public Page<FavoritePlaceResponse>MyWishList(Pageable pageable, String userId){
+    public Page<FavoritePlaceResponseDto>MyWishList(Pageable pageable, String userId){
         return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
     }
 
@@ -81,10 +81,10 @@ public class FavoritePlaceService {
     /**
      * 내가 작성한 댓글
      */
-    public List<CommentResponse> getMyPageCommnetList(String userId, Pageable pageable){
+    public List<placeCommentResponseDto> getMyPageCommnetList(String userId, Pageable pageable){
         Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
         List<Comment>list = commentRepository.findByMember(member,pageable);
-        return list.stream().map(CommentResponse::new).collect(Collectors.toList());
+        return list.stream().map(placeCommentResponseDto::new).collect(Collectors.toList());
     }
 
 }

@@ -4,12 +4,12 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
+import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -18,9 +18,7 @@ import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
-import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
-import com.example.coffies_vol_02.place.service.PlaceImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,8 +44,7 @@ public class FavoritePlaceServiceTest {
 
     @InjectMocks
     private FavoritePlaceService favoritePlaceService;
-    @Mock
-    private PlaceImageService placeImageService;
+
     @Mock
     private MemberRepository memberRepository;
 
@@ -62,8 +59,6 @@ public class FavoritePlaceServiceTest {
 
     @Mock
     private FavoritePlaceRepository favoritePlaceRepository;
-    @Mock
-    private PlaceImageRepository placeImageRepository;
 
     private Member member;
 
@@ -81,9 +76,9 @@ public class FavoritePlaceServiceTest {
 
     BoardResponse boardResponseDto;
 
-    CommentResponse ResponseDto;
+    placeCommentResponseDto ResponseDto;
 
-    FavoritePlaceResponse favoriteResponseDto;
+    FavoritePlaceResponseDto favoritePlaceResponseDto;
 
     List<FavoritePlace>list = new ArrayList<>();
 
@@ -96,28 +91,30 @@ public class FavoritePlaceServiceTest {
         board = board();
         place = place();
         placeImage = placeImage();
-        placeImages.add(placeImage);
         favoritePlace = favoritePlace();
-        list.add(favoritePlace);
-        placeImages = placeImageRepository.findPlaceImagePlace(place.getId());
+        list.add(favoritePlace());
+        placeImages.add(placeImage());
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         ResponseDto = commentResponseDto();
-        favoriteResponseDto = favoriteResponseDto();
+        favoritePlaceResponseDto = favoritePlaceResponseDto();
     }
 
     @Test
     @DisplayName("내가 작성한 글 조회")
     public void MyPageBoardListTest(){
+
         List<Board> boardList = new ArrayList<>();
+
         boardList.add(board);
+
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+
         Page<Board> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
 
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardRepository.findByMember(member,pageRequest)).willReturn(pageBoardList);
-
 
         Page<BoardResponse>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
 
@@ -127,9 +124,13 @@ public class FavoritePlaceServiceTest {
     @Test
     @DisplayName("내가 작성한 글 조회-실패")
     public void MyPageBoardListTestFail(){
+
         List<Board> boardList = new ArrayList<>();
+
         boardList.add(board);
+
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+
         Page<Board> pageBoardList = new PageImpl<>(boardList,pageRequest,1);
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
@@ -138,33 +139,42 @@ public class FavoritePlaceServiceTest {
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
             Page<BoardResponse>result = favoritePlaceService.getMyPageBoardList(pageRequest, member.getUserId());
         });
+
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
 
     @Test
     @DisplayName("내가 작성한 댓글 조회")
-    public void MyPageCommentListTest() throws Exception {
+    public void MyPageCommentListTest(){
+
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+
         List<Comment>list = new ArrayList<>();
+
         list.add(comment);
+
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
-        List<CommentResponse>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
+        List<placeCommentResponseDto>result = favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageRequest);
+
         assertThat(result).isNotEmpty();
     }
 
     @Test
     @DisplayName("내가 작성한 댓글 조회-실패")
     public void MyPageCommentListTestFail(){
+
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+
         List<Comment>list = new ArrayList<>();
+
         list.add(comment);
 
         given(commentRepository.findByMember(member,pageRequest)).willReturn(list);
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> {
-            List<CommentResponse> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
+            List<placeCommentResponseDto> result = favoritePlaceService.getMyPageCommnetList(member.getUserId(), pageRequest);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
@@ -205,9 +215,9 @@ public class FavoritePlaceServiceTest {
         given(favoritePlaceRepository.save(favoritePlace())).willReturn(favoritePlace);
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
-        List<FavoritePlaceResponse>re = new ArrayList<>();
-        re.add(favoriteResponseDto);
-        Page<FavoritePlaceResponse>result = new PageImpl<>(re,pageRequest,0);
+        List<FavoritePlaceResponseDto>re = new ArrayList<>();
+        re.add(favoritePlaceResponseDto);
+        Page<FavoritePlaceResponseDto>result = new PageImpl<>(re,pageRequest,0);
 
         //when
         result = favoritePlaceService.MyWishList(pageRequest,member.getUserId());
@@ -257,6 +267,21 @@ public class FavoritePlaceServiceTest {
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
+
+    private PlaceImage placeImage(){
+        return PlaceImage
+                .builder()
+                .fileGroupId("place_ereg34593")
+                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
+                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
+                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
+                .storedName("다운로드 (1).jpg")
+                .originName("1320441218420200.jpg")
+                .imgUploader(member.getUserId())
+                .imgGroup("coffieplace")
+                .isTitle("1")
+                .build();
+    }
     private Place place(){
         return Place
                 .builder()
@@ -284,33 +309,22 @@ public class FavoritePlaceServiceTest {
                 .fileGroupId(place.getFileGroupId())
                 .build();
     }
-
-    private PlaceImage placeImage(){
-        return PlaceImage
-                .builder()
-                .fileGroupId("place_ereg34593")
-                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
-                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
-                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
-                .storedName("다운로드 (1).jpg")
-                .originName("1320441218420200.jpg")
-                .imgUploader(member.getUserId())
-                .imgGroup("coffieplace")
-                .isTitle("1")
-                .build();
-    }
-
     private MemberResponse responseDto(){
         return new MemberResponse(member);
     }
     private BoardResponse boardResponseDto(){
         return new BoardResponse(board);
     }
-    private CommentResponse commentResponseDto(){
-        return new CommentResponse(comment());
+    private placeCommentResponseDto commentResponseDto(){
+        return placeCommentResponseDto
+                .builder()
+                .comment(comment)
+                .build();
     }
-    
-    private FavoritePlaceResponse favoriteResponseDto(){
-        return new FavoritePlaceResponse(favoritePlace);
+    private FavoritePlaceResponseDto favoritePlaceResponseDto(){
+        return FavoritePlaceResponseDto
+                .builder()
+                .favoritePlace(favoritePlace)
+                .build();
     }
 }
