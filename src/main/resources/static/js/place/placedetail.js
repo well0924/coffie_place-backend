@@ -175,9 +175,76 @@ function WishCheck(){
     console.log(placeId);
 }
 
-//댓글 좋아요 기능
-function LikeCheck(placeId){
-    
+//댓글 좋아요 확인 기능
+function LikeCheck(replyId){
+    console.log('like checked');
+
+    $.ajax({
+        url:'/api/like/comment/' + replyId,
+        type:'GET',
+        dataType:'json',
+        contentType:'application/json; charset= utf-8'
+    }).done(function(resp){
+        console.log(resp);
+        //처음 누르는 경우
+        if(resp.data[1]== false){
+            alert('좋아요가 추가 되었습니다.');
+            console.log('좋아요 추가');
+            //좋아요 추가 기능
+            CommentLikePlus(replyId);
+        }
+        if(resp.data[1]==true){
+            alert('좋아요를 취소했습니다');
+            console.log('좋아요를 취소했습니다.');
+            //좋아요 취소 기능
+            CommentLikeMinus(replyId);
+        }
+    });
+}
+
+//댓글 좋아요 추가 기능
+function CommentLikePlus(replyId){
+    let placeId = $('#placeid').val();
+
+    const formdata = {placeId : placeId,replyId :replyId};
+
+    $.ajax({
+        url:'/api/like/plus/'+placeId+'/'+replyId,
+        type:'post',
+        data: JSON.stringify(formdata),
+        dataType:'json',
+        contentType:'application/json; charset= utf-8'
+    }).done(function(resp){
+        console.log(resp);
+        console.log('좋아요 추가!');
+        alert('좋아요 추가');
+        $('#replylist').empty();
+        ReviewList();
+
+    }).fail(function (error){
+        console.log(error);
+        console.log('좋아요 실패!');
+        $('#replylist').empty();
+        ReviewList();
+
+    });
+}
+
+//댓글 좋아요 취소 기능
+function CommentLikeMinus(replyId){
+    let placeId = $('#placeid').val();
+
+    $.ajax({
+        url:'/api/like/minus/'+placeId+'/'+replyId,
+        type:'delete',
+        dataType:'json'
+    }).done(function(resp){
+        console.log(resp);
+        console.log('좋아요 감소');
+        $('#replylist').empty();
+        ReviewList();
+
+    });
 }
 
 //이미지 팝업기능 o.k
@@ -189,6 +256,7 @@ function fnImgPop(url){
     let option = "width = 500, height = 500, top = 100, left = 200, location = no"
     window.open(url, name, option);
 }
+
 //가게 수정 페이지 이동
 function placemodify(){
     let placeId = $('#placeid').val();

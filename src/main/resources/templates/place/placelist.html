@@ -22,9 +22,15 @@
                         <option th:value="CN">가게이름</option>
                         <option th:value="CA">주소</option>
                     </select>
-                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
+                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요" onchange="recentSearchKeyword()"/>
                     <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
-
+                    <!--sorted select-->
+                    <select id="sortedType" class="form-control" name="sortedType">
+                        <option>정렬기준</option>
+                        <option>평점순</option>
+                        <option>이름순</option>
+                        <option>등록일순</option>
+                    </select>
                 </div>
                 <!--search end-->
                 <a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary"
@@ -50,7 +56,7 @@
                             </th:block>
                             <div class="card-body">
                                 <h5 class="card-title">[[${list.placeName}]]
-									<a th:href="@{'/page/place/detail/'+${list.id}}">[[${list.placeName}]]</a>
+									<a th:href="@{'/page/place/detail/'+${list.id}}"></a>
 								</h5>
 								<p class="card-text">[[${list.placeAddr1}]]</p>
                                 <div class='RatingStar'>
