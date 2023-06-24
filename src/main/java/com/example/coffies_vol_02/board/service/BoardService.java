@@ -53,7 +53,7 @@ public class BoardService {
     /**
      * 게시글 검색
      * @author 양경빈
-     * @param searchVal 게시글 검색어 검색어가 없는경우에는
+     * @param searchVal 게시글 검색어 검색어가 없는경우에는 NOT_SEARCH_VALUE 발생
      * @param pageable 페이징 객체
      * @see BoardRepository#findAllSearch(String, Pageable) 자유게시판에서 게시물을 검색하는 메서드                
      * @return Page<BoardResponse> 

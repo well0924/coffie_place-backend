@@ -45,7 +45,7 @@ function likeCount(){
 }
 //게시판 좋아요 추가하기.
 function boardLike(){
-    console.log("좋아요");
+    console.log("좋아요 추가");
     let id = $('#board_id').val();
     $.ajax({
         url:"/api/like/plus/"+id,
@@ -62,6 +62,7 @@ function boardLike(){
 //좋아요 감소
 function likeCancel(){
     let id = $('#board_id').val();
+
     $.ajax({
         url:'/api/like/minus/'+id,
         type:'delete',
