@@ -30,14 +30,11 @@ public class BoardRepositoryTest {
     public void BoardListTest(){
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
-        Page<Board>result1 = boardRepository.findAll(pageable);
         Page<BoardResponse>list = boardRepository.boardList(pageable);
 
         System.out.println(list.stream().toList());
-        System.out.println(result1.stream().toList());
 
         assertThat(list.get().toList()).isNotEmpty();
-        assertThat(result1.get().toList()).isNotEmpty();
     }
 
     @Test

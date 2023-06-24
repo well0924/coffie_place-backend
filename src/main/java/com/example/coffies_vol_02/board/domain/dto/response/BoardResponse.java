@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.board.domain.dto.response;
 
 import com.example.coffies_vol_02.board.domain.Board;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +30,7 @@ public record BoardResponse(
         @Schema(description = "게시물 파일 그룹 아이디")
         String fileGroupId,
         @Schema(description = "댓글 목록")
-        List<CommentResponse> commentList,
+        List<placeCommentResponseDto> commentList,
         @Schema(description = "게시물 작성일")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime createdTime,
@@ -53,7 +53,7 @@ public record BoardResponse(
                         board.getFileGroupId(),
                         board.getCommentList()
                                 .stream()
-                                .map(comment->new CommentResponse(comment))
+                                .map(comment->new placeCommentResponseDto(comment))
                                 .collect(Collectors.toList()),
                         board.getCreatedTime(),
                         board.getUpdatedTime()

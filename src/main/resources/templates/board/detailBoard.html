@@ -15,15 +15,14 @@ layout:decorate="~{layout/leafframe}">
 	<div class="row">
 		<div class="col-sm-12">
 			<h1>게시글 열람</h1>
-			<div id="favoriteCount">
-			</div>
+			<!--좋아요 횟수 나오는 부분-->
+			<div id="favoriteCount"></div>
 			<i class="fa-sharp fa-solid fa-eye">[[${detail.readCount}]]</i>
 			<div class="card shadow">
 				<div class="card-body">
 					<input type="hidden" id="board_id" name="id" th:value="${detail.id}">
 					<input type="hidden" id="pwd" name="passWd" th:value="${detail.passWd}">
 					<input type="hidden" id="fileGroupId" name="fileGroupId">
-					<!--좋아요 횟수 나오는 부분-->
 					<div class="form-group">
 						<label for="board_subject">제목</label>
 						<input type="text" id="board_subject" name="boardTitle" class="form-control" th:value="${detail.boardTitle}" disabled="disabled"/>

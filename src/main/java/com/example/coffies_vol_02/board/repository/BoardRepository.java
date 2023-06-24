@@ -12,22 +12,37 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoardRepository,QuerydslPredicateExecutor {
-    //비밀 번호 확인
+
+    /**
+     * 비밀 번호 확인
+     **/
     @Query("select b from Board b where b.id=:id and b.passWd= :passWd")
     BoardResponse findByPassWdAndId(@Param("passWd") String password, @Param("id") Integer id);
 
-    //내가 작성한 글
+    /**
+     * 내가 작성한 글
+     **/
     Page<Board> findByMember(Member member, Pageable pageable);
 
-    //게시글 조회수 증가(동시성을 고려해서 적용해보기)
+    /**
+     * 게시글 조회수 증가(동시성을 고려해서 적용해보기)
+     **/
     @Transactional
     @Modifying
     @Query("update Board b set b.readCount = :readCount+1 where b.id = :id")
     void ReadCountUpToDB(@Param("id")Integer id, @Param("readCount")Integer readCount);
 
-    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb where tb.id > :id order by tb.id limit 1")
+    /**
+     * 게시글 다음글
+     **/
+    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb " +
+            "where tb.id > :id order by tb.id limit 1")
     BoardNextPreviousInterface findNextBoard(@Param("id")Integer boardId);
 
-    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb where tb.id < :id order by tb.id desc limit 1")
+    /**
+     * 게시글 이전글
+     **/
+    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb " +
+            "where tb.id < :id order by tb.id desc limit 1")
     BoardNextPreviousInterface findPreviousBoard(@Param("id")Integer boardId);
 }

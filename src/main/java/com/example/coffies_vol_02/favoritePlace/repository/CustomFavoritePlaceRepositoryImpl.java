@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.favoritePlace.repository;
 
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.QFavoritePlace;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.example.coffies_vol_02.place.domain.Place;

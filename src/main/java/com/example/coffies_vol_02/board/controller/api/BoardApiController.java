@@ -31,7 +31,7 @@ import javax.validation.Valid;
 public class BoardApiController {
     private final BoardService boardService;
 
-    @ApiOperation(value = "게시글 목록",notes = "자유게시판 목록")
+    @ApiOperation(value = "게시글 목록",notes = "자유게시판에서 목록을 조회하는 컨트롤러")
     @GetMapping(path = "/list")
     public CommonResponse<Page<BoardResponse>>boardList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<BoardResponse> list = null;
@@ -44,7 +44,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "게시글 검색",description = "자유게시판 목록 검색")
+    @Operation(summary = "게시글 검색",description = "자유게시판에서 게시물을 검색하는 컨트롤러")
     @GetMapping(path = "/search")
     public CommonResponse<Page<BoardResponse>>boardSearch(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
@@ -59,7 +59,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "게시글 단일 조회",description = "자유게시판 단일 조회")
+    @Operation(summary = "게시글 단일 조회",description = "자유게시판에서 게시글을 단일 조회하는 컨트롤러")
     @GetMapping(path = "/detail/{id}")
     public CommonResponse<?>findBoard(@PathVariable("id") Integer boardId){
         BoardResponse detail = null;
@@ -72,7 +72,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @Operation(summary = "게시글 작성",description = "자유게시판에서 게시글 작성 및 파일첨부를 할 수 있다.")
+    @Operation(summary = "게시글 작성",description = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.")
     @PostMapping(path="/write",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>boardWrite(@Valid @ModelAttribute BoardRequest dto, BindingResult bindingResult, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
@@ -87,7 +87,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),WriteResult);
     }
 
-    @Operation(summary = "게시글 수정",description = "자유게시판에서 게시글을 수정")
+    @Operation(summary = "게시글 수정",description = "자유게시판 화면에서 게시글을 수정하는 컨트롤러")
     @PutMapping(path = "/update/{board_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>boardUpdate(@PathVariable("board_id") Integer boardId,@ModelAttribute BoardRequest dto,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
@@ -113,7 +113,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
-    @Operation(summary = "자유게시판 비밀번호 입력",description = "게시글에 비밀번호가 있는 경우에는 비밀번호를 입력해")
+    @Operation(summary = "자유게시판 비밀번호 입력",description = "자유게시글에서 비밀번호입력 화면에서 비밀번호가 있는 경우에는 비밀번호를 입력해서 게시글을 조회하는 컨트롤러")
     @GetMapping(path = "/password/{board_id}/{password}")
     public CommonResponse<BoardResponse>passwordCheck(@PathVariable("board_id")Integer boardId,@PathVariable("password") String password,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         BoardResponse result = null;
