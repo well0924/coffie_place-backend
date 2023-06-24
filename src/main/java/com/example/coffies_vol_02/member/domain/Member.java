@@ -9,6 +9,7 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +36,15 @@ public class Member extends BaseTime implements Serializable {
     private String userEmail;
     private String userAddr1;
     private String userAddr2;
+    @Column(name = "account_non_locked")
+    private Boolean accountNonLocked;
+    @Column(name = "failed_attempt")
+    private Integer failedAttempt;
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @BatchSize(size = 1000)
     @JsonIgnore
@@ -44,7 +52,20 @@ public class Member extends BaseTime implements Serializable {
     private List<FavoritePlace>wishList = new ArrayList<>();
 
     @Builder
-    public Member(Integer id,String userId,String password,String memberName,String userPhone,String userGender,String userAge,String userEmail,String userAddr1,String userAddr2,Role role){
+    public Member(Integer id,
+                  String userId,
+                  String password,
+                  String memberName,
+                  String userPhone,
+                  String userGender,
+                  String userAge,
+                  String userEmail,
+                  String userAddr1,
+                  String userAddr2,
+                  Boolean accountNonLocked,
+                  Integer failedAttempt,
+                  LocalDateTime lockTime,
+                  Role role){
         this.id = id;
         this.userId = userId;
         this.password = password;
@@ -55,6 +76,9 @@ public class Member extends BaseTime implements Serializable {
         this.userEmail = userEmail;
         this.userAddr1 = userAddr1;
         this.userAddr2 = userAddr2;
+        this.accountNonLocked = accountNonLocked;
+        this.failedAttempt = failedAttempt;
+        this.lockTime = lockTime;
         this.role = role;
         this.getCreatedTime();
         this.getUpdatedTime();

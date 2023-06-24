@@ -44,7 +44,7 @@ public class CustomUserDetails implements UserDetails,Serializable {
     public boolean isAccountNonExpired() {
         return true;
     }
-
+    //계정 잠금
     @Override
     public boolean isAccountNonLocked() {
         return true;

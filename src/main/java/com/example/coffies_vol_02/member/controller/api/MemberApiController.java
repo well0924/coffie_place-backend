@@ -30,7 +30,7 @@ import java.util.List;
 public class MemberApiController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원 목록 api",description = "회원전체 목록을 출력한다.")
+    @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
     public CommonResponse<Page<MemberResponse>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
         Page<MemberResponse> list = null;
@@ -43,7 +43,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "회원 검색 api",description = "회원목록에서 검색을 한다.")
+    @Operation(summary = "회원 검색 api", description = "회원목록에서 검색을 한다.")
     @GetMapping(path = "/search")
     public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
 
@@ -58,7 +58,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "회원 단일 조회 api",description = "회원을 단일  조회한다.")
+    @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
     @GetMapping(path = "/detail/{user_idx}")
     public CommonResponse<MemberResponse>findMember(@PathVariable("user_idx")Integer userIdx){
         MemberResponse detail = memberService.findMemberRecord(userIdx);
@@ -191,7 +191,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
-    @Operation(summary = "회원 검색 자동완성",description = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성하기.")
+    @Operation(summary = "회원 검색 자동완성",description = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
     @GetMapping(path = "/autocomplete/{id}")
     public  CommonResponse<List<String>>memberAutoComplete(@PathVariable(value = "id") String userId){
         List<String>list = new ArrayList<>();

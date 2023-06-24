@@ -21,17 +21,29 @@ import java.util.Optional;
 public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
-    //자주 사용하는 메소드는 캐시처리하기.
-    //redis 캐시에 저장이 되면 user::회원아이디 로 저장이 된다.
-    //redis에 저장된 값 출력하기.->게시글 조회시 좋아요기능
+    /** 
+     * 시큐리티 로그인
+     * redis 캐시에 저장이 되면 user::회원아이디 로 저장이 된다.
+     * @author 양경빈
+     * @param username 회원 아이디
+     * @throws UsernameNotFoundException 회원아이디가 없을 경우 Exception 을 발생
+     * @return UserDetail 로그인시 확인된 회원 객체
+     **/
     @Cacheable(value = CacheKey.USER,key = "#username",unless = "#result == null",cacheManager = "redisCacheManager")
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("----security login in....");
         log.info(username);
-        Optional<Member>userDetail = Optional.ofNullable(memberRepository.findByUserId(username).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
-        Member member = userDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+
+        Optional<Member>userDetail = Optional
+                .ofNullable(memberRepository.findByUserId(username)
+                        .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+
+        Member member = userDetail
+                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+
         log.info(userDetail);
+
         return new CustomUserDetails(member);
     }
 }
