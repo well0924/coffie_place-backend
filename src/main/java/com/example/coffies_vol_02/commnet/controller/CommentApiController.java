@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.commnet.controller;
 
 import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
@@ -28,8 +27,8 @@ public class CommentApiController {
 
     @Operation(summary = "댓글 목록",description = "게시글 목록에서 댓글목록을 보여준다.")
     @GetMapping("/list/{board_id}")
-    public CommonResponse<List<CommentResponse>>commentList(@PathVariable("board_id")Integer boardId){
-        List<CommentResponse> list = new ArrayList<>();
+    public CommonResponse<List<placeCommentResponseDto>>commentList(@PathVariable("board_id")Integer boardId){
+        List<placeCommentResponseDto> list = new ArrayList<>();
         try{
             list = commentService.replyList(boardId);
         }catch (Exception e){

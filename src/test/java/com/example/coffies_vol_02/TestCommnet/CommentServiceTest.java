@@ -5,7 +5,6 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
@@ -70,8 +69,6 @@ public class CommentServiceTest {
 
     CommentRequest commentRequestDto;
 
-    CommentResponse commentResponseDto;
-
     placeCommentResponseDto placeCommentResponseDto;
 
     @BeforeEach
@@ -82,7 +79,6 @@ public class CommentServiceTest {
         comment = comment();
         responseDto = response();
         commentRequestDto = commentRequestDto();
-        commentResponseDto = commentResponseDto();
         placeCommentResponseDto = placeCommentResponseDto();
         boardResponseDto = boardResponseDto();
     }
@@ -90,10 +86,10 @@ public class CommentServiceTest {
     @DisplayName("댓글 목록-성공")
     @Test
     public void CommentListTest() throws Exception {
-        List<CommentResponse>result = new ArrayList<>();
+        List<placeCommentResponseDto>result = new ArrayList<>();
         List<Comment>list = new ArrayList<>();
         list.add(comment);
-        result.add(commentResponseDto);
+        result.add(placeCommentResponseDto);
 
         given(commentRepository.findByBoardId(board.getId())).willReturn(list);
         given(commentService.replyList(board.getId())).willReturn(anyList());
@@ -348,10 +344,6 @@ public class CommentServiceTest {
                 comment.getReplyContents(),
                 comment.getReplyPoint());
     }
-    private CommentResponse commentResponseDto(){
-        return new CommentResponse(comment);
-    }
-
     private placeCommentResponseDto placeCommentResponseDto(){
         return placeCommentResponseDto
                 .builder()
