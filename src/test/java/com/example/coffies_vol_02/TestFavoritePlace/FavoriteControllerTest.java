@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestFavoritePlace;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.Comment;
-import com.example.coffies_vol_02.commnet.domain.dto.response.CommentResponse;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
@@ -60,7 +60,7 @@ public class FavoriteControllerTest {
 
     BoardResponse boardResponseDto;
 
-    CommentResponse responseDto;
+    placeCommentResponseDto responseDto;
 
     private CustomUserDetails customUserDetails;
 
@@ -105,11 +105,13 @@ public class FavoriteControllerTest {
     @DisplayName("내가 작성한 댓글 페이지")
     public void myCommentPage()throws Exception{
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        List<CommentResponse> list = new ArrayList<>();
+        List<placeCommentResponseDto> list = new ArrayList<>();
         list.add(responseDto);
+
         given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).willReturn(list);
 
         when(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).thenReturn(list);
+
         mvc.perform(get("/page/mypage/comment/{id}",member.getUserId())
                 .with(user(customUserDetails))
                 .contentType(MediaType.TEXT_HTML)
@@ -201,7 +203,10 @@ public class FavoriteControllerTest {
         return new BoardResponse(board);
     }
 
-    private CommentResponse commentResponseDto(){
-        return new CommentResponse(comment());
+    private placeCommentResponseDto commentResponseDto(){
+        return placeCommentResponseDto
+                .builder()
+                .comment(comment())
+                .build();
     }
 }
