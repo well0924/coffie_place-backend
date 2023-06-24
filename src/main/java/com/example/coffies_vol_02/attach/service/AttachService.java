@@ -22,8 +22,12 @@ public class AttachService {
     private final AttachRepository attachRepository;
 
     /**
-    *  파일 전체 목록(자유게시판)
-    **/
+     * 파일 전체 목록(자유게시판)
+     * @author 양경빈
+     * @param boardId 게시글 번호 
+     * @return list 자유게시글 첨부파일 목록
+     * @see AttachRepository#findAttachBoard(Integer) 자유게시판 첨부파일 목록조회
+     **/
     @Transactional(readOnly = true)
     public List<AttachDto> boardfilelist(@Param("id") Integer boardId)throws Exception{
         List<Attach>list = attachRepository.findAttachBoard(boardId);
@@ -31,7 +35,11 @@ public class AttachService {
     }
 
     /**
-    *  파일 전체 목록(공지 게시판)
+     * 파일 전체 목록(공지 게시판)
+     * @author 양경빈
+     * @param noticeId 공지게시글 번호
+     * @return noticeList 공지게시글 첨부파일 목록
+     * @see AttachRepository#findAttachNoticeBoard(Integer) 공지게시글 첨부파일 목록을 조회하는 메서드
      **/
     @Transactional
     public List<AttachDto>noticefilelist(@Param("id")Integer noticeId)throws Exception{
@@ -40,10 +48,15 @@ public class AttachService {
     }
 
     /**
-    * 자유 게시판 파일 삭제
-    **/
+     * 자유 게시판 파일 삭제
+     * @author 양경빈
+     * @param Id 게시글 번호
+     * @see AttachRepository#findAttachBoard(Integer) 자유게시판에서 첨부파일목록을 조회하는 메서드
+     * @see AttachRepository#delete(Object) 첨부파일을 삭제하는 메서드
+     **/
     public void deleteBoardAttach(Integer Id) throws Exception {
         List<Attach>list = attachRepository.findAttachBoard(Id);
+        
         for (Attach attach : list) {
             attachRepository.delete(attach);
         }
@@ -53,9 +66,12 @@ public class AttachService {
 
     /**
      * 공지 게시판 파일 삭제
+     * @author 양경빈
+     * @param Id 공지게시판 번호
      **/
     public void deleteNoticeAttach(Integer Id) throws Exception {
         List<Attach>list = attachRepository.findAttachNoticeBoard(Id);
+        
         for (Attach attach : list) {
             attachRepository.delete(attach);
         }
@@ -64,11 +80,17 @@ public class AttachService {
     }
 
     /**
-    * 파일 조회
-    **/
+     * 자유게시판 파일 조회
+     * @author 양경빈
+     * @param fileName 원본 파일명
+     * @exception CustomExceptionHandler 첨부파일이 없는경우 NOT_FILE
+     * @return AttachDto
+     * @see AttachRepository#findAttachByOriginFileName(String) 원본파일명으로 파일을 조회 파일이 없는 경우에는 NOT_FILE
+     **/
     @Transactional(readOnly = true)
     public AttachDto getFreeBoardFile(String fileName){
-        Optional<Attach> detail = Optional.ofNullable(attachRepository.findAttachByOriginFileName(fileName).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FILE)));
+        Optional<Attach> detail = Optional.ofNullable(attachRepository
+                .findAttachByOriginFileName(fileName).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FILE)));
 
         Attach getFile = detail.get();
 
@@ -83,9 +105,19 @@ public class AttachService {
         return result;
     }
 
+    /**
+     * 공지게시판 파일 조회
+     * @author 양경빈
+     * @param fileName 원본 파일명
+     * @exception CustomExceptionHandler 첨부파일이 없는경우 NOT_FILE
+     * @return AttachDto
+     * @see AttachRepository#findAttachByOriginFileName(String) 원본파일명으로 파일을 조회 파일이 없는 경우에는 NOT_FILE
+     **/
     @Transactional(readOnly = true)
     public AttachDto getNoticeBoardFile(String fileName){
-        Optional<Attach> result = Optional.ofNullable(attachRepository.findAttachByOriginFileName(fileName).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FILE)));
+        Optional<Attach> result = Optional.ofNullable(attachRepository
+                .findAttachByOriginFileName(fileName).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FILE)));
+        
         Attach detail = result.get();
 
         AttachDto getFile = AttachDto
@@ -98,7 +130,13 @@ public class AttachService {
 
         return getFile;
     }
-
+    
+    /**
+     * 자유게시판 파일목록을 추출하는 메서드 
+     * @author 양경빈
+     * @param list 첨부파일들
+     * @return filelist 자유게시판 첨부파일 목록들
+     **/
     private List<AttachDto> getFreeBoardAttach(List<Attach> list) {
         List<AttachDto>filelist = new ArrayList<>();
 
@@ -118,6 +156,12 @@ public class AttachService {
         return filelist;
     }
 
+    /**
+     * 공지게시판 파일목록을 추출하는 메서드
+     * @author 양경빈
+     * @param list 첨부파일들
+     * @return filelist 첨부파일리스트
+     **/
     private List<AttachDto> getNoticeBoardAttach(List<Attach> list) {
         List<AttachDto>filelist = new ArrayList<>();
 
@@ -137,4 +181,5 @@ public class AttachService {
         }
         return filelist;
     }
+
 }
