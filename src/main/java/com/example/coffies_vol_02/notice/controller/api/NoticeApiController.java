@@ -26,7 +26,7 @@ import javax.validation.Valid;
 public class NoticeApiController {
     private final NoticeService noticeService;
 
-    @Operation(summary = "공지 게시판 목록",description = "공지게시판페이지에서 목록을 보여준다.")
+    @Operation(summary = "공지 게시판 목록",description = "공지게시판 페이지에서 목록을 보여준다.")
     @GetMapping("/list")
     public CommonResponse<Page<NoticeResponse>>noticeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<NoticeResponse> list = null;
