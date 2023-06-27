@@ -46,4 +46,12 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
     @Modifying
     @Query("delete from Member m where m.userId in :ids")
     void deleteAllByUserId(List<String>ids);
+
+    /**
+     * 로그인 실패 카운트
+     * 3회 실패시 계정을 일정기간동안 잠금.
+     **/
+    @Query("UPDATE Member m SET m.failedAttempt = :failAttempts WHERE m.userId = :email")
+    @Modifying
+    void updateFailedAttempts(int failAttempts, String email);
 }

@@ -42,7 +42,7 @@ layout:decorate="~{layout/leafframe}">
 							<!-- 첨부파일 -->
 							<th:block th:each="attachfiles : ${filelist}">
 								</br>
-								<a th:href="@{'/api/file/noticedownload/'+${attachfiles.originFileName}}">
+								<a th:href="@{'/api/file/notice/'+${attachfiles.originFileName}}">
 									<span id="files" name="originFileName">[[${attachfiles.originFileName}]]</span>
 								</a>	
 							</th:block>

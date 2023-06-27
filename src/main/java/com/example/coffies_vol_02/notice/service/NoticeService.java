@@ -31,38 +31,16 @@ public class NoticeService {
     private final AttachService attachService;
     private final FileHandler fileHandler;
 
-    /**
-     * 공지글 목록
-     * @author 양경빈
-     * @param pageable 페이징 객체
-     * @return Page<NoticeResponse>
-     * @see NoticeBoardRepository#findAllList(Pageable) 공지게시판 목록 조회 메서드
-     **/
     @Transactional(readOnly = true)
     public Page<NoticeResponse>noticeAllList(Pageable pageable){
         return noticeBoardRepository.findAllList(pageable);
     }
 
-    /**
-     * 공지 게시물 검색
-     * @author 양경빈
-     * @param pageable 페이징 객체
-     * @param searchVal 검색어
-     * @return Page<NoticeResponse>
-     * @see NoticeBoardRepository#findAllSearchList(String, Pageable) 공지게시판에서 검색을 하는 메서드
-     **/
     @Transactional(readOnly = true)
     public Page<NoticeResponse>noticeSearchAll(String searchVal,Pageable pageable){
         return noticeBoardRepository.findAllSearchList(searchVal,pageable);
     }
 
-    /**
-     * 공지글 단일 조회
-     * @author 양경빈
-     * @param noticeId 공지게시판 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 발생
-     * @return NoticeResponse
-     * @see NoticeBoardRepository#findById(Object) 공지제시글 번호를 조회해서 게시글 조회 조회하는 번호가 없는 경우에는 BOARD_NOT_FOUND
-     **/
     @Cacheable(value = CacheKey.NOTICE_BOARD, key = "#noticeId")
     @Transactional(readOnly = true)
     public NoticeResponse findNotice(Integer noticeId){
@@ -77,16 +55,6 @@ public class NoticeService {
         return response;
     }
 
-    /**
-     * 공지글 작성
-     * @author 양경빈
-     * @param dto 게시물에 필요한 dto(공지게시물 종류와 내용을 작성하지 않은 경우에는 유효성 검사)
-     * @param files 공지 게시글에 필요한 첨부파일
-     * @see FileHandler#parseFileInfo(List) 게시물 작성 및 수정시 파일 첨부하는 메서드 
-     * @see NoticeBoardRepository#save(Object) 게시물 저장 
-     * @see AttachRepository#save(Object) 첨부파일 저장 
-     * @return noticeInsertResult 생성된 게시물 번호
-     **/
     @Transactional
     public Integer noticeCreate(NoticeRequest dto, List<MultipartFile>files) throws Exception {
         NoticeBoard noticeBoard = new NoticeBoard();
@@ -110,20 +78,6 @@ public class NoticeService {
         return noticeInsertResult;
     }
     
-    /**
-     * 공지 게시글 수정
-     * @author 양경빈
-     * @param noticeId 공지게시물 번호 게시물 번호가 없는 경우에는 발생 BOARD_NOT_FOUND 발생
-     * @param dto 게시물 수정에 필요한  dto
-     * @param files 게시물 수정시 파일 첨부에 필요한 매개변수
-     * @exception CustomExceptionHandler 조회하는 게시물이 없는 경우
-     * @see NoticeBoardRepository#findById(Object) 게시물 단일 조회에 사용되는 메서드
-     * @see FileHandler#parseFileInfo(List) 게시물 작성 및 수정을 했을 경우 파일을 업로드 하는 메서드
-     * @see AttachRepository#findAttachBoard(Integer)  공지게시글에 있는 첨부파일 목록을 조회하는 메서드
-     * @see AttachService#deleteNoticeAttach(Integer) 공지게시글에 있는 첨부파일을 삭제하는 메서드
-     * @see AttachRepository#save(Object) 첨부파일을 저장하는 메서드
-     * @return UpdateResult 수정된 게시글 번호
-     **/
     @Transactional
     public Integer noticeUpdate(Integer noticeId,NoticeRequest dto,List<MultipartFile>files) throws Exception {
 
@@ -158,15 +112,6 @@ public class NoticeService {
         return updateResult;
     }
 
-    /**
-     * 공지 게시글 삭제
-     * @author 양경빈
-     * @param noticeId 공지게시물 번호 게시물 번호가 없는 경우에는 발생 BOARD_NOT_FOUND 발생
-     * @exception CustomExceptionHandler 조회하는 게시물이 없는 경우
-     * @see NoticeBoardRepository#findById(Object) 게시물 단일 조회에 사용되는 메서드
-     * @see AttachRepository#findAttachNoticeBoard(Integer)  공지게시글에 있는 첨부파일 목록을 조회하는 메서드
-     * @see NoticeBoardRepository#deleteById(Object) 게시물 번호로 게시물을 삭제
-     **/
     @Transactional
     public void noticeDelete(Integer noticeId)throws Exception{
 

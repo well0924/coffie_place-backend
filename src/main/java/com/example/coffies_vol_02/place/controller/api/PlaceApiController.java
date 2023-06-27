@@ -124,6 +124,7 @@ public class PlaceApiController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(), top5list);
     }
 }

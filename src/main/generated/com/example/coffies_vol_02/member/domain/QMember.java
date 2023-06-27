@@ -22,10 +22,16 @@ public class QMember extends EntityPathBase<Member> {
 
     public final com.example.coffies_vol_02.config.QBaseTime _super = new com.example.coffies_vol_02.config.QBaseTime(this);
 
+    public final BooleanPath accountNonLocked = createBoolean("accountNonLocked");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
+    public final NumberPath<Integer> failedAttempt = createNumber("failedAttempt", Integer.class);
+
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
+
+    public final DateTimePath<java.time.LocalDateTime> lockTime = createDateTime("lockTime", java.time.LocalDateTime.class);
 
     public final StringPath memberName = createString("memberName");
 

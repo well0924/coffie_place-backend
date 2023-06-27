@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@Repository
 public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -30,12 +29,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
 
-    /**
-     * 게시글 목록
-     * @author 양경빈
-     * @param pageable 게시물 목록에서 페이징에 필요한 객체
-     * @return Page<BoardResponse> 게시물 목록
-     **/
     @Override
     public Page<BoardResponse> boardList(Pageable pageable) {
 
@@ -61,13 +54,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         return new PageImpl<>(boardList,pageable,totalCount);
     }
 
-    /**
-     * 게시글 검색
-     * @author 양경빈
-     * @param searchVal 자유게시물 목록에서 검색에 필요한 검색어
-     * @param pageable 게시물 목록에서 페이징에 필요한 객체
-     * @return Page<BoardResponse> 게시물 목록
-     **/
     @Override
     public Page<BoardResponse> findAllSearch(String searchVal, Pageable pageable) {
 
@@ -102,12 +88,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         return new PageImpl<>(boardSearchResult, pageable, resultCount);
     }
     
-    /**
-     * 게시물 단일 조회
-     * @author 양경빈
-     * @param boardId 게시물 번호
-     * @return BoardResponse 
-     **/
     @Override
     public BoardResponse boardDetail(int boardId) {
         BoardResponse result = jpaQueryFactory
@@ -121,38 +101,18 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         return result;
     }
     
-    /**
-     * 검색조건 게시글 내용
-     * @author 양경빈
-     * @param searchVal 자유게시판에 사용되는 검색어
-     * @return BooleanBuilder 게시글에 검색어가 있는 경우에는 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     **/
     BooleanBuilder boardContentsEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardContents.contains(searchVal));
     }
 
-    /**
-     * 검색조건 게시글 제목
-     * @author 양경빈
-     * @param searchVal 자유게시판에 사용되는 검색어 
-     * @return BooleanBuilder 게시글에 검색어가 있는 경우에는 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     **/
     BooleanBuilder boardTitleEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardTitle.contains(searchVal));
     }
-    /**
-     * 검색조건 게시물 작성자
-     * @author 양경빈
-     * @param searchVal 자유게시판에 사용되는 검색어
-     * @return BooleanBuilder 게시글에 검색어가 있는 경우에는 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     **/
+
     BooleanBuilder boardAuthorEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardAuthor.contains(searchVal));
     }
 
-    /**
-     * 검색 조건시 null체크
-     * */
     BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
             return new BooleanBuilder(f.get());
@@ -161,11 +121,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         }
     }
 
-    /**
-     * 동적정렬
-     * @param sort 페이징객체에서 정렬을 하는 객체
-     * @return List<OrderSpecifier>orders 정렬된 목록 값 기본값은 오름차순
-     **/
     private List<OrderSpecifier> getAllOrderSpecifiers(Sort sort) {
         List<OrderSpecifier>orders =  new ArrayList<>();
 

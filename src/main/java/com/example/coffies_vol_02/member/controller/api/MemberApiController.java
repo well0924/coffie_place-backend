@@ -44,7 +44,7 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원 검색 api", description = "회원목록에서 검색을 한다.")
-    @GetMapping(path = "/search")
+    @GetMapping(path = "/list/search")
     public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
 
         Page<MemberResponse> list = null;
@@ -59,8 +59,8 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
-    @GetMapping(path = "/detail/{user_idx}")
-    public CommonResponse<MemberResponse>findMember(@PathVariable("user_idx")Integer userIdx){
+    @GetMapping(path = "/detail/{user-idx}")
+    public CommonResponse<MemberResponse>findMember(@PathVariable("user-idx")Integer userIdx){
         MemberResponse detail = memberService.findMemberRecord(userIdx);
 
         try{
@@ -72,8 +72,8 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @Operation(summary = "회원가입 api",description = "회원가입 기능.")
-    @PostMapping(path = "/join")
+    @Operation(summary = "회원가입 api",description = "회원가입페이지에서 회원가입을 한다.")
+    @PostMapping("/join")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>memberCreate(@Valid @RequestBody MemberRequest dto, BindingResult bindingResult){
 
@@ -92,10 +92,10 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "회원수정 api")
-    @PatchMapping(path = "/update/{user_idx}")
+    @Operation(summary = "회원수정 api",description = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
+    @PatchMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>memberUpdate(@PathVariable("user_idx") Integer userIdx,@RequestBody MemberRequest dto){
+    public CommonResponse<?>memberUpdate(@PathVariable("user-idx") Integer userIdx,@RequestBody MemberRequest dto){
         try{
             memberService.memberUpdate(userIdx,dto);
         }catch (Exception e){
@@ -111,9 +111,9 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "회원삭제 api")
-    @DeleteMapping(path = "/delete/{user_idx}")
-    public CommonResponse<?>memberDelete(@PathVariable("user_idx") Integer userIdx){
+    @Operation(summary = "회원삭제 api",description = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
+    @DeleteMapping(path = "/{user-idx}")
+    public CommonResponse<?>memberDelete(@PathVariable("user-idx") Integer userIdx){
         try{
             memberService.memberDelete(userIdx);
         }catch (Exception e){
@@ -128,9 +128,9 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "회원 아이디 찾기 api")
-    @GetMapping(path = "/find-id/{user_name}/{user_email}")
-    public CommonResponse<String>findUserId(@PathVariable(value = "user_name")String userName, @PathVariable("user_email")String userEmail){
+    @Operation(summary = "회원 아이디 찾기 api",description = "회원아이디 찾기 화면에서 아이디 찾기")
+    @GetMapping(path = "/find-id/{user-name}/{user-email}")
+    public CommonResponse<String>findUserId(@PathVariable(value = "user-name")String userName, @PathVariable("user-email")String userEmail){
         String findUser = "";
 
         try{
@@ -142,8 +142,8 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원 아이디 중복 api",description = "회원가입 페이지에서 아이디 중복기능")
-    @GetMapping(path = "/id-check/{user_id}")
-    public CommonResponse<Boolean>memberIdCheck(@PathVariable("user_id")String userId){
+    @GetMapping(path = "/id-check/{user-id}")
+    public CommonResponse<Boolean>memberIdCheck(@PathVariable("user-id")String userId){
         boolean result = false;
 
         try{
@@ -154,9 +154,9 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
-    @Operation(summary = "회원 이메일 중복 api")
-    @GetMapping(path = "/email-check/{user_email}")
-    public CommonResponse<Boolean>memberEmailCheck(@PathVariable("user_email")String userEmail){
+    @Operation(summary = "회원 이메일 중복 api",description = "회원가입 화면에서 회원 이메일 중복여부 확인")
+    @GetMapping(path = "/email-check/{user-email}")
+    public CommonResponse<Boolean>memberEmailCheck(@PathVariable("user-email")String userEmail){
         boolean result = false;
         try{
             result = memberService.memberEmailCheck(userEmail);
@@ -167,8 +167,8 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원비밀번호 변경 api",description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
-    @PatchMapping(path = "/password/{user_id}")
-    public CommonResponse<Integer>passwordUpdate(@PathVariable("user_id")Integer id,@RequestBody MemberRequest dto){
+    @PatchMapping(path = "/password/{user-id}")
+    public CommonResponse<Integer>passwordUpdate(@PathVariable("user-id")Integer id,@RequestBody MemberRequest dto){
         int updateResult = 0;
 
         try{

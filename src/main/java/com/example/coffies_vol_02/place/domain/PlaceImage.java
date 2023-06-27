@@ -58,6 +58,7 @@ public class PlaceImage extends BaseTime implements Serializable {
         this.isTitle = isTitle;
     }
 
+    //가게 이미지 추가
     public void setPlace(Place place){
         this.place = place;
         if(!place.getPlaceImageList().contains(this)){

@@ -30,17 +30,11 @@ public class LikeService {
     private final PlaceRepository placeRepository;
     private final CommentRepository commentRepository;
 
-    /*
-    *  게시글 좋아요 중복
-    */
     @Transactional
     public boolean hasLikeBoard(Board board, Member member){
         return likeRepository.findByMemberAndBoard(member,board).isPresent();
     }
 
-    /*
-    * 게시글 좋아요 +1
-    */
     public String createBoardLike(Integer boardId,Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
 
@@ -51,9 +45,6 @@ public class LikeService {
         return LikeSuccess;
     }
 
-    /*
-     * 게시글 좋아요 -1
-     */
     public String cancelLike(Integer boardId, Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
 
@@ -65,9 +56,6 @@ public class LikeService {
         return LikeCancel;
     }
 
-    /*
-     * 게시글 좋아요 카운트
-     */
     public List<String>likeCount(Integer boardId,Member member){
         Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST));
 
@@ -82,18 +70,10 @@ public class LikeService {
         return resultData;
     }
 
-    /*
-     *
-     * 댓글 좋아요 중복처리
-     */
     public boolean hasCommentLike(Member member,Comment comment){
         return commentLikeRepository.findByMemberAndComment(member, comment).isPresent();
     }
 
-    /*
-     *
-     * 댓글 좋아요 +1
-     */
     public String commentLikePlus(Integer placeId,Integer replyId,Member member){
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
@@ -105,10 +85,6 @@ public class LikeService {
         return LikeSuccess;
     }
 
-    /*
-     *
-     * 댓글 좋아요 -1
-     */
     public String commentLikeMinus(Integer placeId,Integer replyId,Member member){
         Optional<Place>placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 

@@ -10,12 +10,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.*;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@Repository
 public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     private final JPAQueryFactory jpaQueryFactory;
 

@@ -28,10 +28,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-
+        //로그인을 한 세션을 지우는 메서드
         clearAuthenticationAttributes(request);
 
         try {
+            //권한별 페이지 이동
             redirectStrategy(request, response, authentication);
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,4 +76,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
     }
+    //계정 정지 기능
+
 }

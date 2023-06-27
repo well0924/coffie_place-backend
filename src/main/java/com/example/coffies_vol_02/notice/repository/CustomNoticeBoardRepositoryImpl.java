@@ -22,12 +22,6 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
 
-    /**
-     * 공지 게시글 목록
-     * @author 양경빈
-     * @param pageable 페이징 객체
-     * @return Page<NoticeResponse>
-     **/
     @Override
     public Page<NoticeResponse> findAllList(Pageable pageable) {
 
@@ -56,13 +50,6 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         return new PageImpl<>(noticeList,pageable,count);
     }
 
-    /**
-     * 공지게시글 검색
-     * @author 양경빈
-     * @param searchVal 공지게시글 검색어
-     * @param pageable 페이징 객체
-     * @return Page<NoticeResponse>searchResult
-     **/
     @Override
     public Page<NoticeResponse> findAllSearchList(String searchVal, Pageable pageable) {
 

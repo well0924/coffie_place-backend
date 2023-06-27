@@ -31,7 +31,8 @@ public class Place extends BaseTime {
     private String placeStart;
     private String placeClose;
     private String fileGroupId;
-
+    
+    //가게정보가 삭제가 되면 가게 댓글이 삭제가 된다.
     @BatchSize(size = 1000)
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "place",cascade = CascadeType.ALL,orphanRemoval = true)
@@ -66,7 +67,8 @@ public class Place extends BaseTime {
             placeImage.setPlace(this);
         }
     }
-
+    
+    //가게 수정
     public void placeUpadate(PlaceRequestDto dto){
         this.placeLat = dto.getPlaceLat();
         this.placeLng = dto.getPlaceLng();

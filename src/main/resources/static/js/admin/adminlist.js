@@ -1,8 +1,10 @@
 $(document).ready(function() {
+    let id = $('#autocompleteText').val();
+
     $('#autocompleteText').autocomplete({
         source: function (request, response) {
             $.ajax({
-                url: '/api/member/autocompetekeyword',
+                url: '/api/member/autocomplete/'+id,
                 type: 'get',
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8',

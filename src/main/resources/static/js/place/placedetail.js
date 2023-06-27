@@ -186,18 +186,22 @@ function LikeCheck(replyId){
         contentType:'application/json; charset= utf-8'
     }).done(function(resp){
         console.log(resp);
-        //처음 누르는 경우
-        if(resp.data[1]== false){
-            alert('좋아요가 추가 되었습니다.');
-            console.log('좋아요 추가');
-            //좋아요 추가 기능
-            CommentLikePlus(replyId);
-        }
-        if(resp.data[1]==true){
-            alert('좋아요를 취소했습니다');
-            console.log('좋아요를 취소했습니다.');
-            //좋아요 취소 기능
-            CommentLikeMinus(replyId);
+        console.log(resp.data[0]);
+        console.log(resp.data[1]);
+        if(resp.data[0]!=null){
+            //처음 누르는 경우
+            if(resp.data[1]== false){
+                alert('좋아요가 추가 되었습니다.');
+                console.log('좋아요 추가');
+                //좋아요 추가 기능
+                CommentLikePlus(replyId);
+            }
+            if(resp.data[1]==true){
+                alert('좋아요를 취소했습니다');
+                console.log('좋아요를 취소했습니다.');
+                //좋아요 취소 기능
+                CommentLikeMinus(replyId);
+            }
         }
     });
 }

@@ -34,7 +34,7 @@ public class BoardViewController {
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                  @RequestParam(value = "searchVal",required = false)String searchVal){
+                                  @RequestParam(value = "searchVal",required = false)String searchVal)throws Exception{
 
         ModelAndView mv = new ModelAndView();
 
@@ -82,6 +82,7 @@ public class BoardViewController {
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
+
         if(nextBoard !=null){
             mv.addObject("next",nextBoard);
         } else if (nextBoard ==null) {

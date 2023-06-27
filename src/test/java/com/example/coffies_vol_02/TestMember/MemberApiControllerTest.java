@@ -99,7 +99,7 @@ public class MemberApiControllerTest {
 
         when(memberService.findMemberRecord(member.getId())).thenReturn(response());
 
-        mvc.perform(get("/api/member/detail/{user_idx}",member.getId())
+        mvc.perform(get("/api/member/detail/{user-idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ public class MemberApiControllerTest {
         //when
         member.updateMember(request);
 
-        mvc.perform(MockMvcRequestBuilders.patch("/api/member/update/{user_idx}",member.getId())
+        mvc.perform(MockMvcRequestBuilders.patch("/api/member/{user-idx}",member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(request)))
@@ -149,7 +149,7 @@ public class MemberApiControllerTest {
 
         doNothing().when(memberService).memberDelete(member.getId());
 
-        mvc.perform(delete("/api/member/delete/{user_idx}", response.id())
+        mvc.perform(delete("/api/member/{user-idx}", response.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
@@ -165,7 +165,7 @@ public class MemberApiControllerTest {
         given(memberService.memberIdCheck(member.getUserId())).willReturn(anyBoolean());
 
         mvc.perform(
-                        get("/api/member/id-check/{user_id}",member.getUserId())
+                        get("/api/member/id-check/{user-id}",member.getUserId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
@@ -181,7 +181,7 @@ public class MemberApiControllerTest {
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(anyBoolean());
 
-        mvc.perform(get("/api/member/email-check/{user_email}",member.getUserEmail())
+        mvc.perform(get("/api/member/email-check/{user-email}",member.getUserEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
@@ -198,7 +198,7 @@ public class MemberApiControllerTest {
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
 
-        mvc.perform(get("/api/member/email-check/{user_email}",member.getUserEmail())
+        mvc.perform(get("/api/member/email-check/{user-email}",member.getUserEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
@@ -218,7 +218,7 @@ public class MemberApiControllerTest {
         //when
         when(memberService.findUserId(eq(username),eq(userEmail))).thenReturn(member.getUserId());
 
-        mvc.perform(get("/api/member/find-id/{user_name}/{user_email}",username,userEmail)
+        mvc.perform(get("/api/member/find-id/{user-name}/{user-email}",username,userEmail)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
@@ -240,7 +240,7 @@ public class MemberApiControllerTest {
         //when
         when(memberService.updatePassword(id,request)).thenReturn(member.getId());
 
-        mvc.perform(MockMvcRequestBuilders.patch("/api/member/password/{user_idx}",id)
+        mvc.perform(MockMvcRequestBuilders.patch("/api/member/password/{user-idx}",id)
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8))

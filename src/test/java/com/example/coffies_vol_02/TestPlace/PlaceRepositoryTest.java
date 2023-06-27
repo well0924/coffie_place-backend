@@ -47,7 +47,7 @@ public class PlaceRepositoryTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("가게 검색")
     public void PlaceListSearchTest(){
         
     }

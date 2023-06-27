@@ -48,18 +48,12 @@ public class PlaceService {
     private final ObjectMapper objectMapper;
     private final RedisService redisService;
 
-    /*
-    * 가게 목록
-    */
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto>placeSlideList(Pageable pageable){
         Page<Place>list = placeRepository.findAll(pageable);
         return list.map(PlaceResponseDto::new);
     }
 
-    /**
-     * 가게 목록(무한 스크롤)
-     */
     public Slice<PlaceResponseDto> placeSlideList(Pageable pageable, String keyword, String searchType, Member member) {
         if (member != null && searchType != null) {
             redisService.setValues(member.getId().toString(), keyword);
@@ -68,9 +62,6 @@ public class PlaceService {
         return placeRepository.placeList(pageable, keyword);
     }
 
-    /**
-     * 가게 검색 목록
-     */
     public List<String> placeSearchList(Member member) {
         if (member != null) {
             return redisService.getSearchList(member.getId().toString());
@@ -78,9 +69,6 @@ public class PlaceService {
         return null;
     }
 
-    /*
-     * 가게 검색
-     */
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeListAll(String keyword, Pageable pageable, Member member) {
         if (member != null) {
@@ -90,17 +78,11 @@ public class PlaceService {
         return placeRepository.placeListSearch(keyword, pageable);
     }
 
-    /*
-     * 가게 top5
-     */
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         return placeRepository.placeTop5(pageable);
     }
 
-    /*
-     *  가게 단일 조회
-     */
     @Transactional
     public PlaceResponseDto placeDetail(Integer placeId) {
         Optional<Place> place = Optional.of(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_LIST)));
@@ -123,9 +105,6 @@ public class PlaceService {
                 .build();
     }
 
-    /*
-     * 가게 등록
-     */
     @Transactional
     public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
@@ -164,9 +143,6 @@ public class PlaceService {
         return registerResult;
     }
 
-    /*
-     * 가게 수정
-     */
     @Transactional
     public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
         Optional<Place> placeDetail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
@@ -219,11 +195,9 @@ public class PlaceService {
         return result;
     }
 
-    /*
-     * 가게 삭제
-     */
     public void placeDelete(Integer placeId) throws Exception {
-        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId)
+                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
         List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
@@ -246,9 +220,6 @@ public class PlaceService {
         placeRepository.deleteById(placeId);
     }
 
-    /*
-     * 가게 엑셀 목록 출력
-     */
     public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 
         List<Place> placePlace = placeRepository.findAll();
@@ -264,9 +235,6 @@ public class PlaceService {
                 .collect(Collectors.toList());
     }
 
-    /*
-     * 가게 목록 엑셀 다운로드
-     */
     private void createExcelDownloadResponse(HttpServletResponse response, List<Place> placeList) {
 
         try {
@@ -342,7 +310,7 @@ public class PlaceService {
         }
 
     }
-
+    
     private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {
         PlaceImage placeImage;
         String resize;

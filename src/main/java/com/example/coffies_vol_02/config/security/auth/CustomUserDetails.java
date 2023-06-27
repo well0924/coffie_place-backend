@@ -15,7 +15,7 @@ import java.util.Collection;
 @Getter
 @Proxy(lazy = false)
 public class CustomUserDetails implements UserDetails,Serializable {
-    private Member member;
+    private final Member member;
     
     public CustomUserDetails(Member member){
         this.member = member;

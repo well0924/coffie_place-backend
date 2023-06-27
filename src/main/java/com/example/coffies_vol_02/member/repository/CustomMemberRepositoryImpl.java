@@ -27,13 +27,6 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
     public CustomMemberRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
-
-    /**
-     * 회원 검색기능
-     * @author : 양경빈
-     * @param : String searchVal 회원 검색어 ,Pageable 목록에 사용되는 페이징 객체입니다.
-     * @return : Page<MemberResponse>list 검색시 회원 목록
-     * */
     @Override
     public Page<MemberResponse> findByAllSearch(String searchVal, Pageable pageable) {
 
@@ -65,38 +58,15 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
         
         return new PageImpl<>(responseDto,pageable,count);
     }
-
-    /**
-     * 검색 조건 회원 이름
-     * @author : 양경빈
-     * @pram : String searchVal 회원 검색시 검색어
-     * @return : BooleanBuilder 회원 검색어가 있는 경우 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     * */
     BooleanBuilder memberName(String searchVal){
         return nullSafeBuilder(()->QMember.member.memberName.contains(searchVal));
     }
-
-    /**
-     * 검색 조건 회원아이디
-     * @pram : String searchVal 회원 검색시 검색어
-     * @return : BooleanBuilder 회원 검색어가 있는 경우 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     * */
     BooleanBuilder userId(String searchVal){
         return nullSafeBuilder(()-> QMember.member.userId.contains(searchVal));
     }
-
-    /**
-     * 검색 조건 이메일
-     * @pram : String searchVal 회원 검색시 검색어
-     * @return : BooleanBuilder 회원 검색어가 있는 경우 true 아닌경우에는 null이지만 nullSafeBuilder로 체크
-     * */
     BooleanBuilder memberEmail(String searchVal){
         return nullSafeBuilder(()->QMember.member.userEmail.contains(searchVal));
     }
-
-    /**
-     * 검색 조건시 null체크
-     * */
     BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
             return new BooleanBuilder(f.get());
@@ -104,12 +74,6 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
             return new BooleanBuilder();
         }
     }
-
-    /**
-     * 동적정렬
-     * @param : Sort sort 페이징객체에서 정렬을 하는 
-     * @return :  List<OrderSpecifier>orders 정렬된 목록 값 기본값은 오름차순
-     **/
     private List<OrderSpecifier> getAllOrderSpecifiers(Sort sort) {
         List<OrderSpecifier>orders =  new ArrayList<>();
 

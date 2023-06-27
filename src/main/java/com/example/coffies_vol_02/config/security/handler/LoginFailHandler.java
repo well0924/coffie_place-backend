@@ -19,6 +19,9 @@ import java.net.URLEncoder;
 @Component
 public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
 
+    private static final int MAX_ATTEMPTS = 3; // 최대 실패 횟수
+    private static final int LOCK_DURATION = 300; // 잠금 시간(초)
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String errorMsg;
@@ -42,5 +45,18 @@ public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
         setDefaultFailureUrl("/page/login/loginPage?error=true&exception="+errorMsg);
 
         super.onAuthenticationFailure(request, response, exception);
+    }
+
+    private void increaseFailedAttempts(HttpServletRequest request) {
+        // 사용자 계정의 실패 횟수 증가 로직 구현
+    }
+
+    private int getFailedAttempts(HttpServletRequest request) {
+        // 사용자 계정의 실패 횟수 조회 로직 구현
+        return 0; // 예시로 0을 반환하도록 설정됨
+    }
+
+    private void lockAccount(HttpServletRequest request) {
+        // 사용자 계정 잠금 로직 구현
     }
 }

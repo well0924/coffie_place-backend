@@ -55,6 +55,4 @@ public class PlaceControllerTest {
     public void placeDetailTest(){
 
     }
-
-
 }

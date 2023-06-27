@@ -19,7 +19,7 @@ Coffies vol.02
 
 -[x] QueryDsl n+1 문제 해결
 
--[ ] redis 캐싱 적용(로그인v,공지사항v,회원자동완성v,가게 평점,좋아요,조회수,가게 검색)
+-[ ] redis 캐싱 적용(로그인,공지사항,회원자동완성,좋아요,조회수,가게 검색)
 
 -[ ] Jenkins/github action을 활용한 CI/CD구축
 
@@ -49,6 +49,7 @@ Coffies vol.02
 - swagger 3.0.0
 
 #### Depoly
+
 - github Action or jenkins
 - Aws
 - Aws s3

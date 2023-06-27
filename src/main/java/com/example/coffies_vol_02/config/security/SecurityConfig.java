@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Log4j2
 @Configuration
@@ -83,6 +84,7 @@ public class SecurityConfig {
             //csrf 토큰 비활성화
             .csrf().disable()
             .authorizeRequests()
+            //추후에 접근 경로 설정 필요.
             .antMatchers("/**").permitAll()
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
             .anyRequest().authenticated();
@@ -100,11 +102,12 @@ public class SecurityConfig {
             .logout()
             .logoutUrl("/logout")
             .logoutSuccessUrl("/page/login/loginPage")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID");
+            .deleteCookies("JSESSIONID")
+            .invalidateHttpSession(true);
 
         return http.build();
     }
+
 
     @Bean
     public HttpFirewall defaultFireWell(){
