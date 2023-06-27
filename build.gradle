@@ -19,64 +19,73 @@ repositories {
 }
 
 dependencies {
-    //jpa
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.5'
-    //theymleaf
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
-    //validation
+    // jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.0.2'
+    // https://mvnrepository.com/artifact/org.thymeleaf/thymeleaf
+    implementation 'org.thymeleaf:thymeleaf:3.0.13.RELEASE'
+    // https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-springsecurity5
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.3.RELEASE'
+    //
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.5.3'
+    // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    //aop
-    implementation 'org.springframework.boot:spring-boot-starter-aop:3.0.2'
-    //bootstrap,jquery,fontawesome
-    implementation 'org.webjars.bower:jquery:3.6.0'
+    // aop
+    annotationProcessor 'org.springframework.boot:spring-boot-starter-aop:3.0.4'
+    // bootstrap,jquery,fontawesome
+    implementation 'org.webjars.bower:jquery:3.6.3'
     implementation 'org.webjars:jquery-form:4.2.2'
-    implementation 'org.webjars:font-awesome:5.15.3'
-    implementation 'org.webjars:bootstrap:4.6.0'
+    implementation 'org.webjars:font-awesome:6.1.1'
+    implementation 'org.webjars:bootstrap:5.2.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    //security
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.7.6'
-    //Swagger
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.0.2'
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.0.1'
+    // Swagger
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
-    //jackson
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
-    //직렬화 이슈로 추가한 라이브러리
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    //ImageScaling
+    // jackson
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.1'
+    // 직렬화 이슈로 추가한 라이브러리
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.7'
+    // ImageScaling
     implementation 'com.jhlabs:filters:2.0.235-1'
     implementation 'com.mortennobel:java-image-scaling:0.8.6'
-    //apache poi
-    implementation 'org.apache.poi:poi:5.2.2'
-    implementation 'org.apache.poi:poi-ooxml:5.2.2'
-    //redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    //querydsl
+    // apache poi
+    implementation 'org.apache.poi:poi:5.0.0'
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.0.4'
+    // querydsl
     implementation "com.querydsl:querydsl-jpa"
     implementation "com.querydsl:querydsl-core"
     implementation "com.querydsl:querydsl-collections"
-    //spring retry
+    // spring retry
     implementation 'org.springframework.retry:spring-retry:2.0.1'
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-entitymanager
+    implementation 'org.hibernate:hibernate-entitymanager:5.2.10.Final'
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    implementation 'org.hibernate:hibernate-core:5.6.5.Final'
+    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+//    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    // https://mvnrepository.com/artifact/org.javassist/javassist
+//    implementation 'org.javassist:javassist:3.28.0-GA'
 
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa" // querydsl JPAAnnotationProcessor 사용 지정
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jpa" // querydsl JPAAnnotationProcessor 사용 지정
     annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 대응 코드
     annotationProcessor "jakarta.persistence:jakarta.persistence-api" // java.lang.NoClassDefFoundError (javax.annotation.Entity) 대응 코드
 
-
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.0.4'
     annotationProcessor 'org.projectlombok:lombok'
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-    testRuntimeOnly 'com.h2database:h2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2:2.1.210'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.0.2'
+    testImplementation 'org.springframework.security:spring-security-test:5.6.7'
 }
 // Querydsl 설정부
 def generated = 'src/main/generated'
