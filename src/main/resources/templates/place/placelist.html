@@ -8,6 +8,33 @@
     <meta charset="UTF-8">
     <title>가게 목록</title>
     <link rel="stylesheet" th:href="@{/css/placelist.css}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+        .invisible{
+            display: none;
+        }
+
+
+        #suggestion_box {
+            margin-top: 1px;
+            background: white;
+            padding: 0 10px;
+            border: 1px solid black;
+            width: 220px;
+            margin-left: 392px;
+        }
+
+        #suggested_items{
+            height: 100px;
+            width: 208px;
+            overflow: auto;
+        }
+        /* 마우스 올리면 색 변화 */
+        .item:hover{
+            color: #fff;
+            background-color: lightgreen;
+        }
+    </style>
 </head>
 <body>
 <th:block layout:fragment="content">
@@ -38,14 +65,12 @@
                 <button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()"
                         sec:authorize="hasRole('ROLE_ADMIN')">가게 등록
                 </button>
-                <div class="keywords" style="display: inline-block;">
-                    최근 검색어 =
-                    <ul style="   list-style:none; display: inline-block;    margin:0;    padding:0;">
-                        <li th:each="key : ${keywords}"
-                            style=" margin: 0 15px;    padding: 0 0 0 0;    border : 0;    float: left;">
+                <div id="suggestion_box" class = "invisible">
+                    <div id = "suggested_items">
+                        <div th:each="key : ${keywords}">
                             [[${key}]]
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
                 <!---->
                 <div class="row" style="margin-top:10px">
@@ -75,7 +100,7 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript">
+    <script type="text/javascript" th:inline="javascript">
         //가게 등록화면 이동
         function placeregister() {
             location.href = '/page/place/placeregister';
@@ -88,6 +113,55 @@
 
             location.href = '/page/place/list?keyword=' + keyword + '&searchType=' + searchType;
         }
+
+        $("#autocomplete").mouseover(function() {
+            /*<![CDATA[*/
+            const items = /*[[${keywords}]]*/;
+            if (items.length > 0) {
+                const recommendBox = document.querySelector("#suggestion_box");
+
+                // invisible을 지워준다.
+                recommendBox.classList.remove('invisible');
+                const input_name = document.getElementById("autocomplete");
+
+                // 기존 검색 추천 데이터 지우고, 새로 넣어주기 안 그러면 계속 추가됨
+                recommendBox.innerHTML = "";
+
+                const suggestedItems = document.createElement('div')
+                suggestedItems.id = "suggested_items"
+
+                recommendBox.appendChild(suggestedItems);
+
+                // item별 리스트
+
+
+                // for문 돌면서 item 추가
+                for (const i in items) {
+
+                    const player_content = document.createTextNode(items[i]);
+                    const suggestedItem = document.createElement('div');
+                    suggestedItem.className = "item"
+
+                    suggestedItem.addEventListener('click', function(e){
+                        document.getElementById("autocomplete").value = this.textContent.split(' ')[0];
+                    });
+
+                    suggestedItem.appendChild(player_content);
+                    suggestedItems.appendChild(suggestedItem);
+                }
+            }
+            /*]]>*/
+        })
+
+        document.addEventListener("click", e => {
+            console.log("2")
+            const closestKeywords = e.target.closest("#suggestion_box") // 부모 요소 중에 keywords 클래스를 가진 부모가 있는지 확인
+            if(!closestKeywords) {
+                const recommendBox = document.querySelector("#suggestion_box");
+                recommendBox.classList.add('invisible');
+            }
+        })
+
     </script>
 </th:block>
 </body>
