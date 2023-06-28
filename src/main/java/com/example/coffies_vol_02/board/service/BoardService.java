@@ -38,11 +38,24 @@ public class BoardService {
 
     private final AttachService attachService;
 
+    /**
+     * 게시글 목록
+     * @author 양경빈
+     * @param pageable 게시물 목록에서 페이징에 필요한 객체
+     * @return Page<BoardResponse> 게시물 목록
+     **/
     @Transactional(readOnly = true)
     public Page<BoardResponse> boardAllList(Pageable pageable){
         return boardRepository.boardList(pageable);
     }
 
+    /**
+     * 게시글 검색
+     * @author 양경빈
+     * @param searchVal 자유게시물 목록에서 검색에 필요한 검색어
+     * @param pageable 게시물 목록에서 페이징에 필요한 객체
+     * @return Page<BoardResponse> 게시물 목록
+     **/
     @Transactional(readOnly = true)
     public Page<BoardResponse> boardSearchAll(String searchVal, Pageable pageable){
         Page<BoardResponse> result = boardRepository.findAllSearch(searchVal,pageable);
@@ -54,6 +67,12 @@ public class BoardService {
         return result;
     }
 
+    /**
+     * 게시물 단일 조회
+     * @author 양경빈
+     * @param boardId 게시물 번호
+     * @return BoardResponse
+     **/
     @Transactional(readOnly = true)
     public BoardResponse findBoard(Integer boardId){
         return Optional.ofNullable(boardRepository
@@ -61,6 +80,14 @@ public class BoardService {
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
     }
 
+    /**
+     * 게시글 이전글
+     * @author 양경빈
+     * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 를 발생
+     * @exception CustomExceptionHandler 게시글을 조회시 게시글이 없는 경우
+     * @see BoardRepository#findNextBoard(Integer) 게시글조회 페이지에서 다음글을 조회하는 메서드
+     * @return BoardNextPreviousInterface 타입은 인터페이스
+     **/
     public BoardNextPreviousInterface findPreviousBoard(Integer boardId){
 
         return Optional
@@ -68,12 +95,29 @@ public class BoardService {
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
     }
 
+    /**
+     * 게시글 다음글
+     * @author 양경빈
+     * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND
+     * @see BoardRepository#findNextBoard(Integer) 게시물 조회페이지에서 다음글을 조회하는 메서드
+     * @return BoardNextPreviousInterface 타입은 인터페이스
+     **/
     public BoardNextPreviousInterface findNextBoard(Integer boardId){
         return Optional
                 .ofNullable(boardRepository.findNextBoard(boardId))
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
     }
 
+    /**
+     * 글작성(파일 첨부)
+     * @author 양경빈
+     * @param requestDto 게시물에 필요한 dto (게시물 제목과 내용을 작성하지 않은경우에는 유효성 검사)
+     * @param member 게시물 작성시 인증에 필요한 객체 로그인을 하지 못한 경우에는 ONLY_USER 발생
+     * @exception CustomExceptionHandler 로그인을 하지 않은 경우에는 예외를 발생 ONLY_USER
+     * @see FileHandler#parseFileInfo(List) 게시물 작성 및 수정시 파일 업로드를 하는 메서드 파일목록이 없는 경우에는 단순 게시글 작성만 실행
+     * @see BoardRepository#save(Object) 게시물 저장
+     * @return InsertResult 생성된 게시물 번호
+     **/
     @Transactional
     public Integer boardCreate(BoardRequest requestDto, Member member) throws Exception {
         
@@ -107,6 +151,21 @@ public class BoardService {
         return InsertResult;
     }
 
+    /**
+     * 게시글 수정(파일 첨부)
+     * @author 양경빈
+     * @param boardId 게시물 번호 게시물 번호가 없는 경우에는 발생 BOARD_NOT_FOUND 발생
+     * @param dto 게시물 수정에 필요한  dto
+     * @param member 로그인시 인증에 필요한 객체 없는경우에는 ONLY_USER 발생
+     * @param files 게시물 수정시 파일 첨부에 필요한 매개변수
+     * @exception CustomExceptionHandler 로그인을 안했을 경우,조회하는 게시물이 없는 경우,로그인한 아이디와 작성자 다른 경우(NOT_AUTH)
+     * @see BoardRepository#findById(Object) 게시물 단일 조회에 사용되는 메서드
+     * @see FileHandler#parseFileInfo(List) 게시물 작성 및 수정을 했을 경우 파일을 업로드 하는 메서드
+     * @see AttachRepository#findAttachBoard(Integer)  자유게시글에 있는 첨부파일 목록을 조회하는 메서드
+     * @see AttachService#deleteBoardAttach(Integer) 자유게시글에 있는 첨부파일을 삭제하는 메서드
+     * @see AttachRepository#save(Object) 첨부파일을 저장하는 메서드
+     * @return UpdateResult 수정된 게시글 번호
+     **/
     @Transactional
     public Integer BoardUpdate(Integer boardId, BoardRequest dto, Member member,List<MultipartFile>files) throws Exception {
 
@@ -160,6 +219,17 @@ public class BoardService {
         return UpdateResult;
     }
 
+    /**
+     * 게시글 삭제
+     * @author 양경빈
+     * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 발생
+     * @param member 로그인시 인증에 필요한 객체 로그인이 안된 경우에는 ONLY_USER 발생
+     * @exception CustomExceptionHandler 로그인이 안된 경우, 게시물이 없는 경우,로그인한 회원과 작성자가 다른 경우(NOT_AUTH)
+     * @see BoardRepository#findById(Object) 게시물을 조회하는 메서드 조회하는 게시글이 없는 경우에는 BOARD_NOT_FOUND
+     * @see BoardRepository#deleteById(Object) 게시물을 삭제하는 메서드
+     * @see AttachService#boardfilelist(Integer) 자유게시판에 있는 첨부파일 목록을 조회하는 메서드
+     * @see AttachRepository#deleteById(Object) 자유게시판에서 첨부파일을 삭제를 할때 사용되는 메서드
+     **/
     @Transactional
     public void BoardDelete(Integer boardId,Member member) throws Exception {
 
@@ -192,6 +262,17 @@ public class BoardService {
         boardRepository.deleteById(boardId);
     }
 
+    /**
+     * 게시글 비밀번호 확인
+     * @author 양경빈
+     * @param passWd 게시판 비밀글에 입력하는 비밀번호 입력한 번호가 맞지않은 경우에는 NOT_MATCH_PASSWORD
+     * @param id 게시글 번호 게시글 번호가 없는 경우에는 BOARD_NOT_FOUND
+     * @param member 로그인을 인증하는 객체 로그인이 되지 않은 경우에는 ONLY_USER
+     * @exception CustomExceptionHandler 로그인을 하지 않은 경우,게시글을 조회하지 않은 경우,비밀번호가 일치하지 않은 경우
+     * @see BoardRepository#findById(Object) 게시글을 조회하는 메서드 조회할 게시글이 없는 경우에는 BOARD_NOT_FOUND
+     * @see BoardRepository#findByPassWdAndId(String, Integer) 게시글 비밀번호 입력화면에서 비밀번호를 확인하는 메서드 비밀번호가 일치하지 않은 경우에는 NOT_MATCH_PASSWORD
+     * @return BoardResponse
+     **/
     @Transactional
     public BoardResponse passwordCheck(String passWd,Integer id,Member member){
 

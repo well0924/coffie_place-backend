@@ -27,7 +27,14 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
     public CustomFavoritePlaceRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
-    
+
+    /**
+     * 위시리스트 목록
+     * @author 양경빈
+     * @param pageable 페이징 객체
+     * @param userId 회원 아이디
+     * @return Page<FavoritePlaceResponseDto>
+     **/
     @Override
     public Page<FavoritePlaceResponseDto> favoritePlaceWishList(Pageable pageable, String userId) {
         List<FavoritePlaceResponseDto>favoritePlaceDtoList = new ArrayList<>();
@@ -60,6 +67,7 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
 
         return new PageImpl<>(favoritePlaceDtoList,pageable,wishListSize);
     }
+
 
     private List<OrderSpecifier> getAllOrderSpecifiers(Sort sort) {
         List<OrderSpecifier>orders =  new ArrayList<>();

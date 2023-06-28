@@ -76,7 +76,7 @@ public class MemberServiceTest {
 
         given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
 
-        memberResponse = memberService.findMemberRecord(member.getId());
+        memberResponse = memberService.findByMember(member.getId());
 
         assertThat(memberResponse.memberName()).isEqualTo(member.getMemberName());
     }
@@ -270,6 +270,9 @@ public class MemberServiceTest {
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(LocalDateTime.now())
                 .build();
     }
 

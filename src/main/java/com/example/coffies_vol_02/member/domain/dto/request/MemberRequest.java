@@ -44,6 +44,9 @@ public record MemberRequest(Integer id,
                 .userAddr1(userAddr1)
                 .userAddr2(userAddr2)
                 .role(Role.ROLE_USER)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(null)
                 .build();
     }
 

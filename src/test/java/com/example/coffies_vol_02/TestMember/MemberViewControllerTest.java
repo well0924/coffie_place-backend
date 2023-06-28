@@ -96,7 +96,7 @@ public class MemberViewControllerTest {
     @DisplayName("회원 수정 화면")
     @WithMockUser(username = "well4149",roles = "ADMIN")
     public void adminDetailPageTest()throws Exception{
-        given(memberService.findMemberRecord(anyInt())).willReturn(response());
+        given(memberService.findByMember(anyInt())).willReturn(response());
 
         mvc.perform(
                 get("/page/login/modify/{id}",responseDto().id())
@@ -121,6 +121,9 @@ public class MemberViewControllerTest {
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(LocalDateTime.now())
                 .build();
     }
 

@@ -97,7 +97,7 @@ public class MemberApiControllerTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        when(memberService.findMemberRecord(member.getId())).thenReturn(response());
+        when(memberService.findByMember(member.getId())).thenReturn(response());
 
         mvc.perform(get("/api/member/detail/{user-idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -193,7 +193,7 @@ public class MemberApiControllerTest {
     @Test
     @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
-        given(memberService.findMemberRecord(member.getId())).willReturn(response());
+        given(memberService.findByMember(member.getId())).willReturn(response());
         given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(true);
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
@@ -286,6 +286,9 @@ public class MemberApiControllerTest {
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(LocalDateTime.now())
                 .build();
     }
 

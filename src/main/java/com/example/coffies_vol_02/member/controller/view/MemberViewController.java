@@ -51,7 +51,7 @@ public class MemberViewController {
     public ModelAndView memberModifyPage(@PathVariable("id")Integer useridx){
         ModelAndView mv = new ModelAndView();
 
-        MemberResponse dto = memberService.findMemberRecord(useridx);
+        MemberResponse dto = memberService.findByMember(useridx);
 
         mv.addObject("detail",dto);
         mv.setViewName("/login/membermodify");
