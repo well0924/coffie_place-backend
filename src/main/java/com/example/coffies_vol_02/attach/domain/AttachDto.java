@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.attach.domain;
 import lombok.*;
 
 @Getter
+@Setter
 @ToString
 public class AttachDto {
     private String originFileName;
@@ -16,7 +17,11 @@ public class AttachDto {
         this.originFileName = originFileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
-        this.boardId = boardId;
-        this.noticeId = noticeId;
+        if(boardId != null){
+            this.boardId = boardId;
+        }
+        if(noticeId!=null){
+            this.noticeId = noticeId;
+        }
     }
 }

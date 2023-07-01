@@ -36,7 +36,7 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
      * 게시글 다음글
      **/
     @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb " +
-            "where tb.id > :id order by tb.id limit 1")
+            "where tb.id >= :id order by tb.id limit 1")
     BoardNextPreviousInterface findNextBoard(@Param("id")Integer boardId);
 
     /**

@@ -22,8 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -125,6 +128,7 @@ public class BoardService {
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
 
+        //refactoring 필요
         Board board = Board
                 .builder()
                 .boardTitle(requestDto.boardTitle())
@@ -135,19 +139,24 @@ public class BoardService {
                 .member(member)
                 .build();
 
+        //게시글 저장
         boardRepository.save(board);
 
         Integer InsertResult = board.getId();
-
+        //파일  업로드
         List<Attach>filelist = fileHandler.parseFileInfo(requestDto.files());
-
+        
+        //파일이 없는 경우
         if(filelist == null || filelist.size() == 0){
             return InsertResult;
         }
-
-        for (Attach attachFile : filelist) {
-            board.addAttach(attachRepository.save(attachFile));
+        //첨부 파일이 있는 경우 첨부파일 저장
+        if(!filelist.isEmpty()){
+            for(Attach attachFile : filelist){
+                board.addAttach(attachRepository.save(attachFile));
+            }
         }
+        
         return InsertResult;
     }
 
@@ -280,7 +289,8 @@ public class BoardService {
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
 
-        Optional<BoardResponse> boardDetail = Optional.of(Optional.ofNullable(boardRepository.findByPassWdAndId(passWd, id))
+        Optional<BoardResponse> boardDetail = Optional
+                .of(Optional.ofNullable(boardRepository.findByPassWdAndId(passWd, id))
                 .orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.NOT_MATCH_PASSWORD)));
 
         return boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));

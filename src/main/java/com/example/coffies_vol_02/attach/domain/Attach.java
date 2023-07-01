@@ -26,12 +26,14 @@ public class Attach extends BaseTime implements Serializable {
     private Long fileSize; // 파일 크기
 
     //게시판
-    @ManyToOne
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "board_id")
     private Board board;
 
     //공지 게시판
-    @ManyToOne
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "notice_id")
     private NoticeBoard noticeBoard;
 
@@ -44,13 +46,13 @@ public class Attach extends BaseTime implements Serializable {
         this.board = board;
         this.noticeBoard = noticeBoard;
     }
+
     @Builder
-    public Attach(Integer id,String originFileName, String filePath, Long fileSize,Board board){
+    public Attach(Integer id,String originFileName, String filePath, Long fileSize){
         this.id = id;
         this.originFileName = originFileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
-        this.board = board;
      }
 
     @Builder
@@ -63,11 +65,21 @@ public class Attach extends BaseTime implements Serializable {
     }
 
     @Builder
+    public Attach(Integer id,String originFileName, String filePath, Long fileSize,Board board){
+        this.id = id;
+        this.originFileName = originFileName;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.board = board;
+    }
+
+    @Builder
     public Attach(String originFileName, String filePath, Long fileSize){
         this.originFileName = originFileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
     }
+
 
     //첨부파일 관련 메서드
     public void setBoard(Board board){

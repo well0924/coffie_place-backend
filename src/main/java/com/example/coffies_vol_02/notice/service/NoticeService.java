@@ -90,9 +90,17 @@ public class NoticeService {
     @Transactional
     public Integer noticeCreate(NoticeRequest dto, List<MultipartFile>files) throws Exception {
 
-        NoticeBoard noticeBoard = new NoticeBoard();
+        NoticeBoard noticeBoard = NoticeBoard
+                .builder()
+                .noticeTitle(dto.noticeTitle())
+                .noticeGroup(dto.noticeGroup())
+                .noticeContents(dto.noticeContents())
+                .noticeWriter(dto.noticeWriter())
+                .isFixed(dto.isFixed())
+                .fileGroupId(dto.fileGroupId())
+                .build();
 
-        noticeBoardRepository.save(dto.toEntity(noticeBoard));
+        noticeBoardRepository.save(noticeBoard);
 
         Integer noticeInsertResult = noticeBoard.getId();
 

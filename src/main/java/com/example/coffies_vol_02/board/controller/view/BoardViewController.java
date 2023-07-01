@@ -72,29 +72,29 @@ public class BoardViewController {
             nextBoard = boardService.findNextBoard(boardId);
             //조회수 증가.
             boardRepository.ReadCountUpToDB(boardId,detail.readCount());
+
             log.info("이전글:"+previousBoard.getBoardTitle());
             log.info("이전글:"+previousBoard.getId());
             log.info("다음글:"+nextBoard.getBoardTitle());
             log.info("다음글:"+nextBoard.getId());
+            log.info("파일목록:"+attachList);
+            if(nextBoard !=null){
+                mv.addObject("next",nextBoard);
+            } else if (nextBoard ==null) {
+                mv.addObject("nothing",nextBoard);
+            }
+            mv.addObject("next",nextBoard);
+            if(previousBoard != null){
+                mv.addObject("previous",previousBoard);
+            }else if(previousBoard == null){
+                mv.addObject("nothing",previousBoard);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
-
-        if(nextBoard !=null){
-            mv.addObject("next",nextBoard);
-        } else if (nextBoard ==null) {
-            mv.addObject("nothing",nextBoard);
-        }
-        mv.addObject("next",nextBoard);
-        if(previousBoard != null){
-            mv.addObject("previous",previousBoard);
-        }else if(previousBoard == null){
-            mv.addObject("nothing",previousBoard);
-        }
-
         mv.setViewName("board/detailBoard");
 
         return mv;
