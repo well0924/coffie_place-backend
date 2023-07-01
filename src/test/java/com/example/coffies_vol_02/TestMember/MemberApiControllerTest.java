@@ -27,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -288,7 +289,8 @@ public class MemberApiControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .accountNonLocked(true)
                 .failedAttempt(0)
-                .lockTime(LocalDateTime.now())
+                .lockTime(new Date())
+                .enabled(true)
                 .build();
     }
 
@@ -304,6 +306,8 @@ public class MemberApiControllerTest {
                 member.getUserEmail(),
                 member.getUserAddr1(),
                 member.getUserAddr2(),
+                member.getMemberLng(),
+                member.getMemberLat(),
                 member.getRole());
     }
 

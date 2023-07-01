@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config;
+package com.example.coffies_vol_02.config.Api;
 
 import com.example.coffies_vol_02.config.api.dto.KakaoApiResponseDto;
 import com.example.coffies_vol_02.config.api.service.KakaoApiSearchService;

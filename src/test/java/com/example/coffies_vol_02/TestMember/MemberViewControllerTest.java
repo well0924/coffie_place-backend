@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -123,7 +124,8 @@ public class MemberViewControllerTest {
                 .role(Role.ROLE_ADMIN)
                 .accountNonLocked(true)
                 .failedAttempt(0)
-                .lockTime(LocalDateTime.now())
+                .enabled(true)
+                .lockTime(new Date())
                 .build();
     }
 

@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
-import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import org.junit.jupiter.api.DisplayName;

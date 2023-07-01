@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestPlace;
 
-import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;

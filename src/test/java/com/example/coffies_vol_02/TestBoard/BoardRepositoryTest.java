@@ -1,10 +1,9 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
-import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;

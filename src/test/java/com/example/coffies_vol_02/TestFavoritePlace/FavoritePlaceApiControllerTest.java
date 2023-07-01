@@ -6,7 +6,7 @@ import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
@@ -20,7 +20,6 @@ import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -36,6 +35,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,7 +98,7 @@ public class FavoritePlaceApiControllerTest {
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         responseDto = commentResponseDto();
-        favoritePlaceResponseDto = favoritePlaceResponseDto();
+       //favoritePlaceResponseDto = favoritePlaceResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -248,6 +248,12 @@ public class FavoritePlaceApiControllerTest {
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)
                 .build();
     }

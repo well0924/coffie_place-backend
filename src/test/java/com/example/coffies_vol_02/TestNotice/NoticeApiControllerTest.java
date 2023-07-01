@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestNotice;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
-import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -31,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -215,7 +216,12 @@ public class NoticeApiControllerTest {
                 .userAge("20")
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .userAddr2("ㄴㅇㄹㅇㄹㅇ").memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)
                 .build();
     }

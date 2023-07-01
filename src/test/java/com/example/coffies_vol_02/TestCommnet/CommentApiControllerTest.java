@@ -7,7 +7,7 @@ import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.commnet.service.CommentService;
-import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
@@ -30,6 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -239,6 +240,12 @@ public class CommentApiControllerTest {
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)
                 .build();
     }
