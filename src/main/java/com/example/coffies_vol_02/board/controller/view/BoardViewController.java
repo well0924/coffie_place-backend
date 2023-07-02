@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Log4j2
@@ -41,7 +43,11 @@ public class BoardViewController {
         Page<BoardResponse> boardList = null;
 
         try {
-            boardList = boardService.boardSearchAll(searchVal,pageable);
+            boardList = boardService.boardAllList(pageable);
+
+            if(searchVal != null){
+                boardList = boardService.boardSearchAll(searchVal,pageable);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -61,40 +67,40 @@ public class BoardViewController {
 
         BoardResponse detail = null;
         List<AttachDto> attachList = new ArrayList<>();
-        BoardNextPreviousInterface previousBoard = null;
-        BoardNextPreviousInterface nextBoard = null;
+        Optional<BoardNextPreviousInterface> previousBoard = null;
+        Optional<BoardNextInterface> nextBoard = null;
 
         try{
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
-
             previousBoard = boardService.findPreviousBoard(boardId);
             nextBoard = boardService.findNextBoard(boardId);
             //조회수 증가.
             boardRepository.ReadCountUpToDB(boardId,detail.readCount());
 
-            log.info("이전글:"+previousBoard.getBoardTitle());
-            log.info("이전글:"+previousBoard.getId());
-            log.info("다음글:"+nextBoard.getBoardTitle());
-            log.info("다음글:"+nextBoard.getId());
-            log.info("파일목록:"+attachList);
-            if(nextBoard !=null){
-                mv.addObject("next",nextBoard);
-            } else if (nextBoard ==null) {
-                mv.addObject("nothing",nextBoard);
-            }
-            mv.addObject("next",nextBoard);
-            if(previousBoard != null){
-                mv.addObject("previous",previousBoard);
-            }else if(previousBoard == null){
-                mv.addObject("nothing",previousBoard);
-            }
         }catch (Exception e){
             e.printStackTrace();
         }
-
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
+
+        log.info("이전글:"+previousBoard.get().getBoardTitle());
+        log.info("이전글:"+previousBoard.get().getId());
+        log.info("다음글:"+nextBoard.get().getBoardTitle());
+        log.info("다음글:"+nextBoard.get().getId());
+        log.info("파일목록:"+attachList);
+
+        if(nextBoard.isPresent()){
+            mv.addObject("next",nextBoard);
+        } else if(nextBoard.isEmpty()){
+            mv.addObject("next",nextBoard);
+        }
+        if(previousBoard.isPresent()){
+            mv.addObject("previous",previousBoard);
+        }else if(previousBoard.isEmpty()){
+            mv.addObject("previous",previousBoard);
+        }
+
         mv.setViewName("board/detailBoard");
 
         return mv;

@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.util.FileHandler;
@@ -22,11 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -85,13 +83,14 @@ public class BoardService {
 
     /**
      * 게시글 이전글
-     * @author 양경빈
+     *
      * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 를 발생
-     * @exception CustomExceptionHandler 게시글을 조회시 게시글이 없는 경우
-     * @see BoardRepository#findNextBoard(Integer) 게시글조회 페이지에서 다음글을 조회하는 메서드
      * @return BoardNextPreviousInterface 타입은 인터페이스
+     * @throws CustomExceptionHandler 게시글을 조회시 게시글이 없는 경우
+     * @author 양경빈
+     * @see BoardRepository#findNextBoard(Integer) 게시글조회 페이지에서 다음글을 조회하는 메서드
      **/
-    public BoardNextPreviousInterface findPreviousBoard(Integer boardId){
+    public Optional<BoardNextPreviousInterface> findPreviousBoard(Integer boardId){
 
         return Optional
                 .ofNullable(boardRepository.findPreviousBoard(boardId))
@@ -105,7 +104,7 @@ public class BoardService {
      * @see BoardRepository#findNextBoard(Integer) 게시물 조회페이지에서 다음글을 조회하는 메서드
      * @return BoardNextPreviousInterface 타입은 인터페이스
      **/
-    public BoardNextPreviousInterface findNextBoard(Integer boardId){
+    public Optional<BoardNextInterface> findNextBoard(Integer boardId){
         return Optional
                 .ofNullable(boardRepository.findNextBoard(boardId))
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));

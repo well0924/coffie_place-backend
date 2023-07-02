@@ -67,27 +67,28 @@ layout:decorate="~{layout/leafframe}">
 
 				<!--이전 글 다음글-->
 				<div class="list-group">
-					<a th:href="@{'/page/board/detail/'+${next.getId()}}"
-					   class="list-group-item list-group-item-action" th:if="${not #strings.isEmpty(next)}?'disabled'">
-						<span style="font-weight: bold;">다음글</span> │
-						<div th:unless="${not #strings.isEmpty(next)}">
-							다음글이 없습니다.
-						</div>
-						<div th:if="${not #strings.isEmpty(next)}">
-							<span style="color: blue;">[[${next.getBoardTitle()}]]</span>
-						</div>
-					</a>
-
-					<a th:href="@{'/page/board/detail/'+${previous.getId()}}"
-					   class="list-group-item list-group-item-action" th:if="${not #strings.isEmpty(previous)}?'disabled'">
-						<span style="font-weight: bold;">이전글</span> │
-						<div th:unless="${not #strings.isEmpty(previous)}">
-							이전글이 없습니다.
-						</div>
-						<div th:if="${not #strings.isEmpty(previous)}">
-							<span style="color: blue;">[[${previous.getBoardTitle()}]]</span>
-						</div>
-					</a>
+					<div th:if="${next.isPresent()}">
+						<a th:href="@{'/page/board/detail/'+${next.get().getId()}}" class="list-group-item list-group-item-action">
+							<span style="font-weight: bold;">다음글</span> │
+								<div th:if="${not #strings.isEmpty(next)}">
+									<span style="color: blue;">[[${next.get().getBoardTitle()}]]</span>
+								</div>
+						</a>
+					</div>
+					<div th:if="${next.isEmpty()}">
+						다음글이 없습니다.
+					</div>
+					<div th:if="${previous.isPresent()}">
+						<a th:href="@{'/page/board/detail/'+${previous.get().getId()}}" class="list-group-item list-group-item-action">
+							<span style="font-weight: bold;">이전글</span> │
+							<div th:if="${not #strings.isEmpty(previous)}">
+								<span style="color: blue;">[[${previous.get().getBoardTitle()}]]</span>
+							</div>
+						</a>
+					</div>│
+					<div th:if="${previous.isEmpty()}">
+						이전글이 없습니다.
+					</div>
 				</div>
 				<!-- Comments section-->
 				<div class="card mb-2">
