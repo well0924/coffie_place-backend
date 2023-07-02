@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
 import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
 import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Log4j2
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER)
 public class SecurityConfig {

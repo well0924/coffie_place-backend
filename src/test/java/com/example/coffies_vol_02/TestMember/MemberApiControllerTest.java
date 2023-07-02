@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -271,6 +270,24 @@ public class MemberApiControllerTest {
                 .andDo(print());
 
         verify(memberService,times(1)).selectMemberDelete(userid);
+    }
+
+    @DisplayName("회원 자동완성-성공")
+    @Test
+    public void memberAutoCompleteTest()throws Exception{
+        
+        List<String> userid = new ArrayList<>();
+        userid.add(member.getUserId());
+
+        when(memberService.memberAutoSearch(member.getUserId())).thenReturn(userid);
+
+        mvc.perform(get("/api/member/autocomplete/{id}",member.getUserId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
+
+        verify(memberService).memberAutoSearch(member.getUserId());
     }
 
     private Member memberDto(){

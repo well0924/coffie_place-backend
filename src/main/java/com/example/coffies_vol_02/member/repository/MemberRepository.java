@@ -51,9 +51,9 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
 
     /**
      * 로그인 실패 카운트
-     * 3회 실패시 계정을 1시간동안 잠금.
+     * 3회 실패시 계정을 30분 동안 잠금.
      **/
-    @Query("UPDATE Member m SET m.failedAttempt = :failAttempts WHERE m.userId = :id")
     @Modifying
-    void updateFailedAttempts(@Param("failAttempts") int failAttempts,@Param("id") String userId);
+    @Query("UPDATE Member m SET m.failedAttempt = ?1  WHERE m.userId = ?2")
+    void updateFailedAttempts(Integer failAttempts,String userId);
 }

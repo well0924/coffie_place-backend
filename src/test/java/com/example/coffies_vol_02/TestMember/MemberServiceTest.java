@@ -113,12 +113,18 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원가입")
     public void memberCreateRecordTest(){
-        MemberRequest result = new MemberRequest(member.getId(),member.getUserId(),null,member.getMemberName(),member.getUserPhone(),member.getUserGender(),member.getUserAge(),member.getUserEmail(),member.getUserAddr1(),member.getUserAddr2(),member.getMemberLat(),member.getMemberLng(),member.getRole());
+        MemberRequest result =
+                new MemberRequest(member.getId(),member.getUserId(),null,
+                        member.getMemberName(),member.getUserPhone(),
+                        member.getUserGender(),member.getUserAge(),
+                        member.getUserEmail(),member.getUserAddr1(),
+                        member.getUserAddr2(),member.getMemberLat(),
+                        member.getMemberLng(),member.getRole());
         member.setPassword(bCryptPasswordEncoder.encode("well31942@!@"));
-
         given(memberRepository.save(result.toEntity(member))).willReturn(member);
 
         memberService.memberCreate(result);
+
     }
 
     @Test
@@ -267,6 +273,42 @@ public class MemberServiceTest {
 
         //then
         verify(memberRepository,times(2)).deleteAllByUserId(deleteList);
+    }
+
+    @Test
+    @DisplayName("로그인 실패 횟수 카운트->회원 계정에서 로그인 실패 횟수를 +1")
+    public void LoginFailCountAttemptsTest(){
+        //given
+        int failCount = member.getFailedAttempt() + 1;
+        member.setFailedAttempt(failCount);
+        //when
+        memberService.increaseFailAttempts(member);
+        //then
+        assertThat(member.getFailedAttempt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("로그인 카운트 초기화")
+    public void LoginCountResetTest(){
+        //given
+        int failCount = member.getFailedAttempt() + 1;
+        member.setFailedAttempt(failCount);
+        //when
+        memberService.resetFailedAttempts(member);
+
+        assertThat(member.getFailedAttempt()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("계정 잠금 테스트")
+    public void MemberLockTest(){
+        
+    }
+
+    @Test
+    @DisplayName("계정잠금해제 유효기간 테스트")
+    public void unlockWhenTimeExpiredTest(){
+
     }
 
     private Member memberDto(){

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,5 +33,19 @@ public class MemberRepositoryTest {
         Page<MemberResponse> result = memberRepository.findByAllSearch(keyword,pageable);
 
         System.out.println(result);
+    }
+
+    @Test
+    @DisplayName("회원 로그인 횟수 테스트->실제로 1이 카운트가 되는가?")
+    public void loginfailTest(){
+
+        Optional<Member>member = memberRepository.findById(1);
+        Member member1 = member.get();
+        int failCount = member1.getFailedAttempt() +1;
+        System.out.println(failCount);
+        memberRepository.updateFailedAttempts(failCount,member1.getUserId());
+        System.out.println(member1.getUserId());
+        System.out.println(member1.getFailedAttempt());
+        System.out.println("resutl::"+member1);
     }
 }

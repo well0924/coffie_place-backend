@@ -27,28 +27,32 @@ public class CustomUserDetails implements UserDetails,Serializable {
 
         Collection<GrantedAuthority> collectors = new ArrayList<>();
         collectors.add(()-> member.getRole().getValue());
+        
         return collectors;
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return member == null ? "" : member.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getUserId();
+        return member == null ? "" : member.getUserId();
     }
 
+    //계정 만료
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
+
     //계정 잠금
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return member.getAccountNonLocked();
     }
+
 
     @Override
     public boolean isCredentialsNonExpired() {
