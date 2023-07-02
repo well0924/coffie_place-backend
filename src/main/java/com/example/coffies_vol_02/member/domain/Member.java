@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -36,16 +37,22 @@ public class Member extends BaseTime implements Serializable {
     private String userEmail;
     private String userAddr1;
     private String userAddr2;
+    private boolean enabled;
+    @Setter
     @Column(name = "account_non_locked")
     private Boolean accountNonLocked;
+    @Setter
     @Column(name = "failed_attempt")
     private Integer failedAttempt;
+    @Setter
     @Column(name = "lock_time")
-    private LocalDateTime lockTime;
+    private Date lockTime;
+    //회원 위경도(경도)
+    private Double memberLng;
+    //회원 위경도(위도)
+    private Double memberLat;
     @Enumerated(EnumType.STRING)
     private Role role;
-
-
     @BatchSize(size = 1000)
     @JsonIgnore
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
@@ -62,9 +69,12 @@ public class Member extends BaseTime implements Serializable {
                   String userEmail,
                   String userAddr1,
                   String userAddr2,
+                  Boolean enabled,
                   Boolean accountNonLocked,
                   Integer failedAttempt,
-                  LocalDateTime lockTime,
+                  Date lockTime,
+                  Double memberLng,
+                  Double memberLat,
                   Role role){
         this.id = id;
         this.userId = userId;
@@ -76,9 +86,12 @@ public class Member extends BaseTime implements Serializable {
         this.userEmail = userEmail;
         this.userAddr1 = userAddr1;
         this.userAddr2 = userAddr2;
+        this.enabled = enabled;
         this.accountNonLocked = accountNonLocked;
         this.failedAttempt = failedAttempt;
         this.lockTime = lockTime;
+        this.memberLng = memberLng;
+        this.memberLat = memberLat;
         this.role = role;
         this.getCreatedTime();
         this.getUpdatedTime();
@@ -94,6 +107,8 @@ public class Member extends BaseTime implements Serializable {
         this.userPhone = memberCreateDto.userPhone();
         this.userAddr1 = memberCreateDto.userAddr1();
         this.userAddr2 = memberCreateDto.userAddr2();
+        this.memberLat = memberCreateDto.memberLat();
+        this.memberLng = memberCreateDto.memberLng();
     }
 
 }

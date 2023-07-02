@@ -16,6 +16,8 @@ public record MemberResponse(Integer id,
                              String userEmail,
                              String userAddr1,
                              String userAddr2,
+                             Double memberLng,
+                             Double memberLat,
                              Role role,
                              @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
                              LocalDateTime createdTime) {
@@ -30,6 +32,8 @@ public record MemberResponse(Integer id,
             member.getUserEmail(),
             member.getUserAddr1(),
             member.getUserAddr2(),
+            member.getMemberLng(),
+            member.getMemberLat(),
             member.getRole(),
             member.getCreatedTime());
     }

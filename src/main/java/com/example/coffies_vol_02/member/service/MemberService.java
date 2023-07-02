@@ -18,10 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +27,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisTemplate<String,Object> redisTemplate;
+    //계정 정지기간
+    private static final long LOCK_TIME_DURATION = 60 * 60; // 1 hours
 
     /**
      * 회원 전체목록
@@ -86,8 +85,9 @@ public class MemberService {
     @Transactional
     public void memberCreate(MemberRequest request){
         Member member = new Member();
+        //비밀번호 암호화
         member.setPassword(bCryptPasswordEncoder.encode(request.password()));
-
+        //회원 가입
         memberRepository.save(request.toEntity(member));
     }
 
@@ -232,14 +232,55 @@ public class MemberService {
     /**
      * 로그인 실패 횟수 카운트
      * @author 양경빈
-     * @param
+     * @param member failCount의 값을 설정하기 위해 객체로 설정
+     * @see MemberRepository#updateFailedAttempts(Integer, String)  로그인 실패시 실패횟수
      **/
-
+    public void increaseFailAttempts(Member member){
+        int failCount = member.getFailedAttempt() + 1;
+        memberRepository.updateFailedAttempts(failCount, member.getUserId());
+    }
 
     /**
      * 로그인 실패 횟수 초기화
      * @author 양경빈
-     * @param
+     * @param member 회원 객체
      **/
+    public void resetFailedAttempts(Member member){
+        memberRepository.updateFailedAttempts(0,member.getUserId());
+    }
 
+    /**
+     * 계정 잠금
+     * @param member 회원 객체
+     **/
+    public void lock(Member member) {
+        member.setAccountNonLocked(false);
+        member.setLockTime(new Date());
+        memberRepository.save(member);
+    }
+
+    /**
+     * 계정 잠금해제 유효기간
+     * 계정이 잠금되면 특정기간까지 계정을 잠금하는 기능
+     * 
+     * @author 양경빈
+     * @param member 회원객체
+     * @return false (default)
+     **/
+    public boolean unlockWhenTimeExpired(Member member) {
+        long lockTimeInMillis = member.getLockTime().getTime();
+        long currentTimeInMillis =  System.currentTimeMillis();
+
+        //잠금기간이 다 된 경우
+        if(lockTimeInMillis + LOCK_TIME_DURATION < currentTimeInMillis) {
+            member.setAccountNonLocked(true);
+            member.setLockTime(null);
+            member.setFailedAttempt(0);
+
+            memberRepository.save(member);
+
+            return true;
+        }
+        return false;
+    }
 }

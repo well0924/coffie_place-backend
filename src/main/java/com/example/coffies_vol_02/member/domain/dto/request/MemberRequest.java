@@ -6,6 +6,8 @@ import com.example.coffies_vol_02.member.domain.Role;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public record MemberRequest(Integer id,
                             @NotBlank(message = "아이디를 입력해주세요.")
@@ -29,7 +31,12 @@ public record MemberRequest(Integer id,
                             @NotBlank(message = "주소를 입력해주세요.")
                             String userAddr1,
                             String userAddr2,
+                            Double memberLat,
+                            Double memberLng,
                             Role role){
+
+
+
     public Member toEntity(Member member){
         return Member
                 .builder()
@@ -44,9 +51,12 @@ public record MemberRequest(Integer id,
                 .userAddr1(userAddr1)
                 .userAddr2(userAddr2)
                 .role(Role.ROLE_USER)
-                .accountNonLocked(true)
+                .memberLng(memberLng)
+                .memberLat(memberLat)
                 .failedAttempt(0)
-                .lockTime(null)
+                .enabled(true)
+                .accountNonLocked(true)
+                .lockTime(new Date())
                 .build();
     }
 
