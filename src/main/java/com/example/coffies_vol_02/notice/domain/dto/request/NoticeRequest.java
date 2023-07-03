@@ -13,24 +13,12 @@ public record NoticeRequest(
         String noticeGroup,
         @ApiModelProperty(dataType ="char")
         Character isFixed,
+        @NotBlank(message = "공지 제목을 적어주세요.")
         String noticeTitle,
         String noticeWriter,
-        @NotBlank
+        @NotBlank(message = "공지 내용을 적어주세요.")
         String noticeContents,
         String fileGroupId,
-        List<MultipartFile> files)implements Serializable {
-
-        public NoticeBoard toEntity(NoticeBoard noticeBoard){
-                return NoticeBoard
-                        .builder()
-                        .id(noticeBoard.getId())
-                        .noticeTitle(noticeTitle)
-                        .noticeWriter(noticeWriter)
-                        .noticeContents(noticeContents)
-                        .noticeGroup(noticeGroup)
-                        .fileGroupId(fileGroupId)
-                        .isFixed(isFixed)
-                        .build();
-        }
+        List<MultipartFile>files)implements Serializable {
 
 }

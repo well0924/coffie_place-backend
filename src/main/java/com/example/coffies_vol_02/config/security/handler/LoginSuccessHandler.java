@@ -26,6 +26,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final String DEFAULT_URL= "/page/main/main";
     private static final String ADMIN_URL="/page/admin/adminlist";
 
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         //로그인을 한 세션을 지우는 메서드
@@ -58,21 +59,15 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         SavedRequest savedRequest = requestCache.getRequest(request, response);
 
         if(savedRequest != null) {
-
             redirectStratgy.sendRedirect(request, response, DEFAULT_URL);
-
         }else {
-
             Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
             //권한이 ADMIN이면 어드민 페이지로 이동
             if(roles.contains("ROLE_ADMIN")) {
-
                 redirectStratgy.sendRedirect(request, response,ADMIN_URL);
             //권한이 USER이면 메인 페이지로 이동
             }else if(roles.contains("ROLE_USER")) {
-
                 redirectStratgy.sendRedirect(request, response,DEFAULT_URL);
-
             }
         }
     }

@@ -1,10 +1,10 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
-import com.example.coffies_vol_02.config.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,21 +61,45 @@ public class BoardRepositoryTest {
     @Test
     @DisplayName("게시글 이전글 번호 테스트")
     public void BoardPrevTest(){
-        BoardNextPreviousInterface result = boardRepository.findPreviousBoard(6);
+        Optional<BoardNextPreviousInterface> result = boardRepository.findPreviousBoard(6);
 
-        System.out.println(result);
-        System.out.println(result.getId());
-        System.out.println(result.getBoardTitle());
+        System.out.println("이전글:"+result);
+        System.out.println("이전글 번호:"+result.get().getId());
+        System.out.println("이전글 제목:"+result.get().getBoardTitle());
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isNotNull();
+    }
+    @Test
+    @DisplayName("게시글 이전글 번호 테스트-실패")
+    public void BoardPrevTestFail(){
+        Optional<BoardNextPreviousInterface> result = boardRepository.findPreviousBoard(1);
+
+        if(result.isEmpty()){
+            System.out.println("글이없습니다.");
+        }
+        assertThat(result).isEmpty();
     }
 
     @Test
     @DisplayName("게시글 다음글 번호 테스트")
     public void BoardNextTest(){
-        BoardNextPreviousInterface result = boardRepository.findNextBoard(6);
+        Optional<BoardNextInterface> result = boardRepository.findNextBoard(6);
 
         System.out.println(result);
-        System.out.println(result.getId());
-        System.out.println(result.getBoardTitle());
+        System.out.println(result.get().getId());
+        System.out.println(result.get().getBoardTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 다음글 번호 테스트 실패")
+    public void BoardNextTestFail(){
+        Optional<BoardNextInterface> result = boardRepository.findNextBoard(2000);
+
+        System.out.println(result);
+        System.out.println(result.get().getId());
+        System.out.println(result.get().getBoardTitle());
+        assertThat(result).isEmpty();
     }
 
 }

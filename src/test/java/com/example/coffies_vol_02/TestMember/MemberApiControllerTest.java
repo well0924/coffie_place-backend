@@ -25,8 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +97,7 @@ public class MemberApiControllerTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        when(memberService.findMemberRecord(member.getId())).thenReturn(response());
+        when(memberService.findByMember(member.getId())).thenReturn(response());
 
         mvc.perform(get("/api/member/detail/{user-idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -193,7 +193,7 @@ public class MemberApiControllerTest {
     @Test
     @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
-        given(memberService.findMemberRecord(member.getId())).willReturn(response());
+        given(memberService.findByMember(member.getId())).willReturn(response());
         given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(true);
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
@@ -272,6 +272,24 @@ public class MemberApiControllerTest {
         verify(memberService,times(1)).selectMemberDelete(userid);
     }
 
+    @DisplayName("회원 자동완성-성공")
+    @Test
+    public void memberAutoCompleteTest()throws Exception{
+        
+        List<String> userid = new ArrayList<>();
+        userid.add(member.getUserId());
+
+        when(memberService.memberAutoSearch(member.getUserId())).thenReturn(userid);
+
+        mvc.perform(get("/api/member/autocomplete/{id}",member.getUserId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
+
+        verify(memberService).memberAutoSearch(member.getUserId());
+    }
+
     private Member memberDto(){
         return Member
                 .builder()
@@ -286,6 +304,10 @@ public class MemberApiControllerTest {
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
                 .build();
     }
 
@@ -301,6 +323,8 @@ public class MemberApiControllerTest {
                 member.getUserEmail(),
                 member.getUserAddr1(),
                 member.getUserAddr2(),
+                member.getMemberLng(),
+                member.getMemberLat(),
                 member.getRole());
     }
 

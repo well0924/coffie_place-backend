@@ -25,7 +25,13 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
 
-    //가게 검색
+    /**
+     * 가게 검색
+     * @author 양경빈
+     * @param pageable 페이징 객체
+     * @param keyword 가게 검색에 필요한 키워드
+     * @return Page<PlaceResponseDto> 페이징 객체
+     **/
     @Override
     public Page<PlaceResponseDto> placeListSearch(String keyword, Pageable pageable) {
         List<PlaceResponseDto>placeList= new ArrayList<>();
@@ -74,7 +80,12 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         return new PageImpl<>(placeList,pageable,count);
     }
 
-    //가게 평점 top5
+    /**
+     * 가게 평점 top5
+     * @author 양경빈
+     * @param pageable 페이징 객체
+     * @return Page<PlaceResponseDto>
+     * */
     @Override
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         List<PlaceResponseDto>result = new ArrayList<>();
@@ -122,7 +133,12 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         return new PageImpl<>(result,pageable,size);
     }
 
-    //가게목록 무한스크롤
+    /**
+     * 가게목록 무한스크롤
+     * @author 양경빈
+     * @param pageable 페이징 객체
+     * @return Slice<PlaceResponseDto>
+     * */
     @Override
     public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
         List<Place>placelist = jpaQueryFactory

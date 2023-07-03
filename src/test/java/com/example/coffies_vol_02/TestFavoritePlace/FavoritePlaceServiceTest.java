@@ -29,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +98,7 @@ public class FavoritePlaceServiceTest {
         memberResponseDto = responseDto();
         boardResponseDto = boardResponseDto();
         ResponseDto = commentResponseDto();
-        favoritePlaceResponseDto = favoritePlaceResponseDto();
+        //favoritePlaceResponseDto = favoritePlaceResponseDto();
     }
 
     @Test
@@ -264,6 +265,12 @@ public class FavoritePlaceServiceTest {
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)
                 .build();
     }

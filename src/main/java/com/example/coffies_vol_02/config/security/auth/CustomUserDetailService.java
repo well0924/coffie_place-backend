@@ -21,6 +21,14 @@ import java.util.Optional;
 public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
+    /**
+     * 시큐리티 로그인
+     * redis 캐시에 저장이 되면 user::회원아이디 로 저장이 된다.
+     * @author 양경빈
+     * @param username 회원 아이디
+     * @throws UsernameNotFoundException 회원아이디가 없을 경우 Exception 을 발생
+     * @return UserDetail 로그인시 확인된 회원 객체
+     **/
     @Cacheable(value = CacheKey.USER,key = "#username",unless = "#result == null",cacheManager = "redisCacheManager")
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -38,4 +46,5 @@ public class CustomUserDetailService implements UserDetailsService {
 
         return new CustomUserDetails(member);
     }
+
 }

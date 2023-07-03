@@ -5,7 +5,6 @@ import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -61,10 +60,10 @@ public class MemberApiController {
     @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
     @GetMapping(path = "/detail/{user-idx}")
     public CommonResponse<MemberResponse>findMember(@PathVariable("user-idx")Integer userIdx){
-        MemberResponse detail = memberService.findMemberRecord(userIdx);
+        MemberResponse detail = memberService.findByMember(userIdx);
 
         try{
-            detail = memberService.findMemberRecord(userIdx);
+            detail = memberService.findByMember(userIdx);
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.board.repository;
 
 import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -10,6 +11,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoardRepository,QuerydslPredicateExecutor {
 
@@ -35,14 +38,16 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     /**
      * 게시글 다음글
      **/
-    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb " +
-            "where tb.id > :id order by tb.id limit 1")
-    BoardNextPreviousInterface findNextBoard(@Param("id")Integer boardId);
+    @Transactional
+    @Query(nativeQuery = true,value = "select tb.id ,tb.board_title as BoardTitle from tbl_board tb " +
+            "where tb.id >= ?1 order by tb.id asc limit 1")
+    Optional<BoardNextInterface> findNextBoard(Integer boardId);
 
     /**
      * 게시글 이전글
      **/
-    @Query(nativeQuery = true,value = "select tb.id,tb.board_title as BoardTitle from tbl_board tb " +
-            "where tb.id < :id order by tb.id desc limit 1")
-    BoardNextPreviousInterface findPreviousBoard(@Param("id")Integer boardId);
+    @Transactional
+    @Query(nativeQuery = true,value = "select tb.id ,tb.board_title as BoardTitle from tbl_board tb " +
+            "where tb.id < ?1 order by tb.id desc limit 1")
+    Optional<BoardNextPreviousInterface> findPreviousBoard(Integer boardId);
 }

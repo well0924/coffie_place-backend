@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +77,7 @@ public class MemberServiceTest {
 
         given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
 
-        memberResponse = memberService.findMemberRecord(member.getId());
+        memberResponse = memberService.findByMember(member.getId());
 
         assertThat(memberResponse.memberName()).isEqualTo(member.getMemberName());
     }
@@ -112,12 +113,18 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원가입")
     public void memberCreateRecordTest(){
-        MemberRequest result = new MemberRequest(member.getId(),member.getUserId(),null,member.getMemberName(),member.getUserPhone(),member.getUserGender(),member.getUserAge(),member.getUserEmail(),member.getUserAddr1(),member.getUserAddr2(),member.getRole());
+        MemberRequest result =
+                new MemberRequest(member.getId(),member.getUserId(),null,
+                        member.getMemberName(),member.getUserPhone(),
+                        member.getUserGender(),member.getUserAge(),
+                        member.getUserEmail(),member.getUserAddr1(),
+                        member.getUserAddr2(),member.getMemberLat(),
+                        member.getMemberLng(),member.getRole());
         member.setPassword(bCryptPasswordEncoder.encode("well31942@!@"));
-
         given(memberRepository.save(result.toEntity(member))).willReturn(member);
 
         memberService.memberCreate(result);
+
     }
 
     @Test
@@ -219,6 +226,12 @@ public class MemberServiceTest {
                 .userGender("남성")
                 .userAddr1("ㅈㄷㄱㅈㄷㄱㅈㄷㄱㅈㄷㄱㄷㅈㄱ")
                 .userAddr2("ㄴㅇㄹㄴㅇㄹㅇㄴㄹ")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .build();
 
         Member member2 = Member
@@ -233,6 +246,12 @@ public class MemberServiceTest {
                 .userAddr1("ㄴㅇ루ㅏㅓ푸너ㅏㅍㄴ")
                 .userAddr2("ㄴㅇㄹㄴㅇㄹ")
                 .userPhone("010-2323-3432")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .build();
 
         List<Member>memberlist= new ArrayList<>();
@@ -256,6 +275,42 @@ public class MemberServiceTest {
         verify(memberRepository,times(2)).deleteAllByUserId(deleteList);
     }
 
+    @Test
+    @DisplayName("로그인 실패 횟수 카운트->회원 계정에서 로그인 실패 횟수를 +1")
+    public void LoginFailCountAttemptsTest(){
+        //given
+        int failCount = member.getFailedAttempt() + 1;
+        member.setFailedAttempt(failCount);
+        //when
+        memberService.increaseFailAttempts(member);
+        //then
+        assertThat(member.getFailedAttempt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("로그인 카운트 초기화")
+    public void LoginCountResetTest(){
+        //given
+        int failCount = member.getFailedAttempt() + 1;
+        member.setFailedAttempt(failCount);
+        //when
+        memberService.resetFailedAttempts(member);
+
+        assertThat(member.getFailedAttempt()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("계정 잠금 테스트")
+    public void MemberLockTest(){
+        
+    }
+
+    @Test
+    @DisplayName("계정잠금해제 유효기간 테스트")
+    public void unlockWhenTimeExpiredTest(){
+
+    }
+
     private Member memberDto(){
         return Member
                 .builder()
@@ -270,6 +325,10 @@ public class MemberServiceTest {
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
                 .role(Role.ROLE_ADMIN)
+                .enabled(true)
+                .accountNonLocked(true)
+                .failedAttempt(0)
+                .lockTime(new Date())
                 .build();
     }
 
@@ -285,6 +344,8 @@ public class MemberServiceTest {
                 member.getUserEmail(),
                 member.getUserAddr1(),
                 member.getUserAddr2(),
+                member.getMemberLat(),
+                member.getMemberLng(),
                 member.getRole());
     }
 

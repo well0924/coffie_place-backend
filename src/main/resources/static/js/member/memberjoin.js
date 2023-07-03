@@ -12,7 +12,7 @@ function idcheck(){
         dataType:'json',
         contentType:"application/json; charset=UTF-8"
     }).done(function(resp){
-        if(resp.data == true){
+        if(resp.data === true){
             document.getElementById('msg').innerHTML = '</br>아이디가 중복!';
             document.getElementById('msg').style.color='red';
         }else{
@@ -31,7 +31,7 @@ function pwcheck(){
     console.log(pwd);
     console.log(pwdcheck);
 
-    if(pwd.trim() == pwdcheck.trim()){
+    if(pwd.trim() === pwdcheck.trim()){
         document.getElementById('pwcheck').innerHTML="비밀번호가 일치합니다.";
         document.getElementById('pwcheck').style.color='blue';
     }else{
@@ -147,16 +147,15 @@ function AddressCode(){
                     //위경도 값을 로컬 스토리지에 저장을 한다.
                     var lat = coords.La;
                     var lng = coords.Ma;
-
-                    localStorage.setItem('La',lat);
-                    localStorage.setItem('Ma',lng);
-                    
+                    localStorage.setItem('memberLat',lat);
+                    localStorage.setItem('memberLng',lng);
                     console.log(result);
                 }
             });
         }
     }).open();
 }
+
 // 지도를 클릭했을 때 클릭 위치 좌표에 대한 주소정보를 표시하도록 이벤트를 등록합니다
 kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
     searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
@@ -221,6 +220,11 @@ function memberjoin(){
     let phone = $('#user_phone').val();
     let addr1 = $('#signUpUserPostNo').val();
     let addr2 = $('#signUpUserAddress').val();
+    let memberLat = Number(localStorage.getItem('memberLat'));
+    let memberLng = Number(localStorage.getItem('memberLng'));
+
+    console.log(memberLat);
+    console.log(memberLng);
 
     const dateForm={
         userId :id,
@@ -231,7 +235,9 @@ function memberjoin(){
         userEmail : email,
         userPhone : phone,
         userAddr1 : addr1,
-        userAddr2 : addr2
+        userAddr2 : addr2,
+        memberLng : memberLng,
+        memberLat : memberLat
     };
 
     $.ajax({

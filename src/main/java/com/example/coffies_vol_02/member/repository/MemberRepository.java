@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
 
     /**
      * 회원 선택삭제
+     * 어드민 페이지에서 회원을 선택삭제하는 기능
      **/
     @Transactional
     @Modifying
@@ -49,9 +51,9 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
 
     /**
      * 로그인 실패 카운트
-     * 3회 실패시 계정을 일정기간동안 잠금.
+     * 3회 실패시 계정을 30분 동안 잠금.
      **/
-    @Query("UPDATE Member m SET m.failedAttempt = :failAttempts WHERE m.userId = :email")
     @Modifying
-    void updateFailedAttempts(int failAttempts, String email);
+    @Query("UPDATE Member m SET m.failedAttempt = ?1  WHERE m.userId = ?2")
+    void updateFailedAttempts(Integer failAttempts,String userId);
 }

@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestLike;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.like.domain.CommentLike;
 import com.example.coffies_vol_02.like.domain.Like;
@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -185,6 +186,12 @@ public class TestLikeController {
                 .userGender("남자")
                 .userAddr1("xxxxxx시 xxxx")
                 .userAddr2("ㄴㅇㄹㅇㄹㅇ")
+                .memberLat(0.00)
+                .memberLng(0.00)
+                .failedAttempt(0)
+                .lockTime(new Date())
+                .enabled(true)
+                .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)
                 .build();
     }

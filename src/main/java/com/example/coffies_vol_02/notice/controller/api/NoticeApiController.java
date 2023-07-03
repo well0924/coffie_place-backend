@@ -70,6 +70,7 @@ public class NoticeApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),InsertResult);
     }
 
@@ -84,6 +85,7 @@ public class NoticeApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
     
@@ -96,6 +98,7 @@ public class NoticeApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 }
