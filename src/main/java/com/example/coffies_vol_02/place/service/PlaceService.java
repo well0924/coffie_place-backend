@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,12 +51,13 @@ public class PlaceService {
 
     /**
      * 가게 목록(무한 슬라이드)
-     * @author 양경빈
-     * @param keyword 가게검색어 
-     * @param pageable 페이징 객체
-     * @param member 로그인 인증에 필요한 객체
+     *
+     * @param keyword    가게검색어
+     * @param pageable   페이징 객체
+     * @param member     로그인 인증에 필요한 객체
      * @param searchType 검색
      * @return Slice<PlaceResponseDto>
+     * @author 양경빈
      * @see RedisService#setValues(String, String) 가게 검색어 저장
      * @see PlaceRepository#placeList(Pageable, String) 가게 목록
      **/
@@ -76,7 +78,7 @@ public class PlaceService {
         return null;
     }
 
-    
+
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeListAll(String keyword, Pageable pageable, Member member) {
         if (member != null) {
@@ -85,12 +87,13 @@ public class PlaceService {
         }
         return placeRepository.placeListSearch(keyword, pageable);
     }
-    
+
     /**
      * 가게 top5 (평점이 높은 순)
-     * @author 양경빈
+     *
      * @param pageable 페이징 객체
      * @return Page<PlaceResponseDto>
+     * @author 양경빈
      * @see PlaceRepository#placeTop5(Pageable) 가게 top5 메서드
      **/
     @Transactional(readOnly = true)
@@ -98,12 +101,40 @@ public class PlaceService {
         return placeRepository.placeTop5(pageable);
     }
 
+    @Transactional(readOnly = true)
+    public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
+        List<PlaceResponseDto> result = new ArrayList<>();
+        for (Place place : placeRepository.findPlaceByLatLng(lat, lon)) {
+            PlaceResponseDto dto = PlaceResponseDto
+                    .builder()
+                    .id(place.getId())
+                    .placeLat(place.getPlaceLat())
+                    .placeLng(place.getPlaceLng())
+                    .placeAuthor(place.getPlaceAuthor())
+                    .placeName(place.getPlaceName())
+                    .placePhone(place.getPlacePhone())
+                    .placeStart(place.getPlaceStart())
+                    .placeClose(place.getPlaceClose())
+                    .placeAddr1(place.getPlaceAddr1())
+                    .placeAddr2(place.getPlaceAddr2())
+                    .fileGroupId(place.getFileGroupId())
+                    .reviewRate(place.getReviewRate())
+                    .isTitle(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath())
+                    .build();
+
+            result.add(dto);
+        }
+        return result;
+    }
+
     /**
      * 가게 단일 조회
-     * @author 양경빈
+     *
      * @param placeId 가게 번호 가게번호가 없는 경우에는 PLACE_NOT_FOUND 발생
-     * @exception CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
-     * @return PlaceResponseDto 
+     * @return PlaceResponseDto
+     * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
+     * @author 양경빈
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
     @Transactional
@@ -134,10 +165,11 @@ public class PlaceService {
 
     /**
      * 가게 등록
-     * @author 양경빈
-     * @param 가게등록에 필요한 dto
+     *
+     * @param 가게등록에           필요한 dto
      * @param imageRequestDto 이미지 등록에 필요한 dto
      * @return placeId 가게 번호
+     * @author 양경빈
      **/
     @Transactional
     public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
@@ -160,12 +192,12 @@ public class PlaceService {
 
         Integer registerResult = place.getId();
         //가게 이미지 업로드
-        List<PlaceImage>imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
+        List<PlaceImage> imageList = fileHandler.placeImagesUpload(imageRequestDto.getImages());
 
         PlaceImage placeImage;
         //가게 이미지가 없는 경우에는 단순 가게등록
-        if(imageList.isEmpty()) return registerResult;
-        
+        if (imageList.isEmpty()) return registerResult;
+
         for (int i = 0; i < imageList.size(); i++) {
             placeImage = getPlaceImage(place, imageList, i);
 
@@ -179,12 +211,13 @@ public class PlaceService {
 
     /**
      * 가게수정
-     * @author 양경빈
-     * @param placeId 가게 번호
-     * @param dto 가게 수정에 필요한 dto
+     *
+     * @param placeId  가게 번호
+     * @param dto      가게 수정에 필요한 dto
      * @param imageDto 가게 이미지에 필요한 dto
-     * @exception CustomExceptionHandler
      * @return PlaceId 가게번호
+     * @throws CustomExceptionHandler
+     * @author 양경빈
      **/
     @Transactional
     public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
@@ -212,7 +245,7 @@ public class PlaceService {
 
                 File filePaths = new File(filePath);
                 File thumbPaths = new File(thumbPath);
-                
+
                 if (filePaths.exists()) filePaths.delete();
                 if (thumbPaths.exists()) thumbPaths.delete();
                 //디비에 저장된 이미지를 삭제
@@ -221,7 +254,7 @@ public class PlaceService {
             //이미지 재업로드
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            for(int i=0;i< imageList.size();i++){
+            for (int i = 0; i < imageList.size(); i++) {
                 placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
@@ -230,7 +263,7 @@ public class PlaceService {
             //이미지를 추가하지 않은채로 수정을 하는 경우
             imageList = fileHandler.placeImagesUpload(imageDto.getImages());
 
-            for(int i=0;i< imageList.size();i++){
+            for (int i = 0; i < imageList.size(); i++) {
                 placeImage = getPlaceImage(place, imageList, i);
 
                 place.addPlaceImage(placeImageRepository.save(placeImage));
@@ -238,23 +271,24 @@ public class PlaceService {
         }
         return result;
     }
-    
+
     /**
      * 가게 삭제
-     * @author 양경빈
+     *
      * @param placeId 가게 번호 없는 경우에는 PLACE_NOT_FOUND 발생
+     * @author 양경빈
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일조회하는 메서드
      * @see PlaceImageRepository#findPlaceImagePlace(Integer) 가게 번호로 해당 이미지 목록을 조회하는 메서드
      * @see PlaceImageService#deletePlaceImage(Integer) 가게 이미지를 삭제하는 메서드
      * @see PlaceRepository#deleteById(Object) 가게번호로 가게를 삭제하는 메서드
      **/
     public void placeDelete(Integer placeId) throws Exception {
-        Optional<Place>detail = Optional.ofNullable(placeRepository.findById(placeId)
+        Optional<Place> detail = Optional.ofNullable(placeRepository.findById(placeId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
         //가게이미지 목록
-        List<PlaceImage>imageList = placeImageRepository.findPlaceImagePlace(placeId);
+        List<PlaceImage> imageList = placeImageRepository.findPlaceImagePlace(placeId);
 
-        for(PlaceImage placeImage : imageList){
+        for (PlaceImage placeImage : imageList) {
             String imgPath = placeImage.getImgPath();
             String thumbPath = placeImage.getThumbFilePath();
 
@@ -268,12 +302,12 @@ public class PlaceService {
                 thumbPaths.delete();
             }
             //디비에서 저장된 값 삭제
-            placeImageService.deletePlaceImage(placeId); 
+            placeImageService.deletePlaceImage(placeId);
         }
         //가게 삭제
         placeRepository.deleteById(placeId);
     }
-    
+
     //엑셀목록으로 가게를 출력
     public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 
@@ -355,13 +389,13 @@ public class PlaceService {
             }
 
             response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment;filename="+ URLEncoder.encode(fileName, StandardCharsets.UTF_8)+".xlsx");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".xlsx");
             //파일명은 URLEncoder로 감싸주는게 좋다!
 
             workbook.write(response.getOutputStream());
             workbook.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -371,13 +405,13 @@ public class PlaceService {
     private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {
         PlaceImage placeImage;
         String resize;
-        placeImage= imageList.get(i);
+        placeImage = imageList.get(i);
 
-        if(i == 0){
+        if (i == 0) {
             placeImage.setIsTitle("1");
-            resize = fileHandler.ResizeImage(placeImage,360,360);
-        }else{
-            resize = fileHandler.ResizeImage(placeImage,120,120);
+            resize = fileHandler.ResizeImage(placeImage, 360, 360);
+        } else {
+            resize = fileHandler.ResizeImage(placeImage, 120, 120);
         }
 
         placeImage.setPlace(place);

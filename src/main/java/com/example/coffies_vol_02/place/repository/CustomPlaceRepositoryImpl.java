@@ -114,8 +114,8 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                     .placeAddr2(place.getPlaceAddr2())
                     .fileGroupId(place.getFileGroupId())
                     .reviewRate(place.getReviewRate())
-                    .isTitle(place.getPlaceImageList().get(0).getIsTitle())
-                    .thumbFileImagePath(place.getPlaceImageList().get(0).getThumbFileImagePath())
+                    .isTitle(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath())
                     .build();
 
             result.add(dto);
