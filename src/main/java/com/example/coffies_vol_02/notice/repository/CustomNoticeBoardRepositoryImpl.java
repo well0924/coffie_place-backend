@@ -36,14 +36,16 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         List<NoticeBoard>result = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
+                        QNoticeBoard.noticeBoard.id.desc())
                 .distinct()
                 .fetch();
 
         int count = jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
+                        QNoticeBoard.noticeBoard.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch()
@@ -68,22 +70,9 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
 
         List<NoticeResponse>searchResult = new ArrayList<>();
 
-        List<NoticeBoard> result = jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard)
-                .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal)).or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        List<NoticeBoard> result = noticeBoardList(searchVal,pageable);
 
-        int searchCount = jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard.count())
-                .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal)).or(noticeContentsEq(searchVal)))
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),QNoticeBoard.noticeBoard.id.desc())
-                .fetch()
-                .size();
+        int searchCount = searchResultCount(searchVal);
 
         for(NoticeBoard noticeBoard:result){
             NoticeResponse responseDto = new NoticeResponse(noticeBoard);
@@ -91,6 +80,45 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         }
 
         return new PageImpl<>(searchResult,pageable,searchCount);
+    }
+
+    /**
+     *  공지게시글 검색 목록
+     * @param searchVal 검색어
+     * @param pageable 페이징 객체
+     * @return List<NoticeBoard>
+     **/
+    List<NoticeBoard>noticeBoardList(String searchVal,Pageable pageable){
+        return jpaQueryFactory
+                .select(QNoticeBoard.noticeBoard)
+                .from(QNoticeBoard.noticeBoard)
+                .where(noticeTitleEq(searchVal)
+                        .or(noticeAuthorEq(searchVal))
+                        .or(noticeContentsEq(searchVal)))
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
+                        QNoticeBoard.noticeBoard.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    /**
+     * 공지게시글 검색 목록 수
+     * @param searchVal 검색어
+     * @return int 검색 게시글 갯수
+     **/
+    int searchResultCount(String searchVal){
+        return jpaQueryFactory
+                .select(QNoticeBoard.noticeBoard.count())
+                .from(QNoticeBoard.noticeBoard)
+                .where(noticeTitleEq(searchVal)
+                        .or(noticeAuthorEq(searchVal))
+                        .or(noticeContentsEq(searchVal)))
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
+                        QNoticeBoard.noticeBoard.id.desc())
+                .fetch()
+                .size();
+
     }
 
     BooleanBuilder noticeContentsEq(String searchVal){

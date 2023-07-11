@@ -73,25 +73,9 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         List<BoardResponse> boardSearchResult = new ArrayList<>();
 
         //검색시 목록
-        List<Board> result = jpaQueryFactory
-                .select(QBoard.board)
-                .from(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
-                .where(boardContentsEq(searchVal).or(boardAuthorEq(searchVal)).or(boardTitleEq(searchVal)))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .distinct()
-                .fetch();
-
+        List<Board> result = boardSearchList(searchVal,pageable);
         //검색시 게시물 갯수
-        int resultCount = jpaQueryFactory
-                .select(QBoard.board.count())
-                .from(QBoard.board)
-                .where(boardAuthorEq(searchVal).or(boardContentsEq(searchVal)).or(boardTitleEq(searchVal)))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .size();
+        int resultCount = searchResultCount(searchVal,pageable);
 
         for (Board board : result) {
             BoardResponse responseDto = new BoardResponse(board);
@@ -99,6 +83,47 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         }
 
         return new PageImpl<>(boardSearchResult, pageable, resultCount);
+    }
+
+    /**
+     * 게시글 검색 목록
+     * @param searchVal 검색어
+     * @param pageable 페이징 객체
+     * @return List<Board>
+     **/
+    List<Board> boardSearchList(String searchVal,Pageable pageable){
+        return jpaQueryFactory
+                .select(QBoard.board)
+                .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .where(boardContentsEq(searchVal)
+                        .or(boardAuthorEq(searchVal))
+                        .or(boardTitleEq(searchVal)))
+                .orderBy(getAllOrderSpecifiers(pageable.getSort())
+                        .toArray(OrderSpecifier[]::new))
+                .distinct()
+                .fetch();
+    }
+
+    /**
+     * 게시글 검색 총 갯수
+     * @param searchVal 검색어
+     * @param pageable 페이징 객체
+     * @return BoardCount(int) 게시글 갯수
+     **/
+    int searchResultCount(String searchVal,Pageable pageable){
+        return jpaQueryFactory
+                .select(QBoard.board.count())
+                .from(QBoard.board)
+                .where(boardAuthorEq(searchVal)
+                        .or(boardContentsEq(searchVal))
+                        .or(boardTitleEq(searchVal)))
+                .orderBy(getAllOrderSpecifiers(pageable.getSort())
+                        .toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch()
+                .size();
     }
 
     /**
@@ -157,12 +182,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
             String prop = order.getProperty();
 
-            System.out.println(order);
-            System.out.println("direction:"+direction);
-            System.out.println("prop:"+prop);
-
             PathBuilder<Board> orderByExpression =  new PathBuilder<>(Board.class,"board");
-            System.out.println("orderByExpression:"+orderByExpression.get(prop));
 
             orders.add(new OrderSpecifier(direction,orderByExpression.get(prop)));
         });
