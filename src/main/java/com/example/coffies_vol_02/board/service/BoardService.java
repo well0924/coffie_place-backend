@@ -60,11 +60,6 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Page<BoardResponse> boardSearchAll(String searchVal, Pageable pageable){
         Page<BoardResponse> result = boardRepository.findAllSearch(searchVal,pageable);
-
-        if(result.isEmpty()){
-            throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
-        }
-
         return result;
     }
 

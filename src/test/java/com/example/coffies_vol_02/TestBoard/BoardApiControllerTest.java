@@ -8,7 +8,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
-import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -47,7 +46,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -144,7 +142,7 @@ public class BoardApiControllerTest {
         given(boardService.boardSearchAll(keyword,pageable)).willReturn(searchList);
 
         mvc.perform(get("/api/board/search")
-                .param("keyword",keyword)
+                .param("searchVal",keyword)
                 .with(user(customUserDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8))
@@ -153,7 +151,7 @@ public class BoardApiControllerTest {
 
         verify(boardService).boardSearchAll(any(),any());
     }
-    
+
     @Test
     @DisplayName("게시글 단일 조회")
     public void boardDetailTest()throws Exception{

@@ -96,9 +96,10 @@ public class BoardRepositoryTest {
     public void BoardNextTestFail(){
         Optional<BoardNextInterface> result = boardRepository.findNextBoard(2000);
 
-        System.out.println(result);
-        System.out.println(result.get().getId());
-        System.out.println(result.get().getBoardTitle());
+        if(result.isEmpty()){
+            System.out.println("다음글이 없습니다.");
+        }
+
         assertThat(result).isEmpty();
     }
 

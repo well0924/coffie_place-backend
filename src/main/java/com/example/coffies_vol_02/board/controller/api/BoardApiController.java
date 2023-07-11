@@ -4,6 +4,8 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,16 +48,21 @@ public class BoardApiController {
 
     @Operation(summary = "게시글 검색",description = "자유게시판에서 게시물을 검색하는 컨트롤러")
     @GetMapping(path = "/search")
-    public CommonResponse<Page<BoardResponse>>boardSearch(
+    public CommonResponse<?>boardSearch(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
             @RequestParam(value = "searchVal",required = false) String searchVal){
         Page<BoardResponse> list = null;
+
+        if(searchVal==null||searchVal==""){
+            return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+        }
 
         try {
             list = boardService.boardSearchAll(searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -69,6 +76,7 @@ public class BoardApiController {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
