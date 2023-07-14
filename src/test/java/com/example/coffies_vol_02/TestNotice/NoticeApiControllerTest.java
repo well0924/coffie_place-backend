@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.TestNotice;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
-import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -120,6 +121,30 @@ public class NoticeApiControllerTest {
                 .andDo(print());
 
         verify(noticeService,atLeastOnce()).noticeAllList(pageRequest);
+    }
+
+    @Test
+    @DisplayName("공지게시판 검색-성공")
+    public void NoticeBoardSearchTest()throws Exception{
+        PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
+        List<NoticeResponse>list = new ArrayList<>();
+        list.add(noticeResponse());
+        Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
+        String searchVal = "공지게시판";
+
+        given(noticeService.noticeSearchAll(searchVal,pageRequest)).willReturn(result);
+
+        when(noticeService.noticeSearchAll(searchVal,pageRequest)).thenReturn(result);
+
+        mvc.perform(get("/api/notice/search")
+                .param("searchVal",searchVal)
+                .with(user(customUserDetails))
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
+
+        verify(noticeService).noticeSearchAll(any(),any());
     }
 
     @Test

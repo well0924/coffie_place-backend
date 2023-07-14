@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
-@Api(tags = "comment api",value = "댓글 api 컨트롤러")
+@Api(tags = "Comment api",value = "댓글 api 컨트롤러")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/comment")

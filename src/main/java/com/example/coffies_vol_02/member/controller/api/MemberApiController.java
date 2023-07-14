@@ -5,6 +5,9 @@ import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,7 +32,7 @@ import java.util.List;
 public class MemberApiController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
+    @ApiOperation(value = "회원 목록 api", notes = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
     public CommonResponse<Page<MemberResponse>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
         Page<MemberResponse> list = null;
@@ -42,9 +45,13 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "회원 검색 api", description = "회원목록에서 검색을 한다.")
+    @ApiOperation(value = "회원 검색 api", notes = "회원목록에서 검색을 한다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "회원 검색어",value = "searchVal",dataType = "String",required = true)
+    })
     @GetMapping(path = "/list/search")
-    public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @RequestParam("searchVal") String searchVal){
+    public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                                            @RequestParam(value = "searchVal") String searchVal){
 
         Page<MemberResponse> list = null;
 
@@ -57,7 +64,8 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
+    @ApiOperation(value = "회원 단일 조회 api", notes = "회원을 단일 조회한다.")
+    @ApiImplicitParams({@ApiImplicitParam(name = "회원번호",value = "user_idx",dataType = "Integer",required = true)})
     @GetMapping(path = "/detail/{user-idx}")
     public CommonResponse<MemberResponse>findMember(@PathVariable("user-idx")Integer userIdx){
         MemberResponse detail = memberService.findByMember(userIdx);
@@ -71,7 +79,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @Operation(summary = "회원가입 api",description = "회원가입페이지에서 회원가입을 한다.")
+    @ApiOperation(value = "회원가입 api", notes = "회원가입페이지에서 회원가입을 한다.")
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>memberCreate(@Valid @RequestBody MemberRequest dto, BindingResult bindingResult){
@@ -91,10 +99,14 @@ public class MemberApiController {
         }
     }
 
-    @Operation(summary = "회원수정 api",description = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
+    @ApiOperation(value = "회원수정 api", notes = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "회원번호",value = "user-idx",dataType = "Integer",required = true)
+    })
     @PatchMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>memberUpdate(@PathVariable("user-idx") Integer userIdx,@RequestBody MemberRequest dto){
+
         try{
             memberService.memberUpdate(userIdx,dto);
         }catch (Exception e){
@@ -110,7 +122,10 @@ public class MemberApiController {
         }
     }
 
-    @Operation(summary = "회원삭제 api",description = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
+    @ApiOperation(value = "회원삭제 api", notes = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "회원 번호",value = "user-idx",dataType = "Integer",required = true)
+    })
     @DeleteMapping(path = "/{user-idx}")
     public CommonResponse<?>memberDelete(@PathVariable("user-idx") Integer userIdx){
         try{
@@ -127,7 +142,11 @@ public class MemberApiController {
         }
     }
 
-    @Operation(summary = "회원 아이디 찾기 api",description = "회원아이디 찾기 화면에서 아이디 찾기")
+    @ApiOperation(value = "회원 아이디 찾기 api", notes = "회원아이디 찾기 화면에서 아이디 찾기")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "회원 이름",value = "user-name",dataType = "String",required = true),
+            @ApiImplicitParam(name = "회원 이메일",value = "user-email",dataType = "String",required = true)
+    })
     @GetMapping(path = "/find-id/{user-name}/{user-email}")
     public CommonResponse<String>findUserId(@PathVariable(value = "user-name")String userName, @PathVariable("user-email")String userEmail){
         String findUser = "";
@@ -140,7 +159,8 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),findUser);
     }
 
-    @Operation(summary = "회원 아이디 중복 api",description = "회원가입 페이지에서 아이디 중복기능")
+    @ApiOperation(value = "회원 아이디 중복 api", notes = "회원가입 페이지에서 아이디 중복기능")
+    @ApiImplicitParam(name = "회원 아이디",value = "user-id",dataType = "String",required = true)
     @GetMapping(path = "/id-check/{user-id}")
     public CommonResponse<Boolean>memberIdCheck(@PathVariable("user-id")String userId){
         boolean result = false;
@@ -153,7 +173,10 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
-    @Operation(summary = "회원 이메일 중복 api",description = "회원가입 화면에서 회원 이메일 중복여부 확인")
+    @ApiOperation(value = "회원 이메일 중복 api", notes = "회원가입 화면에서 회원 이메일 중복여부 확인")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "회원 이메일",value = "user-email",dataType = "String",required = true)
+    })
     @GetMapping(path = "/email-check/{user-email}")
     public CommonResponse<Boolean>memberEmailCheck(@PathVariable("user-email")String userEmail){
         boolean result = false;
@@ -165,7 +188,8 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
-    @Operation(summary = "회원비밀번호 변경 api",description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
+    @ApiOperation(value = "회원비밀번호 변경 api", notes = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
+    @ApiImplicitParam(value = "user-id",name = "회원 번호",dataType = "Integer",required = true)
     @PatchMapping(path = "/password/{user-id}")
     public CommonResponse<Integer>passwordUpdate(@PathVariable("user-id")Integer id,@RequestBody MemberRequest dto){
         int updateResult = 0;
@@ -178,7 +202,8 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
     }
 
-    @Operation(summary = "회원선택삭제 api",description = "어드민페이지에서 회원 선택삭제하는 기능")
+    @ApiOperation(value = "회원선택삭제 api", notes = "어드민페이지에서 회원 선택삭제하는 기능")
+    @ApiImplicitParam(name = "회원 아이디",dataType = "List<String>")
     @PostMapping(path = "/select-delete")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>selectMemberDelete(@RequestBody List<String> userId){
@@ -190,7 +215,7 @@ public class MemberApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
-    @Operation(summary = "회원 검색 자동완성",description = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
+    @ApiOperation(value = "회원 검색 자동완성", notes = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
     @GetMapping(path = "/autocomplete/{id}")
     public  CommonResponse<List<String>>memberAutoComplete(@PathVariable(value = "id") String userId){
         List<String>list = new ArrayList<>();

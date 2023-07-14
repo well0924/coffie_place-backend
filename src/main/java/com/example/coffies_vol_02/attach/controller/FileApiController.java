@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Api(tags = "file api controller",value = "파일 api 컨트롤러")
+@Api(tags = "File api controller",value = "파일 api 컨트롤러")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/file")
