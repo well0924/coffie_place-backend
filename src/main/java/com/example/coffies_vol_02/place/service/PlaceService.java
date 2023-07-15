@@ -55,15 +55,13 @@ public class PlaceService {
      * @param keyword    가게검색어
      * @param pageable   페이징 객체
      * @param member     로그인 인증에 필요한 객체
-     * @param searchType 검색
      * @return Slice<PlaceResponseDto>
-     * @author 양경빈
      * @see RedisService#setValues(String, String) 가게 검색어 저장
      * @see PlaceRepository#placeList(Pageable, String) 가게 목록
      **/
     @Transactional
-    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable, String keyword, String searchType, Member member) {
-        if (member != null && searchType != null) {
+    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String searchType,String keyword, Member member) {
+        if (member != null) {
             //가게이름 검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
             System.out.println(redisService.getSearchList(member.getId().toString()));
@@ -71,6 +69,11 @@ public class PlaceService {
         return placeRepository.placeList(pageable, keyword);
     }
 
+    /**
+     * 가게 검색어 저장목록
+     * @param member 회원 객체
+     * @return getSearchList
+     **/
     public List<String> placeSearchList(Member member) {
         if (member != null) {
             return redisService.getSearchList(member.getId().toString());
@@ -78,19 +81,26 @@ public class PlaceService {
         return null;
     }
 
-
+    /**
+     * 가게 검색 
+     * @param keyword 검색 키워드
+     * @param pageable 페이징 객체
+     * @param member 로그인을 위한 객체
+     **/
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeListAll(String keyword, Pageable pageable, Member member) {
         if (member != null) {
+            //검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
             System.out.println(redisService.getSearchList(member.getId().toString()));
+        }else if(keyword == null){//키워드가 없는 경우
+            throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
         return placeRepository.placeListSearch(keyword, pageable);
     }
 
     /**
      * 가게 top5 (평점이 높은 순)
-     *
      * @param pageable 페이징 객체
      * @return Page<PlaceResponseDto>
      * @author 양경빈
@@ -101,6 +111,12 @@ public class PlaceService {
         return placeRepository.placeTop5(pageable);
     }
 
+    /**
+     * 가까운 가게 5곳
+     * @param lat 경도 
+     * @param lon 위도
+     * @return result 가게 정보 dto 값
+     **/
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
         List<PlaceResponseDto> result = new ArrayList<>();
@@ -134,7 +150,6 @@ public class PlaceService {
      * @param placeId 가게 번호 가게번호가 없는 경우에는 PLACE_NOT_FOUND 발생
      * @return PlaceResponseDto
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
-     * @author 양경빈
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
     @Transactional
@@ -166,10 +181,9 @@ public class PlaceService {
     /**
      * 가게 등록
      *
-     * @param 가게등록에           필요한 dto
+     * @param dto 가게등록에 필요한 dto
      * @param imageRequestDto 이미지 등록에 필요한 dto
      * @return placeId 가게 번호
-     * @author 양경빈
      **/
     @Transactional
     public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
@@ -216,8 +230,7 @@ public class PlaceService {
      * @param dto      가게 수정에 필요한 dto
      * @param imageDto 가게 이미지에 필요한 dto
      * @return PlaceId 가게번호
-     * @throws CustomExceptionHandler
-     * @author 양경빈
+     * @throws CustomExceptionHandler PLACE_NOT_FOUND 가게가 없습니다.
      **/
     @Transactional
     public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {

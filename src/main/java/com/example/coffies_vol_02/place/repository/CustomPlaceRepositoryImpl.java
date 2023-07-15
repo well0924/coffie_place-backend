@@ -27,7 +27,6 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     /**
      * 가게 검색
-     * @author 양경빈
      * @param pageable 페이징 객체
      * @param keyword 가게 검색에 필요한 키워드
      * @return Page<PlaceResponseDto> 페이징 객체
@@ -40,7 +39,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                 .select(QPlace.place)
                 .from(QPlace.place)
                 .where(placeName(keyword).or(placeAdder(keyword)))
-                .orderBy(QPlace.place.id.desc())
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -77,15 +76,15 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                 .fetch()
                 .size();
 
+
         return new PageImpl<>(placeList,pageable,count);
     }
 
     /**
      * 가게 평점 top5
-     * @author 양경빈
      * @param pageable 페이징 객체
      * @return Page<PlaceResponseDto>
-     * */
+     **/
     @Override
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         List<PlaceResponseDto>result = new ArrayList<>();
@@ -135,10 +134,9 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     /**
      * 가게목록 무한스크롤
-     * @author 양경빈
      * @param pageable 페이징 객체
      * @return Slice<PlaceResponseDto>
-     * */
+     **/
     @Override
     public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
         List<Place>placelist = jpaQueryFactory
@@ -211,12 +209,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
             String prop = order.getProperty();
 
-            System.out.println(order);
-            System.out.println("direction:"+direction);
-            System.out.println("prop:"+prop);
-
             PathBuilder<Place> orderByExpression =  new PathBuilder<>(QPlace.place.getType(), QPlace.place.getMetadata());
-            System.out.println("orderByExpression:"+orderByExpression.get(prop));
 
             orders.add(new OrderSpecifier(direction,orderByExpression.get(prop)));
         });
