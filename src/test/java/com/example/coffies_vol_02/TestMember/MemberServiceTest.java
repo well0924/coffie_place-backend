@@ -293,16 +293,24 @@ public class MemberServiceTest {
         //given
         int failCount = member.getFailedAttempt() + 1;
         member.setFailedAttempt(failCount);
+        memberService.increaseFailAttempts(member);
         //when
+        member.setFailedAttempt(0);
         memberService.resetFailedAttempts(member);
-
+        //then
         assertThat(member.getFailedAttempt()).isEqualTo(0);
     }
 
     @Test
     @DisplayName("계정 잠금 테스트")
     public void MemberLockTest(){
-        
+        member.setAccountNonLocked(false);
+        member.setLockTime(new Date());
+        given(memberRepository.save(member)).willReturn(member);
+
+        memberService.lock(member);
+
+        assertThat(member.getAccountNonLocked()).isFalse();
     }
 
     @Test

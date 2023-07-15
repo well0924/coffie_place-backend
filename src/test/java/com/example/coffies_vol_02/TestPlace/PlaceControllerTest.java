@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestPlace;
 
-import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
@@ -51,8 +51,15 @@ public class PlaceControllerTest {
     }
 
     @Test
-    @DisplayName("가게조회")
+    @DisplayName("가게 조회")
     public void placeDetailTest(){
 
     }
+
+    @Test
+    @DisplayName("가게수정 및 삭제 화면")
+    public void placeUpdateDeleteTest(){
+
+    }
+    
 }

@@ -9,7 +9,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
-import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.Role;
@@ -110,16 +110,20 @@ public class BoardControllerTest {
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardService.findBoard(board.getId())).willReturn(boardResponseDto());
-       //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
+        //이전글/다음글
+        given(boardService.findPreviousBoard(board.getId())).willReturn(Optional.empty());
+        given(boardService.findNextBoard(board.getId())).willReturn(Optional.empty());
 
         mvc.perform(
-                get("/page/board/detail/{board_id}",board.getId())
+                get("/page/board/detail/{board-id}",board.getId())
                 .with(user(customUserDetails))
                 .contentType(MediaType.TEXT_HTML)
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(model().attributeExists("file"))
+                .andExpect(model().attributeExists("next"))
+                .andExpect(model().attributeExists("previous"))
                 .andExpect(view().name("board/detailBoard"))
                 .andDo(print());
     }
@@ -157,7 +161,6 @@ public class BoardControllerTest {
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardService.findBoard(board.getId())).willReturn(boardResponseDto());
-        //given(boardService.updateView(board.getId())).willReturn(board.getReadCount());
 
         mvc.perform(
                         get("/page/board/modify/{board_id}",board.getId())

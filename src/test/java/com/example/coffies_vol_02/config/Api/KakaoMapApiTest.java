@@ -69,4 +69,11 @@ public class KakaoMapApiTest {
         assertThat(result.getDocumentList()).isNotEmpty();
         assertThat(result.getMetaDto()).isNotNull();
     }
+
+    @Test
+    @DisplayName("spring retry test")
+    public void KakaoMapRetryTest(){
+        
+    }
+
 }

@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
-import com.example.coffies_vol_02.config.secirity.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
