@@ -4,7 +4,9 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +32,9 @@ public class FileApiController {
     private final PlaceService placeService;
     private final AttachService attachService;
 
-    @Operation(summary = "자유게시판 첨부파일 다운로드",description = "자유게시판에서 첨부파일을 다운로드한다.")
+    @ApiOperation(value = "자유게시판 첨부파일 다운로드", notes = "자유게시판에서 첨부파일을 다운로드한다.")
     @GetMapping("/{file-name}")
-    public ResponseEntity<Resource>BoardFileDownload(@PathVariable("file-name")String fileName) throws IOException {
+    public ResponseEntity<Resource>BoardFileDownload(@Parameter(description = "첨부파일명",required = true) @PathVariable("file-name")String fileName) throws IOException {
         AttachDto getFile = attachService.getFreeBoardFile(fileName);
         Path path = Paths.get(getFile.getFilePath());
         Resource resource = new InputStreamResource(Files.newInputStream(path));
@@ -44,9 +46,9 @@ public class FileApiController {
                 .body(resource);
     }
 
-    @Operation(summary = "공지게시판 첨부파일 다운로드",description = "공지게시판에서 첨부파일을 다운로드한다.")
+    @ApiOperation(value = "공지게시판 첨부파일 다운로드", notes = "공지게시판에서 첨부파일을 다운로드한다.")
     @GetMapping("/notice/{file-name}")
-    public ResponseEntity<Resource>NoticeFileDownload(@PathVariable("file-name")String fileName) throws IOException {
+    public ResponseEntity<Resource>NoticeFileDownload(@Parameter(description = "첨부파일명",required = true) @PathVariable("file-name")String fileName) throws IOException {
         AttachDto getFile = attachService.getNoticeBoardFile(fileName);
         Path path = Paths.get(getFile.getFilePath());
         Resource resource = new InputStreamResource(Files.newInputStream(path));
@@ -57,7 +59,7 @@ public class FileApiController {
                         "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
-    @Operation(summary = "가게 목록 엑셀 다운로드",description = "가게 목록을 엑셀파일로 다운로드한다.")
+    @ApiOperation(value = "가게 목록 엑셀 다운로드", notes = "가게 목록을 엑셀파일로 다운로드한다.")
     @GetMapping("/place-download")
     public ResponseEntity getPlaceListDownload(HttpServletResponse response, boolean excelDownload){
         return ResponseEntity.ok(placeService.getPlaceList(response,excelDownload));

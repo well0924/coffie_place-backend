@@ -10,22 +10,22 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 
-@ApiModel(value = "게시글 요청 record",description = "게시글 requestDto")
+@ApiModel(value = "게시글요청 record", description = "게시글 requestDto")
 public record BoardRequest(
-    @ApiModelProperty(name = "게시글 제목",dataType = "String")
+    @Schema(name = "boardTitle",type = "String")
     @NotBlank(message = "제목을 작성해 주세요.")
     String boardTitle,
-    @ApiModelProperty(name = "게시글 내용",dataType = "String")
+    @Schema(name = "boardContents",type = "String")
     @NotBlank(message = "내용을 입력해 주세요.")
     String boardContents,
-    @ApiModelProperty(name = "게시글 작성자",dataType = "String")
+    @Schema(name = "boardAuthor",type = "String")
     String boardAuthor,
-    @ApiModelProperty(name = "게시글 조회수",dataType = "Integer")
+    @Schema(name = "readCount",type = "Integer")
     Integer readCount,
-    @ApiModelProperty(name = "게시글 비밀번호",dataType = "String")
+    @Schema(name = "passWd",type = "String")
     String passWd,
-    @ApiModelProperty(name = "게시글 fileGroupId",dataType = "String")
+    @Schema(name = "fileGroupId",type = "String")
     String fileGroupId,
-    @ApiModelProperty(name = "게시글 첨부파일",dataType ="List")
+    @Schema(name = "files",type ="List")
     List<MultipartFile> files)implements Serializable {
 }

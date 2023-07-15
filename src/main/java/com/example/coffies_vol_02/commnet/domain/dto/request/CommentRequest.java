@@ -1,19 +1,17 @@
 package com.example.coffies_vol_02.commnet.domain.dto.request;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
-
-@ApiModel(description = "댓글 requestDto")
+@ApiModel(value = "댓글 requestDto",description = "댓글 요청 dto")
 public record CommentRequest(
-        @ApiModelProperty(name = "댓글 작성자",dataType = "String")
+        @Schema(name = "replyWriter",description = "댓글 작성자",type = "String")
         String replyWriter,
-        @ApiModelProperty(name = "댓글 내용",dataType = "String",required = true)
+        @Schema(name = "replyContents",description = "댓글 내용",type = "String",required = true)
         @NotBlank
         String replyContents,
-        @ApiModelProperty(name = "댓글 평점",dataType = "Integer")
+        @Schema(name = "replyPoint",description = "댓글 평점",type = "Integer")
         Integer replyPoint) {
 
 }

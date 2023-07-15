@@ -50,7 +50,7 @@ public class SecurityConfig {
         return (web) -> web
                 .httpFirewall(defaultFireWell())
                 .ignoring()
-                .antMatchers("/images/**", "/js/**","/font/**", "/webfonts/**",
+                .antMatchers("/images/**", "/js/**","/font/**", "/webfonts/**","/istatic/**",
                         "/main/**", "/webjars/**", "/dist/**", "/plugins/**", "/css/**","/favicon.ico","/h2-console/**");
     }
 
@@ -63,6 +63,7 @@ public class SecurityConfig {
     }
 
     private static final String[] PERMIT_URL_ARRAY = {
+            "/**",
             /* swagger v2 */
             "/v2/api-docs",
             "/swagger-resources",
@@ -79,8 +80,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        log.info("security config...");
-
         http
             //csrf 토큰 비활성화
             .csrf().disable()
@@ -91,13 +90,13 @@ public class SecurityConfig {
             .anyRequest().authenticated();
 
         http
-            .formLogin()
-            .loginPage("/page/login/loginPage")
-            .usernameParameter("userId")
-            .passwordParameter("password")
-            .loginProcessingUrl("/login/action").permitAll()
-            .successHandler(loginSuccessHandler)
-            .failureHandler(loginFailHandler);
+            .formLogin(request-> request
+                    .loginPage("/page/login/loginPage")
+                    .usernameParameter("userId")
+                    .passwordParameter("password")
+                    .loginProcessingUrl("/login/action").permitAll()
+                    .successHandler(loginSuccessHandler)
+                    .failureHandler(loginFailHandler));
 
         http
             .logout()

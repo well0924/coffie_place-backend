@@ -63,6 +63,11 @@ dependencies {
     implementation "com.querydsl:querydsl-collections"
     // spring retry
     implementation 'org.springframework.retry:spring-retry:2.0.1'
+    //selenium
+    implementation 'org.seleniumhq.selenium:selenium-java:4.0.0'
+    // https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager
+    implementation 'io.github.bonigarcia:webdrivermanager:5.3.2'
+
 
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jpa" // querydsl JPAAnnotationProcessor 사용 지정
     annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 대응 코드

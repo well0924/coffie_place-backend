@@ -67,8 +67,8 @@ public class BoardViewController {
 
         BoardResponse detail = null;
         List<AttachDto> attachList = new ArrayList<>();
-        Optional<BoardNextPreviousInterface> previousBoard = null;
-        Optional<BoardNextInterface> nextBoard = null;
+        Optional<BoardNextPreviousInterface> previousBoard = Optional.empty();
+        Optional<BoardNextInterface> nextBoard = Optional.empty();
 
         try{
             detail = boardService.findBoard(boardId);
@@ -78,27 +78,21 @@ public class BoardViewController {
             //조회수 증가.
             boardRepository.ReadCountUpToDB(boardId,detail.readCount());
 
+            mv.addObject("detail",detail);
+            mv.addObject("file",attachList);
+
+            if(nextBoard.isPresent()){
+                mv.addObject("next",nextBoard);
+            } else if(nextBoard.isEmpty()){
+                mv.addObject("next",nextBoard);
+            }
+            if(previousBoard.isPresent()){
+                mv.addObject("previous",previousBoard);
+            }else if(previousBoard.isEmpty()){
+                mv.addObject("previous",previousBoard);
+            }
         }catch (Exception e){
             e.printStackTrace();
-        }
-        mv.addObject("detail",detail);
-        mv.addObject("file",attachList);
-
-        log.info("이전글:"+previousBoard.get().getBoardTitle());
-        log.info("이전글:"+previousBoard.get().getId());
-        log.info("다음글:"+nextBoard.get().getBoardTitle());
-        log.info("다음글:"+nextBoard.get().getId());
-        log.info("파일목록:"+attachList);
-
-        if(nextBoard.isPresent()){
-            mv.addObject("next",nextBoard);
-        } else if(nextBoard.isEmpty()){
-            mv.addObject("next",nextBoard);
-        }
-        if(previousBoard.isPresent()){
-            mv.addObject("previous",previousBoard);
-        }else if(previousBoard.isEmpty()){
-            mv.addObject("previous",previousBoard);
         }
 
         mv.setViewName("board/detailBoard");

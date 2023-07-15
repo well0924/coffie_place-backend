@@ -2,16 +2,17 @@ package com.example.coffies_vol_02.notice.domain.dto.response;
 
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Schema(description = "공지게시판 응답Dto")
+@ApiModel(value = "공지게시판 응답 record",description = "공지게시판 응답Dto")
 public record NoticeResponse(
         @Schema(description = "공지게시판 번호")
         Integer id,
-        @Schema(description = "공지게시 종류")
+        @Schema(description = "공지게시글 종류")
         String noticeGroup,
         @Schema(description = "공지게시글 제목")
         String noticeTitle,
@@ -37,7 +38,7 @@ public record NoticeResponse(
                 noticeBoard.getNoticeTitle(),
                 noticeBoard.getNoticeWriter(),
                 noticeBoard.getNoticeContents(),
-                noticeBoard.getNoticeGroup(),
+                noticeBoard.getFileGroupId(),
                 noticeBoard.getIsFixed(),
                 noticeBoard.getCreatedTime(),
                 noticeBoard.getUpdatedTime()

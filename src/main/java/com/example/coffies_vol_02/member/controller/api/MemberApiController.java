@@ -9,6 +9,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -46,12 +48,9 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 검색 api", notes = "회원목록에서 검색을 한다.")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "회원 검색어",value = "searchVal",dataType = "String",required = true)
-    })
     @GetMapping(path = "/list/search")
     public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                                            @RequestParam(value = "searchVal") String searchVal){
+                                                            @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",required = false,in = ParameterIn.QUERY) @RequestParam(value = "searchVal") String searchVal){
 
         Page<MemberResponse> list = null;
 
@@ -65,9 +64,8 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 단일 조회 api", notes = "회원을 단일 조회한다.")
-    @ApiImplicitParams({@ApiImplicitParam(name = "회원번호",value = "user_idx",dataType = "Integer",required = true)})
     @GetMapping(path = "/detail/{user-idx}")
-    public CommonResponse<MemberResponse>findMember(@PathVariable("user-idx")Integer userIdx){
+    public CommonResponse<MemberResponse>findMember(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx")Integer userIdx){
         MemberResponse detail = memberService.findByMember(userIdx);
 
         try{
@@ -100,12 +98,9 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원수정 api", notes = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "회원번호",value = "user-idx",dataType = "Integer",required = true)
-    })
     @PatchMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>memberUpdate(@PathVariable("user-idx") Integer userIdx,@RequestBody MemberRequest dto){
+    public CommonResponse<?>memberUpdate(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx") Integer userIdx,@RequestBody MemberRequest dto){
 
         try{
             memberService.memberUpdate(userIdx,dto);
@@ -123,11 +118,8 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원삭제 api", notes = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "회원 번호",value = "user-idx",dataType = "Integer",required = true)
-    })
     @DeleteMapping(path = "/{user-idx}")
-    public CommonResponse<?>memberDelete(@PathVariable("user-idx") Integer userIdx){
+    public CommonResponse<?>memberDelete(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx") Integer userIdx){
         try{
             memberService.memberDelete(userIdx);
         }catch (Exception e){
@@ -143,12 +135,9 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 아이디 찾기 api", notes = "회원아이디 찾기 화면에서 아이디 찾기")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "회원 이름",value = "user-name",dataType = "String",required = true),
-            @ApiImplicitParam(name = "회원 이메일",value = "user-email",dataType = "String",required = true)
-    })
     @GetMapping(path = "/find-id/{user-name}/{user-email}")
-    public CommonResponse<String>findUserId(@PathVariable(value = "user-name")String userName, @PathVariable("user-email")String userEmail){
+    public CommonResponse<String>findUserId(@Parameter(name = "user-name",description = "회원 이름",required = true,in = ParameterIn.PATH) @PathVariable(value = "user-name")String userName,
+                                            @Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH)@PathVariable("user-email")String userEmail){
         String findUser = "";
 
         try{
@@ -160,9 +149,8 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 아이디 중복 api", notes = "회원가입 페이지에서 아이디 중복기능")
-    @ApiImplicitParam(name = "회원 아이디",value = "user-id",dataType = "String",required = true)
     @GetMapping(path = "/id-check/{user-id}")
-    public CommonResponse<Boolean>memberIdCheck(@PathVariable("user-id")String userId){
+    public CommonResponse<Boolean>memberIdCheck(@Parameter(name = "user-id",description = "회원의 아이디",required = true,in = ParameterIn.PATH) @PathVariable("user-id")String userId){
         boolean result = false;
 
         try{
@@ -174,11 +162,8 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 이메일 중복 api", notes = "회원가입 화면에서 회원 이메일 중복여부 확인")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "회원 이메일",value = "user-email",dataType = "String",required = true)
-    })
     @GetMapping(path = "/email-check/{user-email}")
-    public CommonResponse<Boolean>memberEmailCheck(@PathVariable("user-email")String userEmail){
+    public CommonResponse<Boolean>memberEmailCheck(@Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH) @PathVariable("user-email")String userEmail){
         boolean result = false;
         try{
             result = memberService.memberEmailCheck(userEmail);
@@ -189,9 +174,8 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원비밀번호 변경 api", notes = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
-    @ApiImplicitParam(value = "user-id",name = "회원 번호",dataType = "Integer",required = true)
     @PatchMapping(path = "/password/{user-id}")
-    public CommonResponse<Integer>passwordUpdate(@PathVariable("user-id")Integer id,@RequestBody MemberRequest dto){
+    public CommonResponse<Integer>passwordUpdate(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-id")Integer id,@RequestBody MemberRequest dto){
         int updateResult = 0;
 
         try{
@@ -203,7 +187,6 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원선택삭제 api", notes = "어드민페이지에서 회원 선택삭제하는 기능")
-    @ApiImplicitParam(name = "회원 아이디",dataType = "List<String>")
     @PostMapping(path = "/select-delete")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>selectMemberDelete(@RequestBody List<String> userId){
@@ -217,7 +200,7 @@ public class MemberApiController {
 
     @ApiOperation(value = "회원 검색 자동완성", notes = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
     @GetMapping(path = "/autocomplete/{id}")
-    public  CommonResponse<List<String>>memberAutoComplete(@PathVariable(value = "id") String userId){
+    public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "id",description = "회원의 아이디",required = true,in = ParameterIn.PATH) @PathVariable(value = "id") String userId){
         List<String>list = new ArrayList<>();
 
         try{
