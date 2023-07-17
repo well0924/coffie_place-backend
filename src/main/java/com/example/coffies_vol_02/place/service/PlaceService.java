@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.place.service;
 
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
@@ -88,7 +89,7 @@ public class PlaceService {
      * @param member 로그인을 위한 객체
      **/
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto> placeListAll(String keyword, Pageable pageable, Member member) {
+    public Page<PlaceResponseDto> placeListAll(SearchType searchType, String keyword, Pageable pageable, Member member) {
         if (member != null) {
             //검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
@@ -96,7 +97,7 @@ public class PlaceService {
         }else if(keyword == null){//키워드가 없는 경우
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
-        return placeRepository.placeListSearch(keyword, pageable);
+        return placeRepository.placeListSearch(searchType ,keyword, pageable);
     }
 
     /**

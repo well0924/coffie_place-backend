@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.place.controller.api;
 
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
@@ -53,14 +54,16 @@ public class PlaceApiController {
 
     @ApiOperation(value = "가게 목록 검색", notes = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<?> placeListSearch(@Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",required = false,in = ParameterIn.QUERY)
+    public CommonResponse<?> placeListSearch(@Parameter(name = "searchType",description = "가게 검색타입",required = true)
+                                             @RequestParam(value = "searchType",required = true) SearchType searchType,
+                                             @Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",required = false,in = ParameterIn.QUERY)
                                              @RequestParam(value = "placeKeyword",required = false) String keyword,
                                              @ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Page<PlaceResponseDto> list = null;
 
         try {
-            list = placeService.placeListAll(keyword, pageable, customUserDetails.getMember());
+            list = placeService.placeListAll(searchType,keyword, pageable, customUserDetails.getMember());
         } catch (Exception e) {
             e.printStackTrace();
         }

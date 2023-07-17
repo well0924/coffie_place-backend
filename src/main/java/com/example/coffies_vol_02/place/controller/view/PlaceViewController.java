@@ -38,12 +38,14 @@ public class PlaceViewController {
         Slice<PlaceResponseDto> list = null;
         List<String> keywords = null;
         try {
-            //placeList = placeService.placeList(pageable);
             Member member = null;
+
             if (customUserDetails != null) {
                 member = customUserDetails.getMember();
             }
+            //가게 검색어 저장 목록
             keywords = placeService.placeSearchList(member);
+            //가게 목록
             list = placeService.placeSlideList(pageable, keyword, searchType, member);
 
         } catch (Exception e) {
