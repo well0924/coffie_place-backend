@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.notice.service;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
@@ -49,11 +50,11 @@ public class NoticeService {
      * @param pageable 페이징 객체
      * @param searchVal 검색어
      * @return Page<NoticeResponse>
-     * @see NoticeBoardRepository#findAllSearchList(String, Pageable) 공지게시판에서 검색을 하는 메서드
+     * @see NoticeBoardRepository#findAllSearchList(SearchType,String, Pageable) 공지게시판에서 검색을 하는 메서드
      **/
     @Transactional(readOnly = true)
-    public Page<NoticeResponse>noticeSearchAll(String searchVal,Pageable pageable){
-        return noticeBoardRepository.findAllSearchList(searchVal,pageable);
+    public Page<NoticeResponse>noticeSearchAll(SearchType searchType, String searchVal, Pageable pageable){
+        return noticeBoardRepository.findAllSearchList(searchType,searchVal,pageable);
     }
 
     /**

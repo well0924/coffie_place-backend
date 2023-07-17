@@ -9,6 +9,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -79,6 +80,8 @@ public class BoardApiControllerTest {
 
     private Board board;
 
+    SearchType searchType;
+
     BoardRequest boardRequestDto;
 
     BoardResponse boardResponseDto;
@@ -147,17 +150,18 @@ public class BoardApiControllerTest {
         List<BoardResponse>list = new ArrayList<>();
         list.add(boardResponseDto);
         Page<BoardResponse>searchList = new PageImpl<>(list,pageable,1);
-        given(boardService.boardSearchAll(keyword,pageable)).willReturn(searchList);
+        given(boardService.boardSearchAll(searchType,keyword,pageable)).willReturn(searchList);
 
         mvc.perform(get("/api/board/search")
                 .param("searchVal",keyword)
+                        .param("searchType","w")
                 .with(user(customUserDetails))
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).boardSearchAll(any(),any());
+        verify(boardService).boardSearchAll(any(),any(),any());
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -70,6 +71,7 @@ public class NoticeApiControllerTest {
     private NoticeResponse responseDto;
     private NoticeRequest requestDto;
     private MemberResponse memberResponseDto;
+    SearchType searchType;
     Attach attach;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
@@ -126,9 +128,9 @@ public class NoticeApiControllerTest {
         Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
         String searchVal = "공지게시판";
 
-        given(noticeService.noticeSearchAll(searchVal,pageRequest)).willReturn(result);
+        given(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).willReturn(result);
 
-        when(noticeService.noticeSearchAll(searchVal,pageRequest)).thenReturn(result);
+        when(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).thenReturn(result);
 
         mvc.perform(get("/api/notice/search")
                 .param("searchVal",searchVal)
@@ -138,7 +140,7 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService).noticeSearchAll(any(),any());
+        verify(noticeService).noticeSearchAll(any(),any(),any());
     }
 
     @Test

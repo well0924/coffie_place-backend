@@ -1,10 +1,7 @@
 package com.example.coffies_vol_02.config.constant;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
 public enum SearchType {
     t("제목"),
     c("내용"),
@@ -12,6 +9,10 @@ public enum SearchType {
     p("가게명"),
     a("주소명"),
     all("전부");
+    @Getter
+    private final String value;
 
-    private String value;
+    SearchType(String value){
+        this.value = value;
+    }
 }

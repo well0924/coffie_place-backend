@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.notice.controller.api;
 
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
@@ -46,18 +47,20 @@ public class NoticeApiController {
     @ApiOperation(value = "공지 게시판 검색")
     @GetMapping("/search")
     public CommonResponse<?>noticeSearchList(
+            @Parameter(name = "searchType",description = "검색에 필요한 타입",example = "t(제목)",required = true)
+            @RequestParam(value = "searchType",required = true) SearchType searchType,
             @Parameter(name = "searchVal",description = "검색어",required = false)
             @RequestParam(value = "searchVal",required = false) String searchVal,
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
         Page<NoticeResponse> list = null;
         //검색시 결과가 없는 경우
-        if(searchVal==null||searchVal==""){
+        if(searchVal==null||searchVal==""||searchType.getValue().isEmpty()||searchType.getValue()==""){
             return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
         try{
-            list = noticeService.noticeSearchAll(searchVal,pageable);
+            list = noticeService.noticeSearchAll(searchType,searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

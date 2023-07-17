@@ -8,6 +8,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -58,9 +59,8 @@ public class BoardService {
      * @return Page<BoardResponse> 게시물 목록
      **/
     @Transactional(readOnly = true)
-    public Page<BoardResponse> boardSearchAll(String searchVal, Pageable pageable){
-        Page<BoardResponse> result = boardRepository.findAllSearch(searchVal,pageable);
-        return result;
+    public Page<BoardResponse> boardSearchAll(SearchType searchType, String searchVal, Pageable pageable){
+        return boardRepository.findAllSearch(searchType,searchVal,pageable);
     }
 
     /**
@@ -134,7 +134,7 @@ public class BoardService {
                 .build();
 
         //게시글 저장
-        Integer InsertResult = boardRepository.save(board).getId();;
+        Integer InsertResult = boardRepository.save(board).getId();
 
         //파일  업로드
         List<Attach>filelist = fileHandler.parseFileInfo(files);

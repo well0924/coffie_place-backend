@@ -10,6 +10,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -67,7 +68,7 @@ public class BoardServiceTest {
     Member member;
     MemberResponse memberResponse;
     Board board;
-
+    SearchType searchType;
     BoardRequest boardRequestDto;
 
     BoardResponse boardResponseDto;
@@ -145,10 +146,10 @@ public class BoardServiceTest {
 
         //작성자
         String keyword = "well4149";
-        given(boardRepository.findAllSearch(keyword,pageRequest)).willReturn(result);
+        given(boardRepository.findAllSearch(searchType,keyword,pageRequest)).willReturn(result);
 
-        when(boardService.boardSearchAll(keyword,pageRequest)).thenReturn(result);
-        result = boardService.boardSearchAll(keyword,pageRequest);
+        when(boardService.boardSearchAll(searchType,keyword,pageRequest)).thenReturn(result);
+        result = boardService.boardSearchAll(searchType,keyword,pageRequest);
 
         assertThat(keyword).isEqualTo(result.stream().toList().get(0).boardAuthor());
     }

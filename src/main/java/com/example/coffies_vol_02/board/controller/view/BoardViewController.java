@@ -7,6 +7,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInt
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class BoardViewController {
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                  @RequestParam(value = "searchType",required = false) SearchType searchType,
                                   @RequestParam(value = "searchVal",required = false)String searchVal)throws Exception{
 
         ModelAndView mv = new ModelAndView();
@@ -44,9 +46,9 @@ public class BoardViewController {
 
         try {
             boardList = boardService.boardAllList(pageable);
-
-            if(searchVal != null){
-                boardList = boardService.boardSearchAll(searchVal,pageable);
+            //검색을 하는 경우
+            if(searchVal != null||searchType.getValue()!=null){
+                boardList = boardService.boardSearchAll(searchType,searchVal,pageable);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -54,6 +56,7 @@ public class BoardViewController {
 
         mv.addObject("boardList",boardList);
         mv.addObject("searchVal",searchVal);
+        mv.addObject("searchType",searchType);
 
         mv.setViewName("board/boardList");
 

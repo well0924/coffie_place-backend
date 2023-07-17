@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.notice.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import lombok.AllArgsConstructor;
@@ -29,20 +30,22 @@ public class NoticeController {
     private final AttachService attachService;
 
     @GetMapping("/list")
-    public ModelAndView noticeList(@RequestParam(value = "searchVal",required = false) String searchVal,
-                                   @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
+    public ModelAndView noticeList( @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                    @RequestParam(value = "searchVal",required = false) String searchVal,
+                                    @PageableDefault(size =5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
         ModelAndView mv = new ModelAndView();
 
         Page<NoticeResponse> list = null;
 
         try {
-            list = noticeService.noticeSearchAll(searchVal, pageable);
+            list = noticeService.noticeSearchAll(searchType,searchVal, pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
 
         mv.addObject("noticelist",list);
         mv.addObject("searchVal",searchVal);
+        mv.addObject("searchType",searchType);
 
         mv.setViewName("/notice/noticelist");
 

@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,14 +68,13 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      * @return Page<BoardResponse> 게시물 목록
      **/
     @Override
-    public Page<BoardResponse> findAllSearch(String searchVal, Pageable pageable) {
+    public Page<BoardResponse> findAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
 
         List<BoardResponse> boardSearchResult = new ArrayList<>();
-
         //검색시 목록
-        List<Board> result = boardSearchList(searchVal,pageable);
+        List<Board> result = boardSearchList(searchType,searchVal,pageable);
         //검색시 게시물 갯수
-        int resultCount = searchResultCount(searchVal,pageable);
+        int resultCount = searchResultCount(searchType,searchVal,pageable);
 
         for (Board board : result) {
             BoardResponse responseDto = new BoardResponse(board);
@@ -91,14 +90,18 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      * @param pageable 페이징 객체
      * @return List<Board>
      **/
-    List<Board> boardSearchList(String searchVal,Pageable pageable){
+    List<Board> boardSearchList(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
                 .select(QBoard.board)
                 .from(QBoard.board)
                 .join(QBoard.board.member,QMember.member).fetchJoin()
-                .where(boardContentsEq(searchVal)
-                        .or(boardAuthorEq(searchVal))
-                        .or(boardTitleEq(searchVal)))
+                .where(switch (searchType){
+                    case t -> boardTitleEq(searchVal);
+                    case c -> boardContentsEq(searchVal);
+                    case w -> boardAuthorEq(searchVal);
+                    case a, p -> null;
+                    case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
+                })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
                         .toArray(OrderSpecifier[]::new))
                 .distinct()
@@ -111,13 +114,18 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      * @param pageable 페이징 객체
      * @return BoardCount(int) 게시글 갯수
      **/
-    int searchResultCount(String searchVal,Pageable pageable){
+    int searchResultCount(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
                 .select(QBoard.board.count())
                 .from(QBoard.board)
-                .where(boardAuthorEq(searchVal)
-                        .or(boardContentsEq(searchVal))
-                        .or(boardTitleEq(searchVal)))
+                .where(switch (searchType){
+                    //switch 문 (java 14)
+                    case t -> boardTitleEq(searchVal);
+                    case c -> boardContentsEq(searchVal);
+                    case w -> boardAuthorEq(searchVal);
+                    case a, p -> null;
+                    case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
+                })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
                         .toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
@@ -144,7 +152,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
         return result;
     }
-
 
     BooleanBuilder boardContentsEq(String searchVal){
         return nullSafeBuilder(()-> QBoard.board.boardContents.contains(searchVal));

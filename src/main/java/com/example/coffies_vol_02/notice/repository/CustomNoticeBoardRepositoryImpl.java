@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.notice.repository;
 
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
@@ -66,13 +67,13 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
      * @return Page<NoticeResponse>searchResult
      **/
     @Override
-    public Page<NoticeResponse> findAllSearchList(String searchVal, Pageable pageable) {
+    public Page<NoticeResponse> findAllSearchList(SearchType searchType, String searchVal, Pageable pageable) {
 
         List<NoticeResponse>searchResult = new ArrayList<>();
 
-        List<NoticeBoard> result = noticeBoardList(searchVal,pageable);
+        List<NoticeBoard> result = noticeBoardList(searchType,searchVal,pageable);
 
-        int searchCount = searchResultCount(searchVal);
+        int searchCount = searchResultCount(searchType,searchVal);
 
         for(NoticeBoard noticeBoard:result){
             NoticeResponse responseDto = new NoticeResponse(noticeBoard);
@@ -88,13 +89,17 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
      * @param pageable 페이징 객체
      * @return List<NoticeBoard>
      **/
-    List<NoticeBoard>noticeBoardList(String searchVal,Pageable pageable){
+    List<NoticeBoard>noticeBoardList(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard)
                 .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal)
-                        .or(noticeAuthorEq(searchVal))
-                        .or(noticeContentsEq(searchVal)))
+                .where(switch (searchType){
+                    case t -> noticeTitleEq(searchVal);
+                    case c -> noticeContentsEq(searchVal);
+                    case w -> noticeAuthorEq(searchVal);
+                    case a,p -> null;
+                    case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
+                })
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
                         QNoticeBoard.noticeBoard.id.desc())
                 .offset(pageable.getOffset())
@@ -107,13 +112,17 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
      * @param searchVal 검색어
      * @return int 검색 게시글 갯수
      **/
-    int searchResultCount(String searchVal){
+    int searchResultCount(SearchType searchType,String searchVal){
         return jpaQueryFactory
                 .select(QNoticeBoard.noticeBoard.count())
                 .from(QNoticeBoard.noticeBoard)
-                .where(noticeTitleEq(searchVal)
-                        .or(noticeAuthorEq(searchVal))
-                        .or(noticeContentsEq(searchVal)))
+                .where(switch (searchType){
+                    case t -> noticeTitleEq(searchVal);
+                    case c -> noticeContentsEq(searchVal);
+                    case w -> noticeAuthorEq(searchVal);
+                    case a,p -> null;
+                    case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
+                })
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
                         QNoticeBoard.noticeBoard.id.desc())
                 .fetch()

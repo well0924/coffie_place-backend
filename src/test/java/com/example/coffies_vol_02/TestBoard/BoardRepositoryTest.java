@@ -5,8 +5,11 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInt
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.constant.Role;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -45,8 +48,9 @@ public class BoardRepositoryTest {
         String searchKeyword = "well4149";
 
         Pageable pageable = PageRequest.of(0,5,Sort.by("id").descending());
-        
-        Page<BoardResponse>list = boardRepository.findAllSearch(searchKeyword,pageable);
+
+        Page<BoardResponse>list = boardRepository.findAllSearch(SearchType.w,searchKeyword,pageable);
+
         assertThat(list.toList()).isNotEmpty();
     }
     

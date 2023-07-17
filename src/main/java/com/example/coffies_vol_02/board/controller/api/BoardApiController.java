@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.board.controller.api;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
@@ -56,17 +57,20 @@ public class BoardApiController {
     @ApiOperation(value = "게시글 검색",notes = "자유게시판에서 게시물을 검색하는 컨트롤러")
     @GetMapping(path = "/search")
     public CommonResponse<?>boardSearch(
-                                        @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
-                                        @Parameter(description = "게시글에 사용되는 검색어",in=ParameterIn.QUERY)
-                                        @RequestParam(value = "searchVal",required = false) String searchVal){
+            @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
+            @Parameter(description = "게시물 검색 타입",in = ParameterIn.QUERY)
+            @RequestParam(value = "searchType",required = false) SearchType searchType,
+            @Parameter(description = "게시글에 사용되는 검색어",in=ParameterIn.QUERY)
+            @RequestParam(value = "searchVal",required = false) String searchVal){
+
         Page<BoardResponse> list = null;
         //검색어가 없는 경우
-        if(searchVal==null||searchVal==""){
+        if(searchVal==null||searchVal==""||searchType.getValue()==null||searchType.getValue()==""){
             return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
         try {
-            list = boardService.boardSearchAll(searchVal,pageable);
+            list = boardService.boardSearchAll(searchType,searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

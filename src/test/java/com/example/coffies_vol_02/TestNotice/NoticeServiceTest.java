@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.config.constant.Role;
@@ -63,6 +64,7 @@ public class NoticeServiceTest {
     private NoticeBoard noticeBoard;
     private NoticeRequest request;
     private NoticeResponse response;
+    private SearchType searchType;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
     List<MultipartFile>files = new ArrayList<>(List.of(
@@ -111,10 +113,10 @@ public class NoticeServiceTest {
         list.add(response);
         Page<NoticeResponse>response = new PageImpl<>(list,pageRequest,1);
 
-        given(noticeBoardRepository.findAllSearchList(keyword,pageRequest)).willReturn(response);
+        given(noticeBoardRepository.findAllSearchList(searchType,keyword,pageRequest)).willReturn(response);
 
-        when(noticeService.noticeSearchAll(keyword,pageRequest)).thenReturn(response);
-        response = noticeService.noticeSearchAll(keyword,pageRequest);
+        when(noticeService.noticeSearchAll(searchType,keyword,pageRequest)).thenReturn(response);
+        response = noticeService.noticeSearchAll(searchType,keyword,pageRequest);
 
         assertThat(response.toList().get(0).noticeWriter()).isEqualTo(keyword);
     }

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.TestNotice;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
@@ -34,13 +35,9 @@ public class NoticeBoardRepositoryTest {
 
         Page<NoticeBoard>list1  = noticeBoardRepository.findAll(pageable);
 
-        System.out.println(list1.stream().toList());
-
         assertThat(list1).isNotEmpty();
 
         Page<NoticeResponse>list2 = noticeBoardRepository.findAllList(pageable);
-
-        System.out.println(list2.get().toList());
 
         assertThat(list2).isNotEmpty();
     }
@@ -50,20 +47,11 @@ public class NoticeBoardRepositoryTest {
     public void noticeBoardSearch(){
         String keyword = "well4149";
 
-        QNoticeBoard qNoticeBoard = QNoticeBoard.noticeBoard;
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("id").descending());
 
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        Page<NoticeResponse>result2 = noticeBoardRepository.findAllSearchList(SearchType.w,keyword,pageable);
 
-        BooleanBuilder builder = new BooleanBuilder();
-
-        BooleanExpression booleanExpression = qNoticeBoard.noticeWriter.contains(keyword);
-
-        builder.and(booleanExpression);
-
-        Page<NoticeResponse>result2 = noticeBoardRepository.findAllSearchList(keyword,pageable);
-
-        System.out.println(result2.get().toList());
-
-        assertThat(result2).isNotEmpty();
+        assertThat(result2.toList()).isNotEmpty();
+        assertThat(result2.get().toList().get(0).noticeWriter()).isEqualTo(keyword);
     }
 }
