@@ -6,7 +6,7 @@ import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +65,10 @@ public class NoticeServiceTest {
     private NoticeResponse response;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
+    List<MultipartFile>files = new ArrayList<>(List.of(
+            new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+            new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+            new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
 
     @BeforeEach
     public void init() throws Exception {
@@ -74,7 +79,7 @@ public class NoticeServiceTest {
         response = response();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(request.files());
+        filelist = fileHandler.parseFileInfo(files);
         detailfileList.add(attachDto());
         detailfileList = attachService.boardfilelist(noticeBoard.getId());
     }
@@ -119,10 +124,10 @@ public class NoticeServiceTest {
     public void noticeBoardWriteTest() throws Exception {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.save(noticeBoard)).willReturn(noticeBoard);
-        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        noticeService.noticeCreate(noticeRequest(),noticeRequest().files());
+        noticeService.noticeCreate(noticeRequest(),files);
 
         Mockito.verify(noticeBoardRepository).save(ArgumentMatchers.any());
         verify(fileHandler,times(2)).parseFileInfo(any());
@@ -133,15 +138,15 @@ public class NoticeServiceTest {
     public void noticeBoardUpdateTest()throws Exception{
 
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        noticeRequest().files().add(updateFile);
+        files.add(updateFile);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
-        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
-        noticeService.noticeUpdate(noticeBoard.getId(),noticeRequest(),noticeRequest().files());
+        noticeService.noticeUpdate(noticeBoard.getId(),noticeRequest(),files);
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
@@ -151,7 +156,7 @@ public class NoticeServiceTest {
         noticeBoard = noticeBoard();
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(fileHandler.parseFileInfo(noticeRequest().files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
@@ -203,12 +208,7 @@ public class NoticeServiceTest {
                 noticeBoard.getNoticeTitle(),
                 noticeBoard.getNoticeWriter(),
                 noticeBoard.getNoticeContents(),
-                noticeBoard.getFileGroupId(),
-                new ArrayList<>(List.of(
-                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-        ));
+                noticeBoard.getFileGroupId());
     }
     private NoticeResponse response(){
         return new NoticeResponse(noticeBoard);

@@ -25,8 +25,6 @@ public record NoticeRequest(
         @NotBlank(message = "공지 내용을 적어주세요.")
         String noticeContents,
         @Schema(description = "파일 그룹 아이디")
-        String fileGroupId,
-        @Schema(description = "첨부파일",type = "List<MultipartFile>")
-        List<MultipartFile>files)implements Serializable {
+        String fileGroupId)implements Serializable {
 
 }

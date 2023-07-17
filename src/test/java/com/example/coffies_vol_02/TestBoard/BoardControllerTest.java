@@ -12,7 +12,7 @@ import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -217,12 +217,7 @@ public class BoardControllerTest {
                 board.getMember().getUserId(),
                 board.getReadCount(),
                 board.getPassWd(),
-                board.getFileGroupId(),
-                List.of(
-                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-        );
+                board.getFileGroupId());
     }
     private BoardResponse boardResponseDto(){
         return new BoardResponse(board);

@@ -25,7 +25,5 @@ public record BoardRequest(
     @Schema(name = "passWd",type = "String")
     String passWd,
     @Schema(name = "fileGroupId",type = "String")
-    String fileGroupId,
-    @Schema(name = "files",type ="List")
-    List<MultipartFile> files)implements Serializable {
+    String fileGroupId)implements Serializable {
 }

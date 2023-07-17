@@ -11,11 +11,9 @@ function updateboard(){
     let id = $('#board_id').val();
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
+    let boardDate = {boardTitle:title,boardContents:contents,boardAuthor:author,passWd:pwd};
 
-    formdate.append("boardTitle",title);
-    formdate.append("boardContents",contents);
-    formdate.append("boardAuthor",author);
-    formdate.append("passWd",pwd);
+    formdate.append("updateDto",new Blob([JSON.stringify(boardDate)], {type: "application/json"}));
 
     if(inputFiles != null){
         for(let i = 0; i< files.length; i++){

@@ -13,7 +13,7 @@ import com.example.coffies_vol_02.config.exception.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,6 +77,11 @@ public class BoardServiceTest {
     List<AttachDto>detailfileList = new ArrayList<>();
 
     List<Attach>filelist = new ArrayList<>();
+    //첨부 파일
+    List<MultipartFile>files = new ArrayList<>(List.of(
+            new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+            new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+            new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
 
     @BeforeEach
     public void init() throws Exception {
@@ -86,7 +92,7 @@ public class BoardServiceTest {
         memberResponse = response();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(boardRequestDto().files());
+        filelist = fileHandler.parseFileInfo(files);
         detailfileList.add(attachDto());
         detailfileList = attachService.boardfilelist(board.getId());
     }
@@ -153,10 +159,10 @@ public class BoardServiceTest {
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.save(any())).willReturn(board);
-        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        boardService.boardCreate(boardRequestDto,member);
+        boardService.boardCreate(boardRequestDto,files,member);
 
         verify(boardRepository).save(any());
         verify(fileHandler,times(2)).parseFileInfo(any());
@@ -169,9 +175,9 @@ public class BoardServiceTest {
         init();
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.save(any())).willReturn(board);
-        boardRequestDto.files().isEmpty();
+        files.isEmpty();
 
-        boardService.boardCreate(boardRequestDto,member);
+        boardService.boardCreate(boardRequestDto,files,member);
 
         verify(boardRepository).save(any());
     }
@@ -181,7 +187,8 @@ public class BoardServiceTest {
     public void boardWriteFail1(){
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.boardCreate(boardRequestDto,null));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,
+                ()-> boardService.boardCreate(boardRequestDto,files,null));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -193,7 +200,7 @@ public class BoardServiceTest {
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
@@ -236,15 +243,15 @@ public class BoardServiceTest {
         //given
         init();
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
-        boardRequestDto.files().add(updateFile);
+        files.add(updateFile);
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
         //when
-        boardService.BoardUpdate(board.getId(),boardRequestDto,member,boardRequestDto.files());
+        boardService.BoardUpdate(board.getId(),boardRequestDto,member,files);
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
@@ -256,7 +263,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),null,boardRequestDto().files()));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),null,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -271,7 +278,7 @@ public class BoardServiceTest {
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),member,boardRequestDto().files()));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),member,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -365,12 +372,8 @@ public class BoardServiceTest {
                 board.getMember().getUserId(),
                 board.getReadCount(),
                 board.getPassWd(),
-                board.getFileGroupId(),
-                new ArrayList<>(List.of(
-                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-        ));
+                board.getFileGroupId()
+        );
     }
     private BoardResponse boardResponse(){
         return new BoardResponse(board);

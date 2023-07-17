@@ -5,18 +5,19 @@
 //공지게시글 작성
 function noticewrite(){
 
-    const formdate = new FormData();
-
+    const formDate = new FormData();
     let title=$('#noticeTitle').val();
     let author=$('#noticeAuthor').val();
     let contents=$('#noticeContent').val();
     let category=$('#noticeGroup').val();
     let fixed=$('#isFixed').val();
-    let fileid=$('#fileGroupId').val();
-
+    let fileId=$('#fileGroupId').val();
+    let noticeDate ={noticeTitle:title,noticeAuthor:author,noticeContent:contents,noticeGroup:category,isFixed: fixed,fileGroupId: fileId};
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
     let fileCount =6;
+
+    formDate.append("noticeDto",new Blob([JSON.stringify(noticeDate)], {type: "application/json"}));
 
     if(files.length > fileCount){
         $('#valid_file').text('파일은 6개까지입니다.');
@@ -27,21 +28,14 @@ function noticewrite(){
     if(inputFiles != null){
         for(var i =0; i<files.length; i++){
             console.log(files[i]);
-            formdate.append("files",files[i]);
+            formDate.append("files",files[i]);
         }
     }
-
-    formdate.append("noticeGroup",category);
-    formdate.append("isFixed",fixed);
-    formdate.append("noticeTitle",title);
-    formdate.append("noticeWriter",author);
-    formdate.append("noticeContents",contents);
-    formdate.append("fileGroupId",fileid);
 
     $.ajax({
         url:'/api/notice/write',
         type:'post',
-        data:formdate,
+        data:formDate,
         processData: false,
         contentType : false,
         cache:false,

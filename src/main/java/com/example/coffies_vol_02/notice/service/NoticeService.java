@@ -60,6 +60,7 @@ public class NoticeService {
      * 공지글 단일 조회(redis 캐시 적용)
      * @author 양경빈
      * @param noticeId 공지게시판 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 발생
+     * @cache key값은 noticeId이고 value는
      * @return NoticeResponse
      * @see NoticeBoardRepository#findById(Object) 공지제시글 번호를 조회해서 게시글 조회 조회하는 번호가 없는 경우에는 BOARD_NOT_FOUND
      **/

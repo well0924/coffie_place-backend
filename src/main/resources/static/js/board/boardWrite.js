@@ -1,3 +1,6 @@
+/**
+ * 게시글 작성
+ **/
 function writeboard(){
 
     const formdate = new FormData();
@@ -6,23 +9,19 @@ function writeboard(){
     let author= $('#board_Author').val();
     let contents= $('#board_Contents').val();
     let pwd = $('#passWd').val();
-    let fileid = $('#fileGroupId').val();
-
-    formdate.append("boardTitle",title);
-    formdate.append("boardContents",contents);
-    formdate.append("boardAuthor",author);
-    formdate.append("fileGroupId",fileid);
-    formdate.append("passWd",pwd);
-
-    let filecount = 6;
+    let fileId = $('#fileGroupId').val();
+    let fileCount = 6;
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
 
+    let boardDate = {boardTitle:title,boardContents:contents,boardAuthor:author,fileGroupId:fileId,passWd:pwd};
     console.log(files);
     console.log(inputFiles);
 
+    formdate.append("boardDto",new Blob([JSON.stringify(boardDate)], {type: "application/json"}));
+
     //파일첨부 제한.
-    if(files.length > filecount){
+    if(files.length > fileCount){
         $('#valid_file').text('파일은 6개까지 입니다.');
         $('#valid_file').css('color','red');
         return false;
@@ -35,6 +34,7 @@ function writeboard(){
             formdate.append("files",files[i]);
         }
     }
+
     $.ajax({
         url:'/api/board/write',
         type:'post',

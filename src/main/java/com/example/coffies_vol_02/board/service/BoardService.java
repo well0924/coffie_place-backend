@@ -116,7 +116,7 @@ public class BoardService {
      * @return InsertResult 생성된 게시물 번호
      **/
     @Transactional
-    public Integer boardCreate(BoardRequest requestDto, Member member) throws Exception {
+    public Integer boardCreate(BoardRequest requestDto,List<MultipartFile>files, Member member) throws Exception {
         
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -134,11 +134,10 @@ public class BoardService {
                 .build();
 
         //게시글 저장
-        boardRepository.save(board);
+        Integer InsertResult = boardRepository.save(board).getId();;
 
-        Integer InsertResult = board.getId();
         //파일  업로드
-        List<Attach>filelist = fileHandler.parseFileInfo(requestDto.files());
+        List<Attach>filelist = fileHandler.parseFileInfo(files);
         
         //파일이 없는 경우
         if(filelist == null || filelist.size() == 0){

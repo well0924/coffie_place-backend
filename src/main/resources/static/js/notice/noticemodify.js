@@ -4,7 +4,7 @@
 */
 //공지게시글 수정o.k
 function noticeupdate(){
-    const formdate = new FormData();
+    const formDate = new FormData();
 
     let id=$('#noticeid').val();
     let title=$('#noticeTitle').val();
@@ -12,28 +12,23 @@ function noticeupdate(){
     let contents=$('#noticeContent').val();
     let category=$('#noticeGroup').val();
     let fixed=$('#isFixed').val();
-
-    formdate.append('noticeId' , id);
-    formdate.append('noticeTitle' , title);
-    formdate.append('noticeAuthor' , author);
-    formdate.append('noticeContents' , contents);
-    formdate.append('noticeGroup' , category);
-    formdate.append('noticeFixed' , fixed);
-
     let inputFiles = $("input[name='file']");
     let files = inputFiles[0].files;
+    let noticeDate ={noticeTitle:title,noticeAuthor:author,noticeContent:contents,noticeGroup:category,isFixed: fixed};
 
     if(inputFiles != null){
         for(let i =0; i<files.length; i++){
             console.log(files[i]);
-            formdate.append('file',files[i]);
+            formDate.append('files',files[i]);
         }
     }
+
+    formDate.append("updateDto",new Blob([JSON.stringify(noticeDate)], {type: "application/json"}));
 
     $.ajax({
         url:'/api/notice/update/'+id,
         type:'put',
-        data:formdate,
+        data:formDate,
         processData: false,
         contentType : false,
         cache:false,
@@ -48,7 +43,7 @@ function noticeupdate(){
 //공지게시글 삭제o.k
 function noticedelete(){
 
-    var id=$('#noticeid').val();
+    let id=$('#noticeid').val();
 
     $.ajax({
         url:'/api/notice/delete/'+id,

@@ -7,7 +7,7 @@ import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -67,6 +68,11 @@ public class NoticeControllerTest {
     NoticeRequest requestDto;
     List<AttachDto> detailfileList = new ArrayList<>();
     List<Attach>filelist = new ArrayList<>();
+    List<MultipartFile>files = List.of(
+            new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+            new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+            new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()));
+
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
@@ -185,12 +191,7 @@ public class NoticeControllerTest {
                 noticeBoard.getNoticeTitle(),
                 noticeBoard.getNoticeWriter(),
                 noticeBoard.getNoticeContents(),
-                noticeBoard.getFileGroupId(),
-                List.of(
-                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-        );
+                noticeBoard.getFileGroupId());
     }
     private NoticeResponse response(){
         return new NoticeResponse(noticeBoard);

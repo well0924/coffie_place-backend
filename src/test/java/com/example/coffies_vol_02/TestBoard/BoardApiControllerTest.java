@@ -12,8 +12,9 @@ import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.nio.charset.StandardCharsets;
@@ -56,7 +58,8 @@ public class BoardApiControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @MockBean
     private BoardService boardService;
 
@@ -85,6 +88,11 @@ public class BoardApiControllerTest {
     List<AttachDto>detailfileList = new ArrayList<>();
 
     List<Attach>filelist = new ArrayList<>();
+    //첨부 파일
+    List<MultipartFile>files = new ArrayList<>(List.of(
+            new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+            new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+            new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
 
     private CustomUserDetails customUserDetails;
 
@@ -102,7 +110,7 @@ public class BoardApiControllerTest {
         boardResponseDto = boardResponse();
         attach = attach();
         filelist.add(attach);
-        filelist = fileHandler.parseFileInfo(boardRequestDto().files());
+        filelist = fileHandler.parseFileInfo(files);
         detailfileList.add(attachDto());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
@@ -172,18 +180,15 @@ public class BoardApiControllerTest {
     @Test
     @DisplayName("게시글 작성")
     public void boardWriteTest()throws Exception{
+        String content= objectMapper.writeValueAsString(boardRequestDto());
+        MockMultipartFile file3 = new MockMultipartFile("boardDto", "jsondata", "application/json", content.getBytes(StandardCharsets.UTF_8));
 
-        when(boardService.boardCreate(boardRequestDto,customUserDetails.getMember())).thenReturn(board.getId());
+        when(boardService.boardCreate(boardRequestDto,files,customUserDetails.getMember())).thenReturn(board.getId());
 
         mvc.perform(multipart("/api/board/write")
-                        .file("files",boardRequestDto.files().get(0).getBytes())
-                        .file("files",boardRequestDto.files().get(1).getBytes())
-                        .param("boardAuthor",boardRequestDto.boardAuthor())
-                        .param("boardTitle",boardRequestDto.boardTitle())
-                        .param("boardContents",boardRequestDto.boardContents())
-                        .param("passWd",boardRequestDto.passWd())
-                        .param("readCount",String.valueOf(boardRequestDto.readCount()))
-                        .param("fileGroupId",boardRequestDto.fileGroupId())
+                        .file("files",files.get(0).getBytes())
+                        .file("files",files.get(1).getBytes())
+                        .file(file3)
                         .with(user(customUserDetails))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("POST");
@@ -193,7 +198,7 @@ public class BoardApiControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print());
 
-        verify(boardService).boardCreate(any(),any());
+        verify(boardService).boardCreate(any(),any(),any());
     }
 
     @Test
@@ -213,23 +218,22 @@ public class BoardApiControllerTest {
     @Test
     @DisplayName("자유게시판 수정")
     public void boardUpdateTest()throws Exception{
+        String content= objectMapper.writeValueAsString(new BoardRequest("update titlte","update contents",member.getUserId(),0,"1234","free_23bk4322"));
+        MockMultipartFile file3 = new MockMultipartFile("updateDto", "jsondata", "application/json", content.getBytes(StandardCharsets.UTF_8));
 
-        boardRequestDto.files().remove(0);
+        files.remove(0);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(fileHandler.parseFileInfo(boardRequestDto.files())).willReturn(filelist);
+        given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
+        when(boardService.BoardUpdate(board.getId(),boardRequestDto,member,files)).thenReturn(board.getId());
+
         mvc.perform(multipart("/api/board/update/{board_id}",board.getId())
-                        .file("files",boardRequestDto.files().get(0).getBytes())
-                        .param("boardAuthor",boardRequestDto.boardAuthor())
-                        .param("boardTitle","update Title")
-                        .param("boardContents","update contents")
-                        .param("passWd","12345")
-                        .param("readCount",String.valueOf(boardRequestDto.readCount()))
-                        .param("fileGroupId",boardRequestDto.fileGroupId())
+                        .file("files",files.get(0).getBytes())
+                        .file(file3)
                         .with(user(customUserDetails))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("PUT");
@@ -303,12 +307,7 @@ public class BoardApiControllerTest {
                 board.getMember().getUserId(),
                 board.getReadCount(),
                 board.getPassWd(),
-                board.getFileGroupId(),
-                new ArrayList<>(List.of(
-                        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-                        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-                        new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))
-                ));
+                board.getFileGroupId());
     }
     private BoardResponse boardResponse(){
         return new BoardResponse(board);
