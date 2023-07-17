@@ -6,7 +6,7 @@ import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.request.CommentRequest;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;

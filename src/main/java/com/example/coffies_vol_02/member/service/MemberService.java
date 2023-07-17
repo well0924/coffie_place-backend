@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.member.service;
 
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.member.domain.Member;

@@ -5,7 +5,7 @@ import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.config.util.FileHandler;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;

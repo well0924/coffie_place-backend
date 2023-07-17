@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.place.controller.api;
 
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
@@ -43,7 +43,7 @@ public class PlaceApiController {
         Slice<PlaceResponseDto> list = null;
 
         try {
-            list = placeService.placeSlideList(pageable,keyword,searchType,customUserDetails.getMember());
+            list = placeService.placeSlideList(pageable,keyword,searchType,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +53,8 @@ public class PlaceApiController {
 
     @ApiOperation(value = "가게 목록 검색", notes = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
-    public CommonResponse<?> placeListSearch(@Parameter(name = "placeKeyword",description = "가게 검색어",required = false,in = ParameterIn.QUERY) @RequestParam(value = "placeKeyword",required = false) String keyword,
+    public CommonResponse<?> placeListSearch(@Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",required = false,in = ParameterIn.QUERY)
+                                             @RequestParam(value = "placeKeyword",required = false) String keyword,
                                              @ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Page<PlaceResponseDto> list = null;
@@ -63,6 +64,7 @@ public class PlaceApiController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         //검색어가 없는 경우
         if(keyword==null||keyword==""){
             return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
@@ -73,7 +75,8 @@ public class PlaceApiController {
 
     @ApiOperation(value = "가게 단일 조회", notes = "가게 목록에서 가게를 조회를 한다.")
     @GetMapping(path = "/detail/{place_id}")
-    public CommonResponse<PlaceResponseDto> placeDetail(@Parameter(name = "place_id",description = "가게 생성번호",required = true,in = ParameterIn.PATH) @PathVariable("place_id") Integer placeId) {
+    public CommonResponse<PlaceResponseDto> placeDetail(@Parameter(name = "place_id",description = "가게 생성번호",required = true,in = ParameterIn.PATH)
+                                                        @PathVariable("place_id") Integer placeId) {
         PlaceResponseDto placeDetail = new PlaceResponseDto();
 
         try {
@@ -81,6 +84,7 @@ public class PlaceApiController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(), placeDetail);
     }
 
@@ -100,8 +104,8 @@ public class PlaceApiController {
     }
 
     @ApiOperation(value = "가게 수정", notes = "등록된 가게를 수정을 한다.")
-    @PutMapping(path = "/update/{place_id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonResponse<Integer> placeUpdate(@Parameter(name = "place_id",description = "가게 생성번호",required = true,in = ParameterIn.PATH) @PathVariable("place_id") Integer placeId,
+    @PutMapping(path = "/update/{place-id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public CommonResponse<Integer> placeUpdate(@Parameter(name = "place-id",description = "가게 생성번호",required = true,in = ParameterIn.PATH) @PathVariable("place_id") Integer placeId,
                                                @ModelAttribute PlaceRequestDto dto,
                                                @ModelAttribute PlaceImageRequestDto imageRequestDto) {
         Integer placeUpdateResult = 0;
@@ -116,8 +120,9 @@ public class PlaceApiController {
     }
 
     @ApiOperation(value = "가게 삭제", notes = "등록된 가게를 삭제한다.")
-    @DeleteMapping(path = "/delete/{place_id}")
-    public CommonResponse<?> placeDelete(@Parameter(name = "place_id",description = "가게 생성번호",required = true) @PathVariable("place_id") Integer placeId) {
+    @DeleteMapping(path = "/delete/{place-id}")
+    public CommonResponse<?> placeDelete(@Parameter(name = "place-id",description = "가게 생성번호",required = true)
+                                         @PathVariable("place-id") Integer placeId) {
 
         try {
             placeService.placeDelete(placeId);

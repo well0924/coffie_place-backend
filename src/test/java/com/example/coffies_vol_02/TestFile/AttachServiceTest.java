@@ -6,7 +6,7 @@ import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

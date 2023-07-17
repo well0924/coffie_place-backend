@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.exception;
+package com.example.coffies_vol_02.config.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +11,9 @@ public enum ERRORCODE{
     NOT_SEARCH_VALUE(400,"검색결과가 없습니다."),
     NOT_MEMBER_LIST(404,"회원목록이 없습니다."),
     NOT_FOUND_MEMBER(404,"회원이 존재하지 않습니다."),
-    ONLY_USER(400,"회원만 가능합니다."),
+    ONLY_USER(500,"회원만 가능합니다."),
     BOARD_NOT_FOUND(404,"게시글이 없습니다."),
-    BOARD_NOT_LIST(400,"게시글 목록이 없습니다."),
+    BOARD_NOT_LIST(404,"게시글 목록이 없습니다."),
     NOT_AUTH(401,"권한이 없습니다."),
     NOT_REPLY(404,"댓글이 없습니다."),
     LIKE_NOT_FOUND(404,"좋아요가 없습니다."),

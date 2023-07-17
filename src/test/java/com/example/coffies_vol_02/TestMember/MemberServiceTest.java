@@ -1,9 +1,9 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

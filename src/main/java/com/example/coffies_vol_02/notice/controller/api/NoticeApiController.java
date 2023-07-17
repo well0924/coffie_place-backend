@@ -1,14 +1,12 @@
 package com.example.coffies_vol_02.notice.controller.api;
 
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

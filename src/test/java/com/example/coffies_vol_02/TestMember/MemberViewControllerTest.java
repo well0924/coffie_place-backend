@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;

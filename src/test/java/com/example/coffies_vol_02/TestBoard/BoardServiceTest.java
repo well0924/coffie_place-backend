@@ -9,7 +9,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;

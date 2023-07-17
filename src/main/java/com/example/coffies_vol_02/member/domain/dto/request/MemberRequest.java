@@ -1,14 +1,13 @@
 package com.example.coffies_vol_02.member.domain.dto.request;
 
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import io.swagger.annotations.ApiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @ApiModel(value = "회원요청Dto")

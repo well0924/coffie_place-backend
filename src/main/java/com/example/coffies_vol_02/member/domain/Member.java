@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.member.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,7 +10,6 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +53,7 @@ public class Member extends BaseTime implements Serializable {
     private Double memberLat;
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @BatchSize(size = 1000)
     @JsonIgnore
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)

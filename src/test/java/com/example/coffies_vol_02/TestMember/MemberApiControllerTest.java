@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;

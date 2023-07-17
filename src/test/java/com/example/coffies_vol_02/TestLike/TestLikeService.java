@@ -10,7 +10,7 @@ import com.example.coffies_vol_02.like.repository.CommentLikeRepository;
 import com.example.coffies_vol_02.like.repository.LikeRepository;
 import com.example.coffies_vol_02.like.service.LikeService;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;

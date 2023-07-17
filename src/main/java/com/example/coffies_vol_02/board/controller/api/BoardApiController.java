@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Parameter;

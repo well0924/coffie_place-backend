@@ -8,7 +8,7 @@ import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.member.domain.Role;
+import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.place.domain.Place;
 import org.junit.jupiter.api.BeforeEach;

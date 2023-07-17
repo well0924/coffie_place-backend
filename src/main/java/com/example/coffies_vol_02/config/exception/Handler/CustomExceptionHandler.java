@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.config.exception.Handler;
 
-import com.example.coffies_vol_02.config.exception.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
