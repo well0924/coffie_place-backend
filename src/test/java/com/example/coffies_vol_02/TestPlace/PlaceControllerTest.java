@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,6 +37,7 @@ public class PlaceControllerTest {
 
     private CustomUserDetails customUserDetails;
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
+
     @BeforeEach
     public void init(){
         mvc = MockMvcBuilders
@@ -45,13 +48,14 @@ public class PlaceControllerTest {
     }
 
     @Test
-    @DisplayName("가게 목록")
-    public void placeListTest(){
-
+    @DisplayName("가게 목록화면")
+    public void placeListTest()throws Exception{
+        mvc.perform(get("/page/place/list"))
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("가게 조회")
+    @DisplayName("가게 조회화면")
     public void placeDetailTest(){
 
     }
@@ -61,5 +65,5 @@ public class PlaceControllerTest {
     public void placeUpdateDeleteTest(){
 
     }
-    
+
 }

@@ -37,6 +37,8 @@ public class PlaceResponseDto {
     private String fileGroupId;
     @Schema(description = "이미지 고정 여부",type = "String")
     private String isTitle;
+    @Schema(description = "원본 이미지 경로",type = "String")
+    private String imgPath;
     @Schema(description = "섬네일 이미지 경로",type = "String")
     private String thumbFileImagePath;
 
@@ -55,7 +57,6 @@ public class PlaceResponseDto {
         this.placePhone = place.getPlacePhone();
         this.fileGroupId = place.getFileGroupId();
         this.isTitle = place.getPlaceImageList().get(0).getIsTitle();
-        //만약 이미지가 없이 가게를 등록을 한 경우에는 기본 이미지로 나오게끔 해야 됨...
         this.thumbFileImagePath = place.getPlaceImageList().get(0).getThumbFileImagePath();
     }
 }

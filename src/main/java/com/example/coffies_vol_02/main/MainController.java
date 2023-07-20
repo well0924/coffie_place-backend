@@ -27,23 +27,34 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/page/main")
 public class MainController {
+
     private final BoardService boardService;
     private final NoticeService noticeService;
-
     private final PlaceService placeService;
 
     @GetMapping("/main")
-    public ModelAndView mainPage(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public ModelAndView mainPage(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                 @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
         ModelAndView  mv = new ModelAndView();
-        //게시글 목록
-        Page<BoardResponse> boardList = boardService.boardAllList(pageable);
-        //공지게시글 목록
-        Page<NoticeResponse>noticeList = noticeService.noticeAllList(pageable);
-        //top5 목록
-        Page<PlaceResponseDto>top5 = placeService.placeTop5(pageable);
+
+        Page<BoardResponse> boardList = null;
+        Page<NoticeResponse>noticeList = null;
+        Page<PlaceResponseDto>top5 = null;
         List<PlaceResponseDto> near5 = null;
-        if (customUserDetails != null) {
-            near5  = placeService.placeNear(customUserDetails.getMember().getMemberLat(), customUserDetails.getMember().getMemberLng());
+
+        try {
+            //평점이 높은 가게 top5
+            top5 =placeService.placeTop5(pageable);
+            //근처 가게 top5
+            if (customUserDetails != null) {
+                near5  = placeService.placeNear(customUserDetails.getMember().getMemberLat(), customUserDetails.getMember().getMemberLng());
+            }
+            //공지게시글 목록
+            noticeList = noticeService.noticeAllList(pageable);
+            //자유게시글 목록
+            boardList = boardService.boardAllList(pageable);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         mv.addObject("boardlist",boardList);

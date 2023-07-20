@@ -14,10 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,41 +35,39 @@ public class PlaceApiController {
     @ApiOperation(value = "가게 목록 조회", notes = "가게 목록을 조회한다")
     @GetMapping(path = "/list")
     public CommonResponse<Slice<PlaceResponseDto>> placeList(@ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                                                             @Parameter(name = "keyword",description = "가게 검색어 저장",required = false,in = ParameterIn.QUERY) @RequestParam(value = "keyword", required = false) String keyword,
-                                                             @RequestParam(value = "searchType",required = false)String searchType,
-                                                             @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Slice<PlaceResponseDto> list = null;
+                                       @Parameter(name = "keyword",description = "가게 검색어 저장", in = ParameterIn.QUERY)
+                                       @RequestParam(value = "keyword", required = false) String keyword,
+                                       @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception {
+        try{
+            Slice<PlaceResponseDto> list = placeService.placeSlideList(pageable,keyword,null);
 
-        try {
-            list = placeService.placeSlideList(pageable,keyword,searchType,null);
-        } catch (Exception e) {
+            return new CommonResponse<>(HttpStatus.OK.value(), list);
+        }catch (Exception e){
             e.printStackTrace();
         }
-
-        return new CommonResponse<>(HttpStatus.OK.value(), list);
+        return new CommonResponse<>(HttpStatus.OK.value(),placeService.placeSlideList(pageable,keyword,null));
     }
 
     @ApiOperation(value = "가게 목록 검색", notes = "가게 목록페이지에서 가게를 검색을 한다.")
     @GetMapping(path = "/search")
     public CommonResponse<?> placeListSearch(@Parameter(name = "searchType",description = "가게 검색타입",required = true)
-                                             @RequestParam(value = "searchType",required = true) SearchType searchType,
-                                             @Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",required = false,in = ParameterIn.QUERY)
+                                             @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                             @Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",in = ParameterIn.QUERY)
                                              @RequestParam(value = "placeKeyword",required = false) String keyword,
-                                             @ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                                             @ApiIgnore @PageableDefault(sort = "id", size=5 ,direction = Sort.Direction.DESC) Pageable pageable,
                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
         Page<PlaceResponseDto> list = null;
 
         try {
             list = placeService.placeListAll(searchType,keyword, pageable, customUserDetails.getMember());
+            //검색어가 없는 경우
+            if(keyword==null||keyword.equals("")){
+                return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //검색어가 없는 경우
-        if(keyword==null||keyword==""){
-            return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
-        }
-
         return new CommonResponse<>(HttpStatus.OK.value(), list);
     }
 

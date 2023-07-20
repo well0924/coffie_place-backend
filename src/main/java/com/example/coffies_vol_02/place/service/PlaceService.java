@@ -61,11 +61,11 @@ public class PlaceService {
      * @see PlaceRepository#placeList(Pageable, String) 가게 목록
      **/
     @Transactional
-    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String searchType,String keyword, Member member) {
+    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String keyword, Member member) {
         if (member != null) {
-            //가게이름 검색어 저장
+            //로그인이 되었을 경우 가게이름 검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
-            System.out.println(redisService.getSearchList(member.getId().toString()));
+            log.info(redisService.getSearchList(member.getId().toString()));
         }
         return placeRepository.placeList(pageable, keyword);
     }
@@ -93,7 +93,7 @@ public class PlaceService {
         if (member != null) {
             //검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
-            System.out.println(redisService.getSearchList(member.getId().toString()));
+            log.info(redisService.getSearchList(member.getId().toString()));
         }else if(keyword == null){//키워드가 없는 경우
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
@@ -120,29 +120,8 @@ public class PlaceService {
      **/
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
-        List<PlaceResponseDto> result = new ArrayList<>();
-        for (Place place : placeRepository.findPlaceByLatLng(lat, lon)) {
-            PlaceResponseDto dto = PlaceResponseDto
-                    .builder()
-                    .id(place.getId())
-                    .placeLat(place.getPlaceLat())
-                    .placeLng(place.getPlaceLng())
-                    .placeAuthor(place.getPlaceAuthor())
-                    .placeName(place.getPlaceName())
-                    .placePhone(place.getPlacePhone())
-                    .placeStart(place.getPlaceStart())
-                    .placeClose(place.getPlaceClose())
-                    .placeAddr1(place.getPlaceAddr1())
-                    .placeAddr2(place.getPlaceAddr2())
-                    .fileGroupId(place.getFileGroupId())
-                    .reviewRate(place.getReviewRate())
-                    .isTitle(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getIsTitle())
-                    .thumbFileImagePath(place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath())
-                    .build();
-
-            result.add(dto);
-        }
-        return result;
+        List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
+        return list.stream().map(place->new PlaceResponseDto()).toList();
     }
 
     /**
@@ -153,13 +132,11 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
-    @Transactional
+    @Transactional(readOnly = true)
     public PlaceResponseDto placeDetail(Integer placeId) {
 
-        Optional<Place> place = Optional.of(placeRepository
-                .findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
-
-        Place detail = place.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
+        Place detail = placeRepository
+                .findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));;
 
         return PlaceResponseDto
                 .builder()
@@ -169,13 +146,14 @@ public class PlaceService {
                 .placeAuthor(detail.getPlaceAuthor())
                 .placePhone(detail.getPlacePhone())
                 .placeStart(detail.getPlaceStart())
+                .placeName(detail.getPlaceName())
                 .placeClose(detail.getPlaceClose())
                 .placeAddr1(detail.getPlaceAddr1())
                 .placeAddr2(detail.getPlaceAddr2())
                 .fileGroupId(detail.getFileGroupId())
                 .reviewRate(detail.getReviewRate())
-                .isTitle(detail.getPlaceImageList().get(0).getIsTitle())
-                .thumbFileImagePath(detail.getPlaceImageList().get(0).getThumbFileImagePath())
+                .isTitle(detail.getPlaceImageList().size() == 0 ? null : detail.getPlaceImageList().get(0).getIsTitle())
+                .thumbFileImagePath(detail.getPlaceImageList().size() == 0 ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
                 .build();
     }
 

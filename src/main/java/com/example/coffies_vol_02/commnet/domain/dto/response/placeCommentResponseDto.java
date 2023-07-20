@@ -22,6 +22,8 @@ public class placeCommentResponseDto {
     private String replyContents;
     @Schema(name = "댓글 평점",description = "댓글 평점",type = "Integer")
     private Integer reviewPoint;
+    @Schema(name = "댓글 좋아요",description = "댓글 좋아요",type = "Integer")
+    private Integer liked;
     @Schema(name = "댓글 작성일",description = "댓글 작성일")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdTime;
@@ -32,6 +34,7 @@ public class placeCommentResponseDto {
         this.replyWriter = comment.getMember().getUserId();
         this.replyContents  = comment.getReplyContents();
         this.reviewPoint = comment.getReplyPoint();
+        this.liked = comment.getLikes().size();
         this.createdTime = comment.getCreatedTime();
     }
 }
