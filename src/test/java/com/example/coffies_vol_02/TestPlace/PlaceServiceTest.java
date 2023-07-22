@@ -89,6 +89,7 @@ public class PlaceServiceTest {
         placeImage = placeImage();
         placeImages.add(placeImage());
         placeResponseDto = placeResponseDto();
+
     }
 
     @Test

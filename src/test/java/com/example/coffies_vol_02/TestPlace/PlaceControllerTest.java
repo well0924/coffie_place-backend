@@ -13,13 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,13 +55,24 @@ public class PlaceControllerTest {
     @Test
     @DisplayName("가게 목록화면")
     public void placeListTest()throws Exception{
-        mvc.perform(get("/page/place/list"))
+        mvc.perform(get("/page/place/list")
+                        .contentType(MediaType.TEXT_HTML)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
     }
 
     @Test
     @DisplayName("가게 조회화면")
-    public void placeDetailTest(){
+    public void placeDetailTest()throws Exception{
+        mvc.perform(get("/page/place/detail/"))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("가게 등록 화면")
+    public void placeRegisterPageTest(){
 
     }
 
