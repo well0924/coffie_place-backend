@@ -90,7 +90,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      * @param pageable 페이징 객체
      * @return List<Board>
      **/
-    List<Board> boardSearchList(SearchType searchType,String searchVal,Pageable pageable){
+    private List<Board> boardSearchList(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
                 .select(QBoard.board)
                 .from(QBoard.board)
@@ -114,7 +114,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      * @param pageable 페이징 객체
      * @return BoardCount(int) 게시글 갯수
      **/
-    int searchResultCount(SearchType searchType,String searchVal,Pageable pageable){
+    private int searchResultCount(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
                 .select(QBoard.board.count())
                 .from(QBoard.board)

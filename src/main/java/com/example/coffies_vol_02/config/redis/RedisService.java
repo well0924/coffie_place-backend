@@ -41,7 +41,7 @@ public class RedisService {
         }
     }
 
-    //redis 검색어 저장하기.
+    //redis 검색어 목록
     public List<String> getSearchList(String key) {
         ListOperations listOperations = redisTemplate.opsForList();
         return listOperations.range(key, 0, listOperations.size(key));

@@ -46,11 +46,12 @@ public class FileHandler {
             // 디렉터리가 존재하지 않을 경우
             if(!file.exists()) {
                 boolean wasSuccessful = file.mkdirs();
-                System.out.println("file create");
-                System.out.println(wasSuccessful);
+                log.info("file create");
+                log.info(wasSuccessful);
+
                 // 디렉터리 생성에 실패했을 경우
                 if(!wasSuccessful)
-                    System.out.println("file: was not successful");
+                    log.info("file:was not successful");
             }
 
             //다중 파일 처리
@@ -216,7 +217,7 @@ public class FileHandler {
 
                 String ext = originFileName.substring(originFileName.lastIndexOf(".")+1);
 
-                String thumbFileName = originFileName.substring(0,originFileName.lastIndexOf("."))+"_thumb."+ext;
+                String thumbFileName = "file_"+originFileName.substring(0,originFileName.lastIndexOf("."))+"_thumb."+ext;
 
                 BufferedImage originImage = ImageIO.read(new FileInputStream(file));
 
@@ -233,7 +234,7 @@ public class FileHandler {
                 log.info(out);
 
                 if(!out.getParentFile().exists()) {
-                    boolean filecreate=out.getParentFile().mkdirs();
+                    boolean filecreate = out.getParentFile().mkdirs();
                     log.info(filecreate);
                 }
 
@@ -250,7 +251,6 @@ public class FileHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return thumblocalPath;
     }
 }

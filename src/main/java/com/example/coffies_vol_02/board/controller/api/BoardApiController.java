@@ -65,7 +65,7 @@ public class BoardApiController {
 
         Page<BoardResponse> list = null;
         //검색어가 없는 경우
-        if(searchVal==null||searchVal==""||searchType.getValue()==null||searchType.getValue()==""){
+        if(searchVal==null||searchVal.equals("")||searchType.getValue()==null||searchType.getValue().equals("")){
             return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
@@ -79,9 +79,9 @@ public class BoardApiController {
     }
 
     @ApiOperation(value = "게시글 단일 조회", notes = "자유게시판에서 게시글을 단일 조회하는 컨트롤러")
-    @GetMapping(path = "/detail/{id}")
+    @GetMapping(path = "/detail/{board-id}")
     public CommonResponse<?>findBoard(@Parameter(description = "게시글 단일조회에 필요한 게시글 번호",required = true,in = ParameterIn.PATH)
-                                      @PathVariable("id") Integer boardId){
+                                      @PathVariable("board-id") Integer boardId){
         BoardResponse detail = null;
 
         try {

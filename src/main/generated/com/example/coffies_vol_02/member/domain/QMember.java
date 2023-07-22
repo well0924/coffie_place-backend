@@ -27,17 +27,23 @@ public class QMember extends EntityPathBase<Member> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
+    public final BooleanPath enabled = createBoolean("enabled");
+
     public final NumberPath<Integer> failedAttempt = createNumber("failedAttempt", Integer.class);
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final DateTimePath<java.time.LocalDateTime> lockTime = createDateTime("lockTime", java.time.LocalDateTime.class);
+    public final DateTimePath<java.util.Date> lockTime = createDateTime("lockTime", java.util.Date.class);
+
+    public final NumberPath<Double> memberLat = createNumber("memberLat", Double.class);
+
+    public final NumberPath<Double> memberLng = createNumber("memberLng", Double.class);
 
     public final StringPath memberName = createString("memberName");
 
     public final StringPath password = createString("password");
 
-    public final EnumPath<Role> role = createEnum("role", Role.class);
+    public final EnumPath<com.example.coffies_vol_02.config.constant.Role> role = createEnum("role", com.example.coffies_vol_02.config.constant.Role.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;

@@ -2,12 +2,15 @@ package com.example.coffies_vol_02.config.api.service;
 
 import com.example.coffies_vol_02.config.RestTemplateConfig;
 import com.example.coffies_vol_02.config.api.dto.KakaoApiResponseDto;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -15,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class KakaoApiSearchService {
@@ -24,10 +28,15 @@ public class KakaoApiSearchService {
     @Value("${kakao.rest.api.key}")
     private String kakaoRestApiKey;
 
+    /**
+     * kakao map api 검색
+     * @param address 가게검색주소
+     * @return KakaoApiResponseDto
+     **/
     @Retryable(
-            value = {RuntimeException.class},
-            maxAttempts = 2,
-            backoff = @Backoff(delay = 2000)
+            value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행
+            maxAttempts = 3,//재시도 횟수
+            backoff = @Backoff(delay = 2000)//재시도 전에 딜레이 시간을 설정(ms)
     )
     public KakaoApiResponseDto requestAddressSearch(String address) {
 
@@ -40,5 +49,11 @@ public class KakaoApiSearchService {
         HttpEntity httpEntity = new HttpEntity<>(headers);
 
         return restTemplate.exchange(uri, HttpMethod.GET, httpEntity, KakaoApiResponseDto.class).getBody();
+    }
+
+    @Recover
+    public KakaoApiResponseDto recover(String address, CustomExceptionHandler customExceptionHandler){
+        log.error("All the retries failed. address: {}, error : {}", address, customExceptionHandler.getErrorCode().getMessage());
+        return null;
     }
 }

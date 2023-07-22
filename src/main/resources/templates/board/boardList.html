@@ -50,9 +50,8 @@ layout:decorate="~{layout/leafframe}">
 				</tbody>
 			</table>
 			<!--paging -->
-			<div th:if="${boardList}">
-				<nav th:with=
-			   "pageNumber = ${boardList.pageable.pageNumber},
+			<div th:if="${!boardList.isEmpty()}">
+				<nav th:with="pageNumber = ${boardList.pageable.pageNumber},
 				pageSize = ${boardList.pageable.pageSize},
 				totalPages= ${boardList.totalPages},
 				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},

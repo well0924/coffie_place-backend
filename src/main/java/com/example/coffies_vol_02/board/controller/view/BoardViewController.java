@@ -31,6 +31,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @RequestMapping("/page/board")
 public class BoardViewController {
+
     private final BoardService boardService;
     private final BoardRepository boardRepository;
     private final AttachService attachService;
@@ -68,10 +69,10 @@ public class BoardViewController {
 
         ModelAndView mv = new ModelAndView();
 
-        BoardResponse detail = null;
-        List<AttachDto> attachList = new ArrayList<>();
-        Optional<BoardNextPreviousInterface> previousBoard = Optional.empty();
-        Optional<BoardNextInterface> nextBoard = Optional.empty();
+        BoardResponse detail;
+        List<AttachDto> attachList;
+        Optional<BoardNextPreviousInterface> previousBoard;
+        Optional<BoardNextInterface> nextBoard;
 
         try{
             detail = boardService.findBoard(boardId);
@@ -117,8 +118,8 @@ public class BoardViewController {
         return mv;
     }
 
-    @GetMapping("/passwordCheck/{board_id}")
-    public ModelAndView passwordCheck(@PathVariable("board_id") Integer boardId){
+    @GetMapping("/passwordCheck/{board-id}")
+    public ModelAndView passwordCheck(@PathVariable("board-id") Integer boardId){
         ModelAndView mv = new ModelAndView();
 
         BoardResponse detail = null;
@@ -135,8 +136,8 @@ public class BoardViewController {
         return mv;
     }
 
-    @GetMapping("/modify/{board_id}")
-    public ModelAndView modifyPage(@PathVariable("board_id") Integer boardId) {
+    @GetMapping("/modify/{board-id}")
+    public ModelAndView modifyPage(@PathVariable("board-id") Integer boardId) {
         ModelAndView mv = new ModelAndView();
 
         BoardResponse detail = null;

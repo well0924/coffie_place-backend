@@ -38,7 +38,11 @@ public class NoticeController {
         Page<NoticeResponse> list = null;
 
         try {
-            list = noticeService.noticeSearchAll(searchType,searchVal, pageable);
+            list = noticeService.noticeAllList(pageable);
+            //검색을 하는 경우
+            if(searchType.getValue()!=null||searchVal!= null){
+                list = noticeService.noticeSearchAll(searchType,searchVal,pageable);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
