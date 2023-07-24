@@ -2,13 +2,17 @@ package com.example.coffies_vol_02.favoritePlace.controller.view;
 
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
+import com.example.coffies_vol_02.place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +27,8 @@ import java.util.List;
 @RequestMapping("/page/mypage")
 public class FavoriteController {
     private final FavoritePlaceService favoritePlaceService;
+
+    private final PlaceService placeService;
 
     @GetMapping("/contents/{id}")
     public ModelAndView myContents(@PathVariable("id")String userId, @PageableDefault(direction = Sort.Direction.DESC,size = 5,sort = "id") Pageable pageable){
@@ -67,6 +73,21 @@ public class FavoriteController {
         }
         mv.addObject("wishlist",list);
         mv.setViewName("/mypage/wishlist");
+
+        return mv;
+    }
+
+    @GetMapping("/nearplace")
+    public ModelAndView nearPlaceList(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        ModelAndView mv = new ModelAndView();
+        List<PlaceResponseDto> near5 = null;
+        //근처 가게 top5
+        if (customUserDetails != null) {
+            near5  = placeService.placeNear(customUserDetails.getMember().getMemberLat(), customUserDetails.getMember().getMemberLng());
+        }
+
+        mv.addObject("near5",near5);
+        mv.setViewName("/mypage/nearPlaceList");
 
         return mv;
     }

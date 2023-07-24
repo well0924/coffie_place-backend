@@ -40,15 +40,12 @@ public class MainController {
         Page<BoardResponse> boardList = null;
         Page<NoticeResponse>noticeList = null;
         Page<PlaceResponseDto>top5 = null;
-        List<PlaceResponseDto> near5 = null;
+
 
         try {
             //평점이 높은 가게 top5
             top5 =placeService.placeTop5(pageable);
-            //근처 가게 top5
-            if (customUserDetails != null) {
-                near5  = placeService.placeNear(customUserDetails.getMember().getMemberLat(), customUserDetails.getMember().getMemberLng());
-            }
+
             //공지게시글 목록
             noticeList = noticeService.noticeAllList(pageable);
             //자유게시글 목록
@@ -60,7 +57,7 @@ public class MainController {
         mv.addObject("boardlist",boardList);
         mv.addObject("noticelist",noticeList);
         mv.addObject("top5",top5);
-        mv.addObject("near5",near5);
+
         mv.setViewName("/mainPage/mainpage");
 
         return mv;

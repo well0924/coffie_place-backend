@@ -1,5 +1,9 @@
 package com.example.coffies_vol_02.TestCommnet;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.CommentFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -11,7 +15,6 @@ import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
@@ -25,7 +28,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,14 +76,14 @@ public class CommentServiceTest {
 
     @BeforeEach
     public void init(){
-        member = memberDto();
-        board = board();
-        place = place();
-        comment = comment();
-        responseDto = response();
-        commentRequestDto = commentRequestDto();
-        placeCommentResponseDto = placeCommentResponseDto();
-        boardResponseDto = boardResponseDto();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        place = PlaceFactory.place();
+        comment = CommentFactory.comment();
+        responseDto = MemberFactory.response();
+        commentRequestDto = CommentFactory.RequestDto();
+        placeCommentResponseDto = CommentFactory.placeCommentResponseDto();
+        boardResponseDto = BoardFactory.boardResponse();
     }
 
     @DisplayName("댓글 목록-성공")
@@ -171,7 +173,7 @@ public class CommentServiceTest {
        List<Comment>commentList = new ArrayList<>();
        commentList.add(comment);
        List<placeCommentResponseDto>list = new ArrayList<>();
-       list.add(placeCommentResponseDto());
+       list.add(placeCommentResponseDto);
 
        given(commentRepository.findByPlaceId(place.getId())).willReturn(commentList);
        given(commentService.placeCommentList(place.getId())).willReturn(anyList());
@@ -275,86 +277,4 @@ public class CommentServiceTest {
 
     }
 
-    private Comment comment(){
-        return Comment
-                .builder()
-                .replyContents("reply test")
-                .replyWriter(member.getUserId())
-                .replyPoint(3)
-                .board(board)
-                .member(member)
-                .place(place)
-                .build();
-    }
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(member.getUserId())
-                .boardTitle("test")
-                .boardContents("test!")
-                .passWd("132v")
-                .readCount(0)
-                .fileGroupId("free_weft33")
-                .member(member)
-                .build();
-    }
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private Place place(){
-        return Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(3.0)
-                .fileGroupId("place_fre353")
-                .placeName("test place1")
-                .build();
-    }
-
-    private MemberResponse response(){
-        return new MemberResponse(member);
-    }
-    private BoardResponse boardResponseDto(){
-        return new BoardResponse(board);
-    }
-    private CommentRequest commentRequestDto(){
-        return new CommentRequest(
-                comment.getReplyWriter(),
-                comment.getReplyContents(),
-                comment.getReplyPoint());
-    }
-    private placeCommentResponseDto placeCommentResponseDto(){
-        return placeCommentResponseDto
-                .builder()
-                .comment(comment)
-                .build();
-    }
 }

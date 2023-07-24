@@ -14,11 +14,13 @@ import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceReposito
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -132,4 +134,15 @@ public class FavoritePlaceService {
         return list.stream().map(placeCommentResponseDto::new).collect(Collectors.toList());
     }
 
+    /**
+     * 가까운 가게 5곳
+     * @param lat 경도
+     * @param lon 위도
+     * @return result 가게 정보 dto 값
+     **/
+    @Transactional(readOnly = true)
+    public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
+        List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
+        return list.stream().map(place->new PlaceResponseDto()).toList();
+    }
 }

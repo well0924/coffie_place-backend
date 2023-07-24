@@ -1,14 +1,16 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.CommentFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
-import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.place.domain.Place;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +28,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -51,11 +52,11 @@ public class FavoriteControllerTest {
     @MockBean
     private FavoritePlaceService favoritePlaceService;
 
-    private Member member;
+    Member member;
 
-    private Board board;
+    Board board;
 
-    private Place place;
+    Place place;
 
     MemberResponse memberResponseDto;
 
@@ -73,12 +74,12 @@ public class FavoriteControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        board = board();
-        place = place();
-        memberResponseDto =responseDto();
-        boardResponseDto = boardResponseDto();
-        responseDto = commentResponseDto();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        place = PlaceFactory.place();
+        memberResponseDto = MemberFactory.response();
+        boardResponseDto = BoardFactory.boardResponse();
+        responseDto = CommentFactory.placeCommentResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -135,85 +136,4 @@ public class FavoriteControllerTest {
                 .andDo(print());
     }
 
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(memberDto().getUserId())
-                .boardTitle("test")
-                .boardContents("test!!")
-                .fileGroupId("free_sve345s")
-                .readCount(0)
-                .passWd("1234")
-                .member(memberDto())
-                .build();
-    }
-
-    private Comment comment(){
-        return Comment
-                .builder()
-                .replyContents("reply test")
-                .replyWriter(member.getUserId())
-                .replyPoint(3)
-                .board(board)
-                .member(member)
-                .place(place)
-                .build();
-    }
-
-    private Place place(){
-        return Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(0.0)
-                .fileGroupId("place_fre353")
-                .placeName("test place1")
-                .build();
-    }
-
-    private MemberResponse responseDto(){
-        return new MemberResponse(member);
-    }
-
-    private BoardResponse boardResponseDto(){
-        return new BoardResponse(board);
-    }
-
-    private placeCommentResponseDto commentResponseDto(){
-        return placeCommentResponseDto
-                .builder()
-                .comment(comment())
-                .build();
-    }
 }

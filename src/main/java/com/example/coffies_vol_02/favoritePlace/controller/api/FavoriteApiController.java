@@ -6,6 +6,7 @@ import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -108,5 +109,19 @@ public class FavoriteApiController {
             e.printStackTrace();
         }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
+    }
+
+    @ApiOperation(value = "회원 위치에서 가까운 가게 조회", notes = "회원의 위경도를 기준으로 해서 가까운 가게 목록을 조회한다")
+    @GetMapping(path = "/nearlist")
+    public CommonResponse<?> placeNearList(@ApiIgnore @PageableDefault Pageable pageable,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<PlaceResponseDto> nearList = new ArrayList<>();
+
+        try {
+            nearList = favoritePlaceService.placeNear(customUserDetails.getMember().getMemberLat(),customUserDetails.getMember().getMemberLng());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new CommonResponse<>(HttpStatus.OK.value(),nearList);
     }
 }

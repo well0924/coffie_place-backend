@@ -1,5 +1,9 @@
 package com.example.coffies_vol_02.TestMain;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.NoticeFactory;
+import com.example.coffies_vol_02.Factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -66,8 +70,6 @@ public class MainPageTest {
     private BoardService boardService;
     @MockBean
     private NoticeService noticeService;
-    @MockBean
-    private PlaceService placeService;
     private Member member;
     private Board board;
     private NoticeBoard noticeBoard;
@@ -84,13 +86,13 @@ public class MainPageTest {
                 .webAppContextSetup(context)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
-        member = memberDto();
-        board = board();
-        noticeBoard = noticeBoard();
-        place = place();
-        placeImage = placeImage();
-        boardResponseDto = boardResponseDto();
-        responseDto = response();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        noticeBoard = NoticeFactory.noticeBoard();
+        place = PlaceFactory.place();
+        placeImage = PlaceFactory.placeImage();
+        boardResponseDto = BoardFactory.boardResponse();
+        responseDto = NoticeFactory.response();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -102,11 +104,9 @@ public class MainPageTest {
 
         List<BoardResponse>boardList = new ArrayList<>();
         List<NoticeResponse>noticeList = new ArrayList<>();
-        List<Place>placeList = new ArrayList<>();
 
-        boardList.add(boardResponseDto());
-        noticeList.add(response());
-        placeList.add(place());
+        boardList.add(boardResponseDto);
+        noticeList.add(responseDto);
 
         Page<BoardResponse>boardResponses = boardService.boardAllList(pageRequest);
         Page<NoticeResponse>response =  noticeService.noticeAllList(pageRequest);
@@ -124,90 +124,5 @@ public class MainPageTest {
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
-    }
-
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(memberDto().getUserId())
-                .boardTitle("test")
-                .boardContents("test!!")
-                .fileGroupId("free_sve345s")
-                .readCount(0)
-                .passWd("1234")
-                .member(memberDto())
-                .build();
-    }
-    private NoticeBoard noticeBoard(){
-        return NoticeBoard
-                .builder()
-                .id(1)
-                .noticeGroup("공지게시판")
-                .noticeTitle("제목")
-                .noticeContents("ㄹㄷㄹㄷㄹ")
-                .noticeWriter(member.getUserId())
-                .fileGroupId("notice_ge2353w")
-                .isFixed('Y')
-                .build();
-    }
-    private Place place(){
-        return Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(0.0)
-                .fileGroupId("place_fre353")
-                .placeName("test place1")
-                .build();
-    }
-    private PlaceImage placeImage(){
-        return PlaceImage
-                .builder()
-                .fileGroupId("place_ereg34593")
-                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
-                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
-                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
-                .storedName("다운로드 (1).jpg")
-                .originName("1320441218420200.jpg")
-                .imgUploader(member.getUserId())
-                .imgGroup("coffieplace")
-                .isTitle("1")
-                .build();
-    }
-    private BoardResponse boardResponseDto(){
-        return new BoardResponse(board());
-    }
-    private NoticeResponse response(){
-        return new NoticeResponse(noticeBoard());
     }
 }

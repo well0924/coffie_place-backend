@@ -160,15 +160,17 @@ public class CommentService {
 
     /**
      * 가게 댓글 삭제
-     * @author 양경빈
+     *
      * @param replyId 가게 댓글번호
-     * @param member 로그인 인증에 필요한 객체
-     * @exception CustomExceptionHandler 조회할 가게가 없는 경우,로그인이 인증 안되는 경우,댓글 작성자와 로그인한 회원이 일치하지 않은 경우(NOT_AUTH)
+     * @param member  로그인 인증에 필요한 객체
+     * @return
+     * @throws CustomExceptionHandler 조회할 가게가 없는 경우,로그인이 인증 안되는 경우,댓글 작성자와 로그인한 회원이 일치하지 않은 경우(NOT_AUTH)
+     * @author 양경빈
      * @see CommentRepository#findById(Object) 가게댓글을 조회하는 메서드
      * @see CommentRepository#deleteById(Object) 가게댓글을 삭제하는 메서드
-     **/
+     */
     @Transactional
-    public void placeCommentDelete(Integer replyId,Member member){
+    public Object placeCommentDelete(Integer replyId, Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -185,6 +187,7 @@ public class CommentService {
         }
 
         commentRepository.deleteById(replyId);
+        return null;
     }
 
     /**

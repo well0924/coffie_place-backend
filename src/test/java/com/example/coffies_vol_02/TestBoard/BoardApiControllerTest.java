@@ -1,5 +1,8 @@
 package com.example.coffies_vol_02.TestBoard;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.FileFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -13,7 +16,6 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,9 +77,9 @@ public class BoardApiControllerTest {
     @Mock
     private AttachRepository attachRepository;
 
-    private Member member;
+    Member member;
 
-    private Board board;
+    Board board;
 
     SearchType searchType;
 
@@ -107,14 +108,14 @@ public class BoardApiControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        board = board();
-        boardRequestDto = boardRequestDto();
-        boardResponseDto = boardResponse();
-        attach = attach();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        boardRequestDto = BoardFactory.boardRequestDto();
+        boardResponseDto = BoardFactory.boardResponse();
+        attach = FileFactory.attach();
         filelist.add(attach);
         filelist = fileHandler.parseFileInfo(files);
-        detailfileList.add(attachDto());
+        detailfileList.add(FileFactory.attachDto());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -124,7 +125,7 @@ public class BoardApiControllerTest {
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<BoardResponse>responseDtoList = new ArrayList<>();
-        responseDtoList.add(boardResponse());
+        responseDtoList.add(boardResponseDto);
         Page<BoardResponse>list = new PageImpl<>(responseDtoList,pageRequest,1);
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
@@ -184,7 +185,7 @@ public class BoardApiControllerTest {
     @Test
     @DisplayName("게시글 작성")
     public void boardWriteTest()throws Exception{
-        String content= objectMapper.writeValueAsString(boardRequestDto());
+        String content= objectMapper.writeValueAsString(boardRequestDto);
         MockMultipartFile file3 = new MockMultipartFile("boardDto", "jsondata", "application/json", content.getBytes(StandardCharsets.UTF_8));
 
         when(boardService.boardCreate(boardRequestDto,files,customUserDetails.getMember())).thenReturn(board.getId());
@@ -243,6 +244,7 @@ public class BoardApiControllerTest {
                             requestPostProcessor.setMethod("PUT");
                             return requestPostProcessor;})
                         .contentType(MediaType.ALL)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isCreated())
                 .andExpect(status().is2xxSuccessful())
@@ -269,70 +271,4 @@ public class BoardApiControllerTest {
         verify(boardService).passwordCheck(board.getPassWd(),board.getId(),customUserDetails.getMember());
     }
 
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(member.getUserId())
-                .boardTitle("test")
-                .boardContents("test!")
-                .passWd("132v")
-                .readCount(1)
-                .fileGroupId("free_weft33")
-                .member(member)
-                .build();
-    }
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private BoardRequest boardRequestDto(){
-        return new BoardRequest(
-                board.getBoardTitle(),
-                board.getBoardContents(),
-                board.getMember().getUserId(),
-                board.getReadCount(),
-                board.getPassWd(),
-                board.getFileGroupId());
-    }
-    private BoardResponse boardResponse(){
-        return new BoardResponse(board);
-    }
-
-    private Attach attach(){
-        return Attach
-                .builder()
-                .originFileName("c.jpg")
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .fileSize(30277L)
-                .build();
-    }
-    private AttachDto attachDto(){
-        return AttachDto
-                .builder()
-                .boardId(board.getId())
-                .noticeId(1)
-                .originFileName("c.jpg")
-                .fileSize(30277L)
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .build();
-    }
 }

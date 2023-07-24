@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.TestMember;
 
+import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
@@ -26,7 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,9 +71,9 @@ public class MemberApiControllerTest {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .build();
-        member = memberDto();
-        request = request();
-        response = response();
+        member = MemberFactory.memberDto();
+        request = MemberFactory.request();
+        response = MemberFactory.response();
     }
 
     @DisplayName("회원 목록")
@@ -97,7 +97,7 @@ public class MemberApiControllerTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
-        when(memberService.findByMember(member.getId())).thenReturn(response());
+        when(memberService.findByMember(member.getId())).thenReturn(response);
 
         mvc.perform(get("/api/member/detail/{user-idx}",member.getId())
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -193,7 +193,7 @@ public class MemberApiControllerTest {
     @Test
     @DisplayName("회원이메일 중복-중복이 되는 경우")
     public void memberEmailDuplicatedTestFail()throws Exception{
-        given(memberService.findByMember(member.getId())).willReturn(response());
+        given(memberService.findByMember(member.getId())).willReturn(response);
         given(memberService.memberEmailCheck(member.getUserEmail())).willReturn(true);
 
         when(memberService.memberEmailCheck(member.getUserEmail())).thenReturn(true);
@@ -290,45 +290,4 @@ public class MemberApiControllerTest {
         verify(memberService).memberAutoSearch(member.getUserId());
     }
 
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!@#")
-                .memberName("admin1")
-                .userEmail("well41492@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("30")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .accountNonLocked(true)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .build();
-    }
-
-    private MemberRequest request(){
-        return new MemberRequest(
-                member.getId(),
-                member.getUserId(),
-                member.getPassword(),
-                member.getMemberName(),
-                member.getUserPhone(),
-                member.getUserGender(),
-                member.getUserAge(),
-                member.getUserEmail(),
-                member.getUserAddr1(),
-                member.getUserAddr2(),
-                member.getMemberLng(),
-                member.getMemberLat(),
-                member.getRole());
-    }
-
-    private MemberResponse response(){
-        return new MemberResponse(member);
-    }
 }

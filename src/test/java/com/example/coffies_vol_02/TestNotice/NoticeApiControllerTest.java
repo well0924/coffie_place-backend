@@ -1,5 +1,8 @@
 package com.example.coffies_vol_02.TestNotice;
 
+import com.example.coffies_vol_02.Factory.FileFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.NoticeFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -8,7 +11,6 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
@@ -34,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,11 +67,11 @@ public class NoticeApiControllerTest {
     private FileHandler fileHandler;
     @Mock
     private AttachRepository attachRepository;
-    private Member member;
-    private NoticeBoard noticeBoard;
-    private NoticeResponse responseDto;
-    private NoticeRequest requestDto;
-    private MemberResponse memberResponseDto;
+    Member member;
+    NoticeBoard noticeBoard;
+    NoticeResponse responseDto;
+    NoticeRequest requestDto;
+    MemberResponse memberResponseDto;
     SearchType searchType;
     Attach attach;
     List<AttachDto> detailfileList = new ArrayList<>();
@@ -88,15 +89,15 @@ public class NoticeApiControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        memberResponseDto = responseDto();
-        noticeBoard = noticeBoard();
-        requestDto = noticeRequest();
-        responseDto = noticeResponse();
-        attach = attach();
+        member = MemberFactory.memberDto();
+        memberResponseDto = MemberFactory.response();
+        noticeBoard = NoticeFactory.noticeBoard();
+        requestDto = NoticeFactory.noticeRequest();
+        responseDto = NoticeFactory.response();
+        attach = FileFactory.attach();
         filelist.add(attach);
         filelist = fileHandler.parseFileInfo(files);
-        detailfileList.add(attachDto());
+        detailfileList.add(FileFactory.attachDto());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -105,7 +106,7 @@ public class NoticeApiControllerTest {
     public void NoticeBoardListTest()throws Exception{
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<NoticeResponse>list = new ArrayList<>();
-        list.add(noticeResponse());
+        list.add(responseDto);
         Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
         given(noticeService.noticeAllList(pageRequest)).willReturn(result);
 
@@ -124,15 +125,16 @@ public class NoticeApiControllerTest {
     public void NoticeBoardSearchTest()throws Exception{
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<NoticeResponse>list = new ArrayList<>();
-        list.add(noticeResponse());
+        list.add(responseDto);
         Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
-        String searchVal = "공지게시판";
+        String searchVal = "well4149";
 
         given(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).willReturn(result);
 
         when(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).thenReturn(result);
 
         mvc.perform(get("/api/notice/search")
+                .param("searchType", String.valueOf(SearchType.w))
                 .param("searchVal",searchVal)
                 .with(user(customUserDetails))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +149,7 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 단일 조회")
     public void NoticeBoardDetailTest()throws Exception{
 
-        given(noticeService.findNotice(noticeBoard.getId())).willReturn(noticeResponse());
+        given(noticeService.findNotice(noticeBoard.getId())).willReturn(responseDto);
 
         when(noticeService.findNotice(noticeBoard.getId())).thenReturn(responseDto);
 
@@ -164,10 +166,10 @@ public class NoticeApiControllerTest {
     @DisplayName("공지게시판 작성")
     public void NoticeBoardWriteTest()throws Exception{
 
-        String contents = objectMapper.writeValueAsString(noticeRequest());
+        String contents = objectMapper.writeValueAsString(requestDto);
         MockMultipartFile files3 = new MockMultipartFile("noticeDto","jsondata", "application/json", contents.getBytes(StandardCharsets.UTF_8));
 
-        when(noticeService.noticeCreate(noticeRequest(),files)).thenReturn(noticeBoard.getId());
+        when(noticeService.noticeCreate(requestDto,files)).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/write")
                         .file("files",files.get(0).getBytes())
@@ -197,7 +199,7 @@ public class NoticeApiControllerTest {
         given(attachRepository.save(attach)).willReturn(attach);
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
-        when(noticeService.noticeUpdate(noticeBoard.getId(),noticeRequest(),files)).thenReturn(noticeBoard.getId());
+        when(noticeService.noticeUpdate(noticeBoard.getId(),requestDto,files)).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/update/{notice_id}",noticeBoard.getId())
                 .file("files",files.get(3).getBytes())
@@ -224,71 +226,4 @@ public class NoticeApiControllerTest {
                 .andDo(print());
     }
 
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ").memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-
-    private MemberResponse responseDto(){
-        return new MemberResponse(member);
-    }
-
-    private NoticeBoard noticeBoard(){
-        return NoticeBoard.builder()
-                .id(1)
-                .noticeTitle("title")
-                .noticeWriter(memberDto().getUserId())
-                .noticeContents("test")
-                .isFixed('Y')
-                .noticeGroup("자유게시판")
-                .fileGroupId("notice_gr23411")
-                .build();
-    }
-
-    private NoticeRequest noticeRequest(){
-        return new NoticeRequest(
-                noticeBoard.getNoticeGroup(),
-                noticeBoard.getIsFixed(),
-                noticeBoard.getNoticeTitle(),
-                noticeBoard.getNoticeWriter(),
-                noticeBoard.getNoticeContents(),
-                noticeBoard.getFileGroupId());
-    }
-    private NoticeResponse noticeResponse(){
-        return new NoticeResponse(noticeBoard);
-    }
-    private Attach attach(){
-        return Attach
-                .builder()
-                .originFileName("c.jpg")
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .fileSize(30277L)
-                .build();
-    }
-    private AttachDto attachDto(){
-        return AttachDto
-                .builder()
-                .noticeId(1)
-                .originFileName("c.jpg")
-                .fileSize(30277L)
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .build();
-    }
 }

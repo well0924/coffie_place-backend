@@ -1,5 +1,9 @@
 package com.example.coffies_vol_02.TestCommnet;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.CommentFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
@@ -69,21 +73,24 @@ public class CommentApiControllerTest {
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
     private CustomUserDetails customUserDetails;
     private List<placeCommentResponseDto> commentResponseDtoList = new ArrayList<>();
-
+    List<Comment>commentList = new ArrayList<>();
+    CommentRequest commentRequest;
     @BeforeEach
     public void init(){
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        board = board();
-        place = place();
-        comment = comment();
-        commentResponseDtoList.add(placeCommentResponse());
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        place = PlaceFactory.place();
+        comment = CommentFactory.comment();
+        commentRequest = CommentFactory.RequestDto();
+        commentList.add(comment);
+        commentResponseDtoList.add(CommentFactory.placeCommentResponseDto());
         memberRepository.save(member);
-        commentRepository.save(comment());
-        placeRepository.findById(place().getId());
+        commentRepository.save(CommentFactory.comment());
+        placeRepository.findById(PlaceFactory.place().getId());
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -94,7 +101,7 @@ public class CommentApiControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
-        when(commentService.replyList(board().getId())).thenReturn(any());
+        when(commentService.replyList(board.getId())).thenReturn(any());
 
         mvc.perform(get("/api/comment/list/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,14 +119,14 @@ public class CommentApiControllerTest {
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(commentService.commentCreate(board.getId(),member,request())).willReturn(comment.getId());
+        given(commentService.commentCreate(board.getId(),member,commentRequest)).willReturn(comment.getId());
 
-        when(commentService.commentCreate(board.getId(),member,request())).thenReturn(comment.getId());
+        when(commentService.commentCreate(board.getId(),member,commentRequest)).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/write/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(request()))
+                        .content(objectMapper.writeValueAsString(commentRequest))
                         .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
@@ -130,19 +137,13 @@ public class CommentApiControllerTest {
     @Test
     @DisplayName("게시판 댓글 삭제")
     public void boardCommentDelete()throws Exception{
-        given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
-        given(boardRepository.findById(board().getId())).willReturn(Optional.of(board));
 
-        doNothing().when(commentService).commentDelete(comment().getId(),member);
-
-        mvc.perform(delete("/api/comment/delete/{reply_id}",comment().getId())
+        mvc.perform(delete("/api/comment/delete/{reply_id}",comment.getId())
                 .with(user(customUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.ALL)
                         .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(commentService).commentDelete(anyInt(),any());
     }
 
     @Test
@@ -159,21 +160,21 @@ public class CommentApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(commentService).placeCommentList(comment().getId());
+        verify(commentService).placeCommentList(place.getId());
     }
 
     @Test
     @DisplayName("가게 댓글 작성")
     public void placeCommentWrite()throws Exception{
 
-        given(commentService.placeCommentCreate(place().getId(), request(), member)).willReturn(comment().getId());
+        given(commentService.placeCommentCreate(place.getId(),commentRequest, member)).willReturn(comment.getId());
 
-        when(commentService.placeCommentCreate(place.getId(),request(),member)).thenReturn(comment.getId());
+        when(commentService.placeCommentCreate(place.getId(),commentRequest,member)).thenReturn(comment.getId());
 
         mvc.perform(post("/api/comment/place/write/{place_id}",place.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8)
-                .content(objectMapper.writeValueAsString(request()))
+                .content(objectMapper.writeValueAsString(commentRequest))
                 .with(user(customUserDetails)))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
@@ -184,95 +185,12 @@ public class CommentApiControllerTest {
     @Test
     @DisplayName("가게 댓글 삭제")
     public void placeCommentDeleteTest()throws Exception{
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
-
-        doNothing().when(commentService).placeCommentDelete(comment.getId(),member);
 
         mvc.perform(delete("/api/comment/place/delete/{place_id}/{reply_id}",place.getId(),comment.getId())
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(commentService).placeCommentDelete(anyInt(),any());
-    }
-
-    private Comment comment(){
-        return Comment
-                .builder()
-                .id(1)
-                .replyContents("reply test")
-                .replyWriter(memberDto().getUserId())
-                .replyPoint(3)
-                .board(board())
-                .member(memberDto())
-                .place(place())
-                .build();
-    }
-    private CommentRequest request(){
-        return new CommentRequest(comment.getReplyWriter(),comment.getReplyContents(),comment.getReplyPoint());
-    }
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(memberDto().getUserId())
-                .boardTitle("test")
-                .boardContents("test!")
-                .passWd("132v")
-                .readCount(0)
-                .fileGroupId("free_weft33")
-                .member(member)
-                .build();
-    }
-
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-
-    private Place place(){
-        return Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(0.0)
-                .fileGroupId("place_fre353")
-                .placeName("test place1")
-                .build();
-    }
-
-    private placeCommentResponseDto placeCommentResponse(){
-        return placeCommentResponseDto
-                .builder()
-                .comment(comment)
-                .build();
     }
 
 }

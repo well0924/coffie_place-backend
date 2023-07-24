@@ -8,6 +8,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -33,8 +34,10 @@ import java.util.UUID;
 public class BoardViewController {
 
     private final BoardService boardService;
-    private final BoardRepository boardRepository;
+
     private final AttachService attachService;
+
+    private final RedisService redisService;
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
@@ -48,9 +51,10 @@ public class BoardViewController {
         try {
             boardList = boardService.boardAllList(pageable);
             //검색을 하는 경우
-            if(searchVal != null||searchType.getValue()!=null){
+            if(searchVal!=null){
                 boardList = boardService.boardSearchAll(searchType,searchVal,pageable);
             }
+            log.info(boardList);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -75,12 +79,12 @@ public class BoardViewController {
         Optional<BoardNextInterface> nextBoard;
 
         try{
+            //게시글 조회수 캐시 적용
+            redisService.boardViewCount(boardId);
             detail = boardService.findBoard(boardId);
             attachList = attachService.boardfilelist(boardId);
             previousBoard = boardService.findPreviousBoard(boardId);
             nextBoard = boardService.findNextBoard(boardId);
-            //조회수 증가.
-            boardRepository.ReadCountUpToDB(boardId,detail.readCount());
 
             mv.addObject("detail",detail);
             mv.addObject("file",attachList);

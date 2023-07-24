@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.TestLike;
 
+import com.example.coffies_vol_02.Factory.*;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
@@ -10,7 +11,6 @@ import com.example.coffies_vol_02.like.domain.Like;
 import com.example.coffies_vol_02.like.repository.CommentLikeRepository;
 import com.example.coffies_vol_02.like.repository.LikeRepository;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
@@ -23,13 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -48,8 +46,6 @@ public class TestLikeController {
     private MockMvc mvc;
     @Autowired
     private WebApplicationContext context;
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
     private CommentRepository commentRepository;
     @Mock
@@ -77,12 +73,12 @@ public class TestLikeController {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        board = getBoard();
-        place = getPlace();
-        like = getLike();
-        comment = comment();
-        commentLike = getCommentLike();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        place = PlaceFactory.place();
+        like = LikeFactory.getLike();
+        comment = CommentFactory.comment();
+        commentLike = LikeFactory.getCommentLike();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 
@@ -102,7 +98,7 @@ public class TestLikeController {
     @DisplayName("게시글 좋아요+1")
     public void boardLikePlusTest()throws Exception{
 
-        mvc.perform(post("/api/like/plus/{board_id}",getBoard().getId())
+        mvc.perform(post("/api/like/plus/{board_id}",board.getId())
                         .content(objectMapper.writeValueAsString(board.getId()))
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +114,7 @@ public class TestLikeController {
         given(likeRepository.findByMemberAndBoard(member,board)).willReturn(Optional.of(like));
         given(likeRepository.save(like)).willReturn(like);
 
-        mvc.perform(delete("/api/like/minus/{board_id}",getBoard().getId())
+        mvc.perform(delete("/api/like/minus/{board_id}",board.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .with(user(customUserDetails)))
@@ -173,81 +169,4 @@ public class TestLikeController {
                 .andDo(print());
     }
 
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(bCryptPasswordEncoder.encode("qwer4149!!"))
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private Board getBoard(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(memberDto().getUserId())
-                .boardTitle("test")
-                .boardContents("test!!")
-                .fileGroupId("free_sve345s")
-                .readCount(0)
-                .passWd("1234")
-                .member(memberDto())
-                .build();
-    }
-    private Comment comment(){
-        return Comment
-                .builder()
-                .id(5)
-                .replyContents("reply test")
-                .replyWriter(member.getUserId())
-                .replyPoint(3)
-                .board(board)
-                .member(member)
-                .build();
-    }
-    private Like getLike(){
-        return Like
-                .builder()
-                .board(board)
-                .member(member)
-                .build();
-    }
-    private Place getPlace(){
-        return Place
-                .builder()
-                .id(1)
-                .placeName("we")
-                .placeStart("10:00")
-                .placeClose("20:00")
-                .placePhone("010-2345-5666")
-                .placeAuthor(member.getUserId())
-                .fileGroupId("place_sdc353")
-                .reviewRate(0.0)
-                .placeLat(123.34)
-                .placeLng(23.35)
-                .placeAddr1("sssss-ssss-ss")
-                .placeAddr2("sdcsvefv")
-                .build();
-    }
-    private CommentLike getCommentLike(){
-        return CommentLike
-                .builder()
-                .member(member)
-                .comment(comment)
-                .build();
-    }
 }

@@ -1,5 +1,9 @@
 package com.example.coffies_vol_02.TestFile;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.FileFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.NoticeFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -49,22 +53,22 @@ public class AttachServiceTest {
 
     @BeforeEach
     public void init(){
-        member=memberDto();
-        board = board();
-        notice = noticeBoard();
-        attach = attach();
+        member= MemberFactory.memberDto();
+        board = BoardFactory.board();
+        notice = NoticeFactory.noticeBoard();
+        attach = FileFactory.attach();
         filelist.add(attach);
-        detailfileList.add(attachDto());
-        detailfileList.add(noticeDto());
+        detailfileList.add(FileFactory.attachDto());
+        detailfileList.add(FileFactory.noticeDto());
     }
 
     @Test
     @DisplayName("파일 전체 목록(자유게시판)")
     public void BoardFileListTest()throws Exception{
         List<Attach>list= new ArrayList<>();
-        list.add(attach());
+        list.add(attach);
         List<AttachDto>result = new ArrayList<>();
-        result.add(attachDto());
+        result.add(FileFactory.attachDto());
 
         given(attachRepository.findAttachBoard(any())).willReturn(filelist);
 
@@ -80,13 +84,13 @@ public class AttachServiceTest {
     @DisplayName("파일 전체 목록(공지게시판)")
     public void NoticeFileListTest()throws Exception{
         List<Attach>list= new ArrayList<>();
-        list.add(attach());
+        list.add(attach);
         List<AttachDto>result = new ArrayList<>();
-        result.add(noticeDto());
+        result.add(FileFactory.noticeDto());
 
-        given(attachRepository.findAttachNoticeBoard(any())).willReturn(filelist);
+        given(attachRepository.findAttachNoticeBoard(notice.getId())).willReturn(filelist);
 
-        when(attachService.noticefilelist(any())).thenReturn(result);
+        when(attachService.noticefilelist(notice.getId())).thenReturn(result);
         when(attachRepository.findAttachNoticeBoard(any())).thenReturn(filelist);
 
         result = attachService.noticefilelist(anyInt());
@@ -130,85 +134,9 @@ public class AttachServiceTest {
     @Test
     @DisplayName("파일 조회(공지게시판)")
     public void NoticeFileTest(){
-        given(attachRepository.findAttachByOriginFileName(noticeDto().getOriginFileName())).willReturn(Optional.of(attach));
-        AttachDto attachDto = attachService.getNoticeBoardFile(noticeDto().getOriginFileName());
-        verify(attachRepository).findAttachByOriginFileName(noticeDto().getOriginFileName());
+        given(attachRepository.findAttachByOriginFileName(FileFactory.noticeDto().getOriginFileName())).willReturn(Optional.of(attach));
+        AttachDto attachDto = attachService.getNoticeBoardFile(FileFactory.noticeDto().getOriginFileName());
+        verify(attachRepository).findAttachByOriginFileName(FileFactory.noticeDto().getOriginFileName());
     }
 
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(member.getUserId())
-                .boardTitle("test")
-                .boardContents("test!")
-                .passWd("132v")
-                .readCount(1)
-                .fileGroupId("free_weft33")
-                .member(member)
-                .build();
-    }
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private NoticeBoard noticeBoard(){
-        return NoticeBoard
-                .builder()
-                .id(1)
-                .noticeWriter(memberDto().getUserId())
-                .noticeTitle("title")
-                .noticeGroup("공지게시판")
-                .noticeContents("내용")
-                .isFixed('Y')
-                .fileGroupId("notice_few3432")
-                .build();
-    }
-    private Attach attach(){
-        return Attach
-                .builder()
-                .id(1)
-                .board(board)
-                .noticeBoard(notice)
-                .originFileName("c.jpg")
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .fileSize(30277L)
-                .build();
-    }
-    private AttachDto attachDto(){
-        return AttachDto
-                .builder()
-                .boardId(board.getId())
-                .originFileName("c.jpg")
-                .fileSize(30277L)
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .build();
-    }
-
-    private AttachDto noticeDto(){
-        return AttachDto.builder()
-                .noticeId(notice.getId())
-                .originFileName("c.jpg")
-                .fileSize(30277L)
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .build();
-    }
 }

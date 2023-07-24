@@ -1,5 +1,8 @@
 package com.example.coffies_vol_02.TestBoard;
 
+import com.example.coffies_vol_02.Factory.BoardFactory;
+import com.example.coffies_vol_02.Factory.FileFactory;
+import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -14,7 +17,6 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,16 +87,16 @@ public class BoardServiceTest {
 
     @BeforeEach
     public void init() throws Exception {
-        member = memberDto();
-        board = board();
-        boardRequestDto = boardRequestDto();
-        boardResponseDto = boardResponse();
-        memberResponse = response();
-        attach = attach();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        boardRequestDto = BoardFactory.boardRequestDto();
+        boardResponseDto = BoardFactory.boardResponse();
+        memberResponse = MemberFactory.response();
+        attach = FileFactory.attach();
         filelist.add(attach);
         filelist = fileHandler.parseFileInfo(files);
-        detailfileList.add(attachDto());
-        detailfileList = attachService.boardfilelist(board.getId());
+        detailfileList.add(FileFactory.attachDto());
+        detailfileList = attachService.boardfilelist(BoardFactory.board().getId());
     }
 
     @Test
@@ -117,7 +118,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회")
     public void boardDetail(){
         //given
-        given(boardRepository.boardDetail(board.getId())).willReturn(boardResponse());
+        given(boardRepository.boardDetail(board.getId())).willReturn(boardResponseDto);
         //when
         BoardResponse result = boardService.findBoard(board.getId());
         System.out.println(result);
@@ -197,7 +198,7 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 삭제")
     public void boardDelete() throws Exception {
-        board = board();
+        board = BoardFactory.board();
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
@@ -264,7 +265,7 @@ public class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),null,files));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto,null,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -279,7 +280,7 @@ public class BoardServiceTest {
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto(),member,files));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto,member,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -327,74 +328,4 @@ public class BoardServiceTest {
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_MATCH_PASSWORD);
     }
 
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardTitle("test")
-                .boardAuthor(member.getUserId())
-                .boardContents("test!")
-                .readCount(1)
-                .passWd("132v")
-                .fileGroupId("free_weft33")
-                .member(member)
-                .build();
-    }
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-
-    private MemberResponse response(){
-        return new MemberResponse(member);
-    }
-    private BoardRequest boardRequestDto(){
-        return new BoardRequest(
-            board.getBoardTitle(),
-                board.getBoardContents(),
-                board.getMember().getUserId(),
-                board.getReadCount(),
-                board.getPassWd(),
-                board.getFileGroupId()
-        );
-    }
-    private BoardResponse boardResponse(){
-        return new BoardResponse(board);
-    }
-    private Attach attach(){
-        return Attach
-                .builder()
-                .originFileName("c.jpg")
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .fileSize(30277L)
-                .build();
-    }
-    private AttachDto attachDto(){
-        return AttachDto
-                .builder()
-                .boardId(board.getId())
-                .noticeId(1)
-                .originFileName("c.jpg")
-                .fileSize(30277L)
-                .filePath("C:\\\\UploadFile\\\\\\1134003220710700..jpg")
-                .build();
-    }
 }

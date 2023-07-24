@@ -61,9 +61,9 @@ public class NoticeControllerTest {
     private AttachService attachService;
     @Autowired
     private MockMvc mvc;
-    private Member member;
-    private NoticeBoard noticeBoard;
-    private Attach attach;
+    Member member;
+    NoticeBoard noticeBoard;
+    Attach attach;
     NoticeResponse responseDto;
     NoticeRequest requestDto;
     List<AttachDto> detailfileList = new ArrayList<>();

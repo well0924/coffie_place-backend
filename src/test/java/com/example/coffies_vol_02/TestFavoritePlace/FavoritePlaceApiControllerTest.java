@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.TestFavoritePlace;
 
+import com.example.coffies_vol_02.Factory.*;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -13,7 +14,6 @@ import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
@@ -35,7 +35,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,13 +66,13 @@ public class FavoritePlaceApiControllerTest {
     private CommentRepository commentRepository;
     @Mock
     private PlaceRepository placeRepository;
-    private Member member;
-    private Board board;
-    private Place place;
-    private PlaceImage placeImage;
-    private Comment comment;
-    private FavoritePlace favoritePlace;
-    private List<PlaceImage>placeImageList = new ArrayList<>();
+    Member member;
+    Board board;
+    Place place;
+    PlaceImage placeImage;
+    Comment comment;
+    FavoritePlace favoritePlace;
+    List<PlaceImage>placeImageList = new ArrayList<>();
     MemberResponse memberResponseDto;
     BoardResponse boardResponseDto;
     placeCommentResponseDto responseDto;
@@ -88,16 +87,16 @@ public class FavoritePlaceApiControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-        member = memberDto();
-        board = board();
-        comment = comment();
-        place = place();
-        placeImage = placeImage();
+        member = MemberFactory.memberDto();
+        board = BoardFactory.board();
+        comment = CommentFactory.comment();
+        place = PlaceFactory.place();
+        placeImage = PlaceFactory.placeImage();
         placeImageList.add(placeImage);
-        favoritePlace = favoritePlace();
-        memberResponseDto = responseDto();
-        boardResponseDto = boardResponseDto();
-        responseDto = commentResponseDto();
+        favoritePlace = FavoritePlaceFactory.favoritePlace();
+        memberResponseDto = MemberFactory.response();
+        boardResponseDto = BoardFactory.boardResponse();
+        responseDto = CommentFactory.placeCommentResponseDto();
        //favoritePlaceResponseDto = favoritePlaceResponseDto();
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
@@ -233,115 +232,6 @@ public class FavoritePlaceApiControllerTest {
                 .andDo(print());
 
         verify(favoritePlaceService).wishDelete(eq(favoritePlace.getId()));
-    }
-
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-    private Board board(){
-        return Board
-                .builder()
-                .id(1)
-                .boardAuthor(memberDto().getUserId())
-                .boardTitle("test")
-                .boardContents("test!!")
-                .fileGroupId("free_sve345s")
-                .readCount(0)
-                .passWd("1234")
-                .member(memberDto())
-                .build();
-    }
-    private Comment comment(){
-        return Comment
-                .builder()
-                .replyContents("reply test")
-                .replyWriter(member.getUserId())
-                .replyPoint(3)
-                .board(board)
-                .member(member)
-                .place(place)
-                .build();
-    }
-
-    private Place place(){
-        return Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(0.0)
-                .fileGroupId("place_fre353")
-                .placeName("test place1")
-                .placeImages(placeImageList)
-                .build();
-    }
-
-    private PlaceImage placeImage(){
-        return PlaceImage
-                .builder()
-                .fileGroupId("place_ereg34593")
-                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
-                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
-                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
-                .storedName("다운로드 (1).jpg")
-                .originName("1320441218420200.jpg")
-                .imgUploader(member.getUserId())
-                .imgGroup("coffieplace")
-                .isTitle("1")
-                .build();
-    }
-
-    private FavoritePlace favoritePlace(){
-        return FavoritePlace
-                .builder()
-                .id(1)
-                .place(place())
-                .fileGroupId(place().getFileGroupId())
-                .member(memberDto())
-                .build();
-    }
-    private FavoritePlaceResponseDto favoritePlaceResponseDto(){
-        return new FavoritePlaceResponseDto(favoritePlace());
-    }
-
-    private MemberResponse responseDto(){
-        return new MemberResponse(member);
-    }
-
-    private BoardResponse boardResponseDto(){
-        return new BoardResponse(board);
-    }
-
-    private placeCommentResponseDto commentResponseDto(){
-        return placeCommentResponseDto
-                .builder()
-                .comment(comment)
-                .build();
     }
 
 }

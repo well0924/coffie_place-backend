@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.TestMember;
 
+import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -96,42 +97,14 @@ public class MemberViewControllerTest {
     @DisplayName("회원 수정 화면")
     @WithMockUser(username = "well4149",roles = "ADMIN")
     public void adminDetailPageTest()throws Exception{
-        given(memberService.findByMember(anyInt())).willReturn(response());
+        given(memberService.findByMember(anyInt())).willReturn(MemberFactory.response());
 
         mvc.perform(
-                get("/page/login/modify/{id}",responseDto().id())
+                get("/page/login/modify/{id}",MemberFactory.response().id())
                 .contentType(MediaType.TEXT_HTML))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(view().name("/login/membermodify"))
                 .andDo(print());
-    }
-
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!@#")
-                .memberName("admin1")
-                .userEmail("well41492@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("30")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .accountNonLocked(true)
-                .failedAttempt(0)
-                .enabled(true)
-                .lockTime(new Date())
-                .build();
-    }
-
-    private MemberResponse responseDto(){
-        return new MemberResponse(memberDto());
-    }
-    private MemberResponse response(){
-        return new MemberResponse(memberDto());
     }
 }

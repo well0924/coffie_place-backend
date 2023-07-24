@@ -1,9 +1,9 @@
 package com.example.coffies_vol_02.TestMember;
 
+import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -42,15 +42,14 @@ public class MemberServiceTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     Member member;
-
     MemberRequest memberRequest;
     MemberResponse memberResponse;
 
     @BeforeEach
     public void init(){
-        member = memberDto();
-        memberRequest = request();
-        memberResponse = response();
+        member = MemberFactory.memberDto();
+        memberRequest = MemberFactory.request();
+        memberResponse = MemberFactory.response();
     }
 
     @Test
@@ -67,7 +66,7 @@ public class MemberServiceTest {
         Page<MemberResponse>result = memberService.findAll(pageable);
 
         assertThat(result).isNotNull();
-        assertThat(result.get().toList().get(0).memberName()).isEqualTo(memberDto().getMemberName());
+        assertThat(result.get().toList().get(0).memberName()).isEqualTo(member.getMemberName());
     }
 
     @Test
@@ -97,7 +96,7 @@ public class MemberServiceTest {
 
         PageRequest pageRequest= PageRequest.of(0,5, Sort.by("id").descending());
         List<MemberResponse>list = new ArrayList<>();
-        list.add(response());
+        list.add(memberResponse);
 
         Page<MemberResponse>result = new PageImpl<>(list,pageRequest,1);
 
@@ -132,9 +131,9 @@ public class MemberServiceTest {
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         //when
-        member.updateMember(request());
+        member.updateMember(memberRequest);
 
-        memberService.memberUpdate(member.getId(),request());
+        memberService.memberUpdate(member.getId(),memberRequest);
 
     }
 
@@ -142,7 +141,7 @@ public class MemberServiceTest {
     @DisplayName("회원 탈퇴")
     public void memberDeleteTest(){
         //given
-        given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         long count = memberRepository.count();
         //when
         memberService.memberDelete(member.getId());
@@ -154,7 +153,7 @@ public class MemberServiceTest {
     @DisplayName("회원아이디 중복")
     public void memberIdDuplicatedTest(){
         //given
-        given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         String userid = member.getUserId();
 
         //when
@@ -168,7 +167,7 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원이메일 중복")
     public void memberEmailDuplicatedTest(){
-        given(memberRepository.findById(memberDto().getId())).willReturn(Optional.of(member));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         String userEmail = member.getUserEmail();
 
         given(memberService.memberEmailCheck(userEmail)).willReturn(true);
@@ -316,47 +315,5 @@ public class MemberServiceTest {
     @DisplayName("계정잠금해제 유효기간 테스트")
     public void unlockWhenTimeExpiredTest(){
 
-    }
-
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password(bCryptPasswordEncoder.encode("qwer4149!!"))
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .role(Role.ROLE_ADMIN)
-                .enabled(true)
-                .accountNonLocked(true)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .build();
-    }
-
-    private MemberRequest request(){
-        return new MemberRequest(
-                member.getId(),
-                member.getUserId(),
-                member.getPassword(),
-                member.getMemberName(),
-                member.getUserPhone(),
-                member.getUserGender(),
-                member.getUserAge(),
-                member.getUserEmail(),
-                member.getUserAddr1(),
-                member.getUserAddr2(),
-                member.getMemberLat(),
-                member.getMemberLng(),
-                member.getRole());
-    }
-
-    private MemberResponse response(){
-        return new MemberResponse(member);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -94,7 +95,7 @@ public class BoardApiController {
     }
 
     @ApiOperation(value = "게시글 작성", notes = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.")
-    @PostMapping(path="/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path="/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>boardWrite(   @RequestBody(description = "자유게시판 요청 dto",required = true)
                                                 @Valid @RequestPart(value = "boardDto") BoardRequest dto,
@@ -114,7 +115,7 @@ public class BoardApiController {
     }
 
     @ApiOperation(value = "게시글 수정", notes = "자유게시판 화면에서 게시글을 수정하는 컨트롤러")
-    @PutMapping(path = "/update/{board-id}")
+    @PutMapping(path = "/update/{board-id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>boardUpdate(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
                                               @PathVariable("board-id") Integer boardId,

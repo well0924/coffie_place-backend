@@ -29,7 +29,7 @@ public class PlaceImage extends BaseTime implements Serializable {
     private String imgUploader;
     private String isTitle;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "place_id")
     private Place place;
 
