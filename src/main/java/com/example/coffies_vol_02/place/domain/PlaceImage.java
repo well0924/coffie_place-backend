@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.place.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
+@ToString
 @Proxy(lazy = false)
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
@@ -29,6 +31,7 @@ public class PlaceImage extends BaseTime implements Serializable {
     private String imgUploader;
     private String isTitle;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "place_id")
     private Place place;

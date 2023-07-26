@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.place.controller.view;
 
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceImageService;
@@ -49,12 +50,14 @@ public class PlaceViewController {
                 //가게 검색어 저장 목록
                 keywords = placeService.placeSearchList(customUserDetails.getMember());
 
-                if(searchType.getValue()==null||
-                   searchType.getValue().equals("")||
+                if(SearchType.values()==null||
+                   SearchType.values().equals("")||
                    keyword==null||
                    keyword.equals("")){
 
                     searchList = placeService.placeListAll(searchType,keyword,pageable,customUserDetails.getMember());
+
+                    mv.addObject("searchList",searchList);
                 }
                 //가게 목록
                 list = placeService.placeSlideList(pageable, keyword, customUserDetails.getMember());
@@ -64,7 +67,6 @@ public class PlaceViewController {
         }
 
         mv.addObject("placelist", list);
-        mv.addObject("searchList",searchList);
         mv.addObject("keyword", keyword);
         mv.addObject("keywords", keywords);
 
@@ -108,19 +110,23 @@ public class PlaceViewController {
         return mv;
     }
 
-    @GetMapping("/placemodify/{place_id}")
-    public ModelAndView placeModify(@PathVariable("place_id") Integer placeId) {
+    @GetMapping("/placemodify/{place-id}")
+    public ModelAndView placeModify(@PathVariable("place-id") Integer placeId) {
         ModelAndView mv = new ModelAndView();
 
         PlaceResponseDto detail = new PlaceResponseDto();
+        List<PlaceImageResponseDto>placeImages = new ArrayList<>();
 
         try {
             detail = placeService.placeDetail(placeId);
+            placeImages = placeImageService.placeImageResponseDtoList(placeId);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         mv.addObject("detail", detail);
+        mv.addObject("placeImages",placeImages);
+
         mv.setViewName("/place/placemodify");
 
         return mv;

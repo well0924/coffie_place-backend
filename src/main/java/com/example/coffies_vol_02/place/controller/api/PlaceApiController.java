@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.*;
@@ -87,10 +88,12 @@ public class PlaceApiController {
     }
 
     @ApiOperation(value = "가게 등록", notes = "어드민 페이지에서 가게를 등록을 한다.")
-    @PostMapping(path = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer> placeRegister(@Valid @ModelAttribute PlaceRequestDto dto,
-                                                 @ModelAttribute PlaceImageRequestDto imageRequestDto, BindingResult bindingResult) {
+    public CommonResponse<Integer> placeRegister(@RequestBody(description = "가게 요청 dto",required = true)
+                                                 @Valid @ModelAttribute PlaceRequestDto dto,
+                                                 @ModelAttribute PlaceImageRequestDto imageRequestDto,
+                                                 BindingResult bindingResult) {
         Integer registerResult = 0;
 
         try {

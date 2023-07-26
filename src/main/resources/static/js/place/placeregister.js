@@ -47,6 +47,8 @@ function AddressCode() {
 //가게 등록기능.
 function placeRegister() {
 
+    const formDate = new FormData();
+
     let placename = document.getElementById('place_name').value;
     let placelat = document.getElementById('place_lat').value;
     let placelng = document.getElementById('place_lng').value;
@@ -57,17 +59,16 @@ function placeRegister() {
     let placeclose = document.getElementById('place_close').value;
     let filegroupid = document.getElementById('fileGroupId').value;
 
-    const formdate = new FormData();
-    //폼데이터
-    formdate.append("placeName", placename);
-    formdate.append("placeLat", placelat);
-    formdate.append("placeLng", placelng);
-    formdate.append("placeAddr1", placeaddr);
-    formdate.append("placeAddr2", placeaddr2);
-    formdate.append("placePhone", placephone);
-    formdate.append("placeStart", placestart);
-    formdate.append("placeClose", placeclose);
-    formdate.append("fileGroupId", filegroupid);
+    formDate.append("placeName", placename);
+    formDate.append("placeLat", placelat);
+    formDate.append("placeLng", placelng);
+    formDate.append("placeAddr1", placeaddr);
+    formDate.append("placeAddr2", placeaddr2);
+    formDate.append("placePhone", placephone);
+    formDate.append("placeStart", placestart);
+    formDate.append("placeClose", placeclose);
+    formDate.append("fileGroupId", filegroupid);
+
     //이미지.
     let images = $("input[type='file']");
 
@@ -75,7 +76,7 @@ function placeRegister() {
 
     for (let i = 0; i < files.length; i++) {
         console.log(files[i]);
-        formdate.append("images", files[i]);
+        formDate.append("images", files[i]);
     }
 
     //가게 등록 기능
@@ -83,7 +84,7 @@ function placeRegister() {
         url: '/api/place/register',
         type: 'post',
         dataType: 'json',
-        data: formdate,
+        data: formDate,
         processData: false,
         contentType: false,
         cache: false,
@@ -96,33 +97,33 @@ function placeRegister() {
         }
 
         if (data.status == 400) {
-            if (resp.data.hasOwnProperty('valid_placeName')) {
-                $('#valid_placeName').text(resp.data.valid_placeName).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeName')) {
+                $('#valid_placeName').text(data.data.valid_placeName).css('color', 'red');
             } else {
                 $('#valid_placeName').text('');
             }
-            if (resp.data.hasOwnProperty('valid_placeLat')) {
-                $('#valid_placeLat').text(resp.data.valid_placeLat).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeLat')) {
+                $('#valid_placeLat').text(data.data.valid_placeLat).css('color', 'red');
             } else {
                 $('#valid_placeLat').text('');
             }
-            if (resp.data.hasOwnProperty('valid_placeLng')) {
-                $('#valid_placeLng').text(resp.data.valid_placeLng).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeLng')) {
+                $('#valid_placeLng').text(data.data.valid_placeLng).css('color', 'red');
             } else {
                 $('#valid_placeLng').text('');
             }
-            if (resp.data.hasOwnProperty('valid_placeAddr1')) {
-                $('#valid_placeAddr1').text(resp.data.valid_placeAddr1).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeAddr1')) {
+                $('#valid_placeAddr1').text(data.data.valid_placeAddr1).css('color', 'red');
             } else {
                 $('#valid_placeAddr1').text('');
             }
-            if (resp.data.hasOwnProperty('valid_placeStart')) {
-                $('#valid_placeStart').text(resp.data.valid_placeStart).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeStart')) {
+                $('#valid_placeStart').text(data.data.valid_placeStart).css('color', 'red');
             } else {
                 $('#valid_placeStart').text('');
             }
-            if (resp.data.hasOwnProperty('valid_placeClose')) {
-                $('#valid_placeClose').text(resp.data.valid_placeClose).css('color', 'red');
+            if (data.data.hasOwnProperty('valid_placeClose')) {
+                $('#valid_placeClose').text(data.data.valid_placeClose).css('color', 'red');
             } else {
                 $('#valid_placeClose').text('');
             }

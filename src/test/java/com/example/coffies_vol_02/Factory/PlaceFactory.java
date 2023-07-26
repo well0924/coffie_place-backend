@@ -2,6 +2,12 @@ package com.example.coffies_vol_02.Factory;
 
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +46,81 @@ public class PlaceFactory {
                 .imgUploader(MemberFactory.memberDto().getUserId())
                 .imgGroup("coffieplace")
                 .isTitle("1")
+                .build();
+    }
+
+    public static PlaceRequestDto placeRequestDto(){
+        return PlaceRequestDto
+                .builder()
+                .placeLat(place().getPlaceLat())
+                .placeLng(place().getPlaceLng())
+                .placeName(place().getPlaceName())
+                .placePhone(place().getPlacePhone())
+                .placeStart(place().getPlaceStart())
+                .placeClose(place().getPlaceClose())
+                .placeAddr1(place().getPlaceAddr1())
+                .placeAddr2(place().getPlaceAddr2())
+                .fileGroupId(place().getFileGroupId())
+                .placeAuthor(place().getPlaceAuthor())
+                .reviewRate(place().getReviewRate())
+                .build();
+    }
+
+    public static PlaceResponseDto placeResponseDto(){
+        return new PlaceResponseDto(
+                place().getId(),
+                place().getPlaceLng(),
+                place().getPlaceLat(),
+                place().getReviewRate(),
+                place().getPlaceName(),
+                place().getPlaceAddr1(),
+                place().getPlaceAddr2(),
+                place().getPlacePhone(),
+                place().getPlaceAuthor(),
+                place().getPlaceStart(),
+                place().getPlaceClose(),
+                place().getFileGroupId(),
+                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getIsTitle(),
+                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getImgPath(),
+                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getThumbFileImagePath());
+    }
+
+    public static PlaceImageRequestDto placeImageRequestDto(){
+        return PlaceImageRequestDto
+                .builder()
+                .images(new ArrayList<>(List.of(
+                        new MockMultipartFile("test1", "가게 이미지1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+                        new MockMultipartFile("test2", "가게 이미지2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+                        new MockMultipartFile("test3", "가게 이미지3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes()))))
+                .fileType(placeImage().getFileType())
+                .imgPath(placeImage().getImgPath())
+                .isTitle(placeImage().getIsTitle())
+                .originName(placeImage().getOriginName())
+                .storedName(placeImage().getStoredName())
+                .fileGroupId(placeImage().getFileGroupId())
+                .imgGroup(placeImage().getImgGroup())
+                .imgUploader(placeImage().getImgUploader())
+                .thumbFileImagePath(placeImage().getThumbFileImagePath())
+                .thumbFilePath(placeImage().getThumbFilePath())
+                .build();
+    }
+
+    public static PlaceImageResponseDto placeImageResponseDto(){
+        return PlaceImageResponseDto
+                .builder()
+                .id(placeImage().getId())
+                .imgPath(placeImage().getImgPath())
+                .imgUploader(placeImage().getImgUploader())
+                .isTitle(placeImage().getIsTitle())
+                .storedName(placeImage().getStoredName())
+                .originName(placeImage().getOriginName())
+                .imgGroup(placeImage().getImgGroup())
+                .thumbFileImagePath(placeImage().getThumbFileImagePath())
+                .thumbFilePath(placeImage().getThumbFilePath())
+                .fileGroupId(placeImage().getFileGroupId())
+                .fileType(placeImage().getFileType())
+                .createdTime(placeImage().getCreatedTime())
+                .updatedTime(placeImage().getUpdatedTime())
                 .build();
     }
 }

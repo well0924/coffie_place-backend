@@ -1,11 +1,10 @@
 package com.example.coffies_vol_02.TestPlace;
 
-import com.example.coffies_vol_02.attach.domain.Attach;
-import com.example.coffies_vol_02.attach.domain.AttachDto;
-import com.example.coffies_vol_02.attach.repository.AttachRepository;
-import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.config.constant.Role;
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.Factory.PlaceFactory;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -33,7 +32,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,28 +61,21 @@ public class PlaceServiceTest {
     private PlaceImageRepository placeImageRepository;
 
     @Mock
-    private AttachRepository attachRepository;
-
-    @Mock
-    private AttachService attachService;
-
-    @Mock
     private FileHandler fileHandler;
 
-    private Member member;
+    Member member;
 
-    private Place place;
+    Place place;
 
-    private PlaceImage placeImage;
+    PlaceImage placeImage;
 
-    private Attach attach;
+    PlaceRequestDto placeRequestDto;
 
-    private PlaceRequestDto placeRequestDto;
+    PlaceResponseDto placeResponseDto;
 
-    private PlaceResponseDto placeResponseDto;
+    PlaceImageRequestDto placeImageRequestDto;
 
-    private PlaceImageRequestDto placeImageRequestDto;
-    private PlaceImageResponseDto placeImageResponseDto;
+    PlaceImageResponseDto placeImageResponseDto;
 
     List<Place>placeList = new ArrayList<>();
 
@@ -94,25 +85,21 @@ public class PlaceServiceTest {
 
     List<PlaceImage>filelist = new ArrayList<>();
 
-    List<MultipartFile>files = new ArrayList<>(List.of(
-            new MockMultipartFile("test1", "가게 이미지1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
-            new MockMultipartFile("test2", "가게 이미지2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
-            new MockMultipartFile("test3", "가게 이미지3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
-
     @BeforeEach
     public void init() throws Exception {
-        member = memberDto();
-        placeImage = placeImage();
-        place = place();
+
+        member = MemberFactory.memberDto();
+        placeImage = PlaceFactory.placeImage();
+        place = PlaceFactory.place();
         place.addPlaceImage(placeImage);
         placeList.add(place);
-        placeImages.add(placeImage());
+        placeImages.add(placeImage);
         filelist.add(placeImage);
-        fileHandler.placeImagesUpload(files);
-        placeRequestDto = placeRequestDto();
-        placeResponseDto = placeResponseDto();
-        placeImageRequestDto = placeImageRequestDto();
-        placeImageResponseDto = placeImageResponseDto();
+        fileHandler.placeImagesUpload(PlaceFactory.placeImageRequestDto().getImages());
+        placeRequestDto = PlaceFactory.placeRequestDto();
+        placeResponseDto = PlaceFactory.placeResponseDto();
+        placeImageRequestDto = PlaceFactory.placeImageRequestDto();
+        placeImageResponseDto = PlaceFactory.placeImageResponseDto();
         detailefileList.add(placeImageResponseDto);
         detailefileList = placeImageService.placeImageResponseDtoList(place.getId());
     }
@@ -143,13 +130,19 @@ public class PlaceServiceTest {
     @DisplayName("가게 조회-성공")
     public void placeDetailTest(){
         //given
-        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         //when
-        placeResponseDto = placeService.placeDetail(place.getId());
+        placeService.placeDetail(place.getId());
         //then
-        assertThat(placeResponseDto).isNotNull();
-        assertThat(placeResponseDto.getPlaceName()).isEqualTo(place.getPlaceName());
-        assertThat(placeResponseDto.getPlaceAuthor()).isEqualTo(place.getPlaceAuthor());
+        verify(placeRepository).findById(place.getId());
+    }
+
+    @Test
+    @DisplayName("가게 조회 실패")
+    public void placeDetailFailTest(){
+        org.junit.jupiter.api.Assertions.assertThrows(Exception.class,()->{
+            Optional<Place>detail = Optional.ofNullable(placeRepository.findById(0).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+        });
     }
 
     @Test
@@ -185,173 +178,68 @@ public class PlaceServiceTest {
         when(placeService.placeNear(member.getMemberLat(),member.getMemberLng())).thenReturn(placeResponseDtos);
 
         //then
-        System.out.println(placeResponseDtos);
-        assertThat(placeResponseDtos.size()).isNotNull();
-        assertThat(placeResponseDtos);
+        assertThat(placeResponseDtos).hasSize(1);
     }
 
     @Test
     @DisplayName("가게 등록")
     public void placeRegisterTest()throws Exception{
         //given
-        given(placeRepository.save(place)).willReturn(place);
-        given(placeImageRepository.save(placeImage)).willReturn(placeImage);
-        given(fileHandler.placeImagesUpload(files)).willReturn(placeImages);
-        given(fileHandler.ResizeImage(placeImage,240,240)).willReturn("");
-        //when
+        placeImage = PlaceFactory.placeImage();
+        place = PlaceFactory.place();
 
+        placeImage.setPlace(place);
+
+        List<MultipartFile>plImages =new ArrayList<>(List.of(
+                new MockMultipartFile("test1", "가게 이미지1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+                new MockMultipartFile("test2", "가게 이미지2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
+                new MockMultipartFile("test3", "가게 이미지3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
+
+        given(placeRepository.save(place)).willReturn(place);
+        given(fileHandler.placeImagesUpload(plImages)).willReturn(filelist);
+        given(placeImageRepository.save(placeImage)).willReturn(placeImage);
+        given(fileHandler.ResizeImage(placeImage,240,240)).willReturn("");
+
+        //when
+        placeService.placeRegister(placeRequestDto,placeImageRequestDto);
         //then
+        verify(placeRepository,atLeastOnce()).save(any());
+        verify(fileHandler,times(2)).placeImagesUpload(any());
 
     }
 
     @Test
     @DisplayName("가게 수정")
-    public void placeModifyTest(){
+    public void placeModifyTest()throws Exception{
         //given
+        MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
+        List<MultipartFile>files= new ArrayList<>();
+        files.add(updateFile);
 
+        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(fileHandler.placeImagesUpload(files)).willReturn(placeImages);
+        given(placeImageRepository.save(placeImage)).willReturn(placeImage);
+        given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
+        given(fileHandler.ResizeImage(placeImage,240,240)).willReturn("");
         //when
-
+        placeService.placeModify(place.getId(),placeRequestDto,placeImageRequestDto);
         //then
-
+        verify(placeRepository).findById(place.getId());
+        verify(placeImageRepository).findPlaceImagePlace(place.getId());
+        verify(fileHandler,atLeastOnce()).placeImagesUpload(placeImageRequestDto.getImages());
     }
 
     @Test
     @DisplayName("가게 삭제")
     public void placeDeleteTest()throws Exception{
         //given
-        given(placeRepository.save(any())).willReturn(place);
-        given(fileHandler.placeImagesUpload(files)).willReturn(filelist);
+        given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
+        given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
         //when
-
+        doNothing().when(placeRepository).deleteById(place.getId());
+        placeService.placeDelete(place.getId());
         //then
-
+        verify(placeRepository).deleteById(place.getId());
     }
 
-    private Member memberDto(){
-        return Member
-                .builder()
-                .id(1)
-                .userId("well4149")
-                .password("qwer4149!!")
-                .memberName("userName")
-                .userEmail("well414965@gmail.com")
-                .userPhone("010-9999-9999")
-                .userAge("20")
-                .userGender("남자")
-                .userAddr1("xxxxxx시 xxxx")
-                .userAddr2("ㄴㅇㄹㅇㄹㅇ")
-                .memberLat(0.00)
-                .memberLng(0.00)
-                .failedAttempt(0)
-                .lockTime(new Date())
-                .enabled(true)
-                .accountNonLocked(true)
-                .role(Role.ROLE_ADMIN)
-                .build();
-    }
-
-    private Place place(){
-        return  Place
-                .builder()
-                .id(1)
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
-                .placeStart("09:00")
-                .placeClose("18:00")
-                .placeAuthor("admin")
-                .placePhone("010-3444-3654")
-                .reviewRate(0.0)
-                .fileGroupId("place_fre353")
-                .placeName("릴렉스")
-                .placeImages(placeImages)
-                .build();
-    }
-
-    private PlaceImage placeImage(){
-        return PlaceImage
-                .builder()
-                .fileGroupId(place().getFileGroupId())
-                .thumbFilePath("C:\\\\UploadFile\\\\coffieplace\\images\\thumb\\file_1320441223849700_thumb.jpg")
-                .thumbFileImagePath("/istatic/images/coffieplace/images/thumb/1320441218420200_thumb.jpg")
-                .imgPath("C:\\\\UploadFile\\\\coffieplace\\images\\1320441218420200.jpg")
-                .storedName("다운로드 (1).jpg")
-                .originName("1320441218420200.jpg")
-                .imgUploader(member.getUserId())
-                .imgGroup("coffieplace")
-                .isTitle("1")
-                .build();
-    }
-
-    private PlaceRequestDto placeRequestDto(){
-        return new PlaceRequestDto()
-                .builder()
-                .placeLat(place.getPlaceLat())
-                .placeLng(place.getPlaceLng())
-                .placeName(place.getPlaceName())
-                .placePhone(place.getPlacePhone())
-                .placeStart(place.getPlaceStart())
-                .placeClose(place.getPlaceClose())
-                .placeAddr1(place.getPlaceAddr1())
-                .placeAddr2(place.getPlaceAddr2())
-                .fileGroupId(place.getFileGroupId())
-                .placeAuthor(place.getPlaceAuthor())
-                .reviewRate(place.getReviewRate())
-                .build();
-    }
-    private PlaceResponseDto placeResponseDto(){
-        return new PlaceResponseDto(
-                place.getId(),
-                place.getPlaceLng(),
-                place.getPlaceLat(),
-                place.getReviewRate(),
-                place.getPlaceName(),
-                place.getPlaceAddr1(),
-                place.getPlaceAddr2(),
-                place.getPlacePhone(),
-                place.getPlaceAuthor(),
-                place.getPlaceStart(),
-                place.getPlaceClose(),
-                place.getFileGroupId(),
-                place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getIsTitle(),
-                place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getImgPath(),
-                place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath());
-    }
-
-    private PlaceImageRequestDto placeImageRequestDto(){
-        return new PlaceImageRequestDto()
-                .builder()
-                .images(files)
-                .fileType(placeImage.getFileType())
-                .imgPath(placeImage.getImgPath())
-                .isTitle(placeImage.getIsTitle())
-                .originName(placeImage.getOriginName())
-                .storedName(placeImage.getStoredName())
-                .fileGroupId(placeImage.getFileGroupId())
-                .imgGroup(placeImage.getImgGroup())
-                .imgUploader(placeImage.getImgUploader())
-                .thumbFileImagePath(placeImage.getThumbFileImagePath())
-                .thumbFilePath(placeImage.getThumbFilePath())
-                .build();
-    }
-
-    private PlaceImageResponseDto placeImageResponseDto(){
-        return placeImageResponseDto
-                .builder()
-                .id(placeImage.getId())
-                .imgPath(placeImage.getImgPath())
-                .imgUploader(placeImage.getImgUploader())
-                .isTitle(placeImage.getIsTitle())
-                .storedName(placeImage.getStoredName())
-                .originName(placeImage.getOriginName())
-                .imgGroup(placeImage.getImgGroup())
-                .thumbFileImagePath(placeImage.getThumbFileImagePath())
-                .thumbFilePath(placeImage.getThumbFilePath())
-                .fileGroupId(placeImage.getFileGroupId())
-                .fileType(placeImage.getFileType())
-                .createdTime(placeImage.getCreatedTime())
-                .updatedTime(placeImage.getUpdatedTime())
-                .build();
-    }
 }

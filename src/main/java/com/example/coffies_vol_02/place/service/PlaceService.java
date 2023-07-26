@@ -132,11 +132,10 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
-    @Transactional(readOnly = true)
+    @Transactional
     public PlaceResponseDto placeDetail(Integer placeId) {
 
-        Place detail = placeRepository
-                .findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));;
+        Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
 
         return PlaceResponseDto
                 .builder()
@@ -215,6 +214,7 @@ public class PlaceService {
     public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
         Optional<Place> placeDetail = Optional.ofNullable(placeRepository
                 .findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+
         Place place = placeDetail.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
         //가게 수정
         place.placeUpadate(dto);
