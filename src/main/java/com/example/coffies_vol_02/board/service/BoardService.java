@@ -9,6 +9,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -39,6 +40,8 @@ public class BoardService {
     private final AttachRepository attachRepository;
 
     private final AttachService attachService;
+
+    private final RedisService redisService;
 
     /**
      * 게시글 목록

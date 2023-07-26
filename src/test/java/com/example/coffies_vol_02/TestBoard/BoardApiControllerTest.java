@@ -33,8 +33,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
-
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +60,7 @@ public class BoardApiControllerTest {
     private WebApplicationContext context;
     @Autowired
     private ObjectMapper objectMapper;
+
     @MockBean
     private BoardService boardService;
 

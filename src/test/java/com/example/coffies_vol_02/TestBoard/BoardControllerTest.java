@@ -99,6 +99,7 @@ public class BoardControllerTest {
                 .contentType(MediaType.TEXT_HTML)
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
+                .andExpect(model().attributeExists("boardList"))
                 .andExpect(view().name("board/boardList"))
                 .andDo(print());
     }

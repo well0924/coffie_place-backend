@@ -27,8 +27,12 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
      **/
     Page<Board> findByMember(Member member, Pageable pageable);
 
+    //게시글 조회수 확인
+    @Query("select b.readCount from Board b where b.id = :id")
+    Integer ReadCount(@Param("id") Integer id);
+
     /**
-     * 게시글 조회수 증가(동시성을 고려해서 적용해보기)
+     * 게시글 조회수 증가(동시성을 고려해보기)
      **/
     @Transactional
     @Modifying
@@ -50,4 +54,5 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     @Query(nativeQuery = true,value = "select tb.id ,tb.board_title as BoardTitle from tbl_board tb " +
             "where tb.id < ?1 order by tb.id desc limit 1")
     Optional<BoardNextPreviousInterface> findPreviousBoard(Integer boardId);
+
 }
