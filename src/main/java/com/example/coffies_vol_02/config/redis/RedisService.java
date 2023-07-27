@@ -1,8 +1,11 @@
 package com.example.coffies_vol_02.config.redis;
 
+import com.example.coffies_vol_02.board.repository.BoardRepository;
+import com.example.coffies_vol_02.board.service.BoardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -16,6 +19,7 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 public class RedisService {
+    private final BoardRepository boardRepository;
 
     private final StringRedisTemplate stringRedisTemplate;
     private final RedisTemplate<Object, Object> redisTemplate;
@@ -25,7 +29,7 @@ public class RedisService {
         values.set(key, value, duration);
     }
 
-    // key word 를 위한 setValues
+    // 가게 key word 를 위한 setValues
     public void setValues(String key, String keyword) {
         ListOperations<Object, Object> listOperations = redisTemplate.opsForList();
         for (Object pastKeyword : Objects.requireNonNull(listOperations.range(key, 0, listOperations.size(key)))) {
@@ -58,6 +62,7 @@ public class RedisService {
         return valueOperations.get(key);
     }
 
+    //조회수 증가
     public void increasement(String key) {
         ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
         valueOperations.increment(key);
@@ -66,5 +71,42 @@ public class RedisService {
     public Set<String> keys(String pattern) {
         return stringRedisTemplate.keys(pattern);
     }
+
+    //게시글 조회수
+    public void boardViewCount(Integer boardId){
+        String countKey = CacheKey.BOARD+"viewCount"+"::"+boardId;
+
+        if(getData(countKey)==null){//조회가 처음이면
+            setValues(countKey,String.valueOf(boardRepository.ReadCount(boardId)+1), Duration.ofMinutes(CacheKey.BOARD_EXPIRE_SEC));
+        }else{//2번 이상이면 조회수를 증가.
+            increasement(countKey);
+        }
+        log.info("viewCount!:",getData(countKey));
+    }
+    
+    //게시글 조회수 디비에 반영
+    @Scheduled(cron = "0/10 * * * * ?",zone = "Asia/Seoul")
+    public void boardViewCountDB(){
+        Set<String>viewKeys = keys("boardviewCount*");
+
+        log.info("boardViewCount::"+viewKeys);
+
+        if(Objects.requireNonNull(viewKeys).isEmpty())return;
+
+        for(String viewKey : viewKeys){
+
+            Integer boardId = Integer.parseInt(viewKey.split("::")[1]);
+            Integer viewCount = Integer.parseInt(getData(viewKey));
+
+            log.info("게시글 번호:"+boardId);
+            log.info("조회수:"+viewCount);
+
+            boardRepository.ReadCountUpToDB(boardId,viewCount);
+            //캐시 삭제
+            deleteValues(viewKey);
+            deleteValues(CacheKey.BOARD+"viewCount"+"::"+boardId);
+        }
+    }
+
 
 }
