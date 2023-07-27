@@ -44,6 +44,8 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                 .join(QBoard.board.member,QMember.member).fetchJoin()
                 .groupBy(QBoard.board.id)
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .distinct()
                 .fetch();
 
