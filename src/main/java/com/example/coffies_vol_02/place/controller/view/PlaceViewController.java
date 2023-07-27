@@ -49,18 +49,12 @@ public class PlaceViewController {
             if (customUserDetails != null) {
                 //가게 검색어 저장 목록
                 keywords = placeService.placeSearchList(customUserDetails.getMember());
-
-                if(SearchType.values()==null||
-                   SearchType.values().equals("")||
-                   keyword==null||
-                   keyword.equals("")){
-
-                    searchList = placeService.placeListAll(searchType,keyword,pageable,customUserDetails.getMember());
-
-                    mv.addObject("searchList",searchList);
-                }
                 //가게 목록
                 list = placeService.placeSlideList(pageable, keyword, customUserDetails.getMember());
+                log.info("placeList:::"+list);
+                if(keyword==null|| keyword.equals("")){
+                    searchList = placeService.placeListAll(searchType,keyword,pageable,customUserDetails.getMember());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,6 +63,7 @@ public class PlaceViewController {
         mv.addObject("placelist", list);
         mv.addObject("keyword", keyword);
         mv.addObject("keywords", keywords);
+        mv.addObject("searchList",searchList);
 
         mv.setViewName("/place/placelist");
 

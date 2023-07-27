@@ -41,31 +41,6 @@
 						</div>
 					</div>
 				</div>
-				<h4 class="card-title" id="title-near5">가까운가게 TOP5</h4>
-				<div class="card imageslider">
-					<div class="card-body"  th:each= "top5 :${near5}" style="margin-top: 50px">
-						<div class="card shadow">
-						<!-- 이미지 출력부분 -->
-						<th:block th:each= "imagelist : ${top5}">
-							<img th:if= "${top5.fileGroupId}==${imagelist.fileGroupId}" th:src="${imagelist.thumbFileImagePath}">
-						</th:block>
-						<img>
-						<div class="col-12">
-							<h5 class="card-title">[[${top5.placeName}]]</h5>
-							<p class="card-text" >[[${top5.placeAddr1}]]</p>
-							<div class='RatingStar'>
-								<div class='RatingScore'>
-					  			<div class='outer-star'>
-					  				<div class='inner-star'></div>
-					  			</div>
-								</div>
-							</div>
-							<p class="card-text"></p>
-							<a class="btn btn-primary" >More</a>
-						</div>
-						</div>
-					</div>
-				</div>
 			</div>
 			<script type="text/javascript">
 				//이미지 슬라이더

@@ -121,7 +121,7 @@ public class PlaceService {
     @Transactional(readOnly = true)
     public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
         List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
-        return list.stream().map(place->new PlaceResponseDto()).toList();
+        return list.stream().map(PlaceResponseDto::new).toList();
     }
 
     /**
