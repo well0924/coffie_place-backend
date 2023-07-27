@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:list="http://www.w3.org/1999/xhtml"
-      layout:decorate="~{layout/leafframe}" lang="">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/leafframe}">
 <head>
     <meta charset="UTF-8">
     <title>가게 목록</title>
@@ -13,8 +13,6 @@
         .invisible{
             display: none;
         }
-
-
         #suggestion_box {
             margin-top: 1px;
             background: white;
@@ -46,18 +44,21 @@
                 <div class="form-inline" style="display: flex; justify-content: center;">
                     <select id="searchType" class="form-control" name="searchType">
                         <option>선택</option>
-                        <option th:value="CN">가게이름</option>
-                        <option th:value="CA">주소</option>
+                        <option th:value="p">가게이름</option>
+                        <option th:value="a">주소</option>
+                        <option th:value="all">전체</option>
                     </select>
                     <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요" onchange="recentSearchKeyword()"/>
                     <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
                     <!--sorted select-->
-                    <select id="sortedType" class="form-control" name="sortedType">
-                        <option>정렬기준</option>
-                        <option>평점순</option>
-                        <option>이름순</option>
-                        <option>등록일순</option>
-                    </select>
+                    <div class="row" style="width:500px;margin-left:82%;margin-bottom: 2px">
+                        <div>
+                            <a th:href="@{/page/place/list(sort='reviewRate,DESC')}"
+                               class="btn btn-sm btn-default" role="button" href="">평점순</a>
+                            <a th:href="@{/page/place/list(sort='placeName,DESC')}"
+                               class="btn btn-sm btn-default" role="button" href="">가게명순</a>
+                        </div>
+                    </div>
                 </div>
                 <!--search end-->
                 <a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary"
