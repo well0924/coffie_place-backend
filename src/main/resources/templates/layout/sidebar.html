@@ -5,7 +5,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <th:block th:fragment = "sidebarfragment">
 <!-- 사이드바 부분 -->
-<div class="col-3 bd-sidebar">
+<div class="col-sm-3 bd-sidebar">
 	<div class="panel panel-info">
  		<div class="panel-heading">
       		<h3 class="panel-title">[[${#authentication.name}]]님</h3>
@@ -23,6 +23,9 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 			    </li>
 				<li class="list-group-item">
 					<a th:href="@{'/page/mypage/comment/'+${#authentication.name}}">내가 쓴 댓글</a>
+				</li>
+				<li class="list-group-item">
+					<a th:href="@{'/page/mypage/nearplace'}">가까운 가게</a>
 				</li>
 			    <li class="list-group-item" sec:authorize="hasRole('ROLE_USER')">
 			    	<span onclick="memberDelete()">회원탈퇴</span>
