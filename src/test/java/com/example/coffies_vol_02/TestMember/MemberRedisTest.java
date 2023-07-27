@@ -21,10 +21,9 @@ public class MemberRedisTest {
     @Test
     @DisplayName("회원 자동완성 검색")
     public void memberAutoCompleteTest(){
-        String key = "USERNAME::";
 
         HashOperations<String, String, Integer> hashOperations = redisTemplate.opsForHash();
-
+        String key = "USERNAMEAUTOCOMPELTE::";
         hashOperations.put(key,"well4149",0);
         hashOperations.put(key,"well123",0);
         hashOperations.put(key,"well",0);

@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.TestPlace;
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
+import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,5 +68,17 @@ public class PlaceRepositoryTest {
 
         assertThat(searchList).isNotEmpty();
         assertThat(searchList.toList().get(0).getPlaceName()).isEqualTo("릴렉스");
+    }
+
+    @Test
+    @DisplayName("회원 위치에서 가까운 가개 5곳")
+    public void placeNear5Test(){
+        List<Place>nearList=placeRepository.findPlaceByLatLng(127.025449504014,37.6391856183931);
+
+        log.info("가게 정보:::"+nearList.stream().toList());
+
+        assertThat(nearList).isNotEmpty();
+        System.out.println(nearList.toArray());
+        System.out.println(nearList.get(0).getPlaceName());
     }
 }

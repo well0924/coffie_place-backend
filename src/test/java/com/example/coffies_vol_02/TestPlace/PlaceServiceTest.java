@@ -166,7 +166,7 @@ public class PlaceServiceTest {
     }
 
     @Test
-    @DisplayName("가게 근처 조회")
+    @DisplayName("가게 근처 조회-성공")
     public void nearPlaceTest(){
         List<PlaceResponseDto>placeResponseDtos = new ArrayList<>();
         placeResponseDtos.add(placeResponseDto);
