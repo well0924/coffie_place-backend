@@ -8,8 +8,6 @@ import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponse
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
@@ -113,7 +111,7 @@ public class FavoriteApiController {
 
     @ApiOperation(value = "회원 위치에서 가까운 가게 조회", notes = "회원의 위경도를 기준으로 해서 가까운 가게 목록을 조회한다")
     @GetMapping(path = "/nearlist")
-    public CommonResponse<?> placeNearList(@ApiIgnore @PageableDefault Pageable pageable,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public CommonResponse<?> placeNearList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         List<PlaceResponseDto> nearList = new ArrayList<>();
 
         try {

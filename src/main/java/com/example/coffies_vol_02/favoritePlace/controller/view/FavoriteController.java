@@ -8,9 +8,9 @@ import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
-import com.example.coffies_vol_02.place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,8 +31,6 @@ import java.util.List;
 @RequestMapping("/page/mypage")
 public class FavoriteController {
     private final FavoritePlaceService favoritePlaceService;
-
-    private final PlaceService placeService;
 
     private final MemberService memberService;
 
@@ -90,19 +88,14 @@ public class FavoriteController {
         List<PlaceResponseDto> near5 = new ArrayList<>();
         //회원 조회
         MemberResponse memberResponse = memberService.findByMember(customUserDetails.getMember().getId());
-        log.info(customUserDetails.getMember());
-
         //근처 가게 top5
         if (customUserDetails != null) {
-            near5  = placeService.placeNear(memberResponse.memberLat(),memberResponse.memberLng());
+            near5  = favoritePlaceService.placeNear(memberResponse.memberLat(),memberResponse.memberLng());
         }
-
-        log.info("근처가게::"+near5);
         log.info("회원 정보::"+memberResponse);
 
         mv.addObject("near5",near5);
         mv.addObject("member",memberResponse);
-
         mv.setViewName("/mypage/nearPlaceList");
 
         return mv;
