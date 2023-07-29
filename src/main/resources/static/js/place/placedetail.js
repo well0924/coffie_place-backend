@@ -1,5 +1,6 @@
 $(document).ready(function(){
     ReviewList();
+    resizeMap();
 });
 //지도 부분
 //1.화면에서 필요한 값을 가져온다.
@@ -12,28 +13,27 @@ $(document).ready(function(){
 //	  생성자 함수(constructor)로 사용하려고 하기 때문에 발생하는 에러...
 
 //지도를 생성할 div
-const container = document.getElementById('map');
-let placeLat = $('#placelat').val();
-let placeLang = $('#placelng').val();
-
+var placeLat = $('#placelat').val();
+var placeLang = $('#placelng').val();
 //지도의 중심좌표
-const options = {
+var container = document.getElementById('map'),
+    options = {
     //입력을 받은 위경도를 넣는다.->가게 위경도
     center: new kakao.maps.LatLng(placeLang,placeLat),
     level: 1//지도의 확대레벨
 };
 //지도를 생성
-let map = new kakao.maps.Map(container, options);
+var map = new kakao.maps.Map(container, options);
 //지도 리사이즈
 function resizeMap(){
-    let container = document.getElementById('map');
+    var container = document.getElementById('map');
     container.style.width='500px';
     container.style.height='1000px';
 }
 //위치를 담은 마커를 생성한다.
-let markerPosition = new kakao.maps.LatLng(placeLat,placeLang);
+var markerPosition = new kakao.maps.LatLng(placeLat,placeLang);
 
-let marker = new kakao.maps.Marker({
+var marker = new kakao.maps.Marker({
     position : markerPosition
 });
 
@@ -73,7 +73,7 @@ function ReviewList(){
                 str +='<p id="reviewAuthor" name="replyWriter">'+data.data[i].replyWriter+'</p>';
                 str += data.data[i].replyContents;
                 str +='</br>';
-                str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')"></i>';
+                str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')">'+data.data[i].liked+'</i>';
                 str +='</br>';
                 str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+')">'+'삭제'+'</button>';
                 str +='</div>';
