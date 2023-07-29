@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.*;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import({TestQueryDslConfig.class})
@@ -24,13 +24,13 @@ public class MemberRepositoryTest {
     private MemberRepository memberRepository;
 
     @Test
-    @DisplayName("회원 검색 테스트")
+    @DisplayName("회원 검색 테스트->회원 아이디")
     public void memberSearchTest(){
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id").descending());
 
         String keyword= "well4149";
 
-        Page<MemberResponse> result = memberRepository.findByAllSearch(keyword,pageable);
+        Page<MemberResponse> result = memberRepository.findByAllSearch(SearchType.i,keyword,pageable);
 
         System.out.println(result);
     }

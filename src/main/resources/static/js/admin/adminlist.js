@@ -7,8 +7,7 @@ $(document).ready(function() {
                 url: '/api/member/autocomplete/'+id,
                 type: 'get',
                 dataType: 'json',
-                contentType: 'application/json; charset=utf-8',
-                data: {searchValue: request.term}
+                contentType: 'application/json; charset=utf-8'
             }).done(function (result) {
                 console.log(result);
                 response(
@@ -81,7 +80,7 @@ function selectDelete(){
     }
 }
 function searchResult(){
-    let searchVal = $('#autocompleteText').val();
+    let searchVal = $('#btnSearch').val();
     location.href='/page/admin/adminlist?searchVal='+searchVal;
 }
 function cafelist(){

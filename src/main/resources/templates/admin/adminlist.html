@@ -16,11 +16,12 @@
 	<button type="button" class="btn btn-primary"  style="margin-bottom: 5px;" onclick="noticewrite()">공지글 작성</button>
 	<!-- search start -->
 	<div class="form-inline" style="display: flex; justify-content: center;">
-		<select name="searchVal" class="form-control" id="searchType">
+		<select name="searchType" class="form-control" id="searchType">
 			<option>-----------</option>
-			<option th:value="userId">아이디</option>
-			<option th:value="memberName">이름</option>
-			<option th:value="userEmail">이메일</option>
+			<option th:value="all">전체</option>
+			<option th:value="i">아이디</option>
+			<option th:value="n">이름</option>
+			<option th:value="e">이메일</option>
 		</select>
 		<input type="text" class="form-control" id="autocompleteText" name="userId" placeholder="회원아이디를 입력해주세요.">
 		<button class="btn btn-sm btn-primary" id="btnSearch" onclick="searchResult()">검색</button>
@@ -92,7 +93,103 @@
 	</div>
 	<!--paging end-->
 </div>
-<script type="text/javascript" th:src="@{/js/admin/adminlist.js}"></script>
+<script>
+	$(document).ready(function() {
+		let id = $('#autocompleteText').val();
+
+		$('#autocompleteText').autocomplete({
+			source: function (request, response) {
+				$.ajax({
+					url: '/api/member/autocomplete/'+id,
+					type: 'get',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8'
+				}).done(function (result) {
+					console.log(result);
+					response(
+							$.map(result, function (item) {
+								return {label: item.data, value: item.data};
+							})
+					);
+				});
+			},
+			select: function (event, ui) {
+				console.log(ui);
+				console.log(ui.item.data);
+			},
+			focus:function (event,ui) {
+				return false;
+			},minLength: 1
+		});
+	});
+
+	function allChecked(target){
+		if($(target).is(":checked")){
+			$(".chk").prop("checked",true);
+		}else{
+			$(".chk").prop("checked",false);
+		}
+	}
+	function cchkClicked(){
+
+		//체크박스 전체개수
+		const allCount = $("input:checkbox[name=cchk]").length;
+		//체크된 체크박스 전체개수
+		const checkedCount = $("input:checkbox[name=cchk]:checked").length;
+
+		//체크박스 전체개수와 체크된 체크박스 전체개수가 같으면 체크박스 전체 체크
+		if(allCount == checkedCount){
+			$(".chk").prop("checked",true);
+		}else{
+			$("#allCheckBox").prop("checked",false);
+		}
+	}
+	function selectDelete(){
+
+		let MemberArray = [];
+
+		$("input:checkbox[name=cchk]:checked").each(function(){
+			MemberArray.push($(this).val());
+			console.log(MemberArray);
+		});
+
+		if(MemberArray == ""){
+			alert("삭제할 항목을 선택해주세요.");
+			return false;
+		}
+
+		const confirmAlert = confirm('정말로 삭제하시겠습니까?');
+
+		if(confirmAlert){
+			$.ajax({
+				url:'/api/member/selectdelete',
+				type:'post',
+				dataType:'json',
+				data:JSON.stringify(MemberArray),
+				contentType:'application/json'
+			}).done(function(resp){
+				alert("삭제되었습니다.");
+				location.href="/page/admin/adminlist";
+			}).fail(function(err){
+				console.log(err);
+			});
+		}
+	}
+	function searchResult(){
+		let searchVal = $('#autocompleteText').val();
+		let searchType = $('#searchType').val();
+		location.href='/page/admin/adminlist?searchType='+searchType+'&searchVal='+searchVal;
+	}
+	function cafelist(){
+		location.href='/page/place/list';
+	}
+	function noticewrite(){
+		location.href='/page/notice/writePage';
+	}
+	function palceregister(){
+		location.href='/page/place/placeregister';
+	}
+</script>
 </th:block>
 </body>
 </html>

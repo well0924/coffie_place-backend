@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
@@ -44,7 +45,7 @@ public class MemberServiceTest {
     Member member;
     MemberRequest memberRequest;
     MemberResponse memberResponse;
-
+    SearchType searchType;
     @BeforeEach
     public void init(){
         member = MemberFactory.memberDto();
@@ -100,10 +101,10 @@ public class MemberServiceTest {
 
         Page<MemberResponse>result = new PageImpl<>(list,pageRequest,1);
 
-        given(memberRepository.findByAllSearch(keyword,pageRequest)).willReturn(result);
+        given(memberRepository.findByAllSearch(searchType.i,keyword,pageRequest)).willReturn(result);
 
-        when(memberService.findByAllSearch(keyword,pageRequest)).thenReturn(result);
-        result = memberService.findByAllSearch(keyword,pageRequest);
+        when(memberService.findByAllSearch(searchType.i,keyword,pageRequest)).thenReturn(result);
+        result = memberService.findByAllSearch(searchType.i,keyword,pageRequest);
 
         assertThat(result.toList().get(0).userId()).isEqualTo(keyword);
     }

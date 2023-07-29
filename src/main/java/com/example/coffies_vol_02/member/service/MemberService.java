@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.member.service;
 
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -46,14 +47,14 @@ public class MemberService {
     /**
      * 회원 검색
      * @author 양경빈
-     * @see MemberRepository#findByAllSearch(String searchVal,Pageable pageable) 회원을 검색하는 인터페이스
+     * @see MemberRepository#findByAllSearch(SearchType, String, Pageable)  회원을 검색하는 인터페이스
      * @param searchVal 검색에 필요한 검색어
      * @param pageable 페이징에 필요한 객체
      * @return Page<MemberResponse> 검색후 회원목록 검색시 검색결과가 없는경우에는 표시가 없음
      * */
     @Transactional(readOnly = true)
-    public Page<MemberResponse>findByAllSearch(String searchVal, Pageable pageable){
-        Page<MemberResponse>searchResult = memberRepository.findByAllSearch(searchVal,pageable);
+    public Page<MemberResponse>findByAllSearch(SearchType searchType,String searchVal, Pageable pageable){
+        Page<MemberResponse>searchResult = memberRepository.findByAllSearch(searchType,searchVal,pageable);
 
         if(searchResult.isEmpty()){
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);

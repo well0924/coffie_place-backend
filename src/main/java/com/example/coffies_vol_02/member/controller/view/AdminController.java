@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.member.controller.view;
 
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import lombok.AllArgsConstructor;
@@ -21,13 +22,24 @@ public class AdminController {
 
     @GetMapping("/adminlist")
     public ModelAndView adminListPage(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 10) Pageable pageable,
+                                      @RequestParam(value = "searchType",required = false) SearchType searchType,
                                       @RequestParam(value = "searchVal",required = false) String searchVal){
         ModelAndView mv = new ModelAndView();
 
-        Page<MemberResponse> memberList = memberService.findByAllSearch(searchVal,pageable);
+        Page<MemberResponse> memberList = null;
 
+        try{
+            memberList = memberService.findAll(pageable);
+            if(searchVal!=null){
+                memberList = memberService.findByAllSearch(searchType,searchVal,pageable);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         mv.addObject("memberlist",memberList);
+        mv.addObject("searchType",searchType);
         mv.addObject("searchVal",searchVal);
+
         mv.setViewName("/admin/adminlist");
 
         return mv;

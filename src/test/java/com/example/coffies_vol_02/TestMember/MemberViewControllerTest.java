@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -12,7 +13,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,11 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -76,21 +78,19 @@ public class MemberViewControllerTest {
     @Test
     @DisplayName("어드민 목록 페이지-성공")
     public void adminMemberListPageTest()throws Exception{
-        given(memberService.findAll(any(Pageable.class))).willReturn(Page.empty());
-        given(memberService.findByAllSearch(any(),any(Pageable.class))).willReturn(Page.empty());
-
-        when(memberService.findByAllSearch(any(),any(Pageable.class))).thenReturn(Page.empty());
+        PageRequest pageRequest= PageRequest.of(0,10, Sort.by("id").descending());
+        String keyword = "well4149";
+        given(memberService.findAll(pageRequest)).willReturn(Page.empty());
+        given(memberService.findByAllSearch(SearchType.all,keyword,pageRequest)).willReturn(Page.empty());
 
         mvc.perform(
                 get("/page/admin/adminlist")
                 .contentType(MediaType.TEXT_HTML)
                 .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("memberlist"))
                 .andExpect(view().name("/admin/adminlist"))
                 .andDo(print());
-
-        then(memberService).should().findByAllSearch(any(),any(Pageable.class));
     }
 
     @Test

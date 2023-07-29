@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.member.repository;
 
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -35,28 +36,13 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
      * @return : Page<MemberResponse>list 검색시 회원 목록
      **/
     @Override
-    public Page<MemberResponse> findByAllSearch(String searchVal, Pageable pageable) {
+    public Page<MemberResponse> findByAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
 
         List<MemberResponse>responseDto = new ArrayList<>();
 
-        List<Member>memberList = jpaQueryFactory
-                .select(QMember.member)
-                .from(QMember.member)
-                .where(memberEmail(searchVal).or(userId(searchVal)).or(memberName(searchVal)))//검색 종류(이메일,회원아이디,회원이름)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        List<Member>memberList = memberSearchList(searchType,searchVal,pageable);
 
-        int count = jpaQueryFactory
-                .select(QMember.member.count())
-                .from(QMember.member)
-                .where(memberEmail(searchVal).or(userId(searchVal)).or(memberName(searchVal)))//검색 종류(이메일,회원아이디,회원이름)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .size();
+        int count = searchCount(searchType,searchVal,pageable);
 
         for(Member memberlist : memberList){
             MemberResponse dto = new MemberResponse(memberlist);
@@ -65,15 +51,47 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
         
         return new PageImpl<>(responseDto,pageable,count);
     }
-
+    private List<Member>memberSearchList(SearchType searchType,String searchVal,Pageable pageable){
+        return jpaQueryFactory
+                .select(QMember.member)
+                .from(QMember.member)
+                .where(switch (searchType){
+                    case i -> userId(searchVal);
+                    case e -> memberEmail(searchVal);
+                    case n -> memberName(searchVal);
+                    case all -> memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal)));
+                    case c, w, t, p, a -> null;
+                })//검색 종류(이메일,회원아이디,회원이름)
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+    private int searchCount(SearchType searchType,String searchVal,Pageable pageable){
+        return jpaQueryFactory
+                .select(QMember.member.count())
+                .from(QMember.member)
+                .where(switch (searchType){
+                    case i -> userId(searchVal);
+                    case e -> memberEmail(searchVal);
+                    case n -> memberName(searchVal);
+                    case all -> memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal)));
+                    case c, w, t, p, a -> null;
+                })
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch()
+                .size();
+    }
     //검색 조건 회원 이름
     BooleanBuilder memberName(String searchVal){
         return nullSafeBuilder(()->QMember.member.memberName.contains(searchVal));
     }
 
-    //검색 조건 회원 이름
+    //검색 조건 회원 아이디
     BooleanBuilder userId(String searchVal){
-        return nullSafeBuilder(()-> QMember.member.userId.contains(searchVal));
+        return nullSafeBuilder(()-> QMember.member.userId.containsIgnoreCase(searchVal));
     }
 
     //검색 조건 회원 이메일

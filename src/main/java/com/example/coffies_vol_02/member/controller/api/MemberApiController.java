@@ -1,14 +1,13 @@
 package com.example.coffies_vol_02.member.controller.api;
 
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.AllArgsConstructor;
@@ -49,13 +48,19 @@ public class MemberApiController {
 
     @ApiOperation(value = "회원 검색 api", notes = "회원목록에서 검색을 한다.")
     @GetMapping(path = "/list/search")
-    public CommonResponse<Page<MemberResponse>>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                                            @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",required = false,in = ParameterIn.QUERY) @RequestParam(value = "searchVal") String searchVal){
+    public CommonResponse<?>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+                                                            @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                                            @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",in = ParameterIn.QUERY)
+                                                            @RequestParam(value = "searchVal",required = false) String searchVal){
 
         Page<MemberResponse> list = null;
 
+        if(searchVal==null||searchVal.equals("")||searchType.getValue()==null||searchType.getValue().equals("")){
+            return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+        }
+
         try{
-            list = memberService.findByAllSearch(searchVal,pageable);
+            list = memberService.findByAllSearch(searchType,searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -199,8 +204,9 @@ public class MemberApiController {
     }
 
     @ApiOperation(value = "회원 검색 자동완성", notes = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
-    @GetMapping(path = "/autocomplete/{id}")
-    public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "id",description = "회원의 아이디",required = true,in = ParameterIn.PATH) @PathVariable(value = "id") String userId){
+    @GetMapping(path = "/autocomplete/{userId}")
+    public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "id",description = "회원의 아이디",required = true,in = ParameterIn.PATH)
+                                                               @PathVariable(value = "userId") String userId){
         List<String>list = new ArrayList<>();
 
         try{
