@@ -97,7 +97,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                     case t -> noticeTitleEq(searchVal);
                     case c -> noticeContentsEq(searchVal);
                     case w -> noticeAuthorEq(searchVal);
-                    case a,p -> null;
+                    case a,p,i,e,n -> null;
                     case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
                 })
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
@@ -120,7 +120,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                     case t -> noticeTitleEq(searchVal);
                     case c -> noticeContentsEq(searchVal);
                     case w -> noticeAuthorEq(searchVal);
-                    case a,p -> null;
+                    case a,p,i,n,e -> null;
                     case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
                 })
                 .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),

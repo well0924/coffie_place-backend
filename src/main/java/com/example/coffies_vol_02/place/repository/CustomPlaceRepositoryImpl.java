@@ -109,7 +109,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                     case p -> placeName(keyword);
                     case a -> placeAdder(keyword);
                     case all -> placeName(keyword).or(placeAdder(keyword));
-                    case w,t,c -> null;
+                    case w,t,c,i,n,e -> null;
                 })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
@@ -125,7 +125,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                     case p -> placeName(keyword);
                     case a -> placeAdder(keyword);
                     case all -> placeName(keyword).or(placeAdder(keyword));
-                    case w,t,c -> null;})
+                    case w,t,c,i,n,e -> null;})
                 .orderBy(QPlace.place.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

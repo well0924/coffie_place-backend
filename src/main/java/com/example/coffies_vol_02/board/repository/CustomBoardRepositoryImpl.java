@@ -101,7 +101,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                     case t -> boardTitleEq(searchVal);
                     case c -> boardContentsEq(searchVal);
                     case w -> boardAuthorEq(searchVal);
-                    case a, p -> null;
+                    case i, e, n, a, p -> null;
                     case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
                 })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
@@ -125,7 +125,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                     case t -> boardTitleEq(searchVal);
                     case c -> boardContentsEq(searchVal);
                     case w -> boardAuthorEq(searchVal);
-                    case a, p -> null;
+                    case i, a, p, n, e -> null;
                     case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
                 })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
@@ -144,15 +144,14 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      **/
     @Override
     public BoardResponse boardDetail(int boardId) {
-        BoardResponse result = jpaQueryFactory
+
+        return jpaQueryFactory
                 .select(new QBoardResponse(QBoard.board))
                 .from(QBoard.board)
                 .join(QBoard.board.member,QMember.member).fetchJoin()
                 .where(QBoard.board.id.eq(boardId))
                 .distinct()
                 .fetchOne();
-
-        return result;
     }
 
     BooleanBuilder boardContentsEq(String searchVal){
