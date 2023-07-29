@@ -43,7 +43,7 @@ public class PlaceViewController {
 
         Slice<PlaceResponseDto> list = null;
         Page<PlaceResponseDto>searchList = null;
-        List<String> keywords = null;
+        List<String> keywords = new ArrayList<>();
 
         try {
             if (customUserDetails != null) {

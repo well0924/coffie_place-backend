@@ -64,8 +64,8 @@ public class PlaceService {
     public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String keyword, Member member) {
         if (member != null) {
             //로그인이 되었을 경우 가게이름 검색어 저장
-            redisService.setValues(member.getId().toString(), keyword);
-            log.info(redisService.getSearchList(member.getId().toString()));
+            redisService.setValues(member.getUserId().toString(), keyword);
+            log.info("검색어::"+redisService.getSearchList(member.getId().toString()));
         }
         return placeRepository.placeList(pageable, keyword);
     }
@@ -94,7 +94,7 @@ public class PlaceService {
             //검색어 저장
             redisService.setValues(member.getId().toString(), keyword);
             log.info(redisService.getSearchList(member.getId().toString()));
-        }else if(keyword == null){//키워드가 없는 경우
+        }else if(keyword == null||searchType == null){//키워드가 없는 경우
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
         return placeRepository.placeListSearch(searchType ,keyword, pageable);
@@ -110,18 +110,6 @@ public class PlaceService {
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         return placeRepository.placeTop5(pageable);
-    }
-
-    /**
-     * 가까운 가게 5곳
-     * @param lat 경도 
-     * @param lon 위도
-     * @return result 가게 정보 dto 값
-     **/
-    @Transactional(readOnly = true)
-    public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
-        List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
-        return list.stream().map(PlaceResponseDto::new).toList();
     }
 
     /**

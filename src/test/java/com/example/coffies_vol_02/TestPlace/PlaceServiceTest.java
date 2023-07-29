@@ -7,6 +7,7 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
+import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.Place;
@@ -44,7 +45,8 @@ import static org.mockito.Mockito.*;
 public class PlaceServiceTest {
     @InjectMocks
     private PlaceService placeService;
-
+    @InjectMocks
+    private FavoritePlaceService favoritePlaceService;
     @Mock
     private PlaceImageService placeImageService;
 
@@ -175,7 +177,7 @@ public class PlaceServiceTest {
         given(placeRepository.findPlaceByLatLng(member.getMemberLat(),member.getMemberLng())).willReturn(placeList);
 
         //when
-        when(placeService.placeNear(member.getMemberLat(),member.getMemberLng())).thenReturn(placeResponseDtos);
+        when(favoritePlaceService.placeNear(member.getMemberLat(),member.getMemberLng())).thenReturn(placeResponseDtos);
 
         //then
         assertThat(placeResponseDtos).hasSize(1);
