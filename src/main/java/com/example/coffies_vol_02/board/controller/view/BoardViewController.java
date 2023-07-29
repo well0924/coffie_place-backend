@@ -81,9 +81,13 @@ public class BoardViewController {
         try{
             //게시글 조회수 캐시 적용
             redisService.boardViewCount(boardId);
+            //게시글 조회
             detail = boardService.findBoard(boardId);
+            //첨부파일
             attachList = attachService.boardfilelist(boardId);
+            //게시글 이전글
             previousBoard = boardService.findPreviousBoard(boardId);
+            //게시글 다음글
             nextBoard = boardService.findNextBoard(boardId);
 
             mv.addObject("detail",detail);
@@ -148,7 +152,9 @@ public class BoardViewController {
         List<AttachDto> attachList= new ArrayList<>();
 
         try{
+            //게시글 상세조회
             detail = boardService.findBoard(boardId);
+            //첨부파일
             attachList=attachService.boardfilelist(boardId);
         }catch (Exception e){
             e.printStackTrace();

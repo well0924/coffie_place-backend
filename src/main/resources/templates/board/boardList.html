@@ -81,21 +81,21 @@ layout:decorate="~{layout/leafframe}">
 			<div class="col-lg-12">
 				<select name="searchType" id="searchType">
 					<option th:value="all">전체보기</option>
-					<option th:value="boardTitle">제목</option>
-					<option th:value="boardContents">내용</option>
-					<option th:value="boardAuthor">작성자</option>
+					<option th:value="t">제목</option>
+					<option th:value="c">내용</option>
+					<option th:value="w">작성자</option>
 				</select>
 				<input type="text" class="form-control form-control-sm" name="keyword" id="boardkeyword">
-				<button class="btn btn-sm btn-primary" id="btnSearch" onclick="boardSearchResult([[${page.sortParam}]])">검색</button>
+				<button class="btn btn-sm btn-primary" id="btnSearch" onclick="boardSearchResult()">검색</button>
 			</div>
 			</div>
 			<!-- search end -->
 			<script>
-				function boardSearchResult(searchParam){
+				function boardSearchResult(){
 					let searchVal = $('#boardkeyword').val();
-					let sortValue = $('#sort').val();
+					let searchType = $('#searchType').val();
 
-					location.href='/page/board/list?searchVal='+searchVal+"&sort="+sortValue;
+					location.href='/page/board/list?searchVal='+searchVal+"&searchType="+searchType;
 				}
 			</script>
 		</div>
