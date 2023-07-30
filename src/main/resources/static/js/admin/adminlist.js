@@ -1,18 +1,19 @@
 $(document).ready(function() {
-    let id = $('#autocompleteText').val();
 
     $('#autocompleteText').autocomplete({
         source: function (request, response) {
             $.ajax({
-                url: '/api/member/autocomplete/'+id,
+                url: '/api/member/autocomplete',
                 type: 'get',
                 dataType: 'json',
-                contentType: 'application/json; charset=utf-8'
+                contentType: 'application/json; charset=utf-8',
+                data: {userId : request.term}
             }).done(function (result) {
-                console.log(result);
+                console.log(result.data);
                 response(
-                    $.map(result, function (item) {
-                        return {label: item.data, value: item.data};
+                    $.map(result.data, function (item) {
+                        console.log(item);
+                        return {label: item, value: item};
                     })
                 );
             });
@@ -27,6 +28,7 @@ $(document).ready(function() {
     });
 });
 
+//체크박스 전부 선택
 function allChecked(target){
     if($(target).is(":checked")){
         $(".chk").prop("checked",true);
@@ -34,6 +36,8 @@ function allChecked(target){
         $(".chk").prop("checked",false);
     }
 }
+
+//회원 체크박스 기능
 function cchkClicked(){
 
     //체크박스 전체개수
@@ -48,6 +52,7 @@ function cchkClicked(){
         $("#allCheckBox").prop("checked",false);
     }
 }
+//회원 선택삭제
 function selectDelete(){
 
     let MemberArray = [];
@@ -79,16 +84,22 @@ function selectDelete(){
         });
     }
 }
+
+//회원 검색기능
 function searchResult(){
-    let searchVal = $('#btnSearch').val();
-    location.href='/page/admin/adminlist?searchVal='+searchVal;
+    let searchVal = $('#autocompleteText').val();
+    let searchType = $('#searchType').val();
+    location.href='/page/admin/adminlist?searchType='+searchType+'&searchVal='+searchVal;
 }
+//가게 목록으로 이동
 function cafelist(){
     location.href='/page/place/list';
 }
+//공지게시글 이동
 function noticewrite(){
     location.href='/page/notice/writePage';
 }
+//가게등록으로 이동
 function palceregister(){
     location.href='/page/place/placeregister';
 }
