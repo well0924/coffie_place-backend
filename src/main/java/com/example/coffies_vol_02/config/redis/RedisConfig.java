@@ -31,10 +31,12 @@ public class RedisConfig {
     @Value("${spring.redis.host}")
     private String redisHost;
 
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
     }
+
 
     @Bean
     public RedisTemplate<?,?> redisTemplate() {
@@ -63,9 +65,9 @@ public class RedisConfig {
                 .disableCachingNullValues()
                 .entryTtl(Duration.ofSeconds(CacheKey.DEFAULT_EXPIRE_SEC))
                 .computePrefixWith(CacheKeyPrefix.simple())
-                .serializeKeysWith(RedisSerializationContext.
-                        SerializationPair.fromSerializer(new StringRedisSerializer())).serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         Map<String,RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
 
@@ -78,6 +80,12 @@ public class RedisConfig {
         redisCacheConfigurationMap
                 .put(CacheKey.NOTICE_BOARD,
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.NOTICE_BOARD_EXPIRE_SEC)));
+        redisCacheConfigurationMap
+                .put(CacheKey.LIKE,
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKE_EXPIRE_SEC)));
+        redisCacheConfigurationMap
+                .put(CacheKey.PLACE,
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKE_EXPIRE_SEC)));
 
         return RedisCacheManager
                 .RedisCacheManagerBuilder
