@@ -1,8 +1,11 @@
 package com.example.coffies_vol_02.TestMember;
 
+import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.HashOperations;
@@ -14,9 +17,13 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class MemberRedisTest {
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
+
+    @Autowired
+    MemberService memberService;
 
     @Test
     @DisplayName("회원 자동완성 검색")
@@ -44,5 +51,12 @@ public class MemberRedisTest {
 
         System.out.println(searchList);
         assertThat(searchList.get(0)).isEqualTo("well4149");
+    }
+
+    @Test
+    public void redisMemberAutoCompleteTest(){
+        List<String>userIds = new ArrayList<>();
+        userIds = memberService.memberAutoSearch(MemberFactory.memberDto().getUserId());
+        assertThat(userIds.size()).isEqualTo(1);
     }
 }
