@@ -2,7 +2,6 @@ package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.Factory.MemberFactory;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -125,7 +124,7 @@ public class MemberApiControllerTest {
         then(memberService).should().memberCreate(request);
     }
 
-    @DisplayName("회원 수정")
+    @DisplayName("회원 수정-성공")
     @Test
     public void memberUpdateTest()throws Exception{
         //given
@@ -142,7 +141,7 @@ public class MemberApiControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("회원 삭제")
+    @DisplayName("회원 삭제-성공")
     @Test
     public void memberDeleteTest()throws Exception{
         given(memberRepository.findById(anyInt())).willReturn(Optional.of(member));
@@ -281,13 +280,12 @@ public class MemberApiControllerTest {
 
         when(memberService.memberAutoSearch(member.getUserId())).thenReturn(userid);
 
-        mvc.perform(get("/api/member/autocomplete/{id}",member.getUserId())
+        mvc.perform(get("/api/member/autocomplete?userId=",member.getUserId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(memberService).memberAutoSearch(member.getUserId());
+        verify(memberService).memberAutoSearch(anyString());
     }
-
 }

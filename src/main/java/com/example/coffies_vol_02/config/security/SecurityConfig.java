@@ -3,7 +3,6 @@ package com.example.coffies_vol_02.config.security;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
 import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
 import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -22,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Log4j2
 @Configuration
@@ -31,9 +29,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER)
 public class SecurityConfig {
+
     private final CustomUserDetailService customUserDetailService;
-    private final LoginSuccessHandler loginSuccessHandler;
-    private final LoginFailHandler loginFailHandler;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -43,6 +40,16 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfiguration) throws Exception {
         return authConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public LoginFailHandler loginFailHandler(){
+        return new LoginFailHandler();
+    }
+
+    @Bean
+    public LoginSuccessHandler loginSuccessHandler(){
+        return new LoginSuccessHandler();
     }
 
     @Bean
@@ -95,8 +102,8 @@ public class SecurityConfig {
                     .usernameParameter("userId")
                     .passwordParameter("password")
                     .loginProcessingUrl("/login/action").permitAll()
-                    .successHandler(loginSuccessHandler)
-                    .failureHandler(loginFailHandler));
+                    .successHandler(loginSuccessHandler())
+                    .failureHandler(loginFailHandler()));
 
         http
             .logout()
@@ -107,7 +114,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public HttpFirewall defaultFireWell(){

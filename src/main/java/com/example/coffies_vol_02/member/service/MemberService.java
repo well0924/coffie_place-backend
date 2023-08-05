@@ -231,14 +231,21 @@ public class MemberService {
     }
 
     /**
-     * 로그인 실패 횟수 카운트
+     * 로그인 실패 횟수 증가
      * @author 양경빈
-     * @param member failCount의 값을 설정하기 위해 객체로 설정
-     * @see MemberRepository#updateFailedAttempts(Integer, String)  로그인 실패시 실패횟수
+     * @param userId failCount의 값을 설정하기 위해 객체로 설정
      **/
-    public void increaseFailAttempts(Member member){
-        int failCount = member.getFailedAttempt() + 1;
-        memberRepository.updateFailedAttempts(failCount, member.getUserId());
+    public void increaseFailAttempts(String userId){
+        memberRepository.updateFailedAttempts(userId);
+    }
+
+    /**
+     * 로그인 실패 횟수 확인
+     * @author 양경빈
+     * @param userIdx 회원 아이디
+     * **/
+    public Integer FailAttemptsConfirm(String userIdx){
+       return memberRepository.failAttemptsCount(userIdx);
     }
 
     /**
@@ -246,15 +253,18 @@ public class MemberService {
      * @author 양경빈
      * @param member 회원 객체
      **/
-    public void resetFailedAttempts(Member member){
-        memberRepository.updateFailedAttempts(0,member.getUserId());
+    public void resetFailedAttempts(String userId){
+        Member member = new Member();
+        member.setFailedAttempt(0);
+        memberRepository.save(member);
     }
 
     /**
      * 계정 잠금
-     * @param member 회원 객체
+     * 비밀번호가 특정 횟수 실패시 회원의 계정을 잠근다.
      **/
-    public void lock(Member member) {
+    public void lock() {
+        Member member = new Member();
         member.setAccountNonLocked(false);
         member.setLockTime(new Date());
         memberRepository.save(member);

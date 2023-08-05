@@ -281,7 +281,7 @@ public class MemberServiceTest {
         int failCount = member.getFailedAttempt() + 1;
         member.setFailedAttempt(failCount);
         //when
-        memberService.increaseFailAttempts(member);
+        memberService.increaseFailAttempts(member.getUserId());
         //then
         assertThat(member.getFailedAttempt()).isEqualTo(1);
     }
@@ -292,10 +292,9 @@ public class MemberServiceTest {
         //given
         int failCount = member.getFailedAttempt() + 1;
         member.setFailedAttempt(failCount);
-        memberService.increaseFailAttempts(member);
+        memberService.increaseFailAttempts(member.getUserId());
         //when
-        member.setFailedAttempt(0);
-        memberService.resetFailedAttempts(member);
+        memberService.resetFailedAttempts(member.getUserId());
         //then
         assertThat(member.getFailedAttempt()).isEqualTo(0);
     }
@@ -307,7 +306,7 @@ public class MemberServiceTest {
         member.setLockTime(new Date());
         given(memberRepository.save(member)).willReturn(member);
 
-        memberService.lock(member);
+        memberService.lock();
 
         assertThat(member.getAccountNonLocked()).isFalse();
     }

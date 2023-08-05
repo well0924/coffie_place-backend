@@ -205,8 +205,8 @@ public class MemberApiController {
 
     @ApiOperation(value = "회원 검색 자동완성", notes = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능")
     @GetMapping(path = "/autocomplete")
-    public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "id",description = "회원의 아이디",required = true,in = ParameterIn.QUERY)
-                                                               @RequestParam(value = "userId") String userId){
+    public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "userId",description = "회원의 아이디",required = true,in = ParameterIn.QUERY)
+                                                           @RequestParam(value = "userId") String userId){
         List<String>list = new ArrayList<>();
 
         try{

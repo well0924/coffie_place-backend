@@ -1,5 +1,9 @@
 package com.example.coffies_vol_02.config.security.handler;
 
+import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -26,9 +30,20 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final String DEFAULT_URL= "/page/main/main";
     private static final String ADMIN_URL="/page/admin/adminlist";
 
+    @Autowired
+    private MemberService memberService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+
+        CustomUserDetails  customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        
+        Member member = customUserDetails.getMember();
+        //로그인 실패 횟수 리셋
+        if(member.getFailedAttempt()>0){
+            memberService.resetFailedAttempts(member.getUserId());
+        }
+        
         //로그인을 한 세션을 지우는 메서드
         clearAuthenticationAttributes(request);
 
@@ -71,6 +86,5 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
     }
-    //계정 정지 기능
 
 }

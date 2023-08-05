@@ -1,7 +1,9 @@
 package com.example.coffies_vol_02.TestMember;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -36,16 +38,20 @@ public class MemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 로그인 횟수 테스트->실제로 1이 카운트가 되는가?")
-    public void loginfailTest(){
+    @DisplayName("회원 비밀번호 로그인 실패시 카운트 테스트")
+    public void passwordFailCountTest(){
+        Optional<Member>deatil = memberRepository.findById(1);
+        int countResult = memberRepository.failAttemptsCount(deatil.get().getUserId());
+        System.out.println("::"+countResult);
 
-        Optional<Member>member = memberRepository.findById(1);
-        Member member1 = member.get();
-        int failCount = member1.getFailedAttempt() +1;
-        System.out.println(failCount);
-        memberRepository.updateFailedAttempts(failCount,member1.getUserId());
-        System.out.println(member1.getUserId());
-        System.out.println(member1.getFailedAttempt());
-        System.out.println("resutl::"+member1);
+        int count =memberRepository.updateFailedAttempts(deatil.get().getUserId());
+        System.out.println(count);
+        int afterFailCount = memberRepository.failAttemptsCount(deatil.get().getUserId());
+
+        System.out.println("result::"+afterFailCount);
+
+        deatil.get().setFailedAttempt(count);
+        memberRepository.save(deatil.get());
+        System.out.println("최종 결과::"+deatil.get().getFailedAttempt());
     }
 }
