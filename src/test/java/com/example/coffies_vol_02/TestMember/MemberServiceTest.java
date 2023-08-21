@@ -290,8 +290,6 @@ public class MemberServiceTest {
     @DisplayName("로그인 카운트 초기화")
     public void LoginCountResetTest(){
         //given
-        int failCount = member.getFailedAttempt() + 1;
-        member.setFailedAttempt(failCount);
         memberService.increaseFailAttempts(member.getUserId());
         //when
         memberService.resetFailedAttempts(member.getUserId());

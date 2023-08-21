@@ -251,7 +251,7 @@ public class MemberService {
     /**
      * 로그인 실패 횟수 초기화
      * @author 양경빈
-     * @param member 회원 객체
+     * @param userId 회원 아이디
      **/
     public void resetFailedAttempts(String userId){
         Member member = new Member();
@@ -272,7 +272,7 @@ public class MemberService {
 
     /**
      * 계정 잠금해제 유효기간
-     * 계정이 잠금되면 특정기간까지 계정을 잠금하는 기능
+     * 계정이 잠금되면 특정기간(24시간)까지 계정을 잠금하는 기능
      * 
      * @author 양경빈
      * @param member 회원객체
