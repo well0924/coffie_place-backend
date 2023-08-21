@@ -51,7 +51,8 @@ layout:decorate="~{layout/leafframe}">
 			</table>
 			<!--paging -->
 			<div th:if="${!boardList.isEmpty()}">
-				<nav th:with="pageNumber = ${boardList.pageable.pageNumber},
+				<nav th:with="
+				pageNumber = ${boardList.pageable.pageNumber},
 				pageSize = ${boardList.pageable.pageSize},
 				totalPages= ${boardList.totalPages},
 				startPage=${T(java.lang.Math).floor(pageNumber/pageSize)*pageSize+1},
@@ -59,14 +60,22 @@ layout:decorate="~{layout/leafframe}">
 				endPage=(${tempEndPage < totalPages ? tempEndPage : totalPages})">
 					<div class="d-none d-md-block">
 						<ul class="pagination justify-content-center">
-							<li class="page-item" th:classappend="${boardList.first}?'disabled'">
-								<a class="page-link" th:href="@{/page/board/list(page=${pageNumber -1})}">이전</a>
+							<li class="page-item" th:classappend="${pageNumber < pageSize} ? 'disabled'">
+								<a class="page-link" th:href="@{/page/board/list(page= 0)}">First</a>
 							</li>
-							<li class="page-item" th:each="page: ${#numbers.sequence(startPage,endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
-								<a class="page-link">[[${page}]]</a>
+							<li class="page-item" th:classappend="${boardList.first} ? 'disabled'">
+								<a class="page-link" th:if="${boardList.first} ? '#' " th:href="@{/page/board/list(page=${pageNumber - 1})}">previous</a>
 							</li>
-							<li class="page-item" th:classappend="${boardList.last}?'disabled'">
-								<a class="page-link" th:href="@{/page/board/list(page=${pageNumber+1})}">다음</a>
+							<li class="page-item"
+								th:each="page: ${#numbers.sequence(startPage,endPage)}"
+								th:classappend="${page == pageNumber + 1} ? 'active'">
+								<a class="page-link" th:href="@{/page/board/list(page=${page - 1})}">[[${page}]]</a>
+							</li>
+							<li class="page-item" th:classappend="${!boardList.last} ? 'disabled'">
+								<a class="page-link" th:if="${boardList.last} ? '#'" th:href="@{/page/board/list(page=${pageNumber + 1})}">다음</a>
+							</li>
+							<li class="page-item" th:classappend="${T(java.lang.Math).floor(totalPages / pageSize) * pageSize - 1 <= startPage} ? 'disabled'">
+								<a class="page-link" th:if="${boardList.last} ? '#' " th:href="@{/page/board/list(page=${totalPages - 1})}">Last</a>
 							</li>
 						</ul>
 					</div>

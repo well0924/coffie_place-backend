@@ -78,14 +78,22 @@
                 endPage = (${tempEndPage < totalPages ? tempEndPage : totalPages})">
 		<div class="d-none d-md-block">
 			<ul class="pagination justify-content-center">
-				<li class="page-item" th:classappend="${memberlist.first} ? 'disabled'">
-					<a th:href="@{/page/admin/adminlist(page=${pageNumber -1})}" class="page-link">이전</a>
+				<li class="page-item" th:classappend="${pageNumber < pageSize} ? 'disabled'">
+					<a th:href="@{/page/admin/adminlist(page= 0)}" class="page-link">First</a>
 				</li>
-				<li class="page-item" th:each="page: ${#numbers.sequence(startPage, endPage)}" th:classappend="${page == pageNumber + 1} ? 'active'">
+				<li class="page-item" th:classappend="${memberlist.first} ? 'disabled'">
+					<a th:if="${memberlist.first} ? '#'" th:href="@{/page/admin/adminlist(page=${pageNumber - 1})}" class="page-link">이전</a>
+				</li>
+				<li class="page-item"
+					th:each="page: ${#numbers.sequence(startPage, endPage)}"
+					th:classappend="${page == pageNumber + 1} ? 'active'">
 					<a th:href="@{/page/admin/adminlist(page=${page - 1})}" class="page-link">[[${page}]]</a>
 				</li>
 				<li class="page-item" th:classappend="${memberlist.last}? 'disabled'">
-					<a th:href="@{/page/admin/adminlist(page=${pageNumber+1})}" class="page-link">다음</a>
+					<a th:if="${memberlist.last} ? '#'" th:href="@{/page/admin/adminlist(page=${pageNumber + 1})}" class="page-link">다음</a>
+				</li>
+				<li class="page-item" th:classappend="${T(java.lang.Math).floor(totalPages / pageSize) * pageSize - 1 <= startPage} ? 'disabled'">
+					<a th:if="${memberlist.last} ? '#'" th:href="@{/page/admin/adminlist(page=${totalPages - 1})}" class="page-link">Last</a>
 				</li>
 			</ul>
 		</div>
