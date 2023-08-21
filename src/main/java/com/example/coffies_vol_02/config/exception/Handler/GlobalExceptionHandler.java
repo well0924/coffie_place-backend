@@ -1,17 +1,21 @@
 package com.example.coffies_vol_02.config.exception.Handler;
 
-import com.example.coffies_vol_02.config.exception.Dto.ErrorDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Log4j2
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({CustomExceptionHandler.class})
-    protected ResponseEntity<ErrorDto> HandleCustomException(CustomExceptionHandler ex) {
-        return new ResponseEntity<>(new ErrorDto(ex.getErrorCode().getHttpStatus(), ex.getErrorCode().getMessage()), HttpStatus.valueOf(ex.getErrorCode().getHttpStatus()));
+    public CommonResponse<?> exceptionHandler(CustomExceptionHandler ex){
+        return CommonResponse.builder()
+                .status(ex.getErrorCode().getErrorCode())
+                .data(ex.getErrorCode().getMessage())
+                .build();
     }
 
 }
