@@ -246,7 +246,7 @@ function memberjoin(){
         data: JSON.stringify(dateForm),
         dataType:'json',
         contentType:'application/json; charset=utf-8'
-    }).always(function(resp){
+    }).done(function(resp){
         console.log(resp);
         if(resp.status ==200){
             alert("회원 가입이 되었습니다.");
@@ -258,15 +258,15 @@ function memberjoin(){
             }else{
                 $('#valid_userId').text('');
             }
-            if(resp.data.hasOwnProperty('valid_userPw')){
-                $('#valid_userPw').text(resp.data.valid_userPw).css('color','red');
+            if(resp.data.hasOwnProperty('valid_password')){
+                $('#validation_check').text(resp.data.valid_password).css('color','red');
             }else{
-                $('#valid_userPw').text('');
+                $('#validation_check').text('');
             }
-            if(resp.data.hasOwnProperty('valid_userName')){
-                $('#valid_userName').text(resp.data.valid_userName).css('color','red');
+            if(resp.data.hasOwnProperty('valid_memberName')){
+                $('#valid_memberName').text(resp.data.valid_memberName).css('color','red');
             }else{
-                $('#valid_userName').text('');
+                $('#valid_memberName').text('');
             }
             if(resp.data.hasOwnProperty('valid_userGender')){
                 $('#valid_userGender').text(resp.data.valid_userGender).css('color','red');
@@ -287,6 +287,11 @@ function memberjoin(){
                 $('#valid_userAddr1').text(resp.data.valid_userAddr1).css('color','red');
             }else{
                 $('#valid_userAddr1').text('');
+            }
+            if(resp.data.hasOwnProperty('valid_userAge')){
+                $('#valid_userAge').text(resp.data.valid_userAge).css('color','red');
+            }else{
+                $('#valid_userAge').text('');
             }
         }
     });

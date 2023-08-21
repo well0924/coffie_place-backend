@@ -18,7 +18,7 @@ public record MemberRequest(
                             @NotBlank(message = "아이디를 입력해주세요.")
                             @Pattern(regexp = "^[a-z0-9]{4,15}$",message = "아이디는 영어소문자와 숫자만 사용하고 4~15자까지 입니다.")
                             String userId,
-                            @Schema(description = "비밓번호",pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$")
+                            @Schema(description = "비밀번호",pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$")
                             @NotBlank(message = "비밀번호를 입력해주세요.")
                             @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$", message = "비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.")
                             String password,
@@ -27,7 +27,7 @@ public record MemberRequest(
                             String memberName,
                             @Schema(description = "회원 전화번호",pattern = "^\\d{2,3}-\\d{3,4}-\\d{4}$")
                             @NotBlank(message = "전화번호를 입력해주세요.")
-                            @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$")
+                            @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$",message = "전화번호를 입력해 주세요.")
                             String userPhone,
                             @Schema(description = "회원 성별")
                             @NotBlank(message = "성별을  입력해주세요.")
@@ -48,10 +48,8 @@ public record MemberRequest(
                             Double memberLat,
                             @Schema(description = "회원 경도")
                             Double memberLng,
-                            @Schema(description = "회원 등급",example = "ROLE_ADMIN")
+                            @Schema(description = "회원 등급",example = "ROLE_ADMIN",allowableValues = {"ROLE_ADMIN","ROLE_USER"})
                             Role role){
-
-
 
     public Member toEntity(Member member){
         return Member
