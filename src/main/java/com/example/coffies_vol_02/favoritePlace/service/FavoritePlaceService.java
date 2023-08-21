@@ -145,4 +145,15 @@ public class FavoritePlaceService {
         List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
         return list.stream().map(PlaceResponseDto::new).toList();
     }
+    
+    /**
+     * 회원이 좋아요를 한 게시글 목록
+     * @author 양경빈
+     * @param useridx 회원 번호
+     * @return Page<BoardResponse>result 회원의 게시글 목록
+     **/
+    @Transactional(readOnly = true)
+    public Page<BoardResponse>likedBoardList(int useridx,Pageable pageable){
+        return boardRepository.likedBoardDetailList(useridx,pageable);
+    }
 }

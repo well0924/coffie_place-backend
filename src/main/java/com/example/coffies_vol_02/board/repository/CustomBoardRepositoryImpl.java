@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.like.domain.QLike;
 import com.example.coffies_vol_02.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -87,6 +88,45 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     }
 
     /**
+     * 게시물 단일 조회
+     * @author 양경빈
+     * @param boardId 게시물 번호
+     * @return BoardResponse
+     **/
+    @Override
+    public BoardResponse boardDetail(int boardId) {
+
+        return jpaQueryFactory
+                .select(new QBoardResponse(QBoard.board))
+                .from(QBoard.board)
+                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .where(QBoard.board.id.eq(boardId))
+                .distinct()
+                .fetchOne();
+    }
+
+    /**
+     * 좋아요를 한 게시물목록 조회
+     * @author 양경빈
+     * @param useridx 회원 번호
+     * @return List<BoardResponse>result 게시물 목록
+     **/
+    @Override
+    public Page<BoardResponse> likedBoardDetailList(int useridx,Pageable pageable) {
+        List<BoardResponse>result = new ArrayList<>();
+
+        List<Board>like = likeBoard(useridx);
+
+        int count = likeBoardCount(useridx);
+
+        for(Board board : like){
+            BoardResponse response = new BoardResponse(board);
+            result.add(response);
+        }
+        return new PageImpl<>(result,pageable,count);
+    }
+
+    /**
      * 게시글 검색 목록
      * @param searchVal 검색어
      * @param pageable 페이징 객체
@@ -135,23 +175,26 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                 .fetch()
                 .size();
     }
-
-    /**
-     * 게시물 단일 조회
-     * @author 양경빈
-     * @param boardId 게시물 번호
-     * @return BoardResponse
-     **/
-    @Override
-    public BoardResponse boardDetail(int boardId) {
-
-        return jpaQueryFactory
-                .select(new QBoardResponse(QBoard.board))
+    
+    //좋아요를 한 게시글 목록
+    private List<Board>likeBoard(int useridx){
+        return jpaQueryFactory.select(QBoard.board)
                 .from(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
-                .where(QBoard.board.id.eq(boardId))
-                .distinct()
-                .fetchOne();
+                .innerJoin(QLike.like)
+                .on(QBoard.board.id.eq(QLike.like.board.id))
+                .where(QLike.like.member.id.eq(useridx))
+                .fetch();
+    }
+    
+    //좋아요를 한 게시글 수
+    private int likeBoardCount(int useridx){
+        return jpaQueryFactory.select(QBoard.board)
+                .from(QBoard.board)
+                .innerJoin(QLike.like)
+                .on(QBoard.board.id.eq(QLike.like.board.id))
+                .where(QLike.like.member.id.eq(useridx))
+                .fetch()
+                .size();
     }
 
     BooleanBuilder boardContentsEq(String searchVal){

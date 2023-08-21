@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.board.domain.dto.response;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
+import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.annotations.ApiModel;
@@ -40,7 +41,7 @@ public record BoardResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime updatedTime
 
-)implements Serializable {
+) implements Serializable {
 
         @QueryProjection
         public BoardResponse(Board board){

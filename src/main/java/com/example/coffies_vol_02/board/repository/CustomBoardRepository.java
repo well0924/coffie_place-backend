@@ -21,4 +21,9 @@ public interface CustomBoardRepository {
      * 게시글 조회
      **/
     BoardResponse boardDetail(int boardId);
+
+    /**
+     * 좋아요를 한 게시글 목록
+     **/
+    Page<BoardResponse> likedBoardDetailList(int useridx ,Pageable pageable);
 }

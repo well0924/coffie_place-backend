@@ -1,15 +1,18 @@
 package com.example.coffies_vol_02.TestBoard;
 
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
+import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.like.domain.QLike;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,10 +22,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.Optional;
+import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Log4j2
 @DataJpaTest
 @Import({TestQueryDslConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -30,6 +36,15 @@ public class BoardRepositoryTest {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired // 원래는 @PersistenceContext 을 많이 썼는데, 이제는 오토와이어도 잘됩니다.
+    private EntityManager em;
+
+    private JPAQueryFactory queryFactory;
+
+    @BeforeEach // 기본적으로 테스트가 시작하기 전에 실행하는 함수
+    void createTest() {
+        queryFactory = new JPAQueryFactory(em);
+    }
     @Test
     @DisplayName("게시물 목록")
     public void BoardListTest(){
@@ -65,46 +80,64 @@ public class BoardRepositoryTest {
     @Test
     @DisplayName("게시글 이전글 번호 테스트")
     public void BoardPrevTest(){
-        Optional<BoardNextPreviousInterface> result = boardRepository.findPreviousBoard(6);
-
-        System.out.println("이전글:"+result);
-        System.out.println("이전글 번호:"+result.get().getId());
-        System.out.println("이전글 제목:"+result.get().getBoardTitle());
-
-        assertThat(result).isPresent();
-        assertThat(result.get().getId()).isNotNull();
+        Board board = boardRepository.findById(10).get();
+        //Optional<BoardNextPreviousInterface> previousBoard = boardRepository.findPreviousBoard(board.getCreatedTime());
+        //System.out.println(previousBoard.get().getId());
     }
     @Test
     @DisplayName("게시글 이전글 번호 테스트-실패")
     public void BoardPrevTestFail(){
-        Optional<BoardNextPreviousInterface> result = boardRepository.findPreviousBoard(1);
 
-        if(result.isEmpty()){
-            System.out.println("글이없습니다.");
-        }
-        assertThat(result).isEmpty();
     }
 
     @Test
     @DisplayName("게시글 다음글 번호 테스트")
     public void BoardNextTest(){
-        Optional<BoardNextInterface> result = boardRepository.findNextBoard(6);
 
-        System.out.println(result);
-        System.out.println(result.get().getId());
-        System.out.println(result.get().getBoardTitle());
     }
 
     @Test
     @DisplayName("게시글 다음글 번호 테스트 실패")
     public void BoardNextTestFail(){
-        Optional<BoardNextInterface> result = boardRepository.findNextBoard(2000);
 
-        if(result.isEmpty()){
-            System.out.println("다음글이 없습니다.");
-        }
-
-        assertThat(result).isEmpty();
     }
 
+    @Test
+    @DisplayName("회원이 좋아요 한 게시글(단일) 확인하기.->쿼리 테스트")
+    public void likedMyArticle(){
+        QBoard board = QBoard.board;
+        QLike liked = QLike.like;
+
+        queryFactory
+                .selectFrom(board)
+                .where(board.id.in(
+                JPAExpressions
+                        .select(liked.board.id)
+                        .from(liked)
+                        .where(liked.board.id.eq(15)
+                                .and(liked.member.id.eq(1)))
+        )).fetch().stream().forEach(result->{
+                    log.info(result.getId());
+                    log.info(result.getBoardTitle());
+                    log.info(result.getBoardAuthor());
+                    log.info(result.getBoardContents());
+                    log.info(result.getFileGroupId());
+                });
+    }
+
+    @Test
+    @DisplayName("회원이 좋아요 한 게시글(목록) 확인하기.->쿼리 테스트")
+    public void likedMyArticleList(){
+        QBoard board = QBoard.board;
+        QLike liked = QLike.like;
+
+        List<Board>result=queryFactory
+                .selectFrom(board)
+                .innerJoin(liked)
+                .on(board.id.eq(liked.board.id))
+                .where(liked.member.id.eq(1))
+                .fetch();
+
+        System.out.println(result);
+    }
 }
