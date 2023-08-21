@@ -1,6 +1,8 @@
 package com.example.coffies_vol_02.config.exception.Handler;
 
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.exception.Dto.ErrorDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,15 +10,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomExceptionHandler extends RuntimeException{
 
-    private ERRORCODE errorcode;
+    private ERRORCODE errorCode;
 
-    public CustomExceptionHandler(ERRORCODE errorcode) {
-        super(errorcode.getMessage());
-        this.errorcode = errorcode;
+    public CustomExceptionHandler(ERRORCODE errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
-
 
     public ERRORCODE getErrorCode() {
-        return errorcode;
+        return errorCode;
     }
+
 }

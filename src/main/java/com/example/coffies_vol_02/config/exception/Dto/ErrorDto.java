@@ -1,13 +1,19 @@
 package com.example.coffies_vol_02.config.exception.Dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
+import org.springframework.http.HttpStatus;
 
 @Getter
-@Builder
-@AllArgsConstructor
+@ToString
 public class ErrorDto {
-    private Integer errorcode;
+
+    private HttpStatus httpStatus;
+    private Integer errorCode;
     private String message;
+
+    @Builder
+    public ErrorDto(HttpStatus httpStatus,Integer errorCode,String message){
+        this.errorCode = errorCode;
+        this.message = message;
+    }
 }
