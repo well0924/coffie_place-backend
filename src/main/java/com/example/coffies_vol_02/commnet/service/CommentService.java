@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Log4j2
 @Service
@@ -43,7 +44,9 @@ public class CommentService {
 
         List<Comment>list = commentRepository.findByBoardId(boardId);
 
-        return list.stream().map(placeCommentResponseDto::new).toList();
+        return list.stream()
+                .flatMap(comment-> Stream.of(new placeCommentResponseDto(comment)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -120,7 +123,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<placeCommentResponseDto>placeCommentList(Integer placeId) throws Exception {
         List<Comment>list = commentRepository.findByPlaceId(placeId);
-        return list.stream().map(placeCommentResponseDto::new).collect(Collectors.toList());
+        return list.stream().flatMap(comment-> Stream.of(new placeCommentResponseDto(comment))).collect(Collectors.toList());
     }
 
     /**
@@ -225,4 +228,12 @@ public class CommentService {
        cafeReviewRate(avgStar, placeId);
     }
 
+    /**
+     * 최근에 작성한 댓글(limit5)
+     * @author 양경빈
+     * @return List<placeCommentResponseDto>
+     **/
+    public List<placeCommentResponseDto>recentCommentTop5(){
+        return commentRepository.recentReplyTop5();
+    }
 }

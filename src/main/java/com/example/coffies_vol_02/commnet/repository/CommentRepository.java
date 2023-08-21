@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.commnet.repository;
 
 import com.example.coffies_vol_02.commnet.domain.Comment;
+import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.member.domain.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +40,10 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     @Modifying
     @Query("update Place p set p.reviewRate = :rate where p.id = :id")
     void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId);
+
+    /**
+     * 최근에 작성한 댓글 5개(가게,자유게시판)
+     **/
+    @Query(value = "select c from Comment c order by c.createdTime desc limit 5")
+    List<placeCommentResponseDto>recentReplyTop5();
 }

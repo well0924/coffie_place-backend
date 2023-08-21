@@ -12,6 +12,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoardRepository,QuerydslPredicateExecutor {
@@ -27,32 +29,58 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
      **/
     Page<Board> findByMember(Member member, Pageable pageable);
 
-    //게시글 조회수 확인
+    /**
+     * 게시글 조회수 확인
+     **/
     @Query("select b.readCount from Board b where b.id = :id")
     Integer ReadCount(@Param("id") Integer id);
 
     /**
-     * 게시글 조회수 증가(동시성을 고려해보기)
+     * 게시글 조회수 증가.
      **/
     @Transactional
     @Modifying
-    @Query("update Board b set b.readCount = :readCount+1 where b.id = :id")
+    @Query("update Board b set b.readCount = :readCount where b.id = :id")
     void ReadCountUpToDB(@Param("id")Integer id, @Param("readCount")Integer readCount);
 
     /**
      * 게시글 다음글
      **/
     @Transactional
-    @Query(nativeQuery = true,value = "select tb.id ,tb.board_title as BoardTitle from tbl_board tb " +
-            "where tb.id >= ?1 order by tb.id asc limit 1")
-    Optional<BoardNextInterface> findNextBoard(Integer boardId);
+    @Query(nativeQuery = true,value = "select " +
+            "tb.id," +
+            "tb.board_title as BoardTitle," +
+            "tb.board_contents as BoardContents," +
+            "tb.board_author as BoardAuthor," +
+            "tb.file_group_id as FileGoupId," +
+            "tb.liked as Liked," +
+            "tb.read_count as ReadCount," +
+            "tb.created_time as CreatedTime," +
+            "tb.updated_time as UpdatedTime from tbl_board tb where tb.created_time > ?1 order by tb.created_time asc limit 1")
+    //Optional<BoardNextInterface> findNextBoard(LocalDateTime createdTime);
+    Board findNextBoard(LocalDateTime createdTime);
 
     /**
      * 게시글 이전글
      **/
     @Transactional
-    @Query(nativeQuery = true,value = "select tb.id ,tb.board_title as BoardTitle from tbl_board tb " +
-            "where tb.id < ?1 order by tb.id desc limit 1")
-    Optional<BoardNextPreviousInterface> findPreviousBoard(Integer boardId);
+    @Query(nativeQuery = true,value = "select " +
+            "tb.id," +
+            "tb.board_title as BoardTitle," +
+            "tb.board_contents as BoardContents," +
+            "tb.board_author as BoardAuthor," +
+            "tb.file_group_id as FileGroupId," +
+            "tb.liked as Liked," +
+            "tb.read_count as ReadCount," +
+            "tb.created_time as CreatedTime," +
+            "tb.updated_time as UpdatedTime " +
+            "from tbl_board tb where tb.created_time < ?1 order by tb.created_time desc limit 1")
+    //Optional<BoardNextPreviousInterface> findPreviousBoard(LocalDateTime createdTime);
+    Board findPreviousBoard(LocalDateTime createdTime);
 
+    /**
+     * 최근에 작성한 글목록 (5개만)
+     **/
+    @Query(value = "select b from Board b order by b.createdTime desc limit 5")
+    List<BoardResponse>recentBoardListTop5();
 }

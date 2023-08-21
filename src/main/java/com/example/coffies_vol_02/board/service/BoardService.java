@@ -5,11 +5,8 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
-import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -25,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,8 +38,6 @@ public class BoardService {
     private final AttachRepository attachRepository;
 
     private final AttachService attachService;
-
-    private final RedisService redisService;
 
     /**
      * 게시글 목록
@@ -86,26 +82,25 @@ public class BoardService {
      * @return BoardNextPreviousInterface 타입은 인터페이스
      * @throws CustomExceptionHandler 게시글을 조회시 게시글이 없는 경우
      * @author 양경빈
-     * @see BoardRepository#findNextBoard(Integer) 게시글조회 페이지에서 다음글을 조회하는 메서드
+     * @see BoardRepository#findNextBoard(LocalDateTime)  게시글조회 페이지에서 다음글을 조회하는 메서드
      **/
-    public Optional<BoardNextPreviousInterface> findPreviousBoard(Integer boardId){
-
-        return Optional
-                .ofNullable(boardRepository.findPreviousBoard(boardId))
-                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+    public BoardResponse findPreviousBoard(Integer boardId){
+        Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        board.setPreviousBoard(boardRepository.findPreviousBoard(board.getCreatedTime()));
+        return null;
     }
 
     /**
      * 게시글 다음글
      * @author 양경빈
      * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND
-     * @see BoardRepository#findNextBoard(Integer) 게시물 조회페이지에서 다음글을 조회하는 메서드
+     * @see BoardRepository#findNextBoard(LocalDateTime)  게시물 조회페이지에서 다음글을 조회하는 메서드
      * @return BoardNextPreviousInterface 타입은 인터페이스
      **/
-    public Optional<BoardNextInterface> findNextBoard(Integer boardId){
-        return Optional
-                .ofNullable(boardRepository.findNextBoard(boardId))
-                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+    public BoardResponse findNextBoard(Integer boardId){
+        Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        board.setNextBoard(boardRepository.findNextBoard(board.getCreatedTime()));
+        return null;
     }
 
     /**
@@ -292,4 +287,13 @@ public class BoardService {
         return boardDetail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
     }
 
+    /**
+     * 최근에 작성한 글 (Top5)
+     * @author 양경빈
+     * @return List<BoardResponse>
+     **/
+    @Transactional(readOnly = true)
+    public List<BoardResponse>recentBoardList(){
+        return boardRepository.recentBoardListTop5();
+    }
 }

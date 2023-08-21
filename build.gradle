@@ -39,14 +39,20 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // security
-    implementation 'org.springframework.boot:spring-boot-starter-security:3.0.1'
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.1.0'
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+    implementation 'org.springframework.security:spring-security-core:6.1.0'
+
     // Swagger
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
     // jackson
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.1'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.2'
+
     // 직렬화 이슈로 추가한 라이브러리
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.7'
     // ImageScaling
@@ -67,7 +73,6 @@ dependencies {
     implementation 'org.seleniumhq.selenium:selenium-java:4.0.0'
     // https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager
     implementation 'io.github.bonigarcia:webdrivermanager:5.3.2'
-
 
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jpa" // querydsl JPAAnnotationProcessor 사용 지정
     annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 대응 코드
