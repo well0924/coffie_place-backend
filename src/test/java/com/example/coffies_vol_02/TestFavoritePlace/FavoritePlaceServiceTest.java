@@ -227,4 +227,5 @@ public class FavoritePlaceServiceTest {
         verify(favoritePlaceRepository,atLeastOnce()).favoritePlaceWishList(pageRequest,member.getUserId());
     }
 
+
 }

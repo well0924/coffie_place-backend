@@ -2,10 +2,7 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextInterface;
-import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
-import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.redis.RedisService;
@@ -24,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Log4j2
@@ -40,7 +36,7 @@ public class BoardViewController {
     private final RedisService redisService;
 
     @GetMapping("/list")
-    public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+    public ModelAndView boardList(@PageableDefault(page=0,size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(value = "searchType",required = false) SearchType searchType,
                                   @RequestParam(value = "searchVal",required = false)String searchVal)throws Exception{
 
@@ -54,7 +50,7 @@ public class BoardViewController {
             if(searchVal!=null){
                 boardList = boardService.boardSearchAll(searchType,searchVal,pageable);
             }
-            log.info(boardList);
+            log.info(boardList.hasPrevious());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -69,43 +65,22 @@ public class BoardViewController {
     }
 
     @GetMapping("/detail/{board-id}")
-    public ModelAndView boardDetail(@PathVariable("board-id") Integer boardId){
+    public ModelAndView boardDetail(@PathVariable("board-id") Integer boardId)throws Exception{
 
         ModelAndView mv = new ModelAndView();
 
         BoardResponse detail;
         List<AttachDto> attachList;
-        Optional<BoardNextPreviousInterface> previousBoard;
-        Optional<BoardNextInterface> nextBoard;
 
-        try{
-            //게시글 조회수 캐시 적용
-            redisService.boardViewCount(boardId);
-            //게시글 조회
-            detail = boardService.findBoard(boardId);
-            //첨부파일
-            attachList = attachService.boardfilelist(boardId);
-            //게시글 이전글
-            previousBoard = boardService.findPreviousBoard(boardId);
-            //게시글 다음글
-            nextBoard = boardService.findNextBoard(boardId);
+        //게시글 조회수 캐시 적용
+        redisService.boardViewCount(boardId);
+        //게시글 조회
+        detail = boardService.findBoard(boardId);
+        //첨부파일
+        attachList = attachService.boardfilelist(boardId);
 
-            mv.addObject("detail",detail);
-            mv.addObject("file",attachList);
-
-            if(nextBoard.isPresent()){
-                mv.addObject("next",nextBoard);
-            } else if(nextBoard.isEmpty()){
-                mv.addObject("next",nextBoard);
-            }
-            if(previousBoard.isPresent()){
-                mv.addObject("previous",previousBoard);
-            }else if(previousBoard.isEmpty()){
-                mv.addObject("previous",previousBoard);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        mv.addObject("detail",detail);
+        mv.addObject("file",attachList);
 
         mv.setViewName("board/detailBoard");
 

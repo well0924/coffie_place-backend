@@ -77,7 +77,7 @@ function Replylist(){
 //댓글 작성(자유게시판)o.k
 function replyWrite(){
 
-    let replywriter = $('#writer').val();
+    let replywriter = $('#board_writer').val();
     let replycontents = $('#contents').val();
     let boardid = $('#board_id').val();
 

@@ -234,6 +234,6 @@ public class CommentService {
      * @return List<placeCommentResponseDto>
      **/
     public List<placeCommentResponseDto>recentCommentTop5(){
-        return commentRepository.recentReplyTop5();
+        return commentRepository.findTop5ByOrderByCreatedTimeDesc();
     }
 }

@@ -127,6 +127,7 @@ public class CommentApiController {
     }
 
     @Operation(summary = "최근에 작성한 댓글",description = "게시판 댓글과 가게 댓글에서 작성일 순으로 5개를 출력")
+    @GetMapping("/recent-reply")
     public CommonResponse<List<placeCommentResponseDto>>recentCommentListTop5(){
         List<placeCommentResponseDto>result = new ArrayList<>();
         try {

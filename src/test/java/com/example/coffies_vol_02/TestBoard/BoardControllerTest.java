@@ -112,8 +112,6 @@ public class BoardControllerTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
         //이전글/다음글
-        given(boardService.findPreviousBoard(board.getId())).willReturn(Optional.empty());
-        given(boardService.findNextBoard(board.getId())).willReturn(Optional.empty());
 
         mvc.perform(
                 get("/page/board/detail/{board-id}",board.getId())
@@ -123,8 +121,6 @@ public class BoardControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(model().attributeExists("detail"))
                 .andExpect(model().attributeExists("file"))
-                .andExpect(model().attributeExists("next"))
-                .andExpect(model().attributeExists("previous"))
                 .andExpect(view().name("board/detailBoard"))
                 .andDo(print());
     }

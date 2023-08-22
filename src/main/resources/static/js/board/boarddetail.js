@@ -54,7 +54,7 @@ function boardLike(){
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(id)
     }).done(function(resp){
-        alert(resp.data);
+        alert(resp.message);
         $('#favoriteCount').empty();
         likeCount();
     });
@@ -69,8 +69,7 @@ function likeCancel(){
         dataType:'json',
         contentType:'application/json; charset=utf-8'
     }).done(function(resp){
-        console.log(resp.data);
-        alert(resp.data);
+        alert(resp.message);
         $('#favoriteCount').empty();
         likeCount();
     });

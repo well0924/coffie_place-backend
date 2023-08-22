@@ -10,8 +10,6 @@ import com.example.coffies_vol_02.member.service.MemberService;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.Banner;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -99,13 +97,6 @@ public class FavoriteController {
         mv.addObject("member",memberResponse);
         mv.setViewName("/mypage/nearPlaceList");
 
-        return mv;
-    }
-
-    @GetMapping("/recentpost")
-    public ModelAndView postRecentList(){
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("/mypage/recentPostList");
         return mv;
     }
 

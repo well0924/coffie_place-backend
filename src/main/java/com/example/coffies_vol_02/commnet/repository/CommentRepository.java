@@ -44,6 +44,5 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     /**
      * 최근에 작성한 댓글 5개(가게,자유게시판)
      **/
-    @Query(value = "select c from Comment c order by c.createdTime desc limit 5")
-    List<placeCommentResponseDto>recentReplyTop5();
+    List<placeCommentResponseDto>findTop5ByOrderByCreatedTimeDesc();
 }

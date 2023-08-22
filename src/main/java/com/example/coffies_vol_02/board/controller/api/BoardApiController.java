@@ -169,7 +169,7 @@ public class BoardApiController {
     }
 
     @Operation(summary = "최근에 작성한 글",description = "자유게시판 글 중에서 최신순으로 글 5개를 출력")
-    @GetMapping("/recentboard")
+    @GetMapping("/recent-board")
     public CommonResponse<List<BoardResponse>>recentBoardList(){
 
         List<BoardResponse>result = new ArrayList<>();

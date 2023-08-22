@@ -294,6 +294,6 @@ public class BoardService {
      **/
     @Transactional(readOnly = true)
     public List<BoardResponse>recentBoardList(){
-        return boardRepository.recentBoardListTop5();
+        return boardRepository.findTop5ByOrderByCreatedTimeDesc();
     }
 }

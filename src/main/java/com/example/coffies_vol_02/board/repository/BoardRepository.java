@@ -81,6 +81,5 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     /**
      * 최근에 작성한 글목록 (5개만)
      **/
-    @Query(value = "select b from Board b order by b.createdTime desc limit 5")
-    List<BoardResponse>recentBoardListTop5();
+    List<BoardResponse>findTop5ByOrderByCreatedTimeDesc();
 }
