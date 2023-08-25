@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.TestBoard;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
@@ -126,18 +127,8 @@ public class BoardRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원이 좋아요 한 게시글(목록) 확인하기.->쿼리 테스트")
-    public void likedMyArticleList(){
-        QBoard board = QBoard.board;
-        QLike liked = QLike.like;
-
-        List<Board>result=queryFactory
-                .selectFrom(board)
-                .innerJoin(liked)
-                .on(board.id.eq(liked.board.id))
-                .where(liked.member.id.eq(1))
-                .fetch();
-
-        System.out.println(result);
+    public void test(){
+        List<BoardNextPreviousInterface>result = boardRepository.findPreviousNextBoard(15);
+        System.out.println(result.get(0).getBoardTitle());
     }
 }

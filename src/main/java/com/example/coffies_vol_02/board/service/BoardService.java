@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.util.FileHandler;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,29 +78,14 @@ public class BoardService {
     /**
      * 게시글 이전글
      *
-     * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 를 발생
+     * @param boardId 게시글 번호
      * @return BoardNextPreviousInterface 타입은 인터페이스
-     * @throws CustomExceptionHandler 게시글을 조회시 게시글이 없는 경우
      * @author 양경빈
-     * @see BoardRepository#findNextBoard(LocalDateTime)  게시글조회 페이지에서 다음글을 조회하는 메서드
+     * @see BoardRepository#findPreviousNextBoard(Integer)   게시글조회 페이지에서 다음글을 조회하는 메서드
      **/
-    public BoardResponse findPreviousBoard(Integer boardId){
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-        board.setPreviousBoard(boardRepository.findPreviousBoard(board.getCreatedTime()));
-        return null;
-    }
-
-    /**
-     * 게시글 다음글
-     * @author 양경빈
-     * @param boardId 게시글 번호 번호가 없는 경우에는 BOARD_NOT_FOUND
-     * @see BoardRepository#findNextBoard(LocalDateTime)  게시물 조회페이지에서 다음글을 조회하는 메서드
-     * @return BoardNextPreviousInterface 타입은 인터페이스
-     **/
-    public BoardResponse findNextBoard(Integer boardId){
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-        board.setNextBoard(boardRepository.findNextBoard(board.getCreatedTime()));
-        return null;
+    @Transactional
+    public List<BoardNextPreviousInterface>boardNextPrevious(Integer boardId){
+        return boardRepository.findPreviousNextBoard(boardId);
     }
 
     /**

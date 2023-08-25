@@ -27,7 +27,7 @@ function likeCount(){
     let str = '';
     let id = $('#board_id').val();
     $.ajax({
-        url:"/api/like/"+id,
+        url:"/api/like/board/"+id,
         type:"get",
         dataType:"json",
         contentType:"application/json; charset=utf-8"

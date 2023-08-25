@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.board.controller.view;
 
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.service.AttachService;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.SearchType;
@@ -36,7 +37,7 @@ public class BoardViewController {
     private final RedisService redisService;
 
     @GetMapping("/list")
-    public ModelAndView boardList(@PageableDefault(page=0,size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
+    public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(value = "searchType",required = false) SearchType searchType,
                                   @RequestParam(value = "searchVal",required = false)String searchVal)throws Exception{
 
@@ -71,17 +72,18 @@ public class BoardViewController {
 
         BoardResponse detail;
         List<AttachDto> attachList;
-
+        List<BoardNextPreviousInterface>boardNextPreviousInterfaceList;
         //게시글 조회수 캐시 적용
         redisService.boardViewCount(boardId);
         //게시글 조회
         detail = boardService.findBoard(boardId);
         //첨부파일
         attachList = attachService.boardfilelist(boardId);
+        boardNextPreviousInterfaceList = boardService.boardNextPrevious(boardId);
 
         mv.addObject("detail",detail);
         mv.addObject("file",attachList);
-
+        mv.addObject("list",boardNextPreviousInterfaceList);
         mv.setViewName("board/detailBoard");
 
         return mv;
