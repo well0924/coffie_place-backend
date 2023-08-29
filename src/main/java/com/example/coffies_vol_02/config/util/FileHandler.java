@@ -219,7 +219,7 @@ public class FileHandler {
 
                 String thumbFileName = "file_"+originFileName.substring(0,originFileName.lastIndexOf("."))+"_thumb."+ext;
 
-                BufferedImage originImage = ImageIO.read(new FileInputStream(file));
+                BufferedImage originImage = ImageIO.read(new FileInputStream(file)); //받은 이미지 읽기
 
                 MultiStepRescaleOp scaleImage = new MultiStepRescaleOp(width,height);
 
