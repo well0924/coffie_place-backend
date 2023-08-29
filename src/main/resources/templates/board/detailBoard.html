@@ -66,6 +66,30 @@ layout:decorate="~{layout/leafframe}">
 				</div>
 
 				<!--이전 글 다음글-->
+				<div class="list-group" th:each="board:${list}">
+					<div th:if="${#lists.size(list) == 1 and board.getId() > detail.id}">
+						첫번째 글입니다.
+					</div>
+					<div th:if="${board.getId() < detail.id}">
+						<a th:href="@{'/page/board/detail/'+ ${board.getId()}}" class="list-group-item list-group-item-action">
+							<span style="font-weight: bold;">이전글</span> │
+							<div>
+								<span style="color: blue;">[[${board.getBoardTitle()}]]</span>
+							</div>
+						</a>
+					</div>
+					<div th:if="${board.getId() > detail.id()}">
+						<a th:href="@{'/page/board/detail/'+${board.getId()}}" class="list-group-item list-group-item-action">
+							<span style="font-weight: bold;">다음글</span> │
+							<div>
+								<span style="color: blue;">[[${board.getBoardTitle()}]]</span>
+							</div>
+						</a>
+					</div>
+					<div th:if="${#lists.size(list) == 1 and board.getId() < detail.id}">
+						<p>마지막 글입니다.</p>
+					</div>
+				</div>
 				<!-- Comments section-->
 				<div class="card mb-2">
 					<div class="card-header bg-light">
