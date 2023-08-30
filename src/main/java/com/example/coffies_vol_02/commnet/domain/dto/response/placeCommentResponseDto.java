@@ -3,7 +3,6 @@ package com.example.coffies_vol_02.commnet.domain.dto.response;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

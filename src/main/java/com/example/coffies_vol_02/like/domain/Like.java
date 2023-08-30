@@ -17,13 +17,16 @@ import java.io.Serializable;
 @Table(name = "tbl_like")
 @RequiredArgsConstructor
 public class Like implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     @JsonIgnore
     private Board board;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     @OnDelete(action = OnDeleteAction.CASCADE)

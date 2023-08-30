@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -288,7 +287,6 @@ public class PlaceService {
         placeRepository.deleteById(placeId);
     }
 
-    //엑셀목록으로 가게를 출력
     public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 
         List<Place> placePlace = placeRepository.findAll();
@@ -304,7 +302,6 @@ public class PlaceService {
                 .collect(Collectors.toList());
     }
 
-    //가게 엑셀 목록 출력
     private void createExcelDownloadResponse(HttpServletResponse response, List<Place> placeList) {
 
         try {
@@ -380,6 +377,7 @@ public class PlaceService {
         }
 
     }
+
 
     //가게 이미지 리사이징
     private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {

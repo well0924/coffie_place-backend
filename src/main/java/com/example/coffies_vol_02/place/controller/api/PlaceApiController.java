@@ -147,4 +147,5 @@ public class PlaceApiController {
 
         return new CommonResponse<>(HttpStatus.OK.value(), top5list);
     }
+
 }
