@@ -9,11 +9,9 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -44,7 +42,7 @@ import java.util.List;
 public class BoardApiController {
     private final BoardService boardService;
 
-    @Operation(summary = "게시글 목록", description = "자유게시판에서 목록을 조회하는 컨트롤러",responses = {
+    @Operation(summary = "게시글 목록", description = "자유게시판에서 목록을 조회하는 컨트롤러", responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
     @GetMapping(path = "/list")
@@ -58,7 +56,7 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "게시글 검색",description = "자유게시판에서 게시물을 검색하는 컨트롤러",responses = {
+    @Operation(summary = "게시글 검색", description = "자유게시판에서 게시물을 검색하는 컨트롤러", responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(schema = @Schema(implementation = BoardResponse.class)))
     })
     @GetMapping(path = "/search")
