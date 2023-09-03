@@ -31,13 +31,13 @@ public class RedisConfig {
     @Value("${spring.redis.host}")
     private String redisHost;
 
-
+    /**
+     * 내장 혹은 외부의 Redis를 연결
+     */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
     }
-
-
     @Bean
     public RedisTemplate<?,?> redisTemplate() {
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();

@@ -92,7 +92,11 @@ public class EmailService {
     /**
      * 비밀번호 재설정에 필요한 이메일 문자
      * @author 양경빈
-     * @param
+     * @param userEmail 회원의 이메일
+     * MimeMessage 객체 안에 내가 전송할 메일의 내용을 담아준다.
+     * bean으로 등록해둔 javaMailSender 객체를 사용하여 이메일 send
+     * @exception MessagingException 메시지를 보내는데 문제가 있는 경우 exception
+     * @exception UnsupportedEncodingException 인코딩에 문제가 있는경우 exception
      **/
     public MimeMessage createPasswordMessage(String userEmail)throws MessagingException, UnsupportedEncodingException {
         log.info("보내는 대상 : "+ userEmail);

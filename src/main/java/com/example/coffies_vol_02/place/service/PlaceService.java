@@ -86,6 +86,7 @@ public class PlaceService {
      * @param keyword 검색 키워드
      * @param pageable 페이징 객체
      * @param member 로그인을 위한 객체
+     * @throws CustomExceptionHandler 가게 검색시 검색어가 없는 경우
      **/
     @Transactional(readOnly = true)
     public Page<PlaceResponseDto> placeListAll(SearchType searchType, String keyword, Pageable pageable, Member member) {
@@ -148,6 +149,7 @@ public class PlaceService {
      *
      * @param dto 가게등록에 필요한 dto
      * @param imageRequestDto 이미지 등록에 필요한 dto
+     * @see FileHandler#placeImagesUpload(List) 가게 이미지를 등록하는 메서드                       
      * @return placeId 가게 번호
      **/
     @Transactional
@@ -194,6 +196,8 @@ public class PlaceService {
      * @param placeId  가게 번호
      * @param dto      가게 수정에 필요한 dto
      * @param imageDto 가게 이미지에 필요한 dto
+     * @see PlaceRepository#findById(Object) 가게번호로 가게를 조회하는 메서드
+     * @see FileHandler#placeImagesUpload(List) 가게 수정시 이미지를 업로드하는 메서드
      * @return PlaceId 가게번호
      * @throws CustomExceptionHandler PLACE_NOT_FOUND 가게가 없습니다.
      **/
@@ -287,6 +291,7 @@ public class PlaceService {
         placeRepository.deleteById(placeId);
     }
 
+    
     public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
 
         List<Place> placePlace = placeRepository.findAll();
@@ -302,6 +307,7 @@ public class PlaceService {
                 .collect(Collectors.toList());
     }
 
+    //가게 목록
     private void createExcelDownloadResponse(HttpServletResponse response, List<Place> placeList) {
 
         try {
