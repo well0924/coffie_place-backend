@@ -7,8 +7,11 @@ import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +34,9 @@ import java.util.List;
 public class NoticeApiController {
     private final NoticeService noticeService;
 
-    @ApiOperation(value = "공지 게시판 목록", notes = "공지게시판 페이지에서 목록을 보여준다.")
+    @Operation(summary = "공지 게시판 목록", description = "공지게시판 페이지에서 목록을 보여준다.",responses = {
+            @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = NoticeResponse.class)))
+    })
     @GetMapping("/list")
     public CommonResponse<Page<NoticeResponse>>noticeList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
         Page<NoticeResponse> list = null;
@@ -44,7 +49,9 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @ApiOperation(value = "공지 게시판 검색")
+    @Operation(summary = "공지 게시판 검색",responses = {
+            @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = NoticeResponse.class)))
+    })
     @GetMapping("/search")
     public CommonResponse<?>noticeSearchList(
             @Parameter(name = "searchType",description = "검색에 필요한 타입",example = "t(제목)",required = true)
@@ -67,7 +74,9 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @ApiOperation(value = "공지게시글 조회", notes = "공지게시글을 단일 조회한다.")
+    @Operation(summary = "공지게시글 조회",description = "공지게시글을 단일 조회한다.",responses = {
+            @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = NoticeResponse.class)))
+    })
     @GetMapping("/detail/{notice_id}")
     public CommonResponse<NoticeResponse>noticeDetail(@Parameter(name = "notice_id",description = "공지게시글 번호",required = true)
                                                       @PathVariable("notice_id")Integer noticeId){
@@ -75,7 +84,7 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
-    @ApiOperation(value = "공지게시글 작성", notes = "공지게시글 작성화면에서 게시글을 작성한다.")
+    @Operation(summary = "공지게시글 작성", description = "공지게시글 작성화면에서 게시글을 작성한다.")
     @PostMapping(value = "/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>noticeWrite(  @Parameter(name = "noticeDto",description = "공지게시글 요청 dto",required = true)
@@ -93,7 +102,7 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),InsertResult);
     }
 
-    @ApiOperation(value = "공지게시글 수정", notes = "공지게시글 수정화면에서 게시글을 수정한다.")
+    @Operation(summary = "공지게시글 수정", description = "공지게시글 수정화면에서 게시글을 수정한다.")
     @PatchMapping(value = "/update/{notice_id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>noticeUpdate(@Parameter(name = "notice_id",description = "공지게시글 번호",required = true)
@@ -113,8 +122,9 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
     }
     
-    @ApiOperation(value = "공지게시글 삭제", notes = "공지게시글 수정화면에서 게시글을 삭제한다.")
+    @Operation(summary = "공지게시글 삭제", description = "공지게시글 수정화면에서 게시글을 삭제한다.")
     @DeleteMapping("/delete/{notice_id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public CommonResponse<?>noticeDelete(@Parameter(name = "notice_id",description = "공지게시글 번호",required = true)
                                          @PathVariable("notice_id")Integer noticeId){
 

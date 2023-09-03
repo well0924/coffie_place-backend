@@ -5,7 +5,9 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.like.service.LikeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +23,7 @@ import java.util.List;
 public class LikeApiController {
     private final LikeService likeService;
 
-    @ApiOperation(value = "게시글 좋아요 +1",notes = "게시글 조회 페이지에서 좋아요기능을 추가합니다.")
+    @Operation(summary = "게시글 좋아요 +1",description = "게시글 조회 페이지에서 좋아요기능을 추가합니다.")
     @PostMapping(path = "/plus/{board_id}")
     public CommonResponse<String>createLike(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
                                             @PathVariable("board_id")Integer boardId,
@@ -35,8 +37,11 @@ public class LikeApiController {
         }
     }
 
-    @ApiOperation(value = "게시글 좋아요 -1",notes = "게시글 조회 페이지에서 좋아요기능을 취소합니다.")
+    @Operation(summary = "게시글 좋아요 -1", description = "게시글 조회 페이지에서 좋아요기능을 취소합니다.",responses = {
+            @ApiResponse(responseCode = "204")
+    })
     @DeleteMapping(path = "/minus/{board_id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public CommonResponse<String>boardLikeCancel(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
                                                  @PathVariable("board_id")Integer boardId,
                                                  @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
@@ -49,7 +54,7 @@ public class LikeApiController {
         }
     }
 
-    @ApiOperation(value = "게시글 좋아요 카운트",notes = "게시글 조회화면에서 좋아요를 추가한 수를 보여준다.")
+    @Operation(summary = "게시글 좋아요 카운트",description = "게시글 조회화면에서 좋아요를 추가한 수를 보여준다.")
     @GetMapping(path = "/board/{board_id}")
     public CommonResponse<List<String>>boardLikeCount(@Parameter(name = "board-id",description = "게시글의 번호",required = true)
                                                       @PathVariable("board_id")Integer boardId,
@@ -58,7 +63,7 @@ public class LikeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),resultDate);
     }
 
-    @ApiOperation(value = "댓글 좋아요 +1", notes = "가게 댓글에 좋아요를 하면 좋아요를 추가한다.")
+    @Operation(summary = "댓글 좋아요 +1",description = "가게 댓글에 좋아요를 하면 좋아요를 추가한다.")
     @PostMapping(path = "/comment/plus/{reply_id}")
     public CommonResponse<String>commentLikePlus(@Parameter(name = "reply_id",description = "댓글의 번호",required = true)
                                                  @PathVariable("reply_id")Integer replyId,
@@ -71,7 +76,7 @@ public class LikeApiController {
         }
     }
 
-    @ApiOperation(value = "댓글 좋아요 -1", notes = "가게 댓글에 좋아요를 누르면 좋아요를 줄인다.")
+    @Operation(summary = "댓글 좋아요 -1", description = "가게 댓글에 좋아요를 누르면 좋아요를 줄인다.")
     @DeleteMapping(path = "/comment/minus/{reply_id}")
     public CommonResponse<?>commentLikeMinus(@Parameter(name = "reply_id",description = "댓글의 번호",required = true)
                                              @PathVariable("reply_id")Integer replyId,
@@ -84,7 +89,7 @@ public class LikeApiController {
         }
     }
 
-    @ApiOperation(value = "댓글 좋아요 카운트", notes = "로그인을 한 회원이 가게 댓글에 좋아요를 체크하는 기능")
+    @Operation(summary = "댓글 좋아요 카운트", description = "로그인을 한 회원이 가게 댓글에 좋아요를 체크하는 기능")
     @GetMapping(path = "/comment/{reply_id}")
     public CommonResponse<List<String>>commentLikeCount(@Parameter(name = "reply_id",description = "댓글의 번호",required = true)
                                                         @PathVariable("reply_id")Integer replyId,
