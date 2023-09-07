@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.execel;
+package com.example.coffies_vol_02.config.excel;
 
 import java.util.List;
 import java.util.Map;

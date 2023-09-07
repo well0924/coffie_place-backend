@@ -16,26 +16,15 @@ import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -46,7 +35,6 @@ public class PlaceService {
     private final FileHandler fileHandler;
     private final PlaceImageService placeImageService;
     private final PlaceImageRepository placeImageRepository;
-    private final ObjectMapper objectMapper;
     private final RedisService redisService;
 
     /**
@@ -290,100 +278,6 @@ public class PlaceService {
         //가게 삭제
         placeRepository.deleteById(placeId);
     }
-
-    
-    public Object getPlaceList(HttpServletResponse response, boolean excelDownload) {
-
-        List<Place> placePlace = placeRepository.findAll();
-
-        if (excelDownload) {
-            createExcelDownloadResponse(response, placePlace);
-            return null; //없으면 에러!
-        }
-
-        return placePlace
-                .stream()
-                .map(place -> objectMapper.convertValue(place, Map.class))
-                .collect(Collectors.toList());
-    }
-
-    //가게 목록
-    private void createExcelDownloadResponse(HttpServletResponse response, List<Place> placeList) {
-
-        try {
-            Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("등록 가게목록");
-
-            //파일명
-            final String fileName = "등록 가게 목록";
-
-            //헤더
-            final String[] header = {"번호", "가게 이름", "등록자", "가게전화번호", "시작시간", "종료시간", "가게 주소1", "가게 주소2", "가게 평점", "파일 번호", "가게 위도", "가게 경도"};
-
-            Row row = sheet.createRow(0);
-
-            for (int i = 0; i < header.length; i++) {
-                Cell cell = row.createCell(i);
-                cell.setCellValue(header[i]);
-            }
-
-            //바디
-            for (int i = 0; i < placeList.size(); i++) {
-                row = sheet.createRow(i + 1);  //헤더 이후로 데이터가 출력되어야하니 +1
-
-                Place place = placeList.get(i);
-
-                Cell cell;
-                cell = row.createCell(0);
-                cell.setCellValue(place.getId());
-
-                cell = row.createCell(1);
-                cell.setCellValue(place.getPlaceName());
-
-                cell = row.createCell(2);
-                cell.setCellValue(place.getPlaceAuthor());
-
-                cell = row.createCell(3);
-                cell.setCellValue(place.getPlacePhone());
-
-                cell = row.createCell(4);
-                cell.setCellValue(place.getPlaceStart());
-
-                cell = row.createCell(5);
-                cell.setCellValue(place.getPlaceClose());
-
-                cell = row.createCell(6);
-                cell.setCellValue(place.getPlaceAddr1());
-
-                cell = row.createCell(7);
-                cell.setCellValue(place.getPlaceAddr2());
-
-                cell = row.createCell(8);
-                cell.setCellValue(place.getReviewRate());
-
-                cell = row.createCell(9);
-                cell.setCellValue(place.getFileGroupId());
-
-                cell = row.createCell(10);
-                cell.setCellValue(place.getPlaceLng());
-
-                cell = row.createCell(11);
-                cell.setCellValue(place.getPlaceLat());
-            }
-
-            response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".xlsx");
-            //파일명은 URLEncoder로 감싸주는게 좋다!
-
-            workbook.write(response.getOutputStream());
-            workbook.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
 
     //가게 이미지 리사이징
     private PlaceImage getPlaceImage(Place place, List<PlaceImage> imageList, int i) {

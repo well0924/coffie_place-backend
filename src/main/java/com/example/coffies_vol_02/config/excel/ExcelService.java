@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.execel;
+package com.example.coffies_vol_02.config.excel;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -87,7 +87,7 @@ public class ExcelService<T> {
 
 		String fileName = new String(resource.getExcelFileName().getBytes(StandardCharsets.UTF_8),StandardCharsets.ISO_8859_1);
 		
-		response.setContentType("ms-vnd/excel");
+		response.setContentType("application/vnd.ms-excel");
 		
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,String.format("attachment; filename=\"%s.xls\"",fileName));
 		
