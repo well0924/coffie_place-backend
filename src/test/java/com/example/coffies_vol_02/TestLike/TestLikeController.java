@@ -86,7 +86,7 @@ public class TestLikeController {
     @DisplayName("게시글 좋아요 카운트")
     public void boardLikeCountTest() throws Exception {
         mvc.perform(
-                get("/api/like/{board_id}",board.getId())
+                get("/api/like/board/{board_id}",board.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8)
                 .with(user(customUserDetails)))
@@ -142,7 +142,7 @@ public class TestLikeController {
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(commentRepository.findById(anyInt())).willReturn(Optional.of(comment));
 
-        mvc.perform(post("/api/like/plus/{place_id}/{reply_id}",22,360)
+        mvc.perform(post("/api/like/comment/plus/{reply_id}",22,360)
                         .content(objectMapper.writeValueAsString(22))
                         .content(objectMapper.writeValueAsString(360))
                         .with(user(customUserDetails))
@@ -161,7 +161,7 @@ public class TestLikeController {
         given(commentLikeRepository.findByMemberAndComment(member,comment)).willReturn(Optional.of(commentLike));
         given(commentLikeRepository.save(commentLike)).willReturn(commentLike);
 
-        mvc.perform(delete("/api/like/minus/{place_id}/{reply_id}",22,360)
+        mvc.perform(delete("/api/like/comment/minus/{reply_id}",22,360)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .with(user(customUserDetails)))

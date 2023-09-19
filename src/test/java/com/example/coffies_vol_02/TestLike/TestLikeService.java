@@ -110,7 +110,7 @@ public class TestLikeService {
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(commentLikeRepository.save(commentLike)).willReturn(commentLike);
 
-        String result = likeService.commentLikePlus(place.getId(),comment.getId(),member);
+        String result = likeService.commentLikePlus(comment.getId(),member);
 
         assertThat(result).isEqualTo(LikeSuccess);
     }
@@ -123,7 +123,7 @@ public class TestLikeService {
         given(commentLikeRepository.findByMemberAndComment(member,comment)).willReturn(Optional.of(commentLike));
 
         commentLikeRepository.delete(commentLike);
-        String result = likeService.commentLikeMinus(place.getId(),comment.getId(),member);
+        String result = likeService.commentLikeMinus(comment.getId(),member);
 
         assertThat(result).isEqualTo(LikeCancel);
     }
