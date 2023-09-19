@@ -102,7 +102,9 @@ public class NoticeApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),InsertResult);
     }
 
-    @Operation(summary = "공지게시글 수정", description = "공지게시글 수정화면에서 게시글을 수정한다.")
+    @Operation(summary = "공지게시글 수정", description = "공지게시글 수정화면에서 게시글을 수정한다.",responses = {
+            @ApiResponse(responseCode = "201",description = "정상적으로 게시글을 수정하는 경우")
+    })
     @PatchMapping(value = "/update/{notice_id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>noticeUpdate(@Parameter(name = "notice_id",description = "공지게시글 번호",required = true)

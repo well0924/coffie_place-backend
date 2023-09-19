@@ -6,34 +6,34 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-@ApiModel
+@ApiModel(value = "가게 이미지 요청 dto",description = "가게이미지 요청 dto")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlaceImageRequestDto {
-    @Schema
+    @Schema(name = "fileGroupId",type = "String")
     private String fileGroupId;
-    @Schema
+    @Schema(name = "fileType",type = "String")
     private String fileType;
-    @Schema
+    @Schema(name = "imgGroup",type = "String")
     private String imgGroup;
-    @Schema
+    @Schema(name = "imgPath",type = "String")
     private String imgPath;
-    @Schema
+    @Schema(name = "thumbFilePath",type = "String")
     private String thumbFilePath;
-    @Schema
+    @Schema(name = "thumbFileImagePath",type = "String")
     private String thumbFileImagePath;
-    @Schema
+    @Schema(name = "storedName",type = "String")
     private String storedName;
-    @Schema
+    @Schema(name = "originName",type = "String")
     private String originName;
-    @Schema
+    @Schema(name = "imgUploader",type = "String")
     private String imgUploader;
-    @Schema
+    @Schema(name = "isTitle",type = "String")
     @Builder.Default
     private String isTitle = "N";
-    @Schema
+    @Schema(name = "images",type = "List")
     private List<MultipartFile> images;
 }

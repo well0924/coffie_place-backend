@@ -53,7 +53,9 @@ public class CommentApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "댓글 작성", description = "게시글 목록에서 댓글을 작성한다.")
+    @Operation(summary = "댓글 작성", description = "게시글 목록에서 댓글을 작성한다.", responses = {
+            @ApiResponse(responseCode = "201", description = "정상적으로 댓글을 작성하는 경우")
+    })
     @PostMapping("/write/{board_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>commentCreate(@Parameter(name = "board_id",description = "게시글의 번호",required = true) @PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentRequest dto){
@@ -97,7 +99,7 @@ public class CommentApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),commentResponseDtoList);
     }
 
-    @ApiOperation(value = "가게댓글 작성", notes = "게시글 목록에서 댓글을 작성한다.")
+    @Operation(summary = "가게댓글 작성", description = "게시글 목록에서 댓글을 작성한다.")
     @PostMapping("/place/write/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>placeCommentWrite(@Parameter(name = "place_id",description = "가게의 번호",required = true)
