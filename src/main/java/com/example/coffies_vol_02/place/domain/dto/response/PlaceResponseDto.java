@@ -83,7 +83,7 @@ public class PlaceResponseDto {
         this.placeClose = place.getPlaceClose();
         this.placePhone = place.getPlacePhone();
         this.fileGroupId = place.getFileGroupId();
-        this.isTitle = place.getPlaceImageList().get(0).getIsTitle();
-        this.thumbFileImagePath = place.getPlaceImageList().get(0).getThumbFileImagePath();
+        this.isTitle = place.getPlaceImageList().size()== 0 ? null : place.getPlaceImageList().get(0).getIsTitle();
+        this.thumbFileImagePath = place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath();
     }
 }
