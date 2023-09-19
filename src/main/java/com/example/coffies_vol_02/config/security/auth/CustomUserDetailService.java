@@ -23,7 +23,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     /**
      * 시큐리티 로그인
-     * redis 캐시에 저장이 되면 user::회원아이디 로 저장이 된다.
+     * redis 캐시에 저장이 되면 key값은 username이고 value는 user::회원아이디 로 저장이 된다.
      * @author 양경빈
      * @param username 회원 아이디
      * @throws UsernameNotFoundException 회원아이디가 없을 경우 Exception 을 발생
@@ -33,7 +33,6 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("----security login in....");
-        log.info(username);
 
         Optional<Member>userDetail = Optional
                 .ofNullable(memberRepository.findByUserId(username)

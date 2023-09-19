@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @Log4j2
 @Getter
-@Proxy(lazy = false)
+@Proxy(lazy = false)//해당 어노테이션 조사
 public class CustomUserDetails implements UserDetails,Serializable {
     private final Member member;
     
