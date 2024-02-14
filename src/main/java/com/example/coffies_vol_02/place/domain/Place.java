@@ -15,13 +15,7 @@ import java.util.List;
 @Getter
 @Table(name = "tbl_place",indexes = {
         @Index(name = "place_index1",columnList = "placeName"),
-        @Index(name = "place_index2",columnList = "placeAddr1"),
-        @Index(name = "place_index3",columnList = "placeAddr2"),
-        @Index(name = "place_index4",columnList = "placeAuthor"),
-        @Index(name = "place_index5",columnList = "placeLng"),
-        @Index(name = "place_index6",columnList = "placeLat"),
-        @Index(name = "place_index7",columnList = "reviewRate"),
-})
+        @Index(name = "place_index4",columnList = "placeAuthor")})
 @NoArgsConstructor
 public class Place extends BaseTime {
     @Id
@@ -36,7 +30,9 @@ public class Place extends BaseTime {
     private String placeAddr2;
     private String placePhone;
     private String placeAuthor;
+    //가게운영 시작시간
     private String placeStart;
+    //가게운영 종료시간
     private String placeClose;
     private String fileGroupId;
     

@@ -1,28 +1,33 @@
 package com.example.coffies_vol_02.member.domain;
 
 import com.example.coffies_vol_02.config.BaseTime;
+import com.example.coffies_vol_02.config.constant.MemberStatus;
 import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+@Log4j2
 @Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "tbl_user",indexes = {
         @Index(name = "member_index1",columnList = "userId"),
-        @Index(name = "member_index2",columnList = "memberName"),
+        @Index(name = "member_index2",columnList = "userAge"),
         @Index(name = "member_index3",columnList = "userEmail")
 })
 public class Member extends BaseTime implements Serializable {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,6 +42,7 @@ public class Member extends BaseTime implements Serializable {
     private String userEmail;
     private String userAddr1;
     private String userAddr2;
+    @Setter
     private boolean enabled;
     @Setter
     @Column(name = "account_non_locked")
@@ -46,14 +52,16 @@ public class Member extends BaseTime implements Serializable {
     private Integer failedAttempt;
     @Setter
     @Column(name = "lock_time")
-    private Date lockTime;
+    private LocalDateTime lockTime;
     //회원 위경도(경도)
     private Double memberLng;
     //회원 위경도(위도)
     private Double memberLat;
+    //회원  권한
     @Enumerated(EnumType.STRING)
     private Role role;
-
+    @Enumerated(EnumType.STRING)
+    private MemberStatus memberStatus;
     @BatchSize(size = 1000)
     @JsonIgnore
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
@@ -73,10 +81,11 @@ public class Member extends BaseTime implements Serializable {
                   Boolean enabled,
                   Boolean accountNonLocked,
                   Integer failedAttempt,
-                  Date lockTime,
+                  LocalDateTime lockTime,
                   Double memberLng,
                   Double memberLat,
-                  Role role){
+                  Role role,
+                  MemberStatus memberStatus){
         this.id = id;
         this.userId = userId;
         this.password = password;
@@ -94,6 +103,7 @@ public class Member extends BaseTime implements Serializable {
         this.memberLng = memberLng;
         this.memberLat = memberLat;
         this.role = role;
+        this.memberStatus = memberStatus;
         this.getCreatedTime();
         this.getUpdatedTime();
     }

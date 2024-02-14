@@ -17,7 +17,6 @@ import java.util.List;
 @Table(name = "tbl_notice",
         indexes = {
         @Index(name = "notice_index1",columnList = "id"),
-        @Index(name = "notice_index2",columnList = "noticeGroup"),
         @Index(name = "notice_index3",columnList = "isFixed"),
         @Index(name = "notice_index4",columnList = "noticeTitle")
 })

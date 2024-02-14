@@ -23,7 +23,6 @@ import java.util.*;
 @ToString
 @Table(name = "tbl_board",
         indexes = {
-                @Index(name = "board_index1",columnList = "boardTitle"),
                 @Index(name = "board_index2",columnList = "boardAuthor"),
                 @Index(name = "board_index3",columnList = "id")})
 public class Board extends BaseTime implements Serializable {
