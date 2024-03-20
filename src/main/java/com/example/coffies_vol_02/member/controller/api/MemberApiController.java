@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.member.controller.api;
 
+import com.example.coffies_vol_02.config.api.service.CrawlingService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.email.EmailService;
@@ -40,6 +41,8 @@ public class MemberApiController {
 
     private final EmailService emailService;
 
+    private final CrawlingService crawlingService;
+
     @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
     @ResponseStatus(HttpStatus.OK)
@@ -58,18 +61,18 @@ public class MemberApiController {
     @GetMapping(path = "/list/search")
     @ResponseStatus(HttpStatus.OK)
     public CommonResponse<?>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                                            @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                                            @RequestParam(value = "searchType",required = false) String searchType,
                                                             @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",in = ParameterIn.QUERY)
                                                             @RequestParam(value = "searchVal",required = false) String searchVal){
 
         Page<MemberResponse> list = null;
 
-        if(searchVal==null||searchVal.equals("")||searchType.getValue()==null||searchType.getValue().equals("")){
+        if(searchVal==null||searchVal.equals("")||searchType ==null||searchType.equals("")){
             return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
         try{
-            list = memberService.findByAllSearch(searchType,searchVal,pageable);
+            list = memberService.findByAllSearch(SearchType.valueOf(searchType),searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -99,6 +102,9 @@ public class MemberApiController {
 
         try{
             memberService.memberCreate(dto);
+            //회원 가입시 회원위치의 위경도를 기준으로 확인
+            crawlingService.firstCheckByNewMember(String.valueOf(dto.memberLng()),String.valueOf(dto.memberLat()));
+            crawlingService.crawlingByMember();
         }catch (Exception e){
             e.printStackTrace();
         }
