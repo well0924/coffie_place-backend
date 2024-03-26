@@ -70,7 +70,7 @@ public class CrawlingService {
     private final int resizeImageHeight = 300;
 
     private final String filePath = "crawling.csv"; //TODO 파일 저장 경로 나중에 수정해주면 됨 (이렇게 작성하면 프로젝트 최상단 디렉토리에 csv 파일 생성)
-    private final String imageFilePath = System.getProperty("user.dir"); //TODO 파일 경로 수정해주면 됨 -> 이 경로는 프로젝트 최상단 디렉토리
+    private final String imageFilePath = System.getProperty("C:\\UploadFile\\coffieplace\\images\\crawling_images"); //TODO 파일 경로 수정해주면 됨 -> 이 경로는 프로젝트 최상단 디렉토리
     @Value("${kakao.rest.api.key}")
     private String kakaoRestApiKey;
 
@@ -83,8 +83,8 @@ public class CrawlingService {
             maxAttempts = 3,//재시도 횟수
             backoff = @Backoff(delay = 2000)//재시도 전에 딜레이 시간을 설정(ms)
     )
-    //@Scheduled(cron="0 0 3 * * 6") //매일 새벽 3시에 스케줄러 적용
-    @Scheduled(cron = "0/2 * * * * ?",zone = "Asia/Seoul")
+    @Scheduled(cron="0 0 3 * * 6") //매일 새벽 3시에 스케줄러 적용
+    //@Scheduled(cron = "0/2 * * * * ?",zone = "Asia/Seoul")
     public void crawlingByMember() throws Exception{
 
         Set<URI> uris = new HashSet<>();
