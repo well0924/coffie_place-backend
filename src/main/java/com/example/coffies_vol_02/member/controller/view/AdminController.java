@@ -32,7 +32,7 @@ public class AdminController {
 
     @GetMapping("/adminlist")
     public ModelAndView adminListPage(@PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 10) Pageable pageable,
-                                      @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                      @RequestParam(value = "searchType",required = false) String searchType,
                                       @RequestParam(value = "searchVal",required = false) String searchVal){
         ModelAndView mv = new ModelAndView();
 
@@ -46,7 +46,7 @@ public class AdminController {
             commentList = commentService.recentCommentTop5();
 
             if(searchVal!=null){
-                memberList = memberService.findByAllSearch(searchType,searchVal,pageable);
+                memberList = memberService.findByAllSearch(SearchType.toType(searchType),searchVal,pageable);
             }
         }catch (Exception e){
             e.printStackTrace();
