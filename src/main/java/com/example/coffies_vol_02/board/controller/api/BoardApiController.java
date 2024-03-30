@@ -63,18 +63,18 @@ public class BoardApiController {
     public CommonResponse<?>boardSearch(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
             @Parameter(description = "게시물 검색 타입",in = ParameterIn.QUERY)
-            @RequestParam(value = "searchType",required = false) SearchType searchType,
+            @RequestParam(value = "searchType",required = false) String searchType,
             @Parameter(description = "게시글에 사용되는 검색어",in=ParameterIn.QUERY)
             @RequestParam(value = "searchVal",required = false) String searchVal){
 
         Page<BoardResponse> list = null;
         //검색어가 없는 경우
-        if(searchVal==null||searchVal.equals("")||searchType.getValue()==null||searchType.getValue().equals("")){
+        if(searchVal==null||searchVal.equals("")||searchType==null||searchType.equals("")){
             return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
         try {
-            list = boardService.boardSearchAll(searchType,searchVal,pageable);
+            list = boardService.boardSearchAll(SearchType.valueOf(searchType),searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

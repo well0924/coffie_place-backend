@@ -27,8 +27,6 @@ public class QPlace extends EntityPathBase<Place> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
-    public final NumberPath<Double> distance = createNumber("distance", Double.class);
-
     public final StringPath fileGroupId = createString("fileGroupId");
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);

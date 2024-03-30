@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CustomMemberRepository {
+
     /**
      * 회원 검색
      * 어드민 페이지에서 회원을 검색할 때 사용

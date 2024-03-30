@@ -38,7 +38,7 @@ public class BoardViewController {
 
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                  @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                  @RequestParam(value = "searchType",required = false) String searchType,
                                   @RequestParam(value = "searchVal",required = false)String searchVal)throws Exception{
 
         ModelAndView mv = new ModelAndView();
@@ -49,7 +49,7 @@ public class BoardViewController {
             boardList = boardService.boardAllList(pageable);
             //검색을 하는 경우
             if(searchVal!=null){
-                boardList = boardService.boardSearchAll(searchType,searchVal,pageable);
+                boardList = boardService.boardSearchAll(SearchType.toType(searchType),searchVal,pageable);
             }
             log.info(boardList.hasPrevious());
         }catch (Exception e){

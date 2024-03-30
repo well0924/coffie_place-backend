@@ -55,19 +55,19 @@ public class NoticeApiController {
     @GetMapping("/search")
     public CommonResponse<?>noticeSearchList(
             @Parameter(name = "searchType",description = "검색에 필요한 타입",example = "t(제목)",required = true)
-            @RequestParam(value = "searchType",required = true) SearchType searchType,
+            @RequestParam(value = "searchType",required = true) String searchType,
             @Parameter(name = "searchVal",description = "검색어",required = false)
             @RequestParam(value = "searchVal",required = false) String searchVal,
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
         Page<NoticeResponse> list = null;
         //검색시 결과가 없는 경우
-        if(searchVal==null||searchVal==""||searchType.getValue().isEmpty()||searchType.getValue()==""){
+        if(searchVal==null||searchVal==""||searchType.isEmpty()||searchType==""){
             return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
         try{
-            list = noticeService.noticeSearchAll(searchType,searchVal,pageable);
+            list = noticeService.noticeSearchAll(SearchType.valueOf(searchType),searchVal,pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

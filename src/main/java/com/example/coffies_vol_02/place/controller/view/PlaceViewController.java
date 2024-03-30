@@ -2,14 +2,12 @@ package com.example.coffies_vol_02.place.controller.view;
 
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceImageService;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,24 +34,40 @@ public class PlaceViewController {
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable,
                                   @RequestParam(value = "keyword",required = false) String keyword,
-                                  @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                  @RequestParam(value = "searchType",required = false) String searchType,
                                   @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         ModelAndView mv = new ModelAndView();
 
         Slice<PlaceResponseDto> list = null;
-        Page<PlaceResponseDto>searchList = null;
         List<String> keywords = new ArrayList<>();
 
         try {
             if (customUserDetails != null) {
+
                 //가게 검색어 저장 목록
                 keywords = placeService.placeSearchList(customUserDetails.getMember());
+
                 //가게 목록
-                list = placeService.placeSlideList(pageable, keyword, customUserDetails.getMember());
+                list = placeService.placeSlideList(pageable,keyword,customUserDetails.getMember());
+                log.info("검색어:::"+keywords);
                 log.info("placeList:::"+list);
-                if(keyword==null|| keyword.equals("")){
-                    searchList = placeService.placeListAll(searchType,keyword,pageable,customUserDetails.getMember());
+
+                //검색에가 있는 경우
+                if(keyword!=null){
+
+                    log.info(keyword);
+                    log.info(searchType);
+
+                    Slice<PlaceResponseDto>searchList = placeService.placeListAll(
+                            keyword,
+                            String.valueOf(SearchType.toType(searchType)),
+                            pageable,
+                            customUserDetails.getMember());
+
+                    mv.addObject("keyword",keyword);
+                    mv.addObject("sarchType",searchType);
+                    mv.addObject("searchList",searchList);
                 }
             }
         } catch (Exception e) {
@@ -63,7 +77,6 @@ public class PlaceViewController {
         mv.addObject("placelist", list);
         mv.addObject("keyword", keyword);
         mv.addObject("keywords", keywords);
-        mv.addObject("searchList",searchList);
 
         mv.setViewName("/place/placelist");
 

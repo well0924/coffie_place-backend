@@ -9,7 +9,6 @@ import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -46,7 +45,7 @@ public class PlaceApiController {
                                        @RequestParam(value = "keyword", required = false) String keyword,
                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception {
         try{
-            Slice<PlaceResponseDto> list = placeService.placeSlideList(pageable,keyword,null);
+            Slice<PlaceResponseDto> list = placeService.placeSlideList(pageable,keyword,customUserDetails.getMember());
 
             return new CommonResponse<>(HttpStatus.OK.value(), list);
         }catch (Exception e){
@@ -60,16 +59,16 @@ public class PlaceApiController {
     })
     @GetMapping(path = "/search")
     public CommonResponse<?> placeListSearch(@Parameter(name = "searchType",description = "가게 검색타입",required = true)
-                                             @RequestParam(value = "searchType",required = false) SearchType searchType,
+                                             @RequestParam(value = "searchType",required = false) String searchType,
                                              @Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",in = ParameterIn.QUERY)
                                              @RequestParam(value = "placeKeyword",required = false) String keyword,
                                              @ApiIgnore @PageableDefault(sort = "id", size=5 ,direction = Sort.Direction.DESC) Pageable pageable,
                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Page<PlaceResponseDto> list = null;
-
+        Slice<PlaceResponseDto> list = null;
+        log.info("검색어::"+String.valueOf(SearchType.toType(searchType)));
         try {
-            list = placeService.placeListAll(searchType,keyword, pageable, customUserDetails.getMember());
+            list = placeService.placeListAll(String.valueOf(SearchType.toType(searchType)),keyword, pageable, customUserDetails.getMember());
             //검색어가 없는 경우
             if(keyword==null||keyword.equals("")){
                 return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());

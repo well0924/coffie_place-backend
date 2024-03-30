@@ -7,13 +7,15 @@ import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -37,53 +39,25 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
      **/
     @Override
     public Page<MemberResponse> findByAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
+        JPQLQuery<MemberResponse>list = jpaQueryFactory
+                .select(Projections.constructor(MemberResponse.class,QMember.member))
+                .from(QMember.member);
 
-        List<MemberResponse>responseDto = new ArrayList<>();
+        JPQLQuery<MemberResponse>middleQuery = switch (searchType){
+            case e -> list.where(memberEmail(searchVal));
+            case i -> list.where(userId(searchVal));
+            case n -> list.where(memberName(searchVal));
+            //case c, w, t, p, a -> null;
+            default -> list.where(memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal))));
+        };
 
-        List<Member>memberList = memberSearchList(searchType,searchVal,pageable);
-
-        int count = searchCount(searchType,searchVal,pageable);
-
-        for(Member memberlist : memberList){
-            MemberResponse dto = new MemberResponse(memberlist);
-            responseDto.add(dto);
-        }
-        
-        return new PageImpl<>(responseDto,pageable,count);
-    }
-    private List<Member>memberSearchList(SearchType searchType,String searchVal,Pageable pageable){
-        return jpaQueryFactory
-                .select(QMember.member)
-                .from(QMember.member)
-                .where(switch (searchType){
-                    case i -> userId(searchVal);
-                    case e -> memberEmail(searchVal);
-                    case n -> memberName(searchVal);
-                    case all -> memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal)));
-                    case c, w, t, p, a -> null;
-                })//검색 종류(이메일,회원아이디,회원이름)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
+        return PageableExecutionUtils.getPage(middleQuery
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch(),pageable,middleQuery::fetchCount);
     }
-    private int searchCount(SearchType searchType,String searchVal,Pageable pageable){
-        return jpaQueryFactory
-                .select(QMember.member.count())
-                .from(QMember.member)
-                .where(switch (searchType){
-                    case i -> userId(searchVal);
-                    case e -> memberEmail(searchVal);
-                    case n -> memberName(searchVal);
-                    case all -> memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal)));
-                    case c, w, t, p, a -> null;
-                })
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))//동적 정렬
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .size();
-    }
+
     //검색 조건 회원 이름
     BooleanBuilder memberName(String searchVal){
         return nullSafeBuilder(()->QMember.member.memberName.contains(searchVal));

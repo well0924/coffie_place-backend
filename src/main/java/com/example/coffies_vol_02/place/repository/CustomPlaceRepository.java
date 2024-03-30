@@ -8,7 +8,7 @@ import org.springframework.data.domain.Slice;
 
 public interface CustomPlaceRepository {
     //가게 검색
-    Page<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable);
+    Slice<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable);
     //가게 평점 top5
     Page<PlaceResponseDto>placeTop5(Pageable pageable);
     //가게 목록 (무한 스크롤)

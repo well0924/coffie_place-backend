@@ -7,10 +7,13 @@ import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.*;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -33,19 +36,21 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      * @return Page<PlaceResponseDto> 페이징 객체
      **/
     @Override
-    public Page<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable) {
-        List<PlaceResponseDto>placeList= new ArrayList<>();
-        //가게 검색 결과 목록
-        List<Place>result = placeSearchList(searchType,keyword,pageable);
-        //가게 검색 결과수
-        int count = placeSearchCount(searchType,keyword,pageable);
+    public Slice<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable) {
+        JPQLQuery<PlaceResponseDto>placeList = jpaQueryFactory
+                .select(Projections.constructor(PlaceResponseDto.class,QPlace.place))
+                .from(QPlace.place);
+        JPQLQuery<PlaceResponseDto>middleQuery = switch (searchType) {
+            case all -> placeList.where(placeName(keyword).or(placeAdder(keyword)));
+            case p -> placeList.where(placeName(keyword));
+            case a -> placeList.where(placeAdder(keyword));
+            case t, c, w, i, e, n -> null;
+        };
 
-        for(Place place : result){
-            PlaceResponseDto dto = new PlaceResponseDto(place);
-            placeList.add(dto);
-        }
-
-        return new PageImpl<>(placeList,pageable,count);
+        return PageableExecutionUtils.getPage(middleQuery
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch(),pageable,middleQuery::fetchCount);
     }
 
     /**
@@ -55,17 +60,13 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      **/
     @Override
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
-        List<PlaceResponseDto>result = new ArrayList<>();
-
-        List<Place>list = placeTop5List(pageable);
-
-        int size = placeTop5Count(pageable);
-
-        for(Place place : list){
-            PlaceResponseDto dto = new PlaceResponseDto(place);
-            result.add(dto);
-        }
-        return new PageImpl<>(result,pageable,size);
+        JPQLQuery<PlaceResponseDto>list = jpaQueryFactory
+                .select(Projections.constructor(PlaceResponseDto.class,QPlace.place))
+                .from(QPlace.place)
+                .orderBy(QPlace.place.reviewRate.desc())
+                .limit(5L)
+                .offset(pageable.getOffset());
+        return PageableExecutionUtils.getPage(list.fetch(),pageable,list::fetchCount);
     }
 
     /**
@@ -99,59 +100,6 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         }
 
         return new SliceImpl<>(result,pageable,hasNext);
-    }
-
-    private List<Place>placeSearchList(SearchType searchType,String keyword,Pageable pageable){
-        return jpaQueryFactory
-                .select(QPlace.place)
-                .from(QPlace.place)
-                .where(switch (searchType){
-                    case p -> placeName(keyword);
-                    case a -> placeAdder(keyword);
-                    case all -> placeName(keyword).or(placeAdder(keyword));
-                    case w,t,c,i,n,e -> null;
-                })
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    private int placeSearchCount(SearchType searchType,String keyword,Pageable pageable){
-        return jpaQueryFactory
-                .select(QPlace.place.count())
-                .from(QPlace.place)
-                .where(switch (searchType){
-                    case p -> placeName(keyword);
-                    case a -> placeAdder(keyword);
-                    case all -> placeName(keyword).or(placeAdder(keyword));
-                    case w,t,c,i,n,e -> null;})
-                .orderBy(QPlace.place.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .size();
-    }
-
-    private List<Place>placeTop5List(Pageable pageable){
-        return jpaQueryFactory
-                .select(QPlace.place)
-                .from(QPlace.place)
-                .orderBy(QPlace.place.reviewRate.desc())
-                .limit(5L)
-                .offset(pageable.getOffset())
-                .fetch();
-    }
-
-    private int placeTop5Count(Pageable pageable){
-        return jpaQueryFactory
-                .select(QPlace.place.count())
-                .from(QPlace.place)
-                .orderBy(QPlace.place.reviewRate.desc())
-                .limit(5)
-                .offset(pageable.getOffset())
-                .fetch()
-                .size();
     }
 
     //가게 이름 조건
