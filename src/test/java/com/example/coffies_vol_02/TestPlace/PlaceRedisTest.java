@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.TestPlace;
 
+import com.example.coffies_vol_02.config.redis.RedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,11 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.GeoOperations;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,6 +23,9 @@ public class PlaceRedisTest {
 
     @Autowired
     RedisOperations<String, String> operations;
+
+    @Autowired
+    RedisService redisService;
 
     private GeoOperations<String,String>geoOperations;
 
@@ -46,5 +54,13 @@ public class PlaceRedisTest {
         assertThat(greaterDistance).hasSize(3).extracting("content.name").contains("place1", "place2", "place3");
     }
 
+    @Test
+    @DisplayName("가게 자동완성기능")
+    public void redisAutoCompleteTest(){
+        //redisService.setValues("well4149","무너미");
 
+        List<String>result=redisService.getSearchList("well4149");
+
+        System.out.println(result);
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Profile("tester")
@@ -30,7 +31,7 @@ public class TestCustomUserDetailsService implements UserDetailsService {
                 .memberLat(0.00)
                 .memberLng(0.00)
                 .failedAttempt(0)
-                .lockTime(new Date())
+                .lockTime(LocalDateTime.now())
                 .enabled(true)
                 .accountNonLocked(true)
                 .build();

@@ -99,7 +99,7 @@ public class PlaceControllerTest {
         Slice<PlaceResponseDto>sliceDto = new SliceImpl<>(placelist,pageRequest,true);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(placeRepository.placeList(pageRequest, SearchType.all.getValue())).willReturn(sliceDto);
+        given(placeRepository.placeList(pageRequest, String.valueOf(SearchType.all))).willReturn(sliceDto);
 
         mvc.perform(get("/page/place/list")
                         .contentType(MediaType.TEXT_HTML)

@@ -44,14 +44,11 @@ public class MemberRepositoryTest {
         int countResult = memberRepository.failAttemptsCount(deatil.get().getUserId());
         System.out.println("::"+countResult);
 
-        int count =memberRepository.updateFailedAttempts(deatil.get().getUserId());
-        System.out.println(count);
+        memberRepository.updateFailedAttempts(deatil.get().getFailedAttempt(),deatil.get().getUserId());
         int afterFailCount = memberRepository.failAttemptsCount(deatil.get().getUserId());
 
         System.out.println("result::"+afterFailCount);
 
-        deatil.get().setFailedAttempt(count);
-        memberRepository.save(deatil.get());
         System.out.println("최종 결과::"+deatil.get().getFailedAttempt());
     }
 }

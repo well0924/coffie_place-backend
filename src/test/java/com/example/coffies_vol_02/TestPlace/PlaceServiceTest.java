@@ -157,7 +157,7 @@ public class PlaceServiceTest {
         List<PlaceResponseDto>list = new ArrayList<>();
         list.add(placeResponseDto);
 
-        Page<PlaceResponseDto>placeList = new PageImpl<>(list,pageRequest,0);
+        Slice<PlaceResponseDto>placeList = new PageImpl<>(list,pageRequest,0);
 
         given(placeRepository.placeListSearch(SearchType.p,keyword,pageRequest)).willReturn(placeList);
 

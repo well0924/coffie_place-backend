@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class MemberFactory {
@@ -24,7 +25,7 @@ public class MemberFactory {
                 .memberLat(0.00)
                 .memberLng(0.00)
                 .failedAttempt(0)
-                .lockTime(new Date())
+                .lockTime(LocalDateTime.now())
                 .enabled(true)
                 .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)

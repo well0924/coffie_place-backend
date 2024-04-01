@@ -31,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -167,7 +168,7 @@ public class NoticeControllerTest {
                 .memberLat(0.00)
                 .memberLng(0.00)
                 .failedAttempt(0)
-                .lockTime(new Date())
+                .lockTime(LocalDateTime.now())
                 .enabled(true)
                 .accountNonLocked(true)
                 .role(Role.ROLE_ADMIN)

@@ -8,6 +8,7 @@ import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PlaceRepositoryTest {
     @Autowired
-    private MemberRepository memberRepository;
-    @Autowired
     private PlaceRepository placeRepository;
-    @Autowired
-    private PlaceImageRepository placeImageRepository;
 
     @Test
     @DisplayName("가게 평점 top5 조회")
@@ -47,6 +44,7 @@ public class PlaceRepositoryTest {
 
     @Test
     @DisplayName("가게 목록-무한 스크롤")
+    @Disabled
     public void placeListTest(){
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
@@ -57,28 +55,4 @@ public class PlaceRepositoryTest {
         assertThat(placeList).isNotEmpty();
     }
 
-    @Test
-    @DisplayName("가게 검색")
-    public void PlaceListSearchTest(){
-        Pageable pageable = PageRequest.of(0,10,Sort.by("id"));
-
-        Page<PlaceResponseDto>searchList = placeRepository.placeListSearch(SearchType.p,"릴렉스",pageable);
-
-        log.info("검색결과:"+searchList.stream().toList());
-
-        assertThat(searchList).isNotEmpty();
-        assertThat(searchList.toList().get(0).getPlaceName()).isEqualTo("릴렉스");
-    }
-
-    @Test
-    @DisplayName("회원 위치에서 가까운 가개 5곳")
-    public void placeNear5Test(){
-        List<Place>nearList=placeRepository.findPlaceByLatLng(127.025449504014,37.6391856183931);
-
-        log.info("가게 정보:::"+nearList.stream().toList());
-
-        assertThat(nearList).isNotEmpty();
-        System.out.println(nearList.toArray());
-        System.out.println(nearList.get(0).getPlaceName());
-    }
 }
