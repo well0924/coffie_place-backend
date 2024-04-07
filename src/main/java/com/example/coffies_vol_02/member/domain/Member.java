@@ -21,9 +21,9 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Table(name = "tbl_user",indexes = {
-        @Index(name = "member_index1",columnList = "userId"),
+        @Index(name = "member_index1",columnList = "userId",unique = true),
         @Index(name = "member_index2",columnList = "userAge"),
-        @Index(name = "member_index3",columnList = "userEmail")
+        @Index(name = "member_index3",columnList = "userEmail",unique = true)
 })
 public class Member extends BaseTime implements Serializable {
 

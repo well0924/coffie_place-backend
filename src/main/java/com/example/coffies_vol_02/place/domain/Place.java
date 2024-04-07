@@ -15,7 +15,8 @@ import java.util.List;
 @Getter
 @Table(name = "tbl_place",indexes = {
         @Index(name = "place_index1",columnList = "placeName"),
-        @Index(name = "place_index4",columnList = "placeAuthor")})
+        @Index(name = "place_index4",columnList = "placeAuthor"),
+        @Index(name = "place_index2",columnList = "placeAddr1")})
 @NoArgsConstructor
 public class Place extends BaseTime {
     @Id
