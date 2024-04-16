@@ -8,6 +8,7 @@ import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -16,6 +17,8 @@ import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandle
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -68,6 +71,7 @@ public class BoardService {
      * @param boardId 게시물 번호
      * @return BoardResponse
      **/
+    @Cacheable(value = CacheKey.BOARD,key = "#boardId",unless = "#result == null",cacheManager = "redisCacheManager")
     @Transactional(readOnly = true)
     public BoardResponse findBoard(Integer boardId){
         return Optional.ofNullable(boardRepository
@@ -215,6 +219,7 @@ public class BoardService {
      * @see AttachService#boardfilelist(Integer) 자유게시판에 있는 첨부파일 목록을 조회하는 메서드
      * @see AttachRepository#deleteById(Object) 자유게시판에서 첨부파일을 삭제를 할때 사용되는 메서드
      **/
+    @CacheEvict(value = CacheKey.BOARD,key = "#boardId")
     @Transactional
     public void BoardDelete(Integer boardId,Member member) throws Exception {
 

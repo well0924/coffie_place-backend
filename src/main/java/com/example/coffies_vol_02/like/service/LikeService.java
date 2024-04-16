@@ -22,11 +22,17 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class LikeService {
+
     private final LikeRepository likeRepository;
+
     private final BoardRepository boardRepository;
+
     private final CommentLikeRepository commentLikeRepository;
+
     public static final String LikeSuccess ="좋아요 추가";
+
     public static final String LikeCancel ="좋아요 취소";
+
     private final CommentRepository commentRepository;
 
     @Transactional

@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.place.service;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -13,9 +14,9 @@ import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -50,6 +51,7 @@ public class PlaceService {
     @Transactional
     public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String keyword, Member member) {
         if (member != null) {
+            log.info(keyword);
             //로그인이 되었을 경우 가게이름 검색어 저장
             redisService.setValues(member.getUserId().toString(), keyword);
             log.info("검색어::"+redisService.getSearchList(member.getId().toString()));
@@ -77,15 +79,18 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 검색시 검색어가 없는 경우
      **/
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto> placeListAll(SearchType searchType, String keyword, Pageable pageable, Member member) {
+    public Slice<PlaceResponseDto> placeListAll(SearchType searchType, String keyword, Pageable pageable, Member member) {
         if (member != null) {
+            log.info("회원 번호::"+member.getId().toString());
+            log.info("검색어::"+keyword);
+            log.info(searchType);
             //검색어 저장
-            redisService.setValues(member.getId().toString(), keyword);
+            redisService.setValues(member.getUserId().toString(), keyword);
             log.info(redisService.getSearchList(member.getId().toString()));
         }else if(keyword == null||searchType == null){//키워드가 없는 경우
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
-        return placeRepository.placeListSearch(searchType ,keyword, pageable);
+        return placeRepository.placeListSearch(searchType,keyword, pageable);
     }
 
     /**
@@ -108,6 +113,7 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
+    @Cacheable(value = CacheKey.PLACE,key = "#placeId")
     @Transactional
     public PlaceResponseDto placeDetail(Integer placeId) {
 

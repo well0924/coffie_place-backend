@@ -13,6 +13,7 @@ import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -182,6 +183,7 @@ public class NoticeService {
      * @see AttachRepository#findAttachNoticeBoard(Integer)  공지게시글에 있는 첨부파일 목록을 조회하는 메서드
      * @see NoticeBoardRepository#deleteById(Object) 게시물 번호로 게시물을 삭제
      **/
+    @CacheEvict(value = CacheKey.NOTICE_BOARD,key = "#noticeId")
     @Transactional
     public void noticeDelete(Integer noticeId)throws Exception{
         //공지 게시글 조회
