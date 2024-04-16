@@ -5,11 +5,12 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.email.EmailService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.member.domain.dto.request.LoginDto;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
+import com.example.coffies_vol_02.member.service.AuthService;
 import com.example.coffies_vol_02.member.service.MemberService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,11 +23,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,16 +40,36 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/member")
 public class MemberApiController {
+
     private final MemberService memberService;
+
+    private final AuthService authService;
 
     private final EmailService emailService;
 
     private final CrawlingService crawlingService;
 
+    @Operation(summary = "회원 로그인 api", description = "redis session을 활용해서 로그인")
+    @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public CommonResponse<?>loginProc(@RequestBody LoginDto loginDto, HttpSession httpSession){
+        log.info("session::::"+httpSession.getAttribute("member"));
+
+        return new CommonResponse<>(HttpStatus.OK.value(),authService.login(loginDto,httpSession));
+    }
+
+    @PostMapping("/logout")
+    public CommonResponse<?>logout(HttpSession httpSession){
+        authService.logout(httpSession);
+        httpSession.invalidate();
+        return new CommonResponse<>(HttpStatus.OK.value(),"log-out");
+    }
+
     @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
     @GetMapping(path = "/list")
     @ResponseStatus(HttpStatus.OK)
-    public CommonResponse<Page<MemberResponse>> memberList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
+    public CommonResponse<Page<MemberResponse>> memberList(
+            @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
+
         Page<MemberResponse> list = null;
 
         try{
@@ -61,13 +84,13 @@ public class MemberApiController {
     @GetMapping(path = "/list/search")
     @ResponseStatus(HttpStatus.OK)
     public CommonResponse<?>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
-                                                            @RequestParam(value = "searchType",required = false) String searchType,
-                                                            @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",in = ParameterIn.QUERY)
-                                                            @RequestParam(value = "searchVal",required = false) String searchVal){
+                                        @RequestParam(value = "searchType",required = false) String searchType,
+                                        @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",in = ParameterIn.QUERY)
+                                        @RequestParam(value = "searchVal",required = false) String searchVal){
 
         Page<MemberResponse> list = null;
 
-        if(searchVal==null||searchVal.equals("")||searchType ==null||searchType.equals("")){
+        if(searchVal==null|| searchVal.isEmpty() ||searchType ==null|| searchType.isEmpty()){
             return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
@@ -83,7 +106,10 @@ public class MemberApiController {
     @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
     @GetMapping(path = "/detail/{user-idx}")
     @ResponseStatus(HttpStatus.OK)
-    public CommonResponse<MemberResponse>findMember(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx")Integer userIdx){
+    public CommonResponse<MemberResponse>findMember(
+            @Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH)
+            @PathVariable("user-idx")Integer userIdx){
+
         MemberResponse detail = memberService.findByMember(userIdx);
 
         try{
@@ -118,10 +144,14 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "회원수정 api", notes = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
+    @Operation(summary = "회원수정 api", description = "어드민 페이지 및 마이페이지에서 회원 정보를 수정")
     @PatchMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>memberUpdate(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx") Integer userIdx,@RequestBody MemberRequest dto){
+    public CommonResponse<?>memberUpdate(
+            @Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH)
+            @PathVariable("user-idx") Integer userIdx,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,description = "회원 수정에 필요한 dto")
+            @RequestBody MemberRequest dto){
 
         try{
             memberService.memberUpdate(userIdx,dto);
@@ -138,10 +168,13 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "회원삭제 api", notes = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
+    @Operation(summary = "회원삭제 api", description = "어드민 페이지 및 마이페이지에서 회원삭제 및 탈퇴 기능")
     @DeleteMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommonResponse<?>memberDelete(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-idx") Integer userIdx){
+    public CommonResponse<?>memberDelete(
+            @Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH)
+            @PathVariable("user-idx") Integer userIdx){
+
         try{
             memberService.memberDelete(userIdx);
         }catch (Exception e){
@@ -156,12 +189,15 @@ public class MemberApiController {
         }
     }
 
-    @Operation(summary = "회원 아이디 찾기 api", description = "회원아이디 찾기 화면에서 아이디 찾기",responses = {
+    @Operation(summary = "회원 아이디 찾기 api", description = "회원아이디 찾기 화면에서 아이디 찾기",
+            responses = {
         @ApiResponse(responseCode = "200",description = "정상적으로 회원의 아이디를 찾는 경우",content = @Content(mediaType = "application/json"))
     })
     @GetMapping(path = "/find-id/{user-name}/{user-email}")
-    public CommonResponse<String>findUserId(@Parameter(name = "user-name",description = "회원 이름",required = true,in = ParameterIn.PATH) @PathVariable(value = "user-name")String userName,
-                                            @Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH)@PathVariable("user-email")String userEmail){
+    public CommonResponse<String>findUserId(@Parameter(name = "user-name",description = "회원 이름",required = true,in = ParameterIn.PATH)
+                                            @PathVariable(value = "user-name")String userName,
+                                            @Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH)
+                                            @PathVariable("user-email")String userEmail){
         String findUser = "";
 
         try{
@@ -202,7 +238,11 @@ public class MemberApiController {
     @Operation(summary = "회원비밀번호 변경 api", description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
     @PatchMapping(path = "/password/{user-id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>passwordUpdate(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) @PathVariable("user-id")Integer id,@RequestBody MemberRequest dto){
+    public CommonResponse<Integer>passwordUpdate(@Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH) 
+                                                 @PathVariable("user-id")Integer id,
+                                                 @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                         description = "비밀번호 변경에 필요한 dto",required = true)
+                                                 @RequestBody MemberRequest dto){
         int updateResult = 0;
 
         try{
@@ -218,7 +258,9 @@ public class MemberApiController {
     })
     @PostMapping(path = "/select-delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommonResponse<?>selectMemberDelete(@RequestBody List<String> userId){
+    public CommonResponse<?>selectMemberDelete(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "선택 삭제시에 필요한 회원번호",required = true)
+            @RequestBody List<String> userId){
         try{
             memberService.selectMemberDelete(userId);
         }catch (Exception e){

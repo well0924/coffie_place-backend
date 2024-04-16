@@ -1,12 +1,9 @@
 package com.example.coffies_vol_02.config.redis;
 
-import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
-import com.example.coffies_vol_02.config.constant.ERRORCODE;
-import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.favoritePlace.domain.dto.recentPostDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.data.redis.core.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,7 +13,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
@@ -30,8 +26,6 @@ public class RedisService {
 
     private final RedisTemplate<Object, Object> redisTemplate;
 
-    private final RedisTemplate<String,recentPostDto>postDtoRedisTemplate;
-
     public void setValues(String key, String value, Duration duration) {
         ValueOperations<String, String> values = stringRedisTemplate.opsForValue();
         values.set(key, value, duration);
@@ -40,12 +34,14 @@ public class RedisService {
     // 가게 key word 를 위한 setValues
     public void setValues(String key, String keyword) {
         ListOperations<Object, Object> listOperations = redisTemplate.opsForList();
+        log.info(listOperations);
         for (Object pastKeyword : Objects.requireNonNull(listOperations.range(key, 0, listOperations.size(key)))) {
             if (String.valueOf(pastKeyword).equals(keyword)) return;
         }
         if (listOperations.size(key) < 5) {
             //키워드를 저장(최대 5개 까지)
             listOperations.rightPush(key, keyword);
+            log.info(listOperations);
         } else if (listOperations.size(key) == 5) {
             listOperations.leftPop(key);
             listOperations.rightPush(key, keyword);
@@ -108,41 +104,11 @@ public class RedisService {
 
             log.info("게시글 번호:"+boardId);
             log.info("조회수:"+viewCount);
-
+            //조회수 증가.
             boardRepository.ReadCountUpToDB(boardId,viewCount);
             //캐시 삭제
             deleteValues(viewKey);
             deleteValues(CacheKey.BOARD+"viewCount"+"::"+boardId);
         }
-    }
-
-    //최근에 자유게시판에서 읽은 글 저장
-    /**
-     * 회원이 최근에 읽은 글 저장
-     *
-     **/
-    public void recentPostSave(Integer userIdx,Integer boardId){
-        ListOperations<String, recentPostDto>listOperations = postDtoRedisTemplate.opsForList();
-        //자유 게시글 조회
-        Optional<Board>detailBoard = Optional.ofNullable(boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
-
-        Board board = detailBoard.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-
-        recentPostDto recentDto = new recentPostDto(board);
-        //redis에 저장할 key값 저장
-        String recentKey = "userIdx::"+userIdx;
-        //list에 넣기.
-        listOperations.leftPush(recentKey,recentDto);
-        //유효기간 정하기.(일주일)
-        redisTemplate.expireAt(recentKey, Date.from(ZonedDateTime.now().plusDays(7).toInstant()));
-    }
-    //최근에 자유게시판에서 읽은 글 조회
-    public List<recentPostDto>recentPostDtoList(Integer userIdx){
-        ListOperations<String,recentPostDto>listOperations = postDtoRedisTemplate.opsForList();
-        String recentKey = "userIdx::"+userIdx;
-        Integer size = Math.toIntExact(listOperations.size(recentKey) == null ? 0 : listOperations.size(recentKey));
-
-        return listOperations.range(recentKey,0,size);
     }
 }

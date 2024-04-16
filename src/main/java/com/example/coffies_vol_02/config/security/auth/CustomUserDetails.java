@@ -61,7 +61,7 @@ public class CustomUserDetails implements UserDetails,Serializable {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return member.isEnabled();
     }
 }
 

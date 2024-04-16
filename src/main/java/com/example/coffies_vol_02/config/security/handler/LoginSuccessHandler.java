@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.config.security.handler;
 
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -40,8 +41,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         
         Member member = customUserDetails.getMember();
         //로그인 실패 횟수 리셋
-        if(member.getFailedAttempt()>0){
-            memberService.resetFailedAttempts(member.getUserId());
+        if(member.getFailedAttempt()>=0){
+            memberService.resetFailedAttempts(member);
         }
         
         //로그인을 한 세션을 지우는 메서드
@@ -53,7 +54,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //회원 계정 잠금 기능
 
     }
 
