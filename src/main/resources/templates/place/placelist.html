@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="kr"
+        xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -44,11 +45,11 @@
                 <div class="form-inline" style="display: flex; justify-content: center;">
                     <select id="searchType" class="form-control" name="searchType">
                         <option>선택</option>
-                        <option th:value="p">가게이름</option>
-                        <option th:value="a">주소</option>
+                        <option th:value="placeName">가게이름</option>
+                        <option th:value="placeAddress">주소</option>
                         <option th:value="all">전체</option>
                     </select>
-                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요" onchange="recentSearchKeyword()"/>
+                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
                     <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
                     <!--sorted select-->
                     <div class="row" style="width:500px;margin-left:82%;margin-bottom: 2px">
@@ -61,7 +62,7 @@
                     </div>
                 </div>
                 <!--search end-->
-                <a th:href="@{/api/file/place-download?excelDownload=true}" class="btn btn-primary"
+                <a th:href="@{/api/file/place-download}" class="btn btn-primary"
                    style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
                 <button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()"
                         sec:authorize="hasRole('ROLE_ADMIN')">가게 등록
@@ -73,12 +74,13 @@
                         </div>
                     </div>
                 </div>
-                <!---->
+                <!--place List-->
+                <div id="placeList"/>
                 <div class="row" style="margin-top:10px">
                     <div class="col-4" th:each="list:${placelist}">
                         <div class="card">
                             <th:block>
-                                <img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" class="card-img-top">
+                                <img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}" alt="place Main Image" class="card-img-top">
                             </th:block>
                             <div class="card-body">
                                 <h5 class="card-title">
@@ -111,13 +113,14 @@
         function placeSearch() {
             const searchType = document.getElementById('searchType').value;
             const keyword = document.getElementById('autocomplete').value;
-
+            console.log(keyword);
             location.href = '/page/place/list?keyword=' + keyword + '&searchType=' + searchType;
         }
 
         $("#autocomplete").mouseover(function() {
             /*<![CDATA[*/
-            const items = /*[[${keywords}]]*/;
+            const items = /*[[${keyword}]]*/;
+            console.log(items);
             if (items.length > 0) {
                 const recommendBox = document.querySelector("#suggestion_box");
 
@@ -155,14 +158,12 @@
         })
 
         document.addEventListener("click", e => {
-            console.log("2")
             const closestKeywords = e.target.closest("#suggestion_box") // 부모 요소 중에 keywords 클래스를 가진 부모가 있는지 확인
             if(!closestKeywords) {
                 const recommendBox = document.querySelector("#suggestion_box");
                 recommendBox.classList.add('invisible');
             }
-        })
-
+        });
     </script>
 </th:block>
 </body>

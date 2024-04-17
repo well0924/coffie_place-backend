@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" 
-xmlns:th="http://www.thymeleaf.org" 
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:th="http://www.thymeleaf.org"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 layout:decorate="~{layout/leafframe}" lang="kr">
@@ -177,8 +177,8 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 </div>
 <script>
 	$(document).ready(function(){
-		ReviewList();
 		resizeMap();
+		ReviewList();
 	});
 	//지도 부분
 	//1.화면에서 필요한 값을 가져온다.
@@ -193,6 +193,8 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 	//지도를 생성할 div
 	var placeLat = $('#placelat').val();
 	var placeLang = $('#placelng').val();
+	console.log(placeLat);
+	console.log(placeLang);
 	//위치를 담은 마커를 생성한다.
 	var markerPosition = new kakao.maps.LatLng(placeLang,placeLat);
 
@@ -256,9 +258,9 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 					str +='<p id="reviewAuthor" name="replyWriter">'+data.data[i].replyWriter+'</p>';
 					str += data.data[i].replyContents;
 					str +='</br>';
-					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+')"></i>';
+					str +='<i class="fa-solid fa-heart" onclick="LikeCheck('+data.data[i].id+');"></i>';
 					str +='</br>';
-					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+')">'+'삭제'+'</button>';
+					str +='<button type="button" class="btn btn-dark mt-3" name="id" onclick="deleteReply('+data.data[i].id+','+placeId+');">'+'삭제'+'</button>';
 					str +='</div>';
 					str +='</div>';
 				}
@@ -284,13 +286,13 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		let placeId = $('#placeid').val();
 		let point = $('input[name=replyPoint]:checked').val();
 		let comment = $('#reviewContents').val();
-		let createdby = $('#reviewAuthor').val();
+		let commentAuthor = $('#reviewAuthor').val();
 
 		const formdate = {
 			placeId : placeId,
 			replyPoint : point,
 			replyContents : comment,
-			replyWriter : createdby
+			replyWriter : commentAuthor
 		}
 
 		if(validation()){

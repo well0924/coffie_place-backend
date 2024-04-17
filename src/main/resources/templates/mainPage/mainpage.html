@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:th="http://www.thymeleaf.org"
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  data-layout-decorate="~{layout/leafframe}">
+	  layout:decorate="~{layout/leafframe}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,6 @@
 <link rel="stylesheet" th:href="@{/css/mainpage.css}">
 </head>
 <body>
-	<!-- 헤더부분 -->
-	<th:block th:replace="layout/fragment/header :: headerfragment"></th:block>
 	<!--메인부분 -->
 	<th:block layout:fragment="content">
 		<div class="container" style="margin-top: 100px">
@@ -31,12 +29,13 @@
 							<div class='RatingStar'>
 								<div class='RatingScore'>
 					  			<div class='outer-star'>
+									[[${top5.reviewRate}]]
 					  				<div class='inner-star'></div>
 					  			</div>
 								</div>
 							</div>
 							<p class="card-text"></p>
-							<a class="btn btn-primary" >More</a>
+							<a class="btn btn-primary" th:href="@{'/page/place/detail/'+${top5.id}}">More</a>
 						</div>
 						</div>
 					</div>
@@ -131,25 +130,23 @@
 				<!-- 공지게시판 end -->
 			</div>
 		</div>
-	</th:block>
-<!-- contents end -->
-<script type="text/javascript">
-//회원탈퇸
-function memberDelete(){
-	let id = $('#user_id').val();
+		<!-- contents end -->
+		<script type="text/javascript">
+			//회원탈퇴
+			function memberDelete(){
+				let id = $('#user_id').val();
 
-	$.ajax({
-		url:'/api/admin/memberdelete/'+id,
-		type:'delete',
-		data:null
-	}).done(function(resp){
-		alert('탈퇴했습니다.');
-		location.href='/page/main/mainpage';
-	});
-	return false;
-}
-</script>
-	<!--푸터부분-->
-	<th:block th:replace="layout/fragment/footer :: footerfragment"></th:block>
+				$.ajax({
+					url:'/api/admin/memberdelete/'+id,
+					type:'delete',
+					data:null
+				}).done(function(resp){
+					alert('탈퇴했습니다.');
+					location.href='/page/main/mainpage';
+				});
+				return false;
+			}
+		</script>
+	</th:block>
 </body>
 </html>
