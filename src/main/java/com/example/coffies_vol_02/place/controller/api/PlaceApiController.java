@@ -66,9 +66,8 @@ public class PlaceApiController {
                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         Slice<PlaceResponseDto> list = null;
-        log.info("검색어::"+String.valueOf(SearchType.toType(searchType)));
         try {
-            list = placeService.placeListAll(String.valueOf(SearchType.toType(searchType)),keyword, pageable, customUserDetails.getMember());
+            list = placeService.placeListAll(SearchType.toType(searchType),keyword, pageable, customUserDetails.getMember());
             //검색어가 없는 경우
             if(keyword==null||keyword.equals("")){
                 return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());

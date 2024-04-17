@@ -40,43 +40,34 @@ public class PlaceViewController {
         ModelAndView mv = new ModelAndView();
 
         Slice<PlaceResponseDto> list = null;
+        //최근 검색어
         List<String> keywords = new ArrayList<>();
 
         try {
-            if (customUserDetails != null) {
 
-                //가게 검색어 저장 목록
-                keywords = placeService.placeSearchList(customUserDetails.getMember());
+            //가게 목록
+            list = placeService.placeSlideList(pageable,keyword,customUserDetails.getMember());
+            //가게 검색어 저장 목록
+            keywords = placeService.placeSearchList(customUserDetails.getMember());
+            log.info("검색어:::"+keywords);
+            log.info("placeList:::"+list);
 
-                //가게 목록
-                list = placeService.placeSlideList(pageable,keyword,customUserDetails.getMember());
-                log.info("검색어:::"+keywords);
-                log.info("placeList:::"+list);
+            //검색에가 있는 경우
+            log.info(keyword);
+            log.info(searchType);
 
-                //검색에가 있는 경우
-                if(keyword!=null){
-
-                    log.info(keyword);
-                    log.info(searchType);
-
-                    Slice<PlaceResponseDto>searchList = placeService.placeListAll(
-                            keyword,
-                            String.valueOf(SearchType.toType(searchType)),
-                            pageable,
-                            customUserDetails.getMember());
-
-                    mv.addObject("keyword",keyword);
-                    mv.addObject("sarchType",searchType);
-                    mv.addObject("searchList",searchList);
-                }
+            if(keyword != null){
+                list = placeService.placeListAll(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        mv.addObject("searchType",searchType);
         mv.addObject("placelist", list);
         mv.addObject("keyword", keyword);
         mv.addObject("keywords", keywords);
+
 
         mv.setViewName("/place/placelist");
 
@@ -96,6 +87,8 @@ public class PlaceViewController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        log.info("result::::"+ detail);
+        log.info(imageResponseDtoList);
 
         mv.addObject("detail", detail);
         mv.addObject("imagelist", imageResponseDtoList);
