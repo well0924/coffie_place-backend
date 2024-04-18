@@ -20,19 +20,25 @@ import java.util.Set;
 @ToString(exclude = {"member","board","place","likes"})
 @Table(name = "tbl_board_reply")
 @NoArgsConstructor
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
 public class Comment extends BaseTime implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
+
     private String replyWriter;
+
     private String replyContents;
+
     private Integer replyPoint;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
     private Member member;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
     private Place place;

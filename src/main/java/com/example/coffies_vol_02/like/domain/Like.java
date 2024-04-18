@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.like.domain;
 
 import com.example.coffies_vol_02.board.domain.Board;
+import com.example.coffies_vol_02.config.BaseTime;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -16,10 +17,9 @@ import java.io.Serializable;
 @Proxy(lazy = false)
 @Table(name = "tbl_like")
 @RequiredArgsConstructor
-public class Like implements Serializable {
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
+public class Like extends BaseTime implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

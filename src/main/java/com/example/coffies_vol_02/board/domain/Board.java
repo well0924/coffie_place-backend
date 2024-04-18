@@ -13,21 +13,21 @@ import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
 @Getter
 @Proxy(lazy = false)
 @NoArgsConstructor
-@ToString
 @Table(name = "tbl_board",
         indexes = {
                 @Index(name = "board_index2",columnList = "boardAuthor"),
                 @Index(name = "board_index3",columnList = "id")})
+@AttributeOverrides({
+        @AttributeOverride(name = "id",column = @Column(name = "id"))
+})
 public class Board extends BaseTime implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
 
     private String boardTitle;

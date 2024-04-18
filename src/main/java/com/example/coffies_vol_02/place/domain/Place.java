@@ -18,23 +18,33 @@ import java.util.List;
         @Index(name = "place_index4",columnList = "placeAuthor"),
         @Index(name = "place_index2",columnList = "placeAddr1")})
 @NoArgsConstructor
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "place_id"))})
 public class Place extends BaseTime {
-    @Id
-    @Column(name = "place_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
+
     private Double placeLng;
+
     private Double placeLat;
+
     private Double reviewRate;
+
     private String placeName;
+
     private String placeAddr1;
+
     private String placeAddr2;
+
     private String placePhone;
+
     private String placeAuthor;
+
     //가게운영 시작시간
     private String placeStart;
+
     //가게운영 종료시간
     private String placeClose;
+
     private String fileGroupId;
     
     //가게정보가 삭제가 되면 가게 댓글이 삭제가 된다.

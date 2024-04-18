@@ -15,20 +15,29 @@ import java.io.Serializable;
 @Proxy(lazy = false)
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "img_id"))})
 public class PlaceImage extends BaseTime implements Serializable {
-    @Id
-    @Column(name = "img_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
+
     private String fileGroupId;
+
     private String fileType;
+
     private String imgGroup;
+
     private String imgPath;
+
     private String thumbFilePath;
+
     private String thumbFileImagePath;
+
     private String storedName;
+
     private String originName;
+
     private String imgUploader;
+
     private String isTitle;
 
     @JsonIgnore

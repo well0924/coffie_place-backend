@@ -25,43 +25,59 @@ import java.util.List;
         @Index(name = "member_index2",columnList = "userAge"),
         @Index(name = "member_index3",columnList = "userEmail",unique = true)
 })
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
 public class Member extends BaseTime implements Serializable {
 
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Setter
     private String userId;
+
     @Setter
     private String password;
+
     private String memberName;
+
     private String userPhone;
+
     private String userGender;
+
     private String userAge;
+
     private String userEmail;
+
     private String userAddr1;
+
     private String userAddr2;
+
     @Setter
     private boolean enabled;
+
     @Setter
     @Column(name = "account_non_locked")
     private Boolean accountNonLocked;
+
     @Setter
     @Column(name = "failed_attempt")
     private Integer failedAttempt;
+
     @Setter
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
     //회원 위경도(경도)
     private Double memberLng;
+
     //회원 위경도(위도)
     private Double memberLat;
+
     //회원  권한
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
+
     @BatchSize(size = 1000)
     @JsonIgnore
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)

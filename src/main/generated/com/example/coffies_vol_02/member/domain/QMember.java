@@ -33,13 +33,15 @@ public class QMember extends EntityPathBase<Member> {
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final DateTimePath<java.util.Date> lockTime = createDateTime("lockTime", java.util.Date.class);
+    public final DateTimePath<java.time.LocalDateTime> lockTime = createDateTime("lockTime", java.time.LocalDateTime.class);
 
     public final NumberPath<Double> memberLat = createNumber("memberLat", Double.class);
 
     public final NumberPath<Double> memberLng = createNumber("memberLng", Double.class);
 
     public final StringPath memberName = createString("memberName");
+
+    public final EnumPath<com.example.coffies_vol_02.config.constant.MemberStatus> memberStatus = createEnum("memberStatus", com.example.coffies_vol_02.config.constant.MemberStatus.class);
 
     public final StringPath password = createString("password");
 

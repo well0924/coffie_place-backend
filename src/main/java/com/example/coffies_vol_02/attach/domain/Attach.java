@@ -15,9 +15,9 @@ import java.io.Serializable;
 @Entity
 @Table(name="tbl_file")
 @NoArgsConstructor
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
 public class Attach extends BaseTime implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
     @Column(nullable = false)
     private String originFileName; //원본 파일명

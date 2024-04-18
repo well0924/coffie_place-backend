@@ -21,15 +21,21 @@ import java.util.List;
         @Index(name = "notice_index4",columnList = "noticeTitle")
 })
 @NoArgsConstructor
+@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
 public class NoticeBoard extends BaseTime implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
+
     private String noticeGroup;
+
     private String noticeTitle;
+
     private String noticeWriter;
+
     private String noticeContents;
+
     private String fileGroupId;
+
     private Character isFixed;
 
     @JsonIgnore
