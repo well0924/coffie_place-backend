@@ -191,23 +191,52 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 	//	  생성자 함수(constructor)로 사용하려고 하기 때문에 발생하는 에러...
 
 	//지도를 생성할 div
-	var placeLat = $('#placelat').val();
-	var placeLang = $('#placelng').val();
+	var placeAddr1 = $('#placeaddr').val();
+	var placeLat = '37.6426557894829';
+	var placeLang = '127.01963902071';
+
 	console.log(placeLat);
 	console.log(placeLang);
-	//위치를 담은 마커를 생성한다.
-	var markerPosition = new kakao.maps.LatLng(placeLang,placeLat);
-
+	console.log(placeAddr1);
 
 	//지도의 중심좌표
 	var container = document.getElementById('map'),
-			options = {
-				//입력을 받은 위경도를 넣는다.->가게 위경도
-				center: new kakao.maps.LatLng(placeLang,placeLat),
-				level: 1//지도의 확대레벨
-			};
 
-	var marker = new kakao.maps.Marker({
+	options = {
+		//입력을 받은 위경도를 넣는다.->가게 위경도
+		center: new kakao.maps.LatLng(placeLang,placeLat),
+		level: 1//지도의 확대레벨
+	};
+	//지도를 생성
+	var map = new kakao.maps.Map(container,options);
+
+	//주소-좌표 변환 객체를 생성.
+	var geocoder = new kakao.maps.services.Geocoder();
+	console.log(geocoder);
+
+	geocoder.addressSearch(placeAddr1,function(result,status){
+		// 정상적으로 검색이 완료됐으면
+		if (status === kakao.maps.services.Status.OK) {
+
+			var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+			// 결과값으로 받은 위치를 마커로 표시합니다
+			var marker = new kakao.maps.Marker({
+				map: map,
+				position: coords
+			});
+
+			// 인포윈도우로 장소에 대한 설명을 표시합니다
+			var infowindow = new kakao.maps.InfoWindow({
+				content: '<div style="width:150px;text-align:center;padding:6px 0;"></div>'
+			});
+			infowindow.open(map, marker);
+
+			// 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+			map.setCenter(coords);
+		}
+	})
+	/*var marker = new kakao.maps.Marker({
 		position : markerPosition,
 		text: '텍스트를 표시할 수 있어요!'
 	});
@@ -216,7 +245,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 	var map = new kakao.maps.Map(container, options);
 
 	//맵에 표시한다.
-	marker.setMap(map);
+	marker.setMap(map);*/
 
 	//지도 리사이즈
 	function resizeMap(){
