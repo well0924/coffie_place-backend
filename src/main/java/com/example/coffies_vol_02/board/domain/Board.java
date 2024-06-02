@@ -9,6 +9,7 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
@@ -41,6 +42,9 @@ public class Board extends BaseTime implements Serializable {
     private String passWd;
 
     private String fileGroupId;
+    //좋아요 갯수
+    @ColumnDefault("0")
+    private Integer likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "useridx")
@@ -90,5 +94,13 @@ public class Board extends BaseTime implements Serializable {
         if(attachFile.getBoard()!=this){
             attachFile.setBoard(this);
         }
+    }
+    //좋아요 증가
+    public void likeCountUp(){
+        this.likeCount+=1;
+    }
+    //좋아요 감소
+    public void likeCountDown(){
+        this.likeCount-=1;
     }
 }
