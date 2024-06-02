@@ -26,11 +26,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class NoticeService {
+
     private final NoticeBoardRepository noticeBoardRepository;
+
     private final AttachRepository attachRepository;
+
     private final AttachService attachService;
+
     private final FileHandler fileHandler;
 
     /**
@@ -41,7 +46,7 @@ public class NoticeService {
      * @see NoticeBoardRepository#findAllList(Pageable) 공지게시판 목록 조회 메서드
      **/
     @Transactional(readOnly = true)
-    public Page<NoticeResponse>noticeAllList(Pageable pageable){
+    public Page<NoticeResponse>listNoticeBoard(Pageable pageable){
         return noticeBoardRepository.findAllList(pageable);
     }
 
@@ -54,7 +59,7 @@ public class NoticeService {
      * @see NoticeBoardRepository#findAllSearchList(SearchType,String, Pageable) 공지게시판에서 검색을 하는 메서드
      **/
     @Transactional(readOnly = true)
-    public Page<NoticeResponse>noticeSearchAll(SearchType searchType, String searchVal, Pageable pageable){
+    public Page<NoticeResponse>searchNoticeBoard(SearchType searchType, String searchVal, Pageable pageable){
         return noticeBoardRepository.findAllSearchList(searchType,searchVal,pageable);
     }
 
@@ -62,22 +67,20 @@ public class NoticeService {
      * 공지글 단일 조회(redis 캐시 적용)
      * @author 양경빈
      * @param noticeId 공지게시판 번호 번호가 없는 경우에는 BOARD_NOT_FOUND 발생
-     * @Cache key값은 noticeId이고 value는 게시글 번호
+     * @cache key값은 noticeId이고 value는 게시글 번호
      * @return NoticeResponse
      * @see NoticeBoardRepository#findById(Object) 공지제시글 번호를 조회해서 게시글 조회 조회하는 번호가 없는 경우에는 BOARD_NOT_FOUND
      **/
     @Cacheable(value = CacheKey.NOTICE_BOARD, key = "#noticeId")
     @Transactional(readOnly = true)
-    public NoticeResponse findNotice(Integer noticeId){
+    public NoticeResponse findNoticeBoardById(Integer noticeId){
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository
                 .findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         NoticeBoard noticeBoard = detail
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
 
-        NoticeResponse response = new NoticeResponse(noticeBoard);
-
-        return response;
+        return new NoticeResponse(noticeBoard);
     }
 
     /**
@@ -90,8 +93,7 @@ public class NoticeService {
      * @see AttachRepository#save(Object) 첨부파일 저장
      * @return noticeInsertResult 생성된 게시물 번호
      **/
-    @Transactional
-    public Integer noticeCreate(NoticeRequest dto, List<MultipartFile>files) throws Exception {
+    public Integer createNoticeBoard(NoticeRequest dto, List<MultipartFile>files) throws Exception {
 
         NoticeBoard noticeBoard = NoticeBoard
                 .builder()
@@ -139,8 +141,7 @@ public class NoticeService {
      * @see AttachRepository#save(Object) 첨부파일을 저장하는 메서드
      * @return UpdateResult 수정된 게시글 번호
      **/
-    @Transactional
-    public Integer noticeUpdate(Integer noticeId,NoticeRequest dto,List<MultipartFile>files) throws Exception {
+    public Integer updateNoticeBoard(Integer noticeId,NoticeRequest dto,List<MultipartFile>files) throws Exception {
         //공지 게시글 조회
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository
                 .findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
@@ -184,8 +185,7 @@ public class NoticeService {
      * @see NoticeBoardRepository#deleteById(Object) 게시물 번호로 게시물을 삭제
      **/
     @CacheEvict(value = CacheKey.NOTICE_BOARD,key = "#noticeId")
-    @Transactional
-    public void noticeDelete(Integer noticeId)throws Exception{
+    public void deleteNoticeBoard(Integer noticeId)throws Exception{
         //공지 게시글 조회
         Optional<NoticeBoard>detail = Optional.ofNullable(noticeBoardRepository
                 .findById(noticeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));

@@ -6,7 +6,6 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInt
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.SearchType;
-import com.example.coffies_vol_02.config.redis.RedisService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -34,8 +33,6 @@ public class BoardViewController {
 
     private final AttachService attachService;
 
-    private final RedisService redisService;
-
     @GetMapping("/list")
     public ModelAndView boardList(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(value = "searchType",required = false) String searchType,
@@ -46,10 +43,10 @@ public class BoardViewController {
         Page<BoardResponse> boardList = null;
 
         try {
-            boardList = boardService.boardAllList(pageable);
+            boardList = boardService.listFreeBoard(pageable);
             //검색을 하는 경우
             if(searchVal!=null){
-                boardList = boardService.boardSearchAll(SearchType.toType(searchType),searchVal,pageable);
+                boardList = boardService.searchFreeBoard(SearchType.toType(searchType),searchVal,pageable);
             }
             log.info(boardList.hasPrevious());
         }catch (Exception e){
@@ -73,10 +70,8 @@ public class BoardViewController {
         BoardResponse detail;
         List<AttachDto> attachList;
         List<BoardNextPreviousInterface>boardNextPreviousInterfaceList;
-        //게시글 조회수 캐시 적용
-        redisService.boardViewCount(boardId);
         //게시글 조회
-        detail = boardService.findBoard(boardId);
+        detail = boardService.findFreeBoard(boardId);
         //첨부파일
         attachList = attachService.boardfilelist(boardId);
         boardNextPreviousInterfaceList = boardService.boardNextPrevious(boardId);
@@ -91,6 +86,7 @@ public class BoardViewController {
 
     @GetMapping("/writePage")
     public ModelAndView writePage(){
+
         ModelAndView mv = new ModelAndView();
 
         String uuid = UUID.randomUUID().toString();
@@ -105,12 +101,13 @@ public class BoardViewController {
 
     @GetMapping("/passwordCheck/{board-id}")
     public ModelAndView passwordCheck(@PathVariable("board-id") Integer boardId){
+
         ModelAndView mv = new ModelAndView();
 
         BoardResponse detail = null;
 
         try{
-            detail = boardService.findBoard(boardId);
+            detail = boardService.findFreeBoard(boardId);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -123,6 +120,7 @@ public class BoardViewController {
 
     @GetMapping("/modify/{board-id}")
     public ModelAndView modifyPage(@PathVariable("board-id") Integer boardId) {
+
         ModelAndView mv = new ModelAndView();
 
         BoardResponse detail = null;
@@ -130,7 +128,7 @@ public class BoardViewController {
 
         try{
             //게시글 상세조회
-            detail = boardService.findBoard(boardId);
+            detail = boardService.findFreeBoard(boardId);
             //첨부파일
             attachList=attachService.boardfilelist(boardId);
         }catch (Exception e){

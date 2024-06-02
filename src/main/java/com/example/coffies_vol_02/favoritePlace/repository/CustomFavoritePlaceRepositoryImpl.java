@@ -22,6 +22,7 @@ import java.util.List;
 
 @Repository
 public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRepository{
+
     private final JPAQueryFactory jpaQueryFactory;
 
     public CustomFavoritePlaceRepositoryImpl(EntityManager em){

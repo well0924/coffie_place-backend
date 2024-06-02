@@ -130,7 +130,7 @@ public class EmailService {
      **/
     @Async
     public String sendTemporaryPasswordMessage(String userEmail)throws MessagingException,UnsupportedEncodingException {
-        MimeMessage message = createMessage(userEmail);
+        MimeMessage message = createPasswordMessage(userEmail);
 
         try{
             javaMailSender.send(message); // 메일 발송

@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RequestMapping("/api/file")
 public class FileApiController {
+
     private final PlaceRepository placeRepository;
     private final AttachService attachService;
 

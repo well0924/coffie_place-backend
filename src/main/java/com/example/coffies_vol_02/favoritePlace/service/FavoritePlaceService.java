@@ -29,10 +29,15 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FavoritePlaceService {
+
     private final BoardRepository boardRepository;
+
     private final MemberRepository memberRepository;
+
     private final CommentRepository commentRepository;
+
     private final PlaceRepository placeRepository;
+
     private final FavoritePlaceRepository favoritePlaceRepository;
 
     /**
@@ -103,7 +108,7 @@ public class FavoritePlaceService {
      * @param pageable 페이징 객체
      * @param userId 회원 아이디 회원 아이디가 없는 경우에는 ONLY_USER 가 발생
      * @exception CustomExceptionHandler 회원 아이디가 없는 경우에는 ONLY_USER 가 발생
-     * @return Page<BoardReponse>
+     * @return Page<BoardResponse>
      * @see MemberRepository#findByUserId(String) 시큐리티 로그인 인증 메서드
      * @see BoardRepository#findByMember(Member, Pageable) 회원이 작성을 한 글을 마이페이지에서 확인하는 메서드
      **/
@@ -136,6 +141,7 @@ public class FavoritePlaceService {
 
     /**
      * 가까운 가게 5곳
+     * 회원의 위경도를 기준으로 가까운 가게 5곳을 보여주는 기능
      * @param lat 경도
      * @param lon 위도
      * @return result 가게 정보 dto 값
@@ -149,11 +155,11 @@ public class FavoritePlaceService {
     /**
      * 회원이 좋아요를 한 게시글 목록
      * @author 양경빈
-     * @param useridx 회원 번호
+     * @param userIdx 회원 번호
      * @return Page<BoardResponse>result 회원의 게시글 목록
      **/
     @Transactional(readOnly = true)
-    public Page<BoardResponse>likedBoardList(int useridx,Pageable pageable){
-        return boardRepository.likedBoardDetailList(useridx,pageable);
+    public Page<BoardResponse>likedBoardList(int userIdx,Pageable pageable){
+        return boardRepository.likedBoardDetailList(userIdx,pageable);
     }
 }

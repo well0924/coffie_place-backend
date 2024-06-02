@@ -22,15 +22,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "Favorite api",value = "마이 페이지 관련 api 컨트롤러")
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/mypage")
+@RequestMapping("/api/my-page")
 public class FavoriteApiController {
-    private FavoritePlaceService favoritePlaceService;
+
+    private final FavoritePlaceService favoritePlaceService;
 
     @Operation(summary = "위시리스트 목록",description = "가게조회 페이지에서 위시리스트를 추가한 목록을 마이페이지에서 볼 수 있다.",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = FavoritePlaceResponseDto.class)))
@@ -40,31 +40,21 @@ public class FavoriteApiController {
                                                                     @PageableDefault(size = 5,sort = "id",direction= Sort.Direction.DESC) Pageable pageable,
                                                                     @Parameter(name = "user-id",description = "회원의 아이디",required = true)
                                                                     @PathVariable("user-id")String userId){
-        Page<FavoritePlaceResponseDto>list= null;
 
-        try{
-            list = favoritePlaceService.MyWishList(pageable,userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Page<FavoritePlaceResponseDto>list= favoritePlaceService.MyWishList(pageable,userId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @Operation(summary = "위시리스트 중복 체크",description = "가게조회 페이지에서 위시리스트를 눌렀을때 중복체크를 한다.")
-    @GetMapping(path = "/check/{member-id}/{place-id}")
+    @GetMapping(path = "/{member-id}/{place-id}")
     public CommonResponse<?>wishListCheck(@Parameter(name = "member-id",description = "회원 아이디")
                                           @PathVariable("member-id")String memberId,
                                           @Parameter(name = "place-id",description = "가게 번호")
                                           @PathVariable("place-id") Integer placeId,
                                           @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        boolean checkResult = false;
 
-        try{
-            checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        boolean checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
 
         return new CommonResponse<>(HttpStatus.OK.value(),checkResult);
     }
@@ -76,24 +66,20 @@ public class FavoriteApiController {
                                         @PathVariable("member-id")Integer memberId,
                                         @Parameter(name = "place-id",description = "가게의 번호",required = true)
                                         @PathVariable("place-id") Integer placeId){
-        try{
-            favoritePlaceService.wishListAdd(memberId,placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
+        favoritePlaceService.wishListAdd(memberId,placeId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),"wishList Add");
     }
 
     @Operation(summary = "위시리스트 삭제",description = "마이페이지에서 위시리스트에 있는 위시리스트를 삭제한다.")
-    @DeleteMapping(path = "/delete/{place-id}")
+    @DeleteMapping(path = "/{place-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public CommonResponse<String>wishListDelete(@Parameter(name = "place-id",description = "가게의 번호",required = true)
                                                 @PathVariable("place-id")Integer placeId){
-        try{
-            favoritePlaceService.wishDelete(placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
+        favoritePlaceService.wishDelete(placeId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),"wishlist delete!");
     }
 
@@ -105,13 +91,8 @@ public class FavoriteApiController {
                                                         @PathVariable("id") String userId,
                                                         @ApiIgnore
                                                         @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
-        Page<BoardResponse> list = null;
 
-        try{
-            list = favoritePlaceService.getMyPageBoardList(pageable, userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Page<BoardResponse> list = favoritePlaceService.getMyPageBoardList(pageable, userId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
@@ -124,28 +105,18 @@ public class FavoriteApiController {
                                                                   @PathVariable("id") String userId,
                                                                   @ApiIgnore @PageableDefault Pageable pageable){
 
-        List<placeCommentResponseDto>list = new ArrayList<>();
+        List<placeCommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
 
-        try{
-            list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
     @Operation(summary = "회원 위치에서 가까운 가게 조회",description = "회원의 위경도를 기준으로 해서 가까운 가게 목록을 조회한다",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
-    @GetMapping(path = "/nearlist")
+    @GetMapping(path = "/near-list")
     public CommonResponse<?> placeNearList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<PlaceResponseDto> nearList = new ArrayList<>();
 
-        try {
-            nearList = favoritePlaceService.placeNear(customUserDetails.getMember().getMemberLat(),customUserDetails.getMember().getMemberLng());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<PlaceResponseDto> nearList = favoritePlaceService.placeNear(customUserDetails.getMember().getMemberLat(),customUserDetails.getMember().getMemberLng());
 
         return new CommonResponse<>(HttpStatus.OK.value(),nearList);
     }
@@ -158,13 +129,7 @@ public class FavoriteApiController {
                                           @PathVariable("user-id")String userId,
                                           @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
 
-        Page<BoardResponse>result = null;
-
-        try{
-            result = favoritePlaceService.likedBoardList(customUserDetails.getMember().getId(),pageable);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Page<BoardResponse>result = favoritePlaceService.likedBoardList(customUserDetails.getMember().getId(),pageable);
 
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }

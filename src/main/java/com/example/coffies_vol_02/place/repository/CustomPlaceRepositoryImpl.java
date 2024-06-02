@@ -23,10 +23,14 @@ import java.util.function.Supplier;
 
 @Repository
 public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
+
     private final JPAQueryFactory jpaQueryFactory;
+
+    private final QPlace place;
 
     public CustomPlaceRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
+        this.place = QPlace.place;
     }
 
     /**
@@ -37,9 +41,11 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      **/
     @Override
     public Slice<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable) {
+
         JPQLQuery<PlaceResponseDto>placeList = jpaQueryFactory
-                .select(Projections.constructor(PlaceResponseDto.class,QPlace.place))
-                .from(QPlace.place);
+                .select(Projections.constructor(PlaceResponseDto.class,place))
+                .from(place);
+
         JPQLQuery<PlaceResponseDto>middleQuery = switch (searchType) {
             case all -> placeList.where(placeName(keyword).or(placeAdder(keyword)));
             case p -> placeList.where(placeName(keyword));
@@ -61,9 +67,8 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     @Override
     public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
         JPQLQuery<PlaceResponseDto>list = jpaQueryFactory
-                .select(Projections.constructor(PlaceResponseDto.class,QPlace.place))
-                .from(QPlace.place)
-                .orderBy(QPlace.place.reviewRate.desc())
+                .select(Projections.constructor(PlaceResponseDto.class,place))
+                .from(place)
                 .limit(5L)
                 .offset(pageable.getOffset());
         return PageableExecutionUtils.getPage(list.fetch(),pageable,list::fetchCount);
@@ -77,12 +82,11 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     @Override
     public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
         List<Place>placelist = jpaQueryFactory
-                .select(QPlace.place)
-                .from(QPlace.place)
+                .select(place)
+                .from(place)
                 .where(placeName(keyword).or(placeAdder(keyword)))
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize()+1)
-                .fetch();//limit보다 한개를 더 들고 온다.
+                .limit(pageable.getPageSize()+1).fetch();//limit보다 한개를 더 들고 온다.
 
         //total page개수를 가져오지 않는다는 점이 page와 다른점
         List<PlaceResponseDto>result = new ArrayList<>();

@@ -7,7 +7,6 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,25 +28,25 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/comment")
 public class CommentApiController {
+
     private final CommentService commentService;
 
     @Operation(summary = "댓글 목록", description = "게시글 목록에서 댓글목록을 보여준다.",responses = {
             @ApiResponse(responseCode = "200",description = "정상적인 응답",content = @Content(schema =@Schema(implementation = placeCommentResponseDto.class))),
             @ApiResponse(responseCode = "404",description = "댓글이 없는 경우",content = @Content(schema =@Schema(implementation = CommonResponse.class)))
     })
-    @GetMapping("/list/{board_id}")
-    public CommonResponse<List<placeCommentResponseDto>>commentList(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
+    @GetMapping("/{board_id}")
+    public CommonResponse<List<placeCommentResponseDto>>listComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
                                                                     @PathVariable("board_id")Integer boardId){
         List<placeCommentResponseDto> list = new ArrayList<>();
 
         try{
-            list = commentService.replyList(boardId);
+            list = commentService.freeBoardCommentList(boardId);
 
             if(list.isEmpty()){
                 return new CommonResponse<>(ERRORCODE.NOT_REPLY.getErrorCode(),list);
             }
         }catch (Exception e){
-            e.printStackTrace();
             return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),list);
         }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
@@ -56,29 +55,28 @@ public class CommentApiController {
     @Operation(summary = "댓글 작성", description = "게시글 목록에서 댓글을 작성한다.", responses = {
             @ApiResponse(responseCode = "201", description = "정상적으로 댓글을 작성하는 경우")
     })
-    @PostMapping("/write/{board_id}")
+    @PostMapping("/{board_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>commentCreate(@Parameter(name = "board_id",description = "게시글의 번호",required = true) @PathVariable("board_id")Integer boardId, @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommentRequest dto){
+    public CommonResponse<Integer>createComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
+                                                @PathVariable("board_id")Integer boardId,
+                                                @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                @RequestBody CommentRequest dto){
 
-        int WriteResult = 0;
+        Integer writeResult = commentService.createFreeBoardComment(boardId,customUserDetails.getMember(),dto);
 
-        try{
-            WriteResult = commentService.commentCreate(boardId,customUserDetails.getMember(),dto);
-        }catch (Exception e){
-            e.printStackTrace();
+        if(writeResult !=null && writeResult > 0){
+            return new CommonResponse<>(HttpStatus.OK.value(),writeResult);
+        }else{
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(),"댓글작성에 실패했습니다.");
         }
-        return new CommonResponse<>(HttpStatus.OK.value(), WriteResult);
     }
 
     @Operation(summary = "댓글 삭제", description = "게시글 목록에서 댓글을 삭제한다.")
-    @DeleteMapping("/delete/{reply_id}")
+    @DeleteMapping("/{reply_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommonResponse<?>commentDelete(@Parameter(name = "board_id",description = "게시글의 번호",required = true) @PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        try{
-            commentService.commentDelete(replyId,customUserDetails.getMember());
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public CommonResponse<?>deleteComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true) @PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+
+        commentService.deleteFreeBoardComment(replyId,customUserDetails.getMember());
 
         return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
     }
@@ -87,14 +85,9 @@ public class CommentApiController {
             @ApiResponse(responseCode = "200",description = "가게 댓글의 목록을 정상적으로 보여준다.", content = @Content(mediaType = "application/json",schema = @Schema(implementation = placeCommentResponseDto.class)))
     })
     @GetMapping("/place/list/{place_id}")
-    public CommonResponse<List<placeCommentResponseDto>>placeCommentList(@Parameter(name = "place_id",description = "가게의 번호",required = true) @PathVariable("place_id") Integer placeId){
-        List<placeCommentResponseDto>commentResponseDtoList = new ArrayList<>();
+    public CommonResponse<List<placeCommentResponseDto>>listPlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true) @PathVariable("place_id") Integer placeId)throws Exception{
 
-        try{
-            commentResponseDtoList = commentService.placeCommentList(placeId);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<placeCommentResponseDto>commentResponseDtoList = commentService.placeCommentList(placeId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),commentResponseDtoList);
     }
@@ -102,51 +95,42 @@ public class CommentApiController {
     @Operation(summary = "가게댓글 작성", description = "게시글 목록에서 댓글을 작성한다.")
     @PostMapping("/place/write/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>placeCommentWrite(@Parameter(name = "place_id",description = "가게의 번호",required = true)
+    public CommonResponse<Integer>createPlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true)
                                                     @PathVariable("place_id") Integer placeId,
                                                     @RequestBody CommentRequest dto,
-                                                    @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        int insertResult = 0;
+                                                    @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception{
 
-        try{
-            insertResult = commentService.placeCommentCreate(placeId,dto,customUserDetails.getMember());
-            //가게 평점 계산
-            commentService.updateStar(placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Integer insertResult = commentService.createPlaceComment(placeId,dto,customUserDetails.getMember());
+
+        //가게 평점 계산
+        commentService.updateStar(placeId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),insertResult);
     }
 
     @Operation(summary = "댓글 삭제",description = "게시글 목록에서 댓글을 삭제한다.")
     @DeleteMapping("/place/delete/{place_id}/{reply_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommonResponse<?>placeCommentDelete(@Parameter(name = "place_id",description = "가게의 번호",required = true)
+    public CommonResponse<?>deletePlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true)
                                                @PathVariable("place_id")Integer placeId,
                                                @Parameter(name = "reply_id",description = "댓글의 번호",required = true)
                                                @PathVariable("reply_id") Integer replyId,
-                                               @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                                               @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception {
 
-        try{
-            commentService.placeCommentDelete(replyId,customUserDetails.getMember());
-            //평점 계산
-            commentService.updateStar(placeId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        commentService.deletePlaceComment(replyId,customUserDetails.getMember());
+        //평점 계산
+        commentService.updateStar(placeId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete Comment");
     }
 
     @Operation(summary = "최근에 작성한 댓글",description = "게시판 댓글과 가게 댓글에서 작성일 순으로 5개를 출력")
     @GetMapping("/recent-reply")
     @ResponseStatus(HttpStatus.OK)
-    public CommonResponse<List<placeCommentResponseDto>>recentCommentListTop5(){
-        List<placeCommentResponseDto>result = new ArrayList<>();
-        try {
-            result = commentService.recentCommentTop5();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    public CommonResponse<List<placeCommentResponseDto>>CommentListTop5(){
+
+        List<placeCommentResponseDto>result = commentService.recentCommentTop5();
+
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 }

@@ -29,13 +29,18 @@ import java.util.Optional;
 
 @Log4j2
 @Service
+@Transactional
 @AllArgsConstructor
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+
     private final FileHandler fileHandler;
+
     private final PlaceImageService placeImageService;
+
     private final PlaceImageRepository placeImageRepository;
+
     private final RedisService redisService;
 
     /**
@@ -48,8 +53,7 @@ public class PlaceService {
      * @see RedisService#setValues(String, String) 가게 검색어 저장
      * @see PlaceRepository#placeList(Pageable, String) 가게 목록
      **/
-    @Transactional
-    public Slice<PlaceResponseDto> placeSlideList(Pageable pageable,String keyword, Member member) {
+    public Slice<PlaceResponseDto> listCafePlace(Pageable pageable,String keyword, Member member) {
         if (member != null) {
             log.info(keyword);
             //로그인이 되었을 경우 가게이름 검색어 저장
@@ -79,7 +83,7 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 검색시 검색어가 없는 경우
      **/
     @Transactional(readOnly = true)
-    public Slice<PlaceResponseDto> placeListAll(SearchType searchType, String keyword, Pageable pageable, Member member) {
+    public Slice<PlaceResponseDto> searchCafePlace(SearchType searchType, String keyword, Pageable pageable, Member member) {
         if (member != null) {
             log.info("회원 번호::"+member.getId().toString());
             log.info("검색어::"+keyword);
@@ -101,7 +105,7 @@ public class PlaceService {
      * @see PlaceRepository#placeTop5(Pageable) 가게 top5 메서드
      **/
     @Transactional(readOnly = true)
-    public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
+    public Page<PlaceResponseDto> cafePlaceByReviewRateTop5(Pageable pageable) {
         return placeRepository.placeTop5(pageable);
     }
 
@@ -114,8 +118,7 @@ public class PlaceService {
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
     @Cacheable(value = CacheKey.PLACE,key = "#placeId")
-    @Transactional
-    public PlaceResponseDto placeDetail(Integer placeId) {
+    public PlaceResponseDto findCafePlaceById(Integer placeId) {
 
         Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
 
@@ -147,7 +150,7 @@ public class PlaceService {
      * @return placeId 가게 번호
      **/
     @Transactional
-    public Integer placeRegister(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
+    public Integer createCafePlace(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
                 .builder()
                 .placeLat(dto.getPlaceLat())
@@ -195,8 +198,7 @@ public class PlaceService {
      * @return PlaceId 가게번호
      * @throws CustomExceptionHandler PLACE_NOT_FOUND 가게가 없습니다.
      **/
-    @Transactional
-    public Integer placeModify(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
+    public Integer updateCafePlace(Integer placeId, PlaceRequestDto dto, PlaceImageRequestDto imageDto) throws Exception {
         Optional<Place> placeDetail = Optional.ofNullable(placeRepository
                 .findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
 
@@ -259,7 +261,7 @@ public class PlaceService {
      * @see PlaceImageService#deletePlaceImage(Integer) 가게 이미지를 삭제하는 메서드
      * @see PlaceRepository#deleteById(Object) 가게번호로 가게를 삭제하는 메서드
      **/
-    public void placeDelete(Integer placeId) throws Exception {
+    public void deleteCafePlace(Integer placeId) throws Exception {
         Optional<Place> detail = Optional.ofNullable(placeRepository.findById(placeId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
         //가게이미지 목록

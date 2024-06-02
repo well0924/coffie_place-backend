@@ -8,11 +8,14 @@ import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentRespon
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
+import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ import java.util.stream.Stream;
 
 @Log4j2
 @Service
+@Transactional
 @AllArgsConstructor
 public class CommentService {
 
@@ -32,6 +36,8 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     private final PlaceRepository placeRepository;
+    //redis sorted-set
+    private final RedisTemplate<String,String>redisTemplate;
 
     /**
      * 댓글 목록(자유게시판)
@@ -40,7 +46,7 @@ public class CommentService {
      * @return list 자유게시판 댓글 목록
      **/
     @Transactional(readOnly = true)
-    public List<placeCommentResponseDto> replyList(Integer boardId) throws Exception {
+    public List<placeCommentResponseDto> freeBoardCommentList(Integer boardId) throws Exception {
 
         List<Comment>list = commentRepository.findByBoardId(boardId);
 
@@ -60,8 +66,7 @@ public class CommentService {
      * @see CommentRepository#save(Object) 댓글을 저장하는 메서드
      * @return comment.getId() 자유게시판 댓글 번호
      **/
-    @Transactional
-    public Integer commentCreate(Integer boardId, Member member, CommentRequest dto){
+    public Integer createFreeBoardComment(Integer boardId, Member member, CommentRequest dto){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -72,7 +77,7 @@ public class CommentService {
 
         Comment comment = Comment
                 .builder()
-                .board(boardDetail.get())
+                .board(boardDetail.orElse(null))
                 .replyWriter(member.getUserId())
                 .replyContents(dto.replyContents())
                 .member(member)
@@ -91,10 +96,8 @@ public class CommentService {
      * @exception CustomExceptionHandler 로그인이 안된 경우,조회된 자유게시판에 댓글이 없는 경우(NOT_REPLY),로그인한 회원과 댓글 작성자가 다른 경우(NOT_AUTH)
      * @see CommentRepository#findById(Object) 댓글을 조회하는 메서드
      * @see CommentRepository#deleteById(Object) 댓글을 삭제하는 메서드
-     * @return comment.getId() 자유게시판 댓글 번호
      **/
-    @Transactional
-    public void commentDelete(Integer replyId,Member member){
+    public void deleteFreeBoardComment(Integer replyId,Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -103,10 +106,7 @@ public class CommentService {
         Comment comment = commentRepository
                 .findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
 
-        String userId = member.getUserId();
-        String commentAuthor = comment.getReplyWriter();
-
-        if(!userId.equals(commentAuthor)){
+        if(member.getUserId().equals(comment.getReplyWriter())){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
@@ -138,7 +138,7 @@ public class CommentService {
      * @see CommentRepository#save(Object) 댓글을 저장하는 메서드
      **/
     @Transactional
-    public Integer placeCommentCreate(Integer placeId, CommentRequest dto, Member member){
+    public Integer createPlaceComment(Integer placeId, CommentRequest dto, Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -149,7 +149,7 @@ public class CommentService {
 
         Comment comment = Comment
                 .builder()
-                .place(detail.get())
+                .place(detail.orElseThrow())
                 .replyWriter(member.getUserId())
                 .replyContents(dto.replyContents())
                 .replyPoint(dto.replyPoint())
@@ -163,17 +163,14 @@ public class CommentService {
 
     /**
      * 가게 댓글 삭제
-     *
      * @param replyId 가게 댓글번호
      * @param member  로그인 인증에 필요한 객체
-     * @return
      * @throws CustomExceptionHandler 조회할 가게가 없는 경우,로그인이 인증 안되는 경우,댓글 작성자와 로그인한 회원이 일치하지 않은 경우(NOT_AUTH)
      * @author 양경빈
-     * @see CommentRepository#findById(Object) 가게댓글을 조회하는 메서드
+     * tRepository#findById(Object) 가게댓글을 조회하는 메서드
      * @see CommentRepository#deleteById(Object) 가게댓글을 삭제하는 메서드
      */
-    @Transactional
-    public Object placeCommentDelete(Integer replyId, Member member){
+    public void deletePlaceComment(Integer replyId, Member member){
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -182,25 +179,20 @@ public class CommentService {
         Comment comment = commentRepository
                 .findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
 
-        String userId = member.getUserId();
-        String commentAuthor = comment.getReplyWriter();
-
-        if(!userId.equals(commentAuthor)){
+        if(!member.getUserId().equals(comment.getReplyWriter())){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
         commentRepository.deleteById(replyId);
-        return null;
     }
 
     /**
      * 가게 댓글 평점 계산
      * @author 양경빈
      * @param placeId 가게 번호
-     * @see CommentRepository#getStarAvgByPlaceId(Integer) 가게 댓글 평점을 조회하는 메서드
+     * @see CommentRepository#getStarAvgByPlaceId(Integer) 가게 댓글 평점을 계산하는 메서드
      * @return Double 가게 댓글 평점
      **/
-    @Transactional
     public Double getStarAvgByPlaceId(@Param("id") Integer placeId) throws Exception {
         return commentRepository.getStarAvgByPlaceId(placeId);
     }
@@ -212,7 +204,6 @@ public class CommentService {
      * @param placeId 가게 번호
      * @see CommentRepository#cafeReviewRate(Double, Integer) 가게 댓글 평점을 출력하는 메서드
      **/
-    @Transactional
     public void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId){
         commentRepository.cafeReviewRate(reviewRate,placeId);
     }
@@ -222,10 +213,9 @@ public class CommentService {
      * @author 양경빈
      * @param placeId 가게번호
      **/
-    @Transactional
     public void updateStar(Integer placeId)throws Exception{
-       Double avgStar = getStarAvgByPlaceId(placeId);
-       cafeReviewRate(avgStar, placeId);
+        Double avgStar = getStarAvgByPlaceId(placeId);
+        cafeReviewRate(avgStar, placeId);
     }
 
     /**
@@ -233,7 +223,20 @@ public class CommentService {
      * @author 양경빈
      * @return List<placeCommentResponseDto>
      **/
+    @Transactional(readOnly = true)
     public List<placeCommentResponseDto>recentCommentTop5(){
         return commentRepository.findTop5ByOrderByCreatedTimeDesc();
+    }
+
+    /**
+     * redis에 댓글의 평점을 update
+     * @author 양경빈
+     * @param placeId 가게 번호 , reviewPoint 댓글 평점
+     **/
+    private void updateCommentRating(Integer placeId,Double reviewPoint){
+        ZSetOperations<String,String>zSetOperations = redisTemplate.opsForZSet();
+
+        String placeIdr = String.valueOf(placeId);
+        zSetOperations.add(CacheKey.COMMENT_RATING_KEY,placeIdr,reviewPoint);
     }
 }

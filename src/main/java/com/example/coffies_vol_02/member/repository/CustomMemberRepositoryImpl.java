@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 
 @Repository
 public class CustomMemberRepositoryImpl implements CustomMemberRepository{
+
     private final JPAQueryFactory jpaQueryFactory;
 
     public CustomMemberRepositoryImpl(EntityManager em){

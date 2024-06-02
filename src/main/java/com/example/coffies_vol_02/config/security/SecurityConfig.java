@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -96,6 +97,7 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/board/detail/{id}").hasAnyRole("ADMIN,USER")
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest()
                 .authenticated();

@@ -9,6 +9,7 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInt
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.redis.CacheKey;
+import com.example.coffies_vol_02.config.redis.RedissonService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -17,8 +18,6 @@ import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandle
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +30,7 @@ import java.util.Optional;
 
 @Log4j2
 @Service
+@Transactional
 @AllArgsConstructor
 public class BoardService {
 
@@ -42,6 +42,8 @@ public class BoardService {
 
     private final AttachService attachService;
 
+    private final RedissonService redissonService;
+
     /**
      * 게시글 목록
      * @author 양경빈
@@ -49,7 +51,7 @@ public class BoardService {
      * @return Page<BoardResponse> 게시물 목록
      **/
     @Transactional(readOnly = true)
-    public Page<BoardResponse> boardAllList(Pageable pageable){
+    public Page<BoardResponse> listFreeBoard(Pageable pageable){
         return boardRepository.boardList(pageable);
     }
 
@@ -61,33 +63,29 @@ public class BoardService {
      * @return Page<BoardResponse> 게시물 목록
      **/
     @Transactional(readOnly = true)
-    public Page<BoardResponse> boardSearchAll(SearchType searchType, String searchVal, Pageable pageable){
+    public Page<BoardResponse>searchFreeBoard(SearchType searchType, String searchVal, Pageable pageable){
         return boardRepository.findAllSearch(searchType,searchVal,pageable);
     }
 
     /**
      * 게시물 단일 조회
+     * 게시글 조회수를 Redisson 을 활용해서 조회수 동시성 제어
      * @author 양경빈
      * @param boardId 게시물 번호
      * @return BoardResponse
      **/
-    @Cacheable(value = CacheKey.BOARD,key = "#boardId",unless = "#result == null",cacheManager = "redisCacheManager")
-    @Transactional(readOnly = true)
-    public BoardResponse findBoard(Integer boardId){
-        return Optional.ofNullable(boardRepository
-                .boardDetail(boardId))
-                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+    public BoardResponse findFreeBoard(Integer boardId){
+        String key = CacheKey.BOARD + ":" + boardId;
+        return redissonService.boardDetailReadCountUp(key,boardId);
     }
 
     /**
      * 게시글 이전글
-     *
      * @param boardId 게시글 번호
      * @return BoardNextPreviousInterface 타입은 인터페이스
      * @author 양경빈
      * @see BoardRepository#findPreviousNextBoard(Integer)   게시글조회 페이지에서 다음글을 조회하는 메서드
      **/
-    @Transactional
     public List<BoardNextPreviousInterface>boardNextPrevious(Integer boardId){
         return boardRepository.findPreviousNextBoard(boardId);
     }
@@ -102,8 +100,7 @@ public class BoardService {
      * @see BoardRepository#save(Object) 게시물 저장
      * @return InsertResult 생성된 게시물 번호
      **/
-    @Transactional
-    public Integer boardCreate(BoardRequest requestDto,List<MultipartFile>files, Member member) throws Exception {
+    public Integer createFreeBoard(BoardRequest requestDto,List<MultipartFile>files, Member member) throws Exception {
         
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -121,23 +118,29 @@ public class BoardService {
                 .build();
 
         //게시글 저장
-        Integer InsertResult = boardRepository.save(board).getId();
+        Integer insertResult = boardRepository.save(board).getId();
 
         //파일  업로드
-        List<Attach>filelist = fileHandler.parseFileInfo(files);
-        
-        //파일이 없는 경우
-        if(filelist == null || filelist.size() == 0){
-            return InsertResult;
-        }
-        //첨부 파일이 있는 경우 첨부파일 저장
-        if(!filelist.isEmpty()){
-            for(Attach attachFile : filelist){
-                board.addAttach(attachRepository.save(attachFile));
+        if (files != null && !files.isEmpty()) {
+            List<Attach> attachFiles = fileHandler.parseFileInfo(files);
+            for (Attach attachFile : attachFiles) {
+                board.addAttach(attachFile);
             }
         }
-        
-        return InsertResult;
+
+        //파일이 없는 경우
+        //
+        // if(filelist == null || filelist.size() == 0){
+        //    return InsertResult;
+        //}
+        //첨부 파일이 있는 경우 첨부파일 저장
+        //if(!filelist.isEmpty()){
+        //    for(Attach attachFile : filelist){
+        //        board.addAttach(attachRepository.save(attachFile));
+        //    }
+        //}
+
+        return insertResult;
     }
 
     /**
@@ -155,28 +158,24 @@ public class BoardService {
      * @see AttachRepository#save(Object) 첨부파일을 저장하는 메서드
      * @return UpdateResult 수정된 게시글 번호
      **/
-    @Transactional
-    public Integer BoardUpdate(Integer boardId, BoardRequest dto, Member member,List<MultipartFile>files) throws Exception {
-
+    public Integer updateFreeBoard(Integer boardId, BoardRequest dto, Member member,List<MultipartFile>files) throws Exception {
+        //회원이 없는 경우
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
         }
-
+        //게시글 조회
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
         
         Board board = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
-
-        String boardAuthor = board.getBoardAuthor();
-        String userId = member.getUserId();
-
-        if(!boardAuthor.equals(userId)){
+        //아이디와 작성자가 일치하는가 여부
+        if (!board.getMember().equals(member)) {
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
-
+        //게시글 수정(더티 체크)
         board.boardUpdate(dto);
-
-        Integer UpdateResult = board.getId();
+        //게시글 수정값
+        Integer updateResult = board.getId();
 
         List<Attach>filelist = attachRepository.findAttachBoard(boardId);
 
@@ -198,14 +197,13 @@ public class BoardService {
             }
         }else{
             //게시글만 작성하고 파일은 첨부를 하지 않은 경우
-            //업로드
             filelist = fileHandler.parseFileInfo(files);
             //파일 저장
             for(Attach attachFile : filelist){
                 detail.get().addAttach(attachRepository.save(attachFile));
             }
         }
-        return UpdateResult;
+        return updateResult;
     }
 
     /**
@@ -219,9 +217,7 @@ public class BoardService {
      * @see AttachService#boardfilelist(Integer) 자유게시판에 있는 첨부파일 목록을 조회하는 메서드
      * @see AttachRepository#deleteById(Object) 자유게시판에서 첨부파일을 삭제를 할때 사용되는 메서드
      **/
-    @CacheEvict(value = CacheKey.BOARD,key = "#boardId")
-    @Transactional
-    public void BoardDelete(Integer boardId,Member member) throws Exception {
+    public void deleteFreeBoard(Integer boardId,Member member) throws Exception {
 
         if(member==null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -230,22 +226,17 @@ public class BoardService {
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
-        Board  board = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
+        Board board = detail.orElseThrow(()->new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND));
 
-        String boardAuthor = board.getBoardAuthor();
-        String userId = member.getUserId();
-
-        if(!boardAuthor.equals(userId)){
+        if (!board.getMember().equals(member)) {
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
         List<AttachDto>attachlist = attachService.boardfilelist(boardId);
 
         for (AttachDto attachDto : attachlist) {
-
             String filePath = attachDto.getFilePath();
             File file = new File(filePath);
-
             if (file.exists()) file.delete();
         }
 
@@ -263,7 +254,6 @@ public class BoardService {
      * @see BoardRepository#findByPassWdAndId(String, Integer) 게시글 비밀번호 입력화면에서 비밀번호를 확인하는 메서드 비밀번호가 일치하지 않은 경우에는 NOT_MATCH_PASSWORD
      * @return BoardResponse
      **/
-    @Transactional
     public BoardResponse passwordCheck(String passWd,Integer id,Member member){
 
         if(member == null){
@@ -283,7 +273,7 @@ public class BoardService {
      * @return List<BoardResponse>
      **/
     @Transactional(readOnly = true)
-    public List<BoardResponse>recentBoardList(){
+    public List<BoardResponse>findFreeBoardTop5(){
         return boardRepository.findTop5ByOrderByCreatedTimeDesc();
     }
 }

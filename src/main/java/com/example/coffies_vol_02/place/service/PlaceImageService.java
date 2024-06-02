@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class PlaceImageService {
+
     private final PlaceImageRepository placeImageRepository;
 
     /*
@@ -48,12 +50,12 @@ public class PlaceImageService {
 
         return placeImageResponseDto;
     }
+
     public void deletePlaceImage(Integer id)throws Exception{
         List<PlaceImage>list = placeImageRepository.findPlaceImagePlace(id);
-        for(PlaceImage image: list){
-            placeImageRepository.delete(image);
-        }
+        placeImageRepository.deleteAll(list);
     }
+
     private List<PlaceImageResponseDto>getPlaceImage(List<PlaceImage>placeImageList){
         List<PlaceImageResponseDto>result = new ArrayList<>();
 

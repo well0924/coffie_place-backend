@@ -11,8 +11,6 @@ import com.example.coffies_vol_02.like.domain.Like;
 import com.example.coffies_vol_02.like.repository.CommentLikeRepository;
 import com.example.coffies_vol_02.like.repository.LikeRepository;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.place.domain.Place;
-import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +32,25 @@ public class LikeService {
     public static final String LikeCancel ="좋아요 취소";
 
     private final CommentRepository commentRepository;
-
+    
+    /**
+     * 게시글 좋아요 중복 확인
+     * @author 양경빈
+     * @param board 게시글 객체
+     * @param member 회원 객체
+     **/
     @Transactional
     public boolean hasLikeBoard(Board board, Member member){
         return likeRepository.findByMemberAndBoard(member,board).isPresent();
     }
 
-    public String createBoardLike(Integer boardId,Member member){
+    /**
+     * 게시글 좋아요 추가
+     * @author 양경빈
+     * @param boardId 게시글 번호
+     * @param member 회원 객체
+     **/
+    public String boardLikePlus(Integer boardId,Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         //좋아요 중복체크를 거친 뒤에 중복되지 않으면 카운트,
@@ -50,7 +60,7 @@ public class LikeService {
         return LikeSuccess;
     }
 
-    public String cancelLike(Integer boardId, Member member){
+    public String boardLikeMinus(Integer boardId, Member member){
         Optional<Board>detail = Optional.ofNullable(boardRepository.findById(boardId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND)));
 
         Optional<Like> like = Optional.ofNullable(likeRepository.findByMemberAndBoard(member, detail.orElseThrow()).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));

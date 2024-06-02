@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
+import com.example.coffies_vol_02.commnet.domain.QComment;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.like.domain.QLike;
 import com.example.coffies_vol_02.member.domain.QMember;
@@ -26,10 +27,23 @@ import java.util.function.Supplier;
 
 @Log4j2
 public class CustomBoardRepositoryImpl implements CustomBoardRepository{
+
     private final JPAQueryFactory jpaQueryFactory;
+
+    private final QMember qMember;
+
+    private final QBoard qBoard;
+
+    private final QLike qLike;
+
+    private final QComment qComment;
 
     public CustomBoardRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
+        this.qBoard = QBoard.board;
+        this.qMember = QMember.member;
+        this.qComment = QComment.comment;
+        this.qLike = QLike.like;
     }
 
     /**
@@ -41,10 +55,11 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     @Override
     public Page<BoardResponse> boardList(Pageable pageable) {
 
-        List<BoardResponse>boardList = jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class,QBoard.board))
-                .from(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
+        List<BoardResponse>boardList;
+        boardList = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class,qBoard))
+                .from(qBoard)
+                .join(QBoard.board.member,qMember).fetchJoin()
                 .groupBy(QBoard.board.id)
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize())
@@ -53,7 +68,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                 .fetch();
 
         int totalCount = jpaQueryFactory
-                .select(QBoard.board.count())
+                .select(QBoard.board.id)
                 .from(QBoard.board)
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize())
@@ -99,9 +114,9 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public BoardResponse boardDetail(int boardId) {
 
         return jpaQueryFactory
-                .select(new QBoardResponse(QBoard.board))
-                .from(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .select(new QBoardResponse(qBoard))
+                .from(qBoard)
+                .join(qBoard.member,qMember).fetchJoin()
                 .where(QBoard.board.id.eq(boardId))
                 .distinct()
                 .fetchOne();
@@ -110,16 +125,16 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     /**
      * 좋아요를 한 게시물목록 조회
      * @author 양경빈
-     * @param useridx 회원 번호
+     * @param userIdx 회원 번호
      * @return List<BoardResponse>result 게시물 목록
      **/
     @Override
-    public Page<BoardResponse> likedBoardDetailList(int useridx,Pageable pageable) {
+    public Page<BoardResponse> likedBoardDetailList(int userIdx,Pageable pageable) {
         List<BoardResponse>result = new ArrayList<>();
 
-        List<Board>like = likeBoard(useridx);
+        List<Board>like = likeBoard(userIdx);
 
-        int count = likeBoardCount(useridx);
+        int count = likeBoardCount(userIdx);
 
         for(Board board : like){
             BoardResponse response = new BoardResponse(board);
@@ -136,14 +151,14 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      **/
     private List<Board> boardSearchList(SearchType searchType,String searchVal,Pageable pageable){
         return jpaQueryFactory
-                .select(QBoard.board)
-                .from(QBoard.board)
-                .join(QBoard.board.member,QMember.member).fetchJoin()
+                .select(qBoard)
+                .from(qBoard)
+                .join(qBoard.member,qMember).fetchJoin()
                 .where(switch (searchType){
                     case t -> boardTitleEq(searchVal);
                     case c -> boardContentsEq(searchVal);
                     case w -> boardAuthorEq(searchVal);
-                    case i, e, n, a, p -> null;
+                    case i, e, n, a, p -> throw new IllegalStateException("Unexpected value: " + searchType);
                     case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
                 })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
@@ -167,7 +182,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                     case t -> boardTitleEq(searchVal);
                     case c -> boardContentsEq(searchVal);
                     case w -> boardAuthorEq(searchVal);
-                    case i, a, p, n, e -> null;
+                    case i, a, p, n, e -> throw new IllegalStateException("Unexpected value: " + searchType);
                     case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
                 })
                 .orderBy(getAllOrderSpecifiers(pageable.getSort())
@@ -179,22 +194,22 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     }
     
     //좋아요를 한 게시글 목록
-    private List<Board>likeBoard(int useridx){
-        return jpaQueryFactory.select(QBoard.board)
-                .from(QBoard.board)
-                .innerJoin(QLike.like)
-                .on(QBoard.board.id.eq(QLike.like.board.id))
-                .where(QLike.like.member.id.eq(useridx))
+    private List<Board>likeBoard(int userIdx){
+        return jpaQueryFactory.select(qBoard)
+                .from(qBoard)
+                .innerJoin(qLike)
+                .on(qBoard.id.eq(qLike.board.id))
+                .where(qLike.member.id.eq(userIdx))
                 .fetch();
     }
     
     //좋아요를 한 게시글 수
-    private int likeBoardCount(int useridx){
+    private int likeBoardCount(int userIdx){
         return jpaQueryFactory.select(QBoard.board)
                 .from(QBoard.board)
                 .innerJoin(QLike.like)
                 .on(QBoard.board.id.eq(QLike.like.board.id))
-                .where(QLike.like.member.id.eq(useridx))
+                .where(QLike.like.member.id.eq(userIdx))
                 .fetch()
                 .size();
     }

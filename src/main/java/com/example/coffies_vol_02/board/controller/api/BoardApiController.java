@@ -18,12 +18,14 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -40,15 +41,16 @@ import java.util.List;
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
 public class BoardApiController {
+
     private final BoardService boardService;
 
-    @Operation(summary = "게시글 목록", description = "자유게시판에서 목록을 조회하는 컨트롤러", responses = {
+    @Operation(summary = "자유 게시글 목록", description = "자유게시판에서 목록을 조회하는 컨트롤러", responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
-    @GetMapping(path = "/list")
-    public CommonResponse<?>boardList(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+    @GetMapping(path = "/")
+    public CommonResponse<?>listFreeBoard(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
-        Page<BoardResponse> list = boardService.boardAllList(pageable);
+        Page<BoardResponse> list = boardService.listFreeBoard(pageable);
         //게시글이 없는 경우
         if(list.isEmpty()){
             throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND);
@@ -56,143 +58,112 @@ public class BoardApiController {
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "게시글 검색", description = "자유게시판에서 게시물을 검색하는 컨트롤러", responses = {
+    @Operation(summary = "자유 게시글 검색", description = "자유게시판에서 게시물을 검색하는 컨트롤러", responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
-    @GetMapping(path = "/search")
-    public CommonResponse<?>boardSearch(
+    @GetMapping(path = "/search",params = {"id","searchType","searchVal"})
+    public CommonResponse<?>searchFreeBoardList(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
             @Parameter(description = "게시물 검색 타입",in = ParameterIn.QUERY)
             @RequestParam(value = "searchType",required = false) String searchType,
             @Parameter(description = "게시글에 사용되는 검색어",in=ParameterIn.QUERY)
             @RequestParam(value = "searchVal",required = false) String searchVal){
 
-        Page<BoardResponse> list = null;
         //검색어가 없는 경우
-        if(searchVal==null||searchVal.equals("")||searchType==null||searchType.equals("")){
-            return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+        if (StringUtils.isBlank(searchType) || StringUtils.isBlank(searchVal)) {
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
         }
 
-        try {
-            list = boardService.boardSearchAll(SearchType.valueOf(searchType),searchVal,pageable);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+        Page<BoardResponse> list = boardService.searchFreeBoard(SearchType.valueOf(searchType),searchVal,pageable);
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
-    @Operation(summary = "게시글 단일 조회", description = "자유게시판에서 게시글을 단일 조회하는 컨트롤러",responses = {
+    @Operation(summary = "자유 게시글 단일 조회", description = "자유게시판에서 게시글을 단일 조회하는 컨트롤러",responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
-    @GetMapping(path = "/detail/{board-id}")
-    public CommonResponse<?>findBoard(@Parameter(description = "게시글 단일조회에 필요한 게시글 번호",required = true,in = ParameterIn.PATH)
+    @Secured({"ROLE_ADMIN","ROLE_USER"})
+    @GetMapping(path = "/{board-id}")
+    public CommonResponse<?>findFreeBoardById(@Parameter(description = "게시글 단일조회에 필요한 게시글 번호",required = true,in = ParameterIn.PATH)
                                       @PathVariable("board-id") Integer boardId){
-        BoardResponse detail = boardService.findBoard(boardId);
+
+        BoardResponse detail = boardService.findFreeBoard(boardId);
+
         if(detail == null){
             throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND);
         }
+
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
     @Operation(summary = "게시글 작성", description = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.",responses = {
             @ApiResponse(responseCode = "201",description = "게시글이 정상적으로 작성이 되는 경우",content = @Content(mediaType = "MULTIPART_FORM_DATA_VALUE"))
     })
-    @PostMapping(path="/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path="/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>boardWrite(   @RequestBody(description = "자유게시판 요청 dto",required = true)
+    public CommonResponse<Integer>createFreeBoard(@RequestBody(description = "자유게시판 요청 dto",required = true)
                                                 @Valid @RequestPart(value = "boardDto") BoardRequest dto,
-                                                @Parameter(name = "files",description = "자유게시판 첨부파일",required = false)
+                                                @Parameter(name = "files",description = "자유게시판 첨부파일")
                                                 @RequestPart(value = "files") List<MultipartFile> files,
                                                 BindingResult bindingResult,
-                                                @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        Integer WriteResult = 0;
+                                                @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
 
-        try {
-            WriteResult = boardService.boardCreate(dto,files,customUserDetails.getMember());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        Integer writeResult = boardService.createFreeBoard(dto,files,customUserDetails.getMember());
 
-        if(HttpStatus.OK.is2xxSuccessful()){
-            return new CommonResponse<>(HttpStatus.OK.value(),WriteResult);
-        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
+        if (writeResult > 0) {
+            return new CommonResponse<>(HttpStatus.CREATED.value(), writeResult);
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "글작성에 실패했습니다.");
-        }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
         }
     }
 
     @Operation(summary = "게시글 수정", description = "자유게시판 화면에서 게시글을 수정하는 컨트롤러",responses = {
             @ApiResponse(responseCode = "201",description = "게시글을 정상적으로 수정을 하는 경우",content = @Content(mediaType = "MULTIPART_FORM_DATA_VALUE"))
     })
-    @PutMapping(path = "/update/{board-id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>boardUpdate(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
+    @PutMapping(path = "/{board-id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public CommonResponse<Integer>updateFreeBoard(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
                                               @PathVariable("board-id") Integer boardId,
                                               @RequestBody(description = "자유게시판 요청 dto",required = true)
                                               @RequestPart(value = "updateDto") BoardRequest dto,
-                                              @Parameter(name = "files",description = "자유게시판 첨부파일",required = false)
+                                              @Parameter(name = "files",description = "자유게시판 첨부파일")
                                               @RequestPart(value = "files")List<MultipartFile>files,
-                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        Integer UpdateResult = 0;
+                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
 
-        try{
-            UpdateResult = boardService.BoardUpdate(boardId,dto,customUserDetails.getMember(),files);
-        }catch (Exception  e){
-            e.printStackTrace();
-        }
-        
-        if(HttpStatus.OK.is2xxSuccessful()){
-            return new CommonResponse<>(HttpStatus.OK.value(),UpdateResult);
-        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
+        Integer updateResult = boardService.updateFreeBoard(boardId,dto,customUserDetails.getMember(),files);
+
+        if (updateResult > 0) {
+            return new CommonResponse<>(HttpStatus.OK.value(), updateResult);
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "글수정에 실패했습니다.");
-        }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
         }
     }
 
     @Operation(summary = "게시글 삭제", description = "자유게시판에서 게시글을 삭제",responses = {
             @ApiResponse(responseCode = "204",description = "게시글을 정상적으로 삭제하는 경우")
     })
-    @DeleteMapping(path = "/delete/{board-id}")
-    public CommonResponse<?>boardDelete(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
+    @DeleteMapping(path = "/{board-id}")
+    public CommonResponse<?>deleteFreeBoard(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
                                         @PathVariable("board-id")Integer boardId,
-                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
 
-        try {
-            boardService.BoardDelete(boardId,customUserDetails.getMember());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        
-        if(HttpStatus.OK.is2xxSuccessful()){
-            return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
-        }
-        else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "글삭제에 실패했습니다.");
-        }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
-        }
+        boardService.deleteFreeBoard(boardId,customUserDetails.getMember());
+
+        return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
 
     @Operation(summary = "자유게시판 비밀번호 입력",description = "자유게시글에서 비밀번호입력 화면에서 비밀번호가 있는 경우에는 비밀번호를 입력해서 게시글을 조회하는 컨트롤러",responses = {
             @ApiResponse(responseCode = "201",description = "비밀번호를 정상적으로 입력을 하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class))),
             @ApiResponse(responseCode = "400",description = "비밀번호를 올바르게 입력하지 않은 경우")
     })
-    @GetMapping(path = "/password/{board-id}/{password}")
-    public CommonResponse<BoardResponse>passwordCheck(@Parameter(description = "게시글 번호",required = true,in=ParameterIn.PATH)
+    @GetMapping(path = "/{board-id}/{password}")
+    public CommonResponse<BoardResponse>passwordCheckFreeBoard(@Parameter(description = "게시글 번호",required = true,in=ParameterIn.PATH)
                                                       @PathVariable("board-id")Integer boardId,
                                                       @Parameter(description = "게시글 비밀번호",required = true,in = ParameterIn.PATH)
                                                       @PathVariable("password") String password,
                                                       @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        BoardResponse result = null;
 
-        try{
-            result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        BoardResponse result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
+
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
@@ -201,15 +172,10 @@ public class BoardApiController {
     })
     @GetMapping("/recent-board")
     @ResponseStatus(HttpStatus.OK)
-    public CommonResponse<List<BoardResponse>>recentBoardList(){
+    public CommonResponse<List<BoardResponse>>recentFreeBoardList(){
 
-        List<BoardResponse>result = new ArrayList<>();
+        List<BoardResponse>result = boardService.findFreeBoardTop5();
 
-        try{
-            result = boardService.recentBoardList();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return new CommonResponse(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 }

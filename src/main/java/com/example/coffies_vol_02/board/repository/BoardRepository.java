@@ -18,7 +18,7 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     /**
      * 비밀 번호 확인
      **/
-    @Query("select b from Board b where b.id=:id and b.passWd= :passWd")
+    @Query(value = "select b from Board b where b.id=:id and b.passWd= :passWd")
     BoardResponse findByPassWdAndId(@Param("passWd") String password, @Param("id") Integer id);
 
     /**
@@ -29,7 +29,7 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     /**
      * 게시글 조회수 확인
      **/
-    @Query("select b.readCount from Board b where b.id = :id")
+    @Query(value = "select b.readCount from Board b where b.id = :id")
     Integer ReadCount(@Param("id") Integer id);
 
     /**
@@ -37,8 +37,8 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
      **/
     @Transactional
     @Modifying
-    @Query("update Board b set b.readCount = :readCount where b.id = :id")
-    void ReadCountUpToDB(@Param("id")Integer id, @Param("readCount")Integer readCount);
+    @Query(value="update Board b set b.readCount = b.readCount+1 where b.id = :id")
+    void ReadCountUpToDB(@Param("id")Integer id);
 
     /**
      * 게시글 이전글 다음글

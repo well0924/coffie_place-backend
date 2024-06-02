@@ -28,7 +28,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @RequestMapping("/page/place")
 public class PlaceViewController {
+
     private final PlaceService placeService;
+
     private final PlaceImageService placeImageService;
 
     @GetMapping("/list")
@@ -46,7 +48,7 @@ public class PlaceViewController {
         try {
 
             //가게 목록
-            list = placeService.placeSlideList(pageable,keyword,customUserDetails.getMember());
+            list = placeService.listCafePlace(pageable,keyword,customUserDetails.getMember());
             //가게 검색어 저장 목록
             keywords = placeService.placeSearchList(customUserDetails.getMember());
             log.info("검색어:::"+keywords);
@@ -57,7 +59,7 @@ public class PlaceViewController {
             log.info(searchType);
 
             if(keyword != null){
-                list = placeService.placeListAll(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
+                list = placeService.searchCafePlace(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +84,7 @@ public class PlaceViewController {
         List<PlaceImageResponseDto> imageResponseDtoList = new ArrayList<>();
 
         try {
-            detail = placeService.placeDetail(placeId);
+            detail = placeService.findCafePlaceById(placeId);
             imageResponseDtoList = placeImageService.placeImageResponseDtoList(placeId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,7 +121,7 @@ public class PlaceViewController {
         List<PlaceImageResponseDto>placeImages = new ArrayList<>();
 
         try {
-            detail = placeService.placeDetail(placeId);
+            detail = placeService.findCafePlaceById(placeId);
             placeImages = placeImageService.placeImageResponseDtoList(placeId);
         } catch (Exception e) {
             e.printStackTrace();
