@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.Factory;
+package com.example.coffies_vol_02.factory;
 
 import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -6,7 +6,6 @@ import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class MemberFactory {
     public static Member memberDto(){

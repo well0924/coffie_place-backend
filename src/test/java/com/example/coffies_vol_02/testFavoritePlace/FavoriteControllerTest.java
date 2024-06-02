@@ -1,9 +1,9 @@
-package com.example.coffies_vol_02.TestFavoritePlace;
+package com.example.coffies_vol_02.testFavoritePlace;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.CommentFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.PlaceFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.CommentFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
@@ -46,6 +46,7 @@ public class FavoriteControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private WebApplicationContext context;
 
@@ -86,13 +87,19 @@ public class FavoriteControllerTest {
     @Test
     @DisplayName("내가 작성한 글 페이지")
     public void myContentPage()throws Exception{
+
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
+
         List<BoardResponse> list = new ArrayList<>();
+
         list.add(boardResponseDto);
+
         Page<BoardResponse> result = new PageImpl<>(list,pageable,1);
+
         given(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).willReturn(result);
 
         when(favoritePlaceService.getMyPageBoardList(pageable, member.getUserId())).thenReturn(result);
+
         mvc.perform(get("/page/mypage/contents/{id}",member.getUserId())
                 .with(user(customUserDetails))
                 .contentType(MediaType.TEXT_HTML)
@@ -106,8 +113,11 @@ public class FavoriteControllerTest {
     @Test
     @DisplayName("내가 작성한 댓글 페이지")
     public void myCommentPage()throws Exception{
+
         Pageable pageable = PageRequest.of(0,5, Sort.by("id").descending());
+
         List<placeCommentResponseDto> list = new ArrayList<>();
+
         list.add(responseDto);
 
         given(favoritePlaceService.getMyPageCommnetList(member.getUserId(),pageable)).willReturn(list);

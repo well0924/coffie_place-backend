@@ -1,8 +1,8 @@
 package com.example.coffies_vol_02.TestNotice;
 
-import com.example.coffies_vol_02.Factory.FileFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.NoticeFactory;
+import com.example.coffies_vol_02.factory.FileFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.NoticeFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;

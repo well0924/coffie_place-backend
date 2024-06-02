@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -252,7 +252,7 @@ public class MemberApiControllerTest {
 
     @Test
     @DisplayName("회원선택삭제기능")
-    public void memberSelecteDelete() throws Exception {
+    public void memberSelectDelete() throws Exception {
         //given
         List<String> userid = new ArrayList<>();
         userid.add(member.getUserId());

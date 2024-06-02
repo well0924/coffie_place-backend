@@ -1,15 +1,14 @@
 package com.example.coffies_vol_02.TestMain;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.NoticeFactory;
-import com.example.coffies_vol_02.Factory.PlaceFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.NoticeFactory;
+import com.example.coffies_vol_02.factory.PlaceFactory;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -20,11 +19,9 @@ import com.example.coffies_vol_02.notice.service.NoticeService;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
-import com.example.coffies_vol_02.place.service.PlaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,7 +36,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,28 +52,44 @@ public class MainPageTest {
 
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private MockMvc mvc;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private NoticeBoardRepository noticeBoardRepository;
+
     @Mock
     private PlaceRepository placeRepository;
+
     @MockBean
     private BoardService boardService;
+
     @MockBean
     private NoticeService noticeService;
+
     private Member member;
+
     private Board board;
+
     private NoticeBoard noticeBoard;
+
     private Place place;
+
     private PlaceImage placeImage;
+
     BoardResponse boardResponseDto;
+
     NoticeResponse responseDto;
+
     private CustomUserDetails customUserDetails;
+
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
     @BeforeEach
@@ -108,8 +120,8 @@ public class MainPageTest {
         boardList.add(boardResponseDto);
         noticeList.add(responseDto);
 
-        Page<BoardResponse>boardResponses = boardService.boardAllList(pageRequest);
-        Page<NoticeResponse>response =  noticeService.noticeAllList(pageRequest);
+        Page<BoardResponse>boardResponses = boardService.listFreeBoard(pageRequest);
+        Page<NoticeResponse>response =  noticeService.listNoticeBoard(pageRequest);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.boardList(pageRequest)).willReturn(boardResponses);

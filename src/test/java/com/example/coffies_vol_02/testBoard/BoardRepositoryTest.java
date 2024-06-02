@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestBoard;
+package com.example.coffies_vol_02.testBoard;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({TestQueryDslConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class BoardRepositoryTest {
+
     @Autowired
     private BoardRepository boardRepository;
 
@@ -85,23 +86,6 @@ public class BoardRepositoryTest {
         //Optional<BoardNextPreviousInterface> previousBoard = boardRepository.findPreviousBoard(board.getCreatedTime());
         //System.out.println(previousBoard.get().getId());
     }
-    @Test
-    @DisplayName("게시글 이전글 번호 테스트-실패")
-    public void BoardPrevTestFail(){
-
-    }
-
-    @Test
-    @DisplayName("게시글 다음글 번호 테스트")
-    public void BoardNextTest(){
-
-    }
-
-    @Test
-    @DisplayName("게시글 다음글 번호 테스트 실패")
-    public void BoardNextTestFail(){
-
-    }
 
     @Test
     @DisplayName("회원이 좋아요 한 게시글(단일) 확인하기.->쿼리 테스트")
@@ -127,6 +111,7 @@ public class BoardRepositoryTest {
     }
 
     @Test
+    @DisplayName("자유 게시글 이전글/다음글")
     public void test(){
         List<BoardNextPreviousInterface>result = boardRepository.findPreviousNextBoard(15);
         System.out.println(result.get(0).getBoardTitle());

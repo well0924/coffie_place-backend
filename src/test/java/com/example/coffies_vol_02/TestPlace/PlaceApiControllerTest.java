@@ -1,7 +1,7 @@
 package com.example.coffies_vol_02.TestPlace;
 
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.PlaceFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.PlaceFactory;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.redis.RedisService;
@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;

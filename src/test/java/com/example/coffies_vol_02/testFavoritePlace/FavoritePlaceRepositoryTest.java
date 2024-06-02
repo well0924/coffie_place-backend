@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestFavoritePlace;
+package com.example.coffies_vol_02.testFavoritePlace;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;

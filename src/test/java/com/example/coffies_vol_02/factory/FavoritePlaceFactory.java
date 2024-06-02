@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.Factory;
+package com.example.coffies_vol_02.factory;
 
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;

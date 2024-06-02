@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.TestMember;
 
-import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
@@ -21,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 

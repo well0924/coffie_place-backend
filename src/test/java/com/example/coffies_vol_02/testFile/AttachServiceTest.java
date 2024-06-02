@@ -1,16 +1,15 @@
-package com.example.coffies_vol_02.TestFile;
+package com.example.coffies_vol_02.testFile;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.FileFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.NoticeFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.FileFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.NoticeFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
 import com.example.coffies_vol_02.attach.service.AttachService;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.member.domain.Member;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 

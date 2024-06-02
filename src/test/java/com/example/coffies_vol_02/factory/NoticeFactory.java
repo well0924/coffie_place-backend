@@ -1,6 +1,5 @@
-package com.example.coffies_vol_02.Factory;
+package com.example.coffies_vol_02.factory;
 
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.request.NoticeRequest;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;

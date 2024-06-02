@@ -1,8 +1,8 @@
-package com.example.coffies_vol_02.TestBoard;
+package com.example.coffies_vol_02.testBoard;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.FileFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.FileFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -67,9 +67,13 @@ public class BoardServiceTest {
     private FileHandler fileHandler;
 
     Member member;
+
     MemberResponse memberResponse;
+
     Board board;
+
     SearchType searchType;
+
     BoardRequest boardRequestDto;
 
     BoardResponse boardResponseDto;
@@ -108,7 +112,7 @@ public class BoardServiceTest {
         given(boardRepository.boardList(pageRequest)).willReturn(Page.empty());
 
         //when
-        Page<BoardResponse>result = boardService.boardAllList(pageRequest);
+        Page<BoardResponse>result = boardService.listFreeBoard(pageRequest);
 
         //then
         assertThat(result).isEmpty();
@@ -120,8 +124,7 @@ public class BoardServiceTest {
         //given
         given(boardRepository.boardDetail(board.getId())).willReturn(boardResponseDto);
         //when
-        BoardResponse result = boardService.findBoard(board.getId());
-        System.out.println(result);
+        BoardResponse result = boardService.findFreeBoard(board.getId());
         //then
         assertThat(result.boardAuthor()).isEqualTo(board.getBoardAuthor());
     }
@@ -130,7 +133,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 단일 조회실패")
     public void boardDetailFail(){
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()->{
-            BoardResponse result = boardService.findBoard(0);
+            BoardResponse result = boardService.findFreeBoard(0);
         });
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.BOARD_NOT_FOUND);
@@ -149,8 +152,8 @@ public class BoardServiceTest {
         String keyword = "well4149";
         given(boardRepository.findAllSearch(searchType,keyword,pageRequest)).willReturn(result);
 
-        when(boardService.boardSearchAll(searchType,keyword,pageRequest)).thenReturn(result);
-        result = boardService.boardSearchAll(searchType,keyword,pageRequest);
+        when(boardService.searchFreeBoard(searchType,keyword,pageRequest)).thenReturn(result);
+        result = boardService.searchFreeBoard(searchType,keyword,pageRequest);
 
         assertThat(keyword).isEqualTo(result.stream().toList().get(0).boardAuthor());
     }
@@ -164,7 +167,7 @@ public class BoardServiceTest {
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
         given(attachRepository.save(attach)).willReturn(attach);
 
-        boardService.boardCreate(boardRequestDto,files,member);
+        boardService.createFreeBoard(boardRequestDto,files,member);
 
         verify(boardRepository).save(any());
         verify(fileHandler,times(2)).parseFileInfo(any());
@@ -175,11 +178,14 @@ public class BoardServiceTest {
     public void boardJustWrite() throws Exception {
         //given
         init();
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(boardRepository.save(any())).willReturn(board);
+
         files.isEmpty();
 
-        boardService.boardCreate(boardRequestDto,files,member);
+        boardService.createFreeBoard(boardRequestDto,files,member);
 
         verify(boardRepository).save(any());
     }
@@ -187,10 +193,11 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 작성-실패(로그인 안한 경우)")
     public void boardWriteFail1(){
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
         CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,
-                ()-> boardService.boardCreate(boardRequestDto,files,null));
+                ()-> boardService.createFreeBoard(boardRequestDto,files,null));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -201,13 +208,18 @@ public class BoardServiceTest {
         board = BoardFactory.board();
 
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
         attachService.boardfilelist(board.getId());
-        boardService.BoardDelete(board.getId(),member);
+
+        boardService.deleteFreeBoard(board.getId(),member);
 
         verify(boardRepository).deleteById(any());
         verify(fileHandler,times(1)).parseFileInfo(any());
@@ -217,24 +229,28 @@ public class BoardServiceTest {
     @DisplayName("게시글 삭제 실패- 로그인을 안한경우")
     public void boardDeleteFail2() throws Exception {
         init();
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardDelete(board.getId(),null));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.deleteFreeBoard(board.getId(),null));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
     @Test
     @DisplayName("게시글 삭제- 작성자의 이름이 다른경우")
     public void boardDeleteFail3(){
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         String differentBoardAuthor = "bbbb";
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardDelete(board.getId(),member));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.deleteFreeBoard(board.getId(),member));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -245,15 +261,21 @@ public class BoardServiceTest {
         //given
         init();
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
+
         files.add(updateFile);
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
         //when
-        boardService.BoardUpdate(board.getId(),boardRequestDto,member,files);
+        boardService.updateFreeBoard(board.getId(),boardRequestDto,member,files);
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
@@ -261,11 +283,14 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 수정실패 - 로그인을 하지 않은 경우")
     public void boardUpdateFail1() throws Exception {
+
         init();
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto,null,files));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.updateFreeBoard(board.getId(),boardRequestDto,null,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.ONLY_USER);
     }
@@ -273,14 +298,16 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 수정 - 작성자가 다른 경우")
     public void boardUpdateFail2(){
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         String differentBoardAuthor = "bbbb";
 
         member.setUserId(differentBoardAuthor);
 
-        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.BoardUpdate(board.getId(),boardRequestDto,member,files));
+        CustomExceptionHandler customExceptionHandler = assertThrows(CustomExceptionHandler.class,()-> boardService.updateFreeBoard(board.getId(),boardRequestDto,member,files));
 
         assertThat(customExceptionHandler.getErrorCode()).isEqualTo(ERRORCODE.NOT_AUTH);
     }
@@ -290,10 +317,12 @@ public class BoardServiceTest {
     public void passwordCheckTest(){
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(boardRepository.findByPassWdAndId(board.getPassWd(),board.getId())).willReturn(boardResponseDto);
         
         //when
         when(boardService.passwordCheck(board.getPassWd(),board.getId(),member)).thenReturn(boardResponseDto);
+
         BoardResponse result = boardService.passwordCheck(board.getPassWd(),board.getId(),member);
         
         //then
@@ -305,6 +334,7 @@ public class BoardServiceTest {
     public void passwordCheckTestFail1(){
         //given
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+
         given(boardRepository.findByPassWdAndId(board.getPassWd(),board.getId())).willReturn(boardResponseDto);
 
         //when
@@ -319,6 +349,7 @@ public class BoardServiceTest {
     public void passwordCheckTestFail2(){
         //given
         String wrongPassword = "wqve1234";
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
 
         //when

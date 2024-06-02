@@ -1,8 +1,8 @@
-package com.example.coffies_vol_02.TestBoard;
+package com.example.coffies_vol_02.testBoard;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.FileFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.FileFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -46,28 +46,44 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class BoardControllerTest {
+
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private MockMvc mvc;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private AttachRepository attachRepository;
+
     @MockBean
     private AttachService attachService;
+
     @MockBean
     private BoardService boardService;
+
     Member member;
+
     Board board;
+
     Attach attach;
+
     BoardRequest boardRequestDto;
+
     BoardResponse boardResponseDto;
+
     List<AttachDto>detailfileList = new ArrayList<>();
+
     List<Attach>filelist = new ArrayList<>();
+
     private CustomUserDetails customUserDetails;
+
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
     @BeforeEach
@@ -91,8 +107,10 @@ public class BoardControllerTest {
     @Test
     @DisplayName("자유게시판 목록화면")
     public void freeBoardListPage()throws Exception{
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(boardService.boardAllList(any(Pageable.class))).willReturn(Page.empty());
+
+        given(boardService.listFreeBoard(any(Pageable.class))).willReturn(Page.empty());
 
         mvc.perform(get("/page/board/list")
                 .with(user(customUserDetails))
@@ -107,12 +125,16 @@ public class BoardControllerTest {
     @Test
     @DisplayName("자유게시판 조회화면")
     public void freeBoardDetailPage()throws Exception{
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
-        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
-        //이전글/다음글
 
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
+        given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
+
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
+        given(boardService.findFreeBoard(board.getId())).willReturn(boardResponseDto);
+
+        //이전글/다음글
         mvc.perform(
                 get("/page/board/detail/{board-id}",board.getId())
                 .with(user(customUserDetails))
@@ -124,9 +146,11 @@ public class BoardControllerTest {
                 .andExpect(view().name("board/detailBoard"))
                 .andDo(print());
     }
+
     @Test
     @DisplayName("자유게시판 작성화면")
     public void freeBoardWritePage()throws Exception{
+
         mvc.perform(get("/page/board/writePage")
                         .with(user(customUserDetails))
                         .contentType(MediaType.TEXT_HTML)
@@ -136,10 +160,12 @@ public class BoardControllerTest {
                 .andExpect(view().name("/board/writeBoard"))
                 .andDo(print());
     }
+
     @Test
     @DisplayName("자유게시판 비밀번호 조회화면")
     public void freeBoardPasswordCheckPage()throws Exception{
-        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
+
+        given(boardService.findFreeBoard(board.getId())).willReturn(boardResponseDto);
 
         mvc.perform(get("/page/board/passwordCheck/{board_id}",board.getId())
                 .with(user(customUserDetails))
@@ -154,10 +180,14 @@ public class BoardControllerTest {
     @Test
     @DisplayName("자유게시판 수정삭제화면")
     public void freeBoardModifyPage()throws Exception{
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
-        given(boardService.findBoard(board.getId())).willReturn(boardResponseDto);
+
+        given(boardService.findFreeBoard(board.getId())).willReturn(boardResponseDto);
 
         mvc.perform(
                         get("/page/board/modify/{board_id}",board.getId())

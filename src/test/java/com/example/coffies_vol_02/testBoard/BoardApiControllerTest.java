@@ -1,8 +1,8 @@
-package com.example.coffies_vol_02.TestBoard;
+package com.example.coffies_vol_02.testBoard;
 
-import com.example.coffies_vol_02.Factory.BoardFactory;
-import com.example.coffies_vol_02.Factory.FileFactory;
-import com.example.coffies_vol_02.Factory.MemberFactory;
+import com.example.coffies_vol_02.factory.BoardFactory;
+import com.example.coffies_vol_02.factory.FileFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
 import com.example.coffies_vol_02.attach.repository.AttachRepository;
@@ -58,6 +58,7 @@ public class BoardApiControllerTest {
 
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -126,9 +127,10 @@ public class BoardApiControllerTest {
         List<BoardResponse>responseDtoList = new ArrayList<>();
         responseDtoList.add(boardResponseDto);
         Page<BoardResponse>list = new PageImpl<>(responseDtoList,pageRequest,1);
+
         given(boardRepository.boardList(pageRequest)).willReturn(list);
 
-        when(boardService.boardAllList(pageRequest)).thenReturn(list);
+        when(boardService.listFreeBoard(pageRequest)).thenReturn(list);
 
         mvc.perform(get("/api/board/list")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -139,7 +141,7 @@ public class BoardApiControllerTest {
                 .andExpect(jsonPath("$.data.content[0].boardTitle").value("test"))
                 .andDo(print());
 
-        verify(boardService,atLeastOnce()).boardAllList(any(Pageable.class));
+        verify(boardService,atLeastOnce()).listFreeBoard(any(Pageable.class));
     }
 
     @Test
@@ -150,7 +152,7 @@ public class BoardApiControllerTest {
         List<BoardResponse>list = new ArrayList<>();
         list.add(boardResponseDto);
         Page<BoardResponse>searchList = new PageImpl<>(list,pageable,1);
-        given(boardService.boardSearchAll(searchType,keyword,pageable)).willReturn(searchList);
+        given(boardService.searchFreeBoard(searchType,keyword,pageable)).willReturn(searchList);
 
         mvc.perform(get("/api/board/search")
                 .param("searchVal",keyword)
@@ -161,7 +163,7 @@ public class BoardApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).boardSearchAll(any(),any(),any());
+        verify(boardService).searchFreeBoard(any(),any(),any());
     }
 
     @Test
@@ -169,7 +171,7 @@ public class BoardApiControllerTest {
     public void boardDetailTest()throws Exception{
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
-        when(boardService.findBoard(board.getId())).thenReturn(boardResponseDto);
+        when(boardService.findFreeBoard(board.getId())).thenReturn(boardResponseDto);
 
         mvc.perform(get("/api/board/detail/{id}",board.getId())
                         .with(user(customUserDetails))
@@ -178,7 +180,7 @@ public class BoardApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).findBoard(board.getId());
+        verify(boardService).findFreeBoard(board.getId());
     }
 
     @Test
@@ -187,7 +189,7 @@ public class BoardApiControllerTest {
         String content= objectMapper.writeValueAsString(boardRequestDto);
         MockMultipartFile file3 = new MockMultipartFile("boardDto", "jsondata", "application/json", content.getBytes(StandardCharsets.UTF_8));
 
-        when(boardService.boardCreate(boardRequestDto,files,customUserDetails.getMember())).thenReturn(board.getId());
+        when(boardService.createFreeBoard(boardRequestDto,files,customUserDetails.getMember())).thenReturn(board.getId());
 
         mvc.perform(multipart("/api/board/write")
                         .file("files",files.get(0).getBytes())
@@ -202,7 +204,7 @@ public class BoardApiControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print());
 
-        verify(boardService).boardCreate(any(),any(),any());
+        verify(boardService).createFreeBoard(any(),any(),any());
     }
 
     @Test
@@ -216,24 +218,30 @@ public class BoardApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).BoardDelete(board.getId(),customUserDetails.getMember());
+        verify(boardService).deleteFreeBoard(board.getId(),customUserDetails.getMember());
     }
 
     @Test
     @DisplayName("자유게시판 수정")
     public void boardUpdateTest()throws Exception{
+
         String content= objectMapper.writeValueAsString(new BoardRequest("update titlte","update contents",member.getUserId(),0,"1234","free_23bk4322"));
+
         MockMultipartFile file3 = new MockMultipartFile("updateDto", "jsondata", "application/json", content.getBytes(StandardCharsets.UTF_8));
 
         files.remove(0);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachBoard(board.getId())).willReturn(filelist);
 
-        when(boardService.BoardUpdate(board.getId(),boardRequestDto,member,files)).thenReturn(board.getId());
+        when(boardService.updateFreeBoard(board.getId(),boardRequestDto,member,files)).thenReturn(board.getId());
 
         mvc.perform(multipart("/api/board/update/{board_id}",board.getId())
                         .file("files",files.get(0).getBytes())
@@ -249,17 +257,21 @@ public class BoardApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(boardService).BoardUpdate(anyInt(),any(),any(),any());
+        verify(boardService).updateFreeBoard(anyInt(),any(),any(),any());
     }
 
     @Test
     @DisplayName("비밀번호 확인")
     public void passwordTest()throws Exception{
+
         given(memberRepository.findById(customUserDetails.getMember().getId())).willReturn(Optional.of(customUserDetails.getMember()));
+
         given(boardRepository.findByPassWdAndId(boardResponseDto.passWd(),boardResponseDto.id())).willReturn(boardResponseDto);
+
         given(boardService.passwordCheck(boardResponseDto.passWd(),boardResponseDto.id(),customUserDetails.getMember())).willReturn(boardResponseDto);
 
         when(boardService.passwordCheck(boardResponseDto.passWd(),boardResponseDto.id(),customUserDetails.getMember())).thenReturn(boardResponseDto);
+
         mvc.perform(get("/api/board/password/{board_id}/{password}",boardResponseDto.id(),boardResponseDto.passWd())
                 .with(user(customUserDetails))
                 .contentType(MediaType.APPLICATION_JSON)

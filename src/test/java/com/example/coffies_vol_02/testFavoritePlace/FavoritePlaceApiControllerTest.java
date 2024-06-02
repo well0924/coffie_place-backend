@@ -1,6 +1,6 @@
-package com.example.coffies_vol_02.TestFavoritePlace;
+package com.example.coffies_vol_02.testFavoritePlace;
 
-import com.example.coffies_vol_02.Factory.*;
+import com.example.coffies_vol_02.factory.*;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
@@ -50,34 +50,55 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class FavoritePlaceApiControllerTest {
+
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private WebApplicationContext context;
+
     @MockBean
     private FavoritePlaceService favoritePlaceService;
+
     @Mock
     private FavoritePlaceRepository favoritePlaceRepository;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private BoardRepository boardRepository;
+
     @Mock
     private CommentRepository commentRepository;
+
     @Mock
     private PlaceRepository placeRepository;
+
     Member member;
+
     Board board;
+
     Place place;
+
     PlaceImage placeImage;
+
     Comment comment;
+
     FavoritePlace favoritePlace;
+
     List<PlaceImage>placeImageList = new ArrayList<>();
+
     MemberResponse memberResponseDto;
+
     BoardResponse boardResponseDto;
+
     placeCommentResponseDto responseDto;
+
     FavoritePlaceResponseDto favoritePlaceResponseDto;
+
     private CustomUserDetails customUserDetails;
+
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
 
