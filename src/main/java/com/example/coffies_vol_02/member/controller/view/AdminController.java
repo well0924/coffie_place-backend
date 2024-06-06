@@ -25,7 +25,9 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/page/admin")
 public class AdminController {
+
     private final MemberService memberService;
+
     private final BoardService boardService;
 
     private final CommentService commentService;
@@ -42,7 +44,7 @@ public class AdminController {
 
         try{
             memberList = memberService.findAll(pageable);
-            boardResponseList = boardService.recentBoardList();
+            boardResponseList = boardService.findFreeBoardTop5();
             commentList = commentService.recentCommentTop5();
 
             if(searchVal!=null){

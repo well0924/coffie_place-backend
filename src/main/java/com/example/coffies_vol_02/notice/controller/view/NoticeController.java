@@ -38,10 +38,10 @@ public class NoticeController {
         Page<NoticeResponse> list = null;
 
         try {
-            list = noticeService.noticeAllList(pageable);
+            list = noticeService.listNoticeBoard(pageable);
             //검색을 하는 경우
             if(searchVal!= null){
-                list = noticeService.noticeSearchAll(searchType,searchVal,pageable);
+                list = noticeService.searchNoticeBoard(searchType,searchVal,pageable);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class NoticeController {
     public ModelAndView noticeDetail(@PathVariable("notice_id") Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponse list = noticeService.findNotice(noticeId);
+        NoticeResponse list = noticeService.findNoticeBoardById(noticeId);
         List<AttachDto> attachList = new ArrayList<>();
 
         try{
@@ -94,7 +94,7 @@ public class NoticeController {
     public ModelAndView noticeModify(@PathVariable("notice_id")Integer noticeId){
         ModelAndView mv = new ModelAndView();
 
-        NoticeResponse list = noticeService.findNotice(noticeId);
+        NoticeResponse list = noticeService.findNoticeBoardById(noticeId);
 
         mv.addObject("detail",list);
         mv.setViewName("/notice/noticemodify");

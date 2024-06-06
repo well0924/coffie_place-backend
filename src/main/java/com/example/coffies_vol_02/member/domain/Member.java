@@ -52,15 +52,17 @@ public class Member extends BaseTime implements Serializable {
 
     @Setter
     private boolean enabled;
-
+    //계정 잠금 여부
     @Setter
     @Column(name = "account_non_locked")
     private Boolean accountNonLocked;
-
+    
+    //로그인 실패 횟수
     @Setter
     @Column(name = "failed_attempt")
     private Integer failedAttempt;
 
+    //잠금된 시간
     @Setter
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
@@ -75,6 +77,8 @@ public class Member extends BaseTime implements Serializable {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    //회원 상태
+    @Setter
     @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
 

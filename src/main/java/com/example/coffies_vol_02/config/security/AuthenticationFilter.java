@@ -1,8 +1,6 @@
 package com.example.coffies_vol_02.config.security;
 
 
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

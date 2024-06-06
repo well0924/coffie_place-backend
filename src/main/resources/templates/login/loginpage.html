@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html
+<html lang="kor"
 xmlns:th="http://www.thymeleaf.org" 
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{layout/leafframe}">
@@ -34,9 +34,20 @@ layout:decorate="~{layout/leafframe}">
 							<button type="submit" class="btn btn-primary">로그인</button>
 							<a th:href="@{/page/login/memberjoin}" class="btn btn-danger">회원가입</a>
 						</div>
+						<!---
 						<div th:if="error">
 							<p id="valid" style="color: red; font-size:12px;">
 								<a th:text="${error}"></a>
+							</p>
+						</div>-->
+						<div th:if="${param.error}">
+							<p id="valid" style="color: red; font-size:12px;">
+								<p th:text="${error}"></p>
+							</p>
+						</div>
+						<div th:if="${param.locked}">
+							<p>
+								<p th:text="${error}"></p>
 							</p>
 						</div>
 					</form>

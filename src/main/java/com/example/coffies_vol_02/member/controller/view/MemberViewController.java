@@ -27,7 +27,9 @@ public class MemberViewController {
     }
 
     @GetMapping("/loginPage")
-    public ModelAndView loginPage(@RequestParam(value="error",required = false)String error,@RequestParam(value="exception",required = false) String exception){
+    public ModelAndView loginPage(@RequestParam(value="error",required = false)String error,
+                                  @RequestParam(value="exception",required = false) String exception){
+
         ModelAndView mv = new ModelAndView();
 
         mv.addObject("error", error);

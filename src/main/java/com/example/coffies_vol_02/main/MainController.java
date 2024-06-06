@@ -44,12 +44,12 @@ public class MainController {
 
         try {
             //평점이 높은 가게 top5
-            top5 =placeService.placeTop5(pageable);
+            top5 =placeService.cafePlaceByReviewRateTop5(pageable);
 
             //공지게시글 목록
-            noticeList = noticeService.noticeAllList(pageable);
+            noticeList = noticeService.listNoticeBoard(pageable);
             //자유게시글 목록
-            boardList = boardService.boardAllList(pageable);
+            boardList = boardService.listFreeBoard(pageable);
         }catch (Exception e){
             e.printStackTrace();
         }

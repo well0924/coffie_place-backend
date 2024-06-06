@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.member.domain.dto.request;
 
+import com.example.coffies_vol_02.config.constant.MemberStatus;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.config.constant.Role;
 import io.swagger.annotations.ApiModel;
@@ -8,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @ApiModel(value = "회원요청Dto")
 public record MemberRequest(
@@ -70,7 +71,8 @@ public record MemberRequest(
                 .failedAttempt(0)
                 .enabled(true)
                 .accountNonLocked(true)
-                .lockTime(new Date())
+                .lockTime(LocalDateTime.now())
+                .memberStatus(MemberStatus.NON_USER_LOCK)
                 .build();
     }
 
