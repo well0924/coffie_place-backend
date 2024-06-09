@@ -1,10 +1,10 @@
 package com.example.coffies_vol_02.member.controller.api;
 
-import com.example.coffies_vol_02.config.api.service.CrawlingService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.email.EmailService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.member.domain.dto.request.LoginDto;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -31,7 +31,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "Member api",value = "회원 관련 api 컨트롤러")
@@ -47,7 +46,7 @@ public class MemberApiController {
 
     private final EmailService emailService;
 
-    private final CrawlingService crawlingService;
+    private final RedisService redisService;
 
     @Operation(summary = "회원 로그인 api", description = "redis session을 활용해서 로그인")
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -70,13 +69,8 @@ public class MemberApiController {
     public CommonResponse<Page<MemberResponse>> memberList(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
 
-        Page<MemberResponse> list = null;
+        Page<MemberResponse> list = memberService.findAll(pageable);
 
-        try{
-            list = memberService.findAll(pageable);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
 
@@ -88,16 +82,10 @@ public class MemberApiController {
                                         @Parameter(name = "searchVal",description = "회원 검색에 필요한 검색어",in = ParameterIn.QUERY)
                                         @RequestParam(value = "searchVal",required = false) String searchVal){
 
-        Page<MemberResponse> list = null;
+        Page<MemberResponse> list = memberService.findByAllSearch(SearchType.valueOf(searchType),searchVal,pageable);
 
         if(searchVal==null|| searchVal.isEmpty() ||searchType ==null|| searchType.isEmpty()){
             return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
-        }
-
-        try{
-            list = memberService.findByAllSearch(SearchType.valueOf(searchType),searchVal,pageable);
-        }catch (Exception e){
-            e.printStackTrace();
         }
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
@@ -112,12 +100,6 @@ public class MemberApiController {
 
         MemberResponse detail = memberService.findByMember(userIdx);
 
-        try{
-            detail = memberService.findByMember(userIdx);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
         return new CommonResponse<>(HttpStatus.OK.value(),detail);
     }
 
@@ -126,14 +108,7 @@ public class MemberApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>memberCreate(@Valid @RequestBody MemberRequest dto, BindingResult bindingResult){
 
-        try{
-            memberService.memberCreate(dto);
-            //회원 가입시 회원위치의 위경도를 기준으로 확인
-            crawlingService.firstCheckByNewMember(String.valueOf(dto.memberLng()),String.valueOf(dto.memberLat()));
-            crawlingService.crawlingByMember();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        memberService.memberCreate(dto);
 
         if(HttpStatus.OK.is2xxSuccessful()){
             return new CommonResponse<>(HttpStatus.OK.value(),"회원가입이 완료되었습니다.");
@@ -153,11 +128,7 @@ public class MemberApiController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,description = "회원 수정에 필요한 dto")
             @RequestBody MemberRequest dto){
 
-        try{
-            memberService.memberUpdate(userIdx,dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        memberService.memberUpdate(userIdx,dto);
 
         if(HttpStatus.OK.is2xxSuccessful()){
             return new CommonResponse<>(HttpStatus.OK.value(),"회원정보가 수정되었습니다.");
@@ -175,11 +146,8 @@ public class MemberApiController {
             @Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH)
             @PathVariable("user-idx") Integer userIdx){
 
-        try{
-            memberService.memberDelete(userIdx);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        memberService.memberDelete(userIdx);
+
         if(HttpStatus.OK.is2xxSuccessful()){
             return new CommonResponse<>(HttpStatus.NO_CONTENT.value(),"Delete O.K");
         }else if(HttpStatus.BAD_REQUEST.is4xxClientError()){
@@ -198,13 +166,9 @@ public class MemberApiController {
                                             @PathVariable(value = "user-name")String userName,
                                             @Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH)
                                             @PathVariable("user-email")String userEmail){
-        String findUser = "";
 
-        try{
-            findUser =memberService.findUserId(userName,userEmail);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        String findUser = memberService.findUserId(userName,userEmail);
+
         return new CommonResponse<>(HttpStatus.OK.value(),findUser);
     }
 
@@ -213,25 +177,18 @@ public class MemberApiController {
     public CommonResponse<Boolean>memberIdCheck(
             @Parameter(name = "user-id",description = "회원의 아이디",required = true,in = ParameterIn.PATH)
             @PathVariable("user-id")String userId){
-        boolean result = false;
 
-        try{
-            result = memberService.memberIdCheck(userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        boolean result = memberService.memberIdCheck(userId);
+
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
     @Operation(summary = "회원 이메일 중복 api",description = "회원가입 화면에서 회원 이메일 중복여부 확인")
     @GetMapping(path = "/email-check/{user-email}")
     public CommonResponse<Boolean>memberEmailCheck(@Parameter(name = "user-email",description = "회원의 이메일",required = true,in = ParameterIn.PATH) @PathVariable("user-email")String userEmail){
-        boolean result = false;
-        try{
-            result = memberService.memberEmailCheck(userEmail);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
+        boolean result = memberService.memberEmailCheck(userEmail);
+
         return new CommonResponse<>(HttpStatus.OK.value(),result);
     }
 
@@ -243,13 +200,9 @@ public class MemberApiController {
                                                  @io.swagger.v3.oas.annotations.parameters.RequestBody(
                                                          description = "비밀번호 변경에 필요한 dto",required = true)
                                                  @RequestBody MemberRequest dto){
-        int updateResult = 0;
 
-        try{
-            updateResult = memberService.updatePassword(id,dto);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        int updateResult = memberService.updatePassword(id,dto);
+
         return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
     }
 
@@ -261,11 +214,9 @@ public class MemberApiController {
     public CommonResponse<?>selectMemberDelete(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "선택 삭제시에 필요한 회원번호",required = true)
             @RequestBody List<String> userId){
-        try{
-            memberService.selectMemberDelete(userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
+        memberService.selectMemberDelete(userId);
+
         return new CommonResponse<>(HttpStatus.NO_CONTENT.value(),"Delete O.k");
     }
 
@@ -275,13 +226,8 @@ public class MemberApiController {
     @GetMapping(path = "/autocomplete")
     public  CommonResponse<List<String>>memberAutoComplete(@Parameter(name = "userId",description = "회원의 아이디",required = true,in = ParameterIn.QUERY)
                                                            @RequestParam(value = "userId") String userId){
-        List<String>list = new ArrayList<>();
 
-        try{
-            list = memberService.memberAutoSearch(userId);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        List<String>list = redisService.memberAutoSearch(userId);
 
         return new CommonResponse<>(HttpStatus.OK.value(),list);
     }
@@ -289,7 +235,7 @@ public class MemberApiController {
     @Operation(summary = "이메일 인증",description = "회원 가입 페이지에서 이메일 인증 하는 기능.")
     @PostMapping("/email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<?>emailTest(@RequestParam(value = "userEmail",required = true) String userEmail) throws Exception {
+    public ResponseEntity<?>emailTest(@RequestParam(value = "userEmail") String userEmail) throws Exception {
         emailService.sendSimpleMessage(userEmail);
         return ResponseEntity.ok(true);
     }
@@ -297,7 +243,7 @@ public class MemberApiController {
     @Operation(summary = "비밀번호 재설정 이메일 인증",description = "비밀번호 재설정 페이지에서 이메일 인증으로 인증 이메일을 보내는 기능")
     @PostMapping("/temporary-email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<?>temporaryEmail(@RequestParam(value = "userEmail",required = true) String userEmail)throws Exception{
+    public ResponseEntity<?>temporaryEmail(@RequestParam(value = "userEmail") String userEmail)throws Exception{
         emailService.sendTemporaryPasswordMessage(userEmail);
         return ResponseEntity.ok(true);
     }
