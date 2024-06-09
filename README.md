@@ -6,14 +6,13 @@
 
 ### 프로젝트 목표
 
-- **Mybatis에서 Jpa로 컨버팅**
-- **Mockito와 Junit을 사용해서 테스트 코드작성**
-- **redis를 사용해서 캐싱처리 하기**
-- **QueryDsl을 사용하고 성능향상(인덱스 적용)**
-- nginx + githubaction을 사용해서 무중단 배포 + 로드벨런싱 구현
-- Docket-compose를 사용해 보기.
-- Jmeter를 사용해서 api의 성능 테스트
-- Prometheus를 사용해서 로그 수집
+- Mybatis에서 JPA로 컨버팅하기
+- JUnit5,Mockito를 사용해서 테스트 코드를 작성
+- Redis를 다양한 방식으로 활용해보기
+- scale-out을 고려해서 다중서버 구축해보기
+- 성능 테스트 및 모니터링으로 프로젝트의 신뢰성을 높이기
+- github Actions를 사용해서 CI/CD구축하기
+- 깃 커밋 컨벤션에 따른 커밋 메시지 편의고려하기
 
 ### 제작인원
 
@@ -28,35 +27,38 @@
 - 기본적인 api 완료(5.12)
 
 
-- 테스트 코드 작성(5.12)
+- 테스트 코드 작성(5.12~ing)
 
 
 - 부가적인 기능 및 코드 리팩토링(5.13~)
     
     - **Mybatis가 아닌 Jpa로 변경.**
-    - **redis를 활용한 캐시 사용**
+    - **redis를 활용한 캐시 사용(공지글/가게조회/좋아요)**
     - **깃 커밋시 컨벤션을 사용**
     - **회원 위치에서 가까운 가게 5곳 마이페이지에서 확인**
     - **어드민 페이지 최근에 작성한 글,댓글**
     - **이메일 인증기능 비동기처리**
     - **회원 아이디 및 가게이름 자동완성 (Jquery -> redis) 수정**
     - **회원 계정 정지기능**
-    - **외부 api호출시 실패 방지를 위해서 @Retry를 적용**
-    - **가게 api 호출후 크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장**
-    - redis SortedSet을 활용해서 가게 평점 top5 를 구현
-    - redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어
-    - **Scale-out을 고려해서 redis Session-Clustering 적용**
+    - **외부 api호출시 실패 방지를 위해서 @Retry를 적용** -> 가게 목록이 아닌 가까운 가게 보여주기에 적용할 예정
+    - 가게 api 호출후 크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장
+      (api 호출 문제로 api사용을 안하고 크롤링으로 대체)
+    - **redis Sorted Set을 활용해서 가게 평점 top5 를 구현**
+    - **가게 최근 검색어 기능구현**
+    - **Redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어**
+    - **Scale-out을 고려해서 redis Session을 Session Storage로 적용**
+
 
 ### 기술 스택
   
 #### Backend
 
-- java 17
-- spring boot 2.7.2
-- spring Data Jpa 2.7.5
-- spring security 2.7.6
-- redis 2.7.9
-- query dsl 5.0.0
+- JAVA 17
+- Spring boot 2.7.2
+- Spring Data JPA 2.7.5
+- Spring Security 2.7.6
+- Redis 2.7.9
+- Query DSL 5.0.0
 
 #### DB
 
@@ -64,10 +66,10 @@
 
 #### Frontend
 
-- theymleaf 3.0.15 -> React로 변경하기.
-- jQuery 3.6.0 -> x
-- bootstrap 4.6.0
-- fontawesome 5.15.3
+- Theymleaf 3.0.15
+- Jquery 3.6.0
+- Bootstrap 4.6.0
+- Fontawesome 5.15.3
 
 #### TEST
 
@@ -76,15 +78,16 @@
 
 #### DOCS
 
--swagger 3.0.0 -> 포스트맨으로 할지
+- Swagger 3.0.0
 
 #### Infra
 
-- github Action
+- Github Actions
 - Aws S3
-- Aws RDBS
+- Aws RDS
 - Aws EC2
 - Aws Route
+- Docker
 
 ### Git Convention
 
@@ -93,36 +96,44 @@
 - refactor : 리팩토링(기능 개선 및 수정)
 - docs : 코드 주석추가 삭제,문서 변경
 
+### 메서드 작성규칙
+
+- 목록:list+도메인명
+- 검색:search+도메인명
+- 단일조회:find+도메인명/(By)컬럼명
+- 작성및 생성:create+도메인명
+- 수정기능:update + 도메인명
+- 삭제기능:delete+도메인명
+- 여부를 따지는 기능: has + 도메인/컬럼명
+
 ### 아키텍쳐
 
-![CoffiesVol.02아키텍처.drawio.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/8905e7b5-bab8-45f3-8ca5-d4462e06684e/7521748d-e0af-4631-8eb0-308e78142fba/CoffiesVol.02%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.drawio.png)
+![회원 가게 정보 가져오기 drawio](https://github.com/well0924/coffie_placeVol.02/assets/89343159/b2ecbd74-fe4f-41e2-b96a-12c3a71b961f)
 
 ### ERD
 
-![coffies Vol.02.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0c33679e-3dbf-44d0-b3d5-a4db2035d954/coffies_Vol.02.png)
+![프로젝트 ERD](https://github.com/well0924/coffie_placeVol.02/assets/89343159/085c6641-e14f-45a0-8113-f4f317c5a218)
+
 
 ### Api 명세서
 
-### Git 컨벤션
+Swagger를 사용한 명세서
 
-feat : 새로운 기능을 추가하는 경우
-
-refactor : 프로덕션 코드 리팩토링
-
-test : 테스트 추가,테스트 리팩토링
-
-docs : 주석을 추가,수정 및 스웨거 코드 변경
 
 ### 문제 해결 및 배웠던 부분
 
 - **Jpa N+1 문제해결하기.**
 
 
-- **redis 캐시 적용**
+- **@Async를 활용해서 구글 이메일 api 전송속도 개선**
 
 
-- **redis-session을 활용해서 세션 클러스터링 구축**
+- **Redis-Session을 활용해서 Session Storage 구축**
 
 
-- **@Async로 외부api 성능개선 하기.**
+- **Redisson을 활용한 게시글 좋아요/조회수 댓글 좋아요 동시성 제어**
+
+
+- **Docker를 사용해서 Redis 캐시와 세션을 분리하기.**
+
 
