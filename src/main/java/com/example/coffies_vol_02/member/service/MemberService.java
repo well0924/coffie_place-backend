@@ -4,7 +4,6 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.MemberStatus;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.config.redis.CacheKey;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -13,10 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -37,8 +31,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private final RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 회원 전체목록
@@ -192,36 +184,6 @@ public class MemberService {
     }
 
     /**
-     *  회원 이름 자동완성기능
-     * @author 양경빈
-     * @param userId 회원 아이디
-     * @return searchList 회원 검색에 필요한 목록들
-     **/
-    public List<String> memberAutoSearch(String userId){
-
-        HashOperations<String,String,Object>hashOperations = redisTemplate.opsForHash();
-
-        List<Member>nameList = memberRepository.findAll();
-
-        Map<String,Object> nameDateMap = nameList.stream().collect(Collectors.toMap(Member::getUserId,Member::getId));
-        //redisHash 에 저장
-        hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
-
-        ScanOptions scanOptions = ScanOptions.scanOptions().match(userId+"*").build();
-
-        Cursor<Map.Entry<String,Object>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
-
-        List<String> searchList = new ArrayList<>();
-
-        while(cursor.hasNext()){
-            Map.Entry<String,Object> entry = cursor.next();
-            searchList.add(entry.getKey());
-        }
-
-        return searchList;
-    }
-
-    /**
      * 회원 선택 삭제
      * @author 양경빈
      * @param ids 어드민 페이지에서 체크된 회원번호
@@ -231,9 +193,29 @@ public class MemberService {
             memberRepository.deleteAllByUserId(ids);
         }
     }
-    
+
     /**
-     * 로그인 실패후 계정잠금후 잠금해제
+     * 회원 계정 잠금
+     * 로그인 실패를 3회 실패시 회원계정을 잠금.
+     * @param userId : 회원 아이디
+     * @exception UsernameNotFoundException : 회원이 없는 경우의 예외처리.
+     **/
+    public void loginFailed(String userId) {
+        Member user = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setFailedAttempt(user.getFailedAttempt() + 1);
+
+        if (user.getFailedAttempt() >= 3) {
+            user.setAccountNonLocked(true);
+            user.setLockTime(LocalDateTime.now());
+            user.setMemberStatus(MemberStatus.USER_LOCK);
+        }
+        memberRepository.save(user);
+    }
+
+    /**
+     * 로그인 실패후 계정잠금
      * @author 양경빈
      * @param userId 회원 아이디
      * @exception UsernameNotFoundException : 회원을 찾을 수 없습니다.
@@ -274,20 +256,22 @@ public class MemberService {
     }
     
     /**
-     * 계정이 잠금이후 1일 이후에 잠금해제 기능 
+     * 계정이 잠금된 이후 24시간 이후에 잠금해제 기능
      **/
     @Scheduled(cron = "0 0 0 * * *")
     public void unlockAccounts(){
-
+        //계정이 잠금된 회원을 찾기.
         List<Member>memberList = memberRepository.existsAllByAccountNonLocked();
-
+        
+        log.info(memberList);
+        //잠금된 계정이 있는 경우
         if(!memberList.isEmpty()){
             List<Member> lockedUsers = memberRepository.findAll()
                     .stream()
                     .filter(Member::getAccountNonLocked)
-                    .filter(member -> ChronoUnit.HOURS.between(member.getLockTime(), LocalDateTime.now()) >= 24)
-                    .collect(Collectors.toList());
-
+                    //.filter(member -> ChronoUnit.HOURS.between(member.getLockTime(), LocalDateTime.now()) >= 24)
+                    .toList();
+            //반복문을 사용해서 실패횟수와 계정
             for (Member user : lockedUsers) {
                 user.setAccountNonLocked(false);
                 user.setFailedAttempt(0);

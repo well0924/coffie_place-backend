@@ -40,7 +40,7 @@ public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
         String Msg = null;
         
         //로그인 실패시 잠금기능(3회실패시)
-        memberService.resetLoginAttempts(userId);
+        memberService.loginFailed(userId);
         
         //로그인 실패시 에러 메시지
         if (exception instanceof InternalAuthenticationServiceException) {

@@ -4,9 +4,7 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
-import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.LoginDto;
-import com.example.coffies_vol_02.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,14 +15,14 @@ import javax.servlet.http.HttpSession;
 
 @Log4j2
 @Service
+@Transactional
 @AllArgsConstructor
 public class AuthService {
 
-    private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder encoder;
+
     private final CustomUserDetailService customUserDetailService;
 
-    @Transactional
     public String login(LoginDto loginDto, HttpSession httpSession){
         log.info("service");
         CustomUserDetails  customUserDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(loginDto.getUserId());
