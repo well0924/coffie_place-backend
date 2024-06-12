@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -29,18 +30,20 @@ import java.util.Map;
 @EnableCaching
 @RequiredArgsConstructor
 public class RedisConfig {
+
     //직렬화,역직렬화 개념
     //redis vs memcache
     //redis value에서 역직렬화
     @Value("${spring.redis.port}")
     private int redisPort;
+
     @Value("${spring.redis.host}")
     private String redisHost;
 
     /**
      * 내장 혹은 외부의 Redis를 연결
      */
-    @Bean
+    @Bean(name="redisCacheManager")
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisHost);
@@ -76,8 +79,8 @@ public class RedisConfig {
     /**
      * 캐시 설정
      */
-    @Bean(name="redisCacheManager")
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory){
+    @Bean
+    public RedisCacheManager redisCacheManager(@Qualifier("redisCacheManager") RedisConnectionFactory connectionFactory){
 
         RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration
                 .defaultCacheConfig()
@@ -100,11 +103,11 @@ public class RedisConfig {
                 .put(CacheKey.NOTICE_BOARD,
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.NOTICE_BOARD_EXPIRE_SEC)));
         redisCacheConfigurationMap
-                .put(CacheKey.LIKE,
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKE_EXPIRE_SEC)));
+                .put(CacheKey.LIKES,
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKES_EXPIRED_SEC)));
         redisCacheConfigurationMap
                 .put(CacheKey.PLACE,
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKE_EXPIRE_SEC)));
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(CacheKey.LIKES_EXPIRED_SEC)));
 
         return RedisCacheManager
                 .RedisCacheManagerBuilder
