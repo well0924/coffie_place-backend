@@ -94,7 +94,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail:2.2.6.RELEASE'
 
     //selenium
-    implementation 'org.seleniumhq.selenium:selenium-java'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+
 
     //thumbnail
     implementation 'net.coobird:thumbnailator:0.4.14'
