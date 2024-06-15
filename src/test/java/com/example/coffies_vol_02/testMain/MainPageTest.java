@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestMain;
+package com.example.coffies_vol_02.testMain;
 
 import com.example.coffies_vol_02.factory.BoardFactory;
 import com.example.coffies_vol_02.factory.MemberFactory;
