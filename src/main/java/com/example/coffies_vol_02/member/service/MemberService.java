@@ -261,22 +261,19 @@ public class MemberService {
     @Scheduled(cron = "0 0 0 * * *")
     public void unlockAccounts(){
         //계정이 잠금된 회원을 찾기.
-        List<Member>memberList = memberRepository.existsAllByAccountNonLocked();
+        List<Member>memberList = memberRepository.existsAllByAccountLocked(LocalDateTime.now().minusHours(24));
         
         log.info(memberList);
         //잠금된 계정이 있는 경우
-        if(!memberList.isEmpty()){
-            List<Member> lockedUsers = memberRepository.findAll()
-                    .stream()
-                    .filter(Member::getAccountNonLocked)
-                    //.filter(member -> ChronoUnit.HOURS.between(member.getLockTime(), LocalDateTime.now()) >= 24)
-                    .toList();
-            //반복문을 사용해서 실패횟수와 계정
-            for (Member user : lockedUsers) {
-                user.setAccountNonLocked(false);
-                user.setFailedAttempt(0);
-                memberRepository.save(user);
-            }
+        //반복문을 사용해서 실패횟수와 계정
+        for (Member user : memberList) {
+            user.setAccountNonLocked(false);
+            user.setFailedAttempt(0);
+            memberRepository.save(user);
+        }
+
+        if(memberList.isEmpty()){
+           log.info("잠겨있는 계정이 없습니다.");
         }
     }
 }
