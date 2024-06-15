@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestLike;
+package com.example.coffies_vol_02.testLike;
 
 import com.example.coffies_vol_02.factory.*;
 import com.example.coffies_vol_02.board.domain.Board;

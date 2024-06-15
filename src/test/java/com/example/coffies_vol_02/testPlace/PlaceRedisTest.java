@@ -1,6 +1,8 @@
-package com.example.coffies_vol_02.TestPlace;
+package com.example.coffies_vol_02.testPlace;
 
+import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.redis.RedisService;
+import com.example.coffies_vol_02.place.service.PlaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,9 +12,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.GeoOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 
@@ -28,6 +28,12 @@ public class PlaceRedisTest {
     RedisService redisService;
 
     private GeoOperations<String,String>geoOperations;
+
+    @Autowired
+    private PlaceService placeService;
+
+    @Autowired
+    private CommentService commentService;
 
     @BeforeEach
     public void init(){
@@ -57,10 +63,12 @@ public class PlaceRedisTest {
     @Test
     @DisplayName("가게 자동완성기능")
     public void redisAutoCompleteTest(){
-        //redisService.setValues("well4149","무너미");
 
-        List<String>result=redisService.getSearchList("well4149");
+    }
 
-        System.out.println(result);
+    @Test
+    @DisplayName("댓글 평점 테스트")
+    public void redisReviewScoreTest(){
+        
     }
 }

@@ -1,13 +1,10 @@
-package com.example.coffies_vol_02.TestNotice;
+package com.example.coffies_vol_02.testNotice;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
-import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

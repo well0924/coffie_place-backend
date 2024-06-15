@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestMember;
+package com.example.coffies_vol_02.testMember;
 
 import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.config.constant.SearchType;

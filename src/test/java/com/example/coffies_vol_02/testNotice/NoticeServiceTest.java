@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestNotice;
+package com.example.coffies_vol_02.testNotice;
 
 import com.example.coffies_vol_02.factory.FileFactory;
 import com.example.coffies_vol_02.factory.MemberFactory;
@@ -59,15 +59,25 @@ public class NoticeServiceTest {
     private FileHandler fileHandler;
     @Mock
     private AttachService attachService;
+
     Member member;
+
     MemberResponse memberResponseDto;
+
     Attach attach;
+
     NoticeBoard noticeBoard;
+
     NoticeRequest request;
+
     NoticeResponse response;
+
     SearchType searchType;
+
     List<AttachDto> detailfileList = new ArrayList<>();
+
     List<Attach>filelist = new ArrayList<>();
+
     List<MultipartFile>files = new ArrayList<>(List.of(
             new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
             new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
@@ -86,25 +96,28 @@ public class NoticeServiceTest {
         detailfileList.add(FileFactory.attachDto());
         detailfileList = attachService.boardfilelist(noticeBoard.getId());
     }
+
     @Test
     @DisplayName("공지게시글 목록")
     public void noticeBoardListTest(){
         PageRequest pageRequest = PageRequest.of(0,5, Sort.by("id"));
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(Page.empty());
 
-        Page<NoticeResponse>result = noticeService.noticeAllList(pageRequest);
+        Page<NoticeResponse>result = noticeService.listNoticeBoard(pageRequest);
 
         Assertions.assertThat(result).isEmpty();
     }
+
     @Test
     @DisplayName("게시글 단일조회")
     public void noticeBoardDetailTest(){
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
 
-        NoticeResponse detail = noticeService.findNotice(noticeBoard.getId());
+        NoticeResponse detail = noticeService.findNoticeBoardById(noticeBoard.getId());
 
         Assertions.assertThat(detail).isNotNull();
     }
+
     @Test
     @DisplayName("공지 게시글 검색")
     public void noticeBoardSearchTest(){
@@ -116,8 +129,9 @@ public class NoticeServiceTest {
 
         given(noticeBoardRepository.findAllSearchList(searchType,keyword,pageRequest)).willReturn(response);
 
-        when(noticeService.noticeSearchAll(searchType,keyword,pageRequest)).thenReturn(response);
-        response = noticeService.noticeSearchAll(searchType,keyword,pageRequest);
+        when(noticeService.searchNoticeBoard(searchType,keyword,pageRequest)).thenReturn(response);
+
+        response = noticeService.searchNoticeBoard(searchType,keyword,pageRequest);
 
         assertThat(response.toList().get(0).noticeWriter()).isEqualTo(keyword);
     }
@@ -125,17 +139,22 @@ public class NoticeServiceTest {
     @Test
     @DisplayName("공지 게시글 작성")
     public void noticeBoardWriteTest() throws Exception {
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(noticeBoardRepository.save(noticeBoard)).willReturn(noticeBoard);
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
 
-        noticeService.noticeCreate(request,files);
+        noticeService.createNoticeBoard(request,files);
 
         Mockito.verify(noticeBoardRepository).save(ArgumentMatchers.any());
         verify(fileHandler,times(2)).parseFileInfo(any());
 
     }
+
     @Test
     @DisplayName("게시글 수정")
     public void noticeBoardUpdateTest()throws Exception{
@@ -144,27 +163,37 @@ public class NoticeServiceTest {
         files.add(updateFile);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
-        noticeService.noticeUpdate(noticeBoard.getId(),request,files);
+        noticeService.updateNoticeBoard(noticeBoard.getId(),request,files);
 
         verify(fileHandler,atLeastOnce()).parseFileInfo(any());
     }
+
     @Test
     @DisplayName("게시글 삭제")
     public void noticeBoardDeleteTest()throws Exception{
         noticeBoard= NoticeFactory.noticeBoard();
+
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
+
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
         attachService.noticefilelist(noticeBoard.getId());
-        noticeService.noticeDelete(noticeBoard.getId());
+        noticeService.deleteNoticeBoard(noticeBoard.getId());
 
         verify(noticeBoardRepository).deleteById(any());
         verify(fileHandler,times(1)).parseFileInfo(any());

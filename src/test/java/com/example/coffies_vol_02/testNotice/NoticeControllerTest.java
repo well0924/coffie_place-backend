@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestNotice;
+package com.example.coffies_vol_02.testNotice;
 
 import com.example.coffies_vol_02.attach.domain.Attach;
 import com.example.coffies_vol_02.attach.domain.AttachDto;
@@ -33,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,7 +98,7 @@ public class NoticeControllerTest {
     @DisplayName("공지게시판 목록 화면")
     public void noticeBoardListTest()throws Exception{
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(noticeBoardService.noticeAllList(any(Pageable.class))).willReturn(Page.empty());
+        given(noticeBoardService.listNoticeBoard(any(Pageable.class))).willReturn(Page.empty());
 
         mvc.perform(get("/page/notice/list")
                 .with(user(customUserDetails))
@@ -117,7 +116,7 @@ public class NoticeControllerTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(noticeBoardRepository.findById(noticeBoard().getId())).willReturn(Optional.of(noticeBoard));
         given(attachRepository.findAttachNoticeBoard(noticeBoard().getId())).willReturn(filelist);
-        given(noticeBoardService.findNotice(noticeBoard.getId())).willReturn(response());
+        given(noticeBoardService.findNoticeBoardById(noticeBoard.getId())).willReturn(response());
 
         mvc.perform(get("/page/notice/detail/{notice_id}",noticeBoard.getId())
                 .with(user(customUserDetails))

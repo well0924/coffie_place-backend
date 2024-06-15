@@ -13,6 +13,8 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,12 +60,14 @@ public class KakaoMapApiTest {
     @DisplayName("파라미터에 주소를 입력시 결과값이 나오는지 테스트")
     public void kakaoApiSearchTest(){
 
-        String address = "서울특별시 강북구 번동 418-3 1층 103호";
+        String address = "서울 강북구 도봉로 352 효성네오인텔리안 103호";
 
         KakaoApiResponseDto result = kakaoApiSearchService.requestAddressSearch(address);
 
         System.out.println(result.getDocumentList().get(0).getAddressName());
         System.out.println(result.getDocumentList().get(0).getPlaceName());
+        System.out.println(result.getDocumentList().get(0).getLatitude());
+        System.out.println(result.getDocumentList().get(0).getLongitude());
 
         assertThat(result).isNotNull();
         assertThat(result.getDocumentList()).isNotEmpty();
@@ -71,9 +75,9 @@ public class KakaoMapApiTest {
     }
 
     @Test
-    @DisplayName("spring retry test")
-    public void KakaoMapRetryTest(){
-        
-    }
+    @DisplayName("회원위경도를 기준으로 해서 가게 목록 가져오기")
+    public void placeRadiusTest(){
+        List<KakaoApiResponseDto>result = new ArrayList<>();
 
+    }
 }

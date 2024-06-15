@@ -1,11 +1,7 @@
-package com.example.coffies_vol_02.TestPlace;
+package com.example.coffies_vol_02.testPlace;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
-import com.example.coffies_vol_02.config.constant.SearchType;
-import com.example.coffies_vol_02.member.repository.MemberRepository;
-import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
-import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Disabled;
@@ -16,8 +12,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestPlace;
+package com.example.coffies_vol_02.testPlace;
 
 import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.factory.PlaceFactory;
@@ -16,7 +16,6 @@ import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDt
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.example.coffies_vol_02.place.service.PlaceService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,9 +53,6 @@ public class PlaceApiControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Mock
     private MemberRepository memberRepository;
@@ -122,11 +118,11 @@ public class PlaceApiControllerTest {
 
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(placeRepository.placeList(pageRequest,place.getPlaceName())).willReturn(sliceDto);
-        given(redisService.getSearchList(place.getPlaceName())).willReturn(listName);
-        given(placeService.placeSlideList(pageRequest,place.getPlaceName(),customUserDetails.getMember())).willReturn(sliceDto);
+       // given(redisService.getSearchList(place.getPlaceName())).willReturn(listName);
+        given(placeService.listCafePlace(pageRequest,place.getPlaceName(),customUserDetails.getMember())).willReturn(sliceDto);
 
         //when
-        when(placeService.placeSlideList(pageRequest,place.getPlaceName(),customUserDetails.getMember())).thenReturn(sliceDto);
+        when(placeService.listCafePlace(pageRequest,place.getPlaceName(),customUserDetails.getMember())).thenReturn(sliceDto);
 
         mvc.perform(get("/api/place/list")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -142,7 +138,7 @@ public class PlaceApiControllerTest {
     public void placeDetailTest()throws Exception{
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
 
-        when(placeService.placeDetail(placeResponseDto.getId())).thenReturn(placeResponseDto);
+        when(placeService.findCafePlaceById(placeResponseDto.getId())).thenReturn(placeResponseDto);
 
         mvc.perform(get("/api/place/detail/"+place.getId())
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -152,7 +148,7 @@ public class PlaceApiControllerTest {
                 .andExpect(jsonPath("$.status").value(200))
                 .andDo(print());
 
-        verify(placeService).placeDetail(placeResponseDto.getId());
+        verify(placeService).findCafePlaceById(placeResponseDto.getId());
     }
 
     @Test
@@ -170,7 +166,7 @@ public class PlaceApiControllerTest {
 
         given(placeRepository.placeListSearch(SearchType.p,searchKeyword,pageRequest)).willReturn(placeList);
 
-        when(placeService.placeListAll(SearchType.p,searchKeyword,pageRequest,customUserDetails.getMember())).thenReturn(placeList);
+        when(placeService.searchCafePlace(SearchType.p,searchKeyword,pageRequest,customUserDetails.getMember())).thenReturn(placeList);
 
         mvc.perform(get("/api/place/search")
                     .characterEncoding(StandardCharsets.UTF_8)
@@ -182,6 +178,6 @@ public class PlaceApiControllerTest {
                 .andExpect(jsonPath("$.status").value(200))
                 .andDo(print());
 
-        verify(placeService).placeListAll(SearchType.p,searchKeyword,pageRequest,customUserDetails.getMember());
+        verify(placeService).searchCafePlace(SearchType.p,searchKeyword,pageRequest,customUserDetails.getMember());
     }
 }

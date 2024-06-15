@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestPlace;
+package com.example.coffies_vol_02.testPlace;
 
 import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.factory.PlaceFactory;
@@ -43,10 +43,13 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PlaceServiceTest {
+
     @InjectMocks
     private PlaceService placeService;
+
     @InjectMocks
     private FavoritePlaceService favoritePlaceService;
+
     @Mock
     private PlaceImageService placeImageService;
 
@@ -121,9 +124,9 @@ public class PlaceServiceTest {
         //given
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
         given(placeRepository.placeList(pageRequest,place.getPlaceName())).willReturn(sliceDto);
-        given(redisService.getSearchList(place.getPlaceName())).willReturn(listName);
+        //given(redisService.getSearchList(place.getPlaceName())).willReturn(listName);
         //when
-        when(placeService.placeSlideList(pageRequest,place.getPlaceName(),member)).thenReturn(sliceDto);
+        when(placeService.listCafePlace(pageRequest,place.getPlaceName(),member)).thenReturn(sliceDto);
         //then
         assertThat(placelist.size()).isNotNull();
     }
@@ -134,7 +137,7 @@ public class PlaceServiceTest {
         //given
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         //when
-        placeService.placeDetail(place.getId());
+        placeService.findCafePlaceById(place.getId());
         //then
         verify(placeRepository).findById(place.getId());
     }
@@ -161,8 +164,8 @@ public class PlaceServiceTest {
 
         given(placeRepository.placeListSearch(SearchType.p,keyword,pageRequest)).willReturn(placeList);
 
-        when(placeService.placeListAll(SearchType.p,keyword,pageRequest,member)).thenReturn(placeList);
-        placeList = placeService.placeListAll(SearchType.p,keyword,pageRequest,member);
+        when(placeService.searchCafePlace(SearchType.p,keyword,pageRequest,member)).thenReturn(placeList);
+        placeList = placeService.searchCafePlace(SearchType.p,keyword,pageRequest,member);
 
         assertThat(placeList.toList()).isNotEmpty();
     }
@@ -203,7 +206,7 @@ public class PlaceServiceTest {
         given(fileHandler.ResizeImage(placeImage,240,240)).willReturn("");
 
         //when
-        placeService.placeRegister(placeRequestDto,placeImageRequestDto);
+        placeService.createCafePlace(placeRequestDto,placeImageRequestDto);
         //then
         verify(placeRepository,atLeastOnce()).save(any());
         verify(fileHandler,times(2)).placeImagesUpload(any());
@@ -224,7 +227,7 @@ public class PlaceServiceTest {
         given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
         given(fileHandler.ResizeImage(placeImage,240,240)).willReturn("");
         //when
-        placeService.placeModify(place.getId(),placeRequestDto,placeImageRequestDto);
+        placeService.updateCafePlace(place.getId(),placeRequestDto,placeImageRequestDto);
         //then
         verify(placeRepository).findById(place.getId());
         verify(placeImageRepository).findPlaceImagePlace(place.getId());
@@ -239,7 +242,7 @@ public class PlaceServiceTest {
         given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
         //when
         doNothing().when(placeRepository).deleteById(place.getId());
-        placeService.placeDelete(place.getId());
+        placeService.deleteCafePlace(place.getId());
         //then
         verify(placeRepository).deleteById(place.getId());
     }

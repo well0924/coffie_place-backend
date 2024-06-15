@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.TestNotice;
+package com.example.coffies_vol_02.testNotice;
 
 import com.example.coffies_vol_02.factory.FileFactory;
 import com.example.coffies_vol_02.factory.MemberFactory;
@@ -55,32 +55,50 @@ public class NoticeApiControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @MockBean
     private NoticeService noticeService;
+
     @Mock
     private NoticeBoardRepository noticeBoardRepository;
+
     @Mock
     private FileHandler fileHandler;
+
     @Mock
     private AttachRepository attachRepository;
+
     Member member;
+
     NoticeBoard noticeBoard;
+
     NoticeResponse responseDto;
+
     NoticeRequest requestDto;
+
     MemberResponse memberResponseDto;
+
     SearchType searchType;
+
     Attach attach;
+
     List<AttachDto> detailfileList = new ArrayList<>();
+
     List<Attach>filelist = new ArrayList<>();
+
     List<MultipartFile>files = new ArrayList<>(List.of(
             new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
             new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes()),
             new MockMultipartFile("test3", "test3.PNG", MediaType.IMAGE_PNG_VALUE, "test3".getBytes())));
+
     private CustomUserDetails customUserDetails;
+
     private final TestCustomUserDetailsService testCustomUserDetailsService = new TestCustomUserDetailsService();
 
     @BeforeEach
@@ -108,16 +126,16 @@ public class NoticeApiControllerTest {
         List<NoticeResponse>list = new ArrayList<>();
         list.add(responseDto);
         Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
-        given(noticeService.noticeAllList(pageRequest)).willReturn(result);
+        given(noticeService.listNoticeBoard(pageRequest)).willReturn(result);
 
-        when(noticeService.noticeAllList(pageRequest)).thenReturn(result);
+        when(noticeService.listNoticeBoard(pageRequest)).thenReturn(result);
         mvc.perform(get("/api/notice/list")
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService,atLeastOnce()).noticeAllList(pageRequest);
+        verify(noticeService,atLeastOnce()).listNoticeBoard(pageRequest);
     }
 
     @Test
@@ -129,9 +147,9 @@ public class NoticeApiControllerTest {
         Page<NoticeResponse>result = new PageImpl<>(list,pageRequest,1);
         String searchVal = "well4149";
 
-        given(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).willReturn(result);
+        given(noticeService.searchNoticeBoard(searchType,searchVal,pageRequest)).willReturn(result);
 
-        when(noticeService.noticeSearchAll(searchType,searchVal,pageRequest)).thenReturn(result);
+        when(noticeService.searchNoticeBoard(searchType,searchVal,pageRequest)).thenReturn(result);
 
         mvc.perform(get("/api/notice/search")
                 .param("searchType", String.valueOf(SearchType.w))
@@ -142,16 +160,16 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService).noticeSearchAll(any(),any(),any());
+        verify(noticeService).searchNoticeBoard(any(),any(),any());
     }
 
     @Test
     @DisplayName("공지게시판 단일 조회")
     public void NoticeBoardDetailTest()throws Exception{
 
-        given(noticeService.findNotice(noticeBoard.getId())).willReturn(responseDto);
+        given(noticeService.findNoticeBoardById(noticeBoard.getId())).willReturn(responseDto);
 
-        when(noticeService.findNotice(noticeBoard.getId())).thenReturn(responseDto);
+        when(noticeService.findNoticeBoardById(noticeBoard.getId())).thenReturn(responseDto);
 
         mvc.perform(get("/api/notice/detail/{notice_id}",noticeBoard.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -159,7 +177,7 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService).findNotice(noticeBoard.getId());
+        verify(noticeService).findNoticeBoardById(noticeBoard.getId());
     }
 
     @Test
@@ -169,7 +187,7 @@ public class NoticeApiControllerTest {
         String contents = objectMapper.writeValueAsString(requestDto);
         MockMultipartFile files3 = new MockMultipartFile("noticeDto","jsondata", "application/json", contents.getBytes(StandardCharsets.UTF_8));
 
-        when(noticeService.noticeCreate(requestDto,files)).thenReturn(noticeBoard.getId());
+        when(noticeService.createNoticeBoard(requestDto,files)).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/write")
                         .file("files",files.get(0).getBytes())
@@ -183,23 +201,30 @@ public class NoticeApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(noticeService).noticeCreate(any(),any());
+        verify(noticeService).createNoticeBoard(any(),any());
     }
 
     @Test
     @DisplayName("공지게시판 수정")
     public void NoticeBoardUpdateTest()throws Exception{
+
         String contents = objectMapper.writeValueAsString(new NoticeRequest("자유게시판",'N',"제목",member.getUserId(),"contents","notice_2jfj35j"));
+
         MockMultipartFile updateFile = new MockMultipartFile("test4", "test4.PNG", MediaType.IMAGE_PNG_VALUE, "test4".getBytes());
+
         files.add(updateFile);
+
         MockMultipartFile files3 = new MockMultipartFile("updateDto","jsondate","application/json",contents.getBytes(StandardCharsets.UTF_8));
 
         given(noticeBoardRepository.findById(noticeBoard.getId())).willReturn(Optional.of(noticeBoard));
+
         given(fileHandler.parseFileInfo(files)).willReturn(filelist);
+
         given(attachRepository.save(attach)).willReturn(attach);
+
         given(attachRepository.findAttachNoticeBoard(noticeBoard.getId())).willReturn(filelist);
 
-        when(noticeService.noticeUpdate(noticeBoard.getId(),requestDto,files)).thenReturn(noticeBoard.getId());
+        when(noticeService.updateNoticeBoard(noticeBoard.getId(),requestDto,files)).thenReturn(noticeBoard.getId());
 
         mvc.perform(multipart("/api/notice/update/{notice_id}",noticeBoard.getId())
                 .file("files",files.get(3).getBytes())
@@ -213,7 +238,7 @@ public class NoticeApiControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print());
 
-        verify(noticeService).noticeUpdate(anyInt(),any(),any());
+        verify(noticeService).updateNoticeBoard(anyInt(),any(),any());
     }
 
     @Test

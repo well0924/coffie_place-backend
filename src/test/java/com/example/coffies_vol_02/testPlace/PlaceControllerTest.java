@@ -1,9 +1,8 @@
-package com.example.coffies_vol_02.TestPlace;
+package com.example.coffies_vol_02.testPlace;
 
-import com.example.coffies_vol_02.Factory.MemberFactory;
-import com.example.coffies_vol_02.Factory.PlaceFactory;
+import com.example.coffies_vol_02.factory.MemberFactory;
+import com.example.coffies_vol_02.factory.PlaceFactory;
 import com.example.coffies_vol_02.config.TestCustomUserDetailsService;
-import com.example.coffies_vol_02.config.constant.Role;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.member.domain.Member;
@@ -118,7 +117,7 @@ public class PlaceControllerTest {
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
 
-        when(placeService.placeDetail(place.getId())).thenReturn(placeResponseDto);
+        when(placeService.findCafePlaceById(place.getId())).thenReturn(placeResponseDto);
 
         mvc.perform(get("/page/place/detail/"+place.getId())
                 .contentType(MediaType.TEXT_HTML)
@@ -128,7 +127,7 @@ public class PlaceControllerTest {
                 .andExpect(view().name("/place/placedetail"))
                 .andDo(print());
 
-        verify(placeService).placeDetail(place.getId());
+        verify(placeService).findCafePlaceById(place.getId());
     }
 
     @Test
@@ -152,7 +151,7 @@ public class PlaceControllerTest {
         given(placeRepository.findById(place.getId())).willReturn(Optional.of(place));
         given(placeImageRepository.findPlaceImagePlace(place.getId())).willReturn(placeImages);
 
-        when(placeService.placeDetail(place.getId())).thenReturn(placeResponseDto);
+        when(placeService.findCafePlaceById(place.getId())).thenReturn(placeResponseDto);
 
         mvc.perform(get("/page/place/placemodify/{place-id}",place.getId())
                 .contentType(MediaType.TEXT_HTML)

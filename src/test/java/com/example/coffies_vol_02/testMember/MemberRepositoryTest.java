@@ -1,9 +1,7 @@
-package com.example.coffies_vol_02.TestMember;
+package com.example.coffies_vol_02.testMember;
 
 import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
-import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
-import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
@@ -15,13 +13,16 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import({TestQueryDslConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MemberRepositoryTest {
+
     @Autowired
     private MemberRepository memberRepository;
 
@@ -38,17 +39,12 @@ public class MemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 비밀번호 로그인 실패시 카운트 테스트")
-    public void passwordFailCountTest(){
-        Optional<Member>deatil = memberRepository.findById(1);
-        int countResult = memberRepository.failAttemptsCount(deatil.get().getUserId());
-        System.out.println("::"+countResult);
+    @DisplayName("계정잠금 확인 기능 테스트")
+    public void existsAllByAccountNonLocked_Test(){
+        List<Member>memberList = memberRepository.existsAllByAccountLocked(LocalDateTime.now());
 
-        memberRepository.updateFailedAttempts(deatil.get().getFailedAttempt(),deatil.get().getUserId());
-        int afterFailCount = memberRepository.failAttemptsCount(deatil.get().getUserId());
+        System.out.println(memberList.toArray().length);
 
-        System.out.println("result::"+afterFailCount);
-
-        System.out.println("최종 결과::"+deatil.get().getFailedAttempt());
+        assertThat(memberList).isEqualTo(memberList);
     }
 }
