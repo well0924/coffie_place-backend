@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,6 +28,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 @Log4j2
 @Configuration
@@ -37,6 +40,10 @@ import org.springframework.security.web.firewall.HttpFirewall;
 public class SecurityConfig {
 
     private final CustomUserDetailService customUserDetailService;
+
+    private final FindByIndexNameSessionRepository sessionRepository;
+
+    private final SecuritySessionExpiredStrategy securitySessionExpiredStrategy;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -75,6 +82,11 @@ public class SecurityConfig {
         return provider;
     }
 
+    @Bean
+    public SpringSessionBackedSessionRegistry sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry(this.sessionRepository);
+    }
+
     private static final String[] PERMIT_URL_ARRAY = {
             "/**",
             /* swagger v2 */
@@ -97,25 +109,32 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/board/detail/{id}").hasAnyRole("ADMIN,USER")
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest()
                 .authenticated();
-        //세션을 redis에 맡기므로 스프링내에 있는 세션을 끔.
-        http
-            .exceptionHandling(exceptionHandling ->
-                exceptionHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer
+        http.sessionManagement(session -> session.sessionFixation(SessionManagementConfigurer
+                        .SessionFixationConfigurer::changeSessionId)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .expiredUrl("/")
+                .sessionRegistry(sessionRegistry())
+                .expiredSessionStrategy(securitySessionExpiredStrategy));
+        //.addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer
+                    .loginPage("/page/login/loginPage")
                     .usernameParameter("userId")
                     .passwordParameter("password")
                     .loginProcessingUrl("/api/member/login")
                     .successHandler(loginSuccessHandler())
-                    .failureHandler(loginFailHandler()))
+                    .failureHandler(loginFailHandler()));
+        http
             .csrf(AbstractHttpConfigurer::disable)
             .rememberMe(AbstractHttpConfigurer::disable)
-            .logout(AbstractHttpConfigurer::disable);
-
+            .logout(logout ->logout
+                    .logoutUrl("/api/member/logout")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID"));
         return http.build();
     }
 

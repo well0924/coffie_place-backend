@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Set;
 
 @Log4j2
@@ -37,7 +38,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private MemberService memberService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+
+        response.setStatus(HttpServletResponse.SC_OK);
 
         CustomUserDetails  customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         
@@ -45,8 +48,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         try {
             log.info("memberDetail::"+member);
-            //로그인 실패 횟수 리셋
-            memberService.resetLoginAttempts(member.getUserId());
+
+            if(member.getFailedAttempt()>=1){
+                //로그인 실패 횟수 리셋
+                memberService.resetLoginAttempts(member.getUserId());
+            }
             //로그인을 한 세션을 지우는 메서드
             clearAuthenticationAttributes(request);
             //권한별 페이지 이동

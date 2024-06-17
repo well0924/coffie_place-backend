@@ -224,16 +224,21 @@ public class MemberService {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         //계정이 잠겨있는 경우
-        if (member.getAccountNonLocked()) {
-            long hoursSinceLock = ChronoUnit.HOURS.between(member.getLockTime(), LocalDateTime.now());
-            if (hoursSinceLock >= 24) {
-                member.setAccountNonLocked(false);
-                member.setFailedAttempt(0);
-                member.setMemberStatus(MemberStatus.USER_LOCK);
-                memberRepository.save(member);
-                return false;
+        if (member.getAccountNonLocked() != null && member.getAccountNonLocked()) {
+            if(member.getLockTime()!=null){
+                long hoursSinceLock = ChronoUnit.HOURS.between(member.getLockTime(), LocalDateTime.now());
+                if (hoursSinceLock >= 24) {
+                    member.setAccountNonLocked(false);
+                    member.setFailedAttempt(0);
+                    member.setMemberStatus(MemberStatus.USER_LOCK);
+                    memberRepository.save(member);
+                    return false;
+                }
+                return true;
+            }else{
+                // Lock time이 null인 경우 처리 (필요에 따라 메시지 추가)
+                throw new IllegalStateException("Lock time is not set");
             }
-            return true;
         }
         return false;
     }
@@ -249,7 +254,7 @@ public class MemberService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         member.setFailedAttempt(0);
-        member.setAccountNonLocked(false);
+        member.setAccountNonLocked(true);
         member.setLockTime(null);
         member.setMemberStatus(MemberStatus.NON_USER_LOCK);
         memberRepository.save(member);

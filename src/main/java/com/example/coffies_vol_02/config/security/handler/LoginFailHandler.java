@@ -32,6 +32,10 @@ public class LoginFailHandler extends SimpleUrlAuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        // 로그인 실패 처리 로직
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Login failed!");
+        response.getWriter().flush();
         //에러 매시지
         String userId = request.getParameter("userId");
         log.info("입력 아이디:"+userId);

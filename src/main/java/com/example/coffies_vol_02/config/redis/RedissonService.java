@@ -41,16 +41,40 @@ public class RedissonService {
     public void boardLikeUp(String key,Integer memberId,Integer boardId){
         Optional<Board>board = boardRepository.findById(boardId);
         Optional<Member>member = memberRepository.findById(memberId);
-        //게시글내에 있는 좋아요 수증가.
-        board.get().likeCountUp();
-        Like like = new Like(member.get(), board.get());
+
+        //게시글 내에 있는 좋아요수 증가.
+        board.orElseThrow().likeCountUp();
+        Like like = new Like(member.orElseThrow(), board.orElseThrow());
         likeRepository.save(like);
     }
 
     //게시글 좋아요 감소.
+    @DistributeLock(key = "#key")
+    public void boardLikeDown(String key,Integer memberId,Integer boardId){
+        Optional<Board>board = boardRepository.findById(boardId);
+        Optional<Member>member = memberRepository.findById(memberId);
+
+        Like like = Like
+                .builder()
+                .member(member.orElseThrow())
+                .board(board.orElseThrow())
+                .build();
+
+        //게시글 좋아요수 감소
+        board.get().likeCountDown();
+
+        likeRepository.save(like);
+    }
 
     //가게 댓글 좋아요 증가.
+    @DistributeLock(key = "#key")
+    public void placeCommentLikeUp(String key,Integer memberId,Integer commentId){
+        
+    }
 
     //가게 댓글 좋아요 감소.
+    @DistributeLock(key = "#key")
+    public void placeCommentLikeDown(){
 
+    }
 }

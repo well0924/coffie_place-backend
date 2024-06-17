@@ -43,7 +43,7 @@ public class RedisConfig {
     /**
      * 내장 혹은 외부의 Redis를 연결
      */
-    @Bean(name="redisCacheManager")
+    @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisHost);
@@ -80,7 +80,7 @@ public class RedisConfig {
      * 캐시 설정
      */
     @Bean
-    public RedisCacheManager redisCacheManager(@Qualifier("redisCacheManager") RedisConnectionFactory connectionFactory){
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory){
 
         RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration
                 .defaultCacheConfig()

@@ -23,8 +23,6 @@ public class CustomUserDetails implements UserDetails,Serializable {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        log.info("CustomUserDetail....");
-
         Collection<GrantedAuthority> collectors = new ArrayList<>();
         collectors.add(()-> member.getRole().getValue());
         
