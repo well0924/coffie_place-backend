@@ -71,11 +71,11 @@ public class BoardApiController {
 
         //검색어가 없는 경우
         if (StringUtils.isBlank(searchType) || StringUtils.isBlank(searchVal)) {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST, ERRORCODE.NOT_SEARCH_VALUE);
         }
 
         Page<BoardResponse> list = boardService.searchFreeBoard(SearchType.valueOf(searchType),searchVal,pageable);
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "자유 게시글 단일 조회", description = "자유게시판에서 게시글을 단일 조회하는 컨트롤러",responses = {
@@ -92,7 +92,7 @@ public class BoardApiController {
             throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND);
         }
 
-        return new CommonResponse<>(HttpStatus.OK.value(),detail);
+        return new CommonResponse<>(HttpStatus.OK,detail);
     }
 
     @Operation(summary = "게시글 작성", description = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.",responses = {
@@ -110,9 +110,9 @@ public class BoardApiController {
         Integer writeResult = boardService.createFreeBoard(dto,files,customUserDetails.getMember());
 
         if (writeResult > 0) {
-            return new CommonResponse<>(HttpStatus.CREATED.value(), writeResult);
+            return new CommonResponse<>(HttpStatus.CREATED, writeResult);
         } else {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "글작성에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.BOARD_FAIL);
         }
     }
 
@@ -132,9 +132,9 @@ public class BoardApiController {
         Integer updateResult = boardService.updateFreeBoard(boardId,dto,customUserDetails.getMember(),files);
 
         if (updateResult > 0) {
-            return new CommonResponse<>(HttpStatus.OK.value(), updateResult);
+            return new CommonResponse<>(HttpStatus.OK, updateResult);
         } else {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "글수정에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.BOARD_FAIL);
         }
     }
 
@@ -164,7 +164,7 @@ public class BoardApiController {
 
         BoardResponse result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
 
-        return new CommonResponse<>(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK,result);
     }
 
     @Operation(summary = "최근에 작성한 글",description = "자유게시판 글 중에서 최신순으로 글 5개를 출력",responses = {

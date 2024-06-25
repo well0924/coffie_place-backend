@@ -20,8 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import springfox.documentation.annotations.ApiIgnore;
+
 import java.util.List;
 
 @Api(tags = "Favorite api",value = "마이 페이지 관련 api 컨트롤러")
@@ -43,7 +51,7 @@ public class FavoriteApiController {
 
         Page<FavoritePlaceResponseDto>list= favoritePlaceService.MyWishList(pageable,userId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "위시리스트 중복 체크",description = "가게조회 페이지에서 위시리스트를 눌렀을때 중복체크를 한다.")
@@ -56,7 +64,7 @@ public class FavoriteApiController {
 
         boolean checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
 
-        return new CommonResponse<>(HttpStatus.OK.value(),checkResult);
+        return new CommonResponse<>(HttpStatus.OK,checkResult);
     }
 
     @Operation(summary = "가게 위시리스트에 추가", description = "가게 조회페이지에서 위시리스트 추가를 누르면 위시리스트가 추가가 된다")
@@ -69,7 +77,7 @@ public class FavoriteApiController {
 
         favoritePlaceService.wishListAdd(memberId,placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),"wishList Add");
+        return new CommonResponse<>(HttpStatus.OK,"wishList Add");
     }
 
     @Operation(summary = "위시리스트 삭제",description = "마이페이지에서 위시리스트에 있는 위시리스트를 삭제한다.")
@@ -80,7 +88,7 @@ public class FavoriteApiController {
 
         favoritePlaceService.wishDelete(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),"wishlist delete!");
+        return new CommonResponse<>(HttpStatus.OK,"wishlist delete!");
     }
 
     @Operation(summary = "로그인한 회원이 작성한 글", description = "마이페이지에서 로그인한 회원이 작성한 글의 목록을 보여준다.",responses = {
@@ -94,7 +102,7 @@ public class FavoriteApiController {
 
         Page<BoardResponse> list = favoritePlaceService.getMyPageBoardList(pageable, userId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
     
     @Operation(summary = "로그인한 회원이 작성한 댓글",description = "마이페이지에서 로그인한 회원이 작성한 댓글의 목록을 보여준다.",responses = {
@@ -107,7 +115,7 @@ public class FavoriteApiController {
 
         List<placeCommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "회원 위치에서 가까운 가게 조회",description = "회원의 위경도를 기준으로 해서 가까운 가게 목록을 조회한다",responses = {
@@ -116,9 +124,8 @@ public class FavoriteApiController {
     @GetMapping(path = "/near-list")
     public CommonResponse<?> placeNearList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<PlaceResponseDto> nearList = favoritePlaceService.placeNear(customUserDetails.getMember().getMemberLat(),customUserDetails.getMember().getMemberLng());
-
-        return new CommonResponse<>(HttpStatus.OK.value(),nearList);
+        List<PlaceResponseDto> nearList =  favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
+        return new CommonResponse<>(HttpStatus.OK,nearList);
     }
 
     @Operation(summary="회원이 좋아요를 한 게시글 목록을 확인하는 기능",responses = {
@@ -131,7 +138,7 @@ public class FavoriteApiController {
 
         Page<BoardResponse>result = favoritePlaceService.likedBoardList(customUserDetails.getMember().getId(),pageable);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK,result);
     }
 
 }

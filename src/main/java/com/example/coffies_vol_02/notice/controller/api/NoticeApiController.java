@@ -44,7 +44,7 @@ public class NoticeApiController {
 
         Page<NoticeResponse> list = noticeService.listNoticeBoard(pageable);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "공지 게시판 검색",responses = {
@@ -62,10 +62,10 @@ public class NoticeApiController {
 
         //검색시 결과가 없는 경우
         if(StringUtils.isBlank(searchVal)||StringUtils.isBlank(searchType)){
-            return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+            return new CommonResponse<>(HttpStatus.OK, ERRORCODE.NOT_SEARCH_VALUE);
         }
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "공지게시글 조회",description = "공지게시글을 단일 조회한다.",responses = {
@@ -77,7 +77,7 @@ public class NoticeApiController {
 
         NoticeResponse detail = noticeService.findNoticeBoardById(noticeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),detail);
+        return new CommonResponse<>(HttpStatus.OK,detail);
     }
 
     @Operation(summary = "공지게시글 작성", description = "공지게시글 작성화면에서 게시글을 작성한다.")
@@ -88,12 +88,15 @@ public class NoticeApiController {
                                                 @Parameter(name = "files",description = "공지게시글 첨부파일")
                                                 @RequestPart(value = "files",required = false) List<MultipartFile> files ,
                                                 BindingResult bindingResult)throws Exception{
+
         Integer insertResult = noticeService.createNoticeBoard(dto,files);
 
         if(insertResult > 0){
-            return new CommonResponse<>(HttpStatus.CREATED.value(),insertResult);
+            return new CommonResponse<>(HttpStatus.CREATED,insertResult);
+        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()){
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.BOARD_FAIL);
         }else {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(),"공지 게시글 작성에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,ERRORCODE.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -113,8 +116,10 @@ public class NoticeApiController {
 
         if(updateResult>0){
             return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
-        }else {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "공지 게시글 수정에 실패했습니다.");
+        }else if(HttpStatus.BAD_REQUEST.is4xxClientError()){
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.NOTICE_FAIL);
+        }else{
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,ERRORCODE.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -126,6 +131,6 @@ public class NoticeApiController {
 
         noticeService.deleteNoticeBoard(noticeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
+        return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
     }
 }

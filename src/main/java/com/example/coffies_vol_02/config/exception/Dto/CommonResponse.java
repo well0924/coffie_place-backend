@@ -1,7 +1,9 @@
 package com.example.coffies_vol_02.config.exception.Dto;
 
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 
@@ -15,6 +17,8 @@ public class CommonResponse<T> implements Serializable {
     private Integer status;
     private String message;
     private T data;
+    private HttpStatus httpStatus;
+    private ERRORCODE errorcode;
 
     public CommonResponse(Integer status,String message){
         this.status = status;
@@ -23,5 +27,15 @@ public class CommonResponse<T> implements Serializable {
     public CommonResponse(Integer status,T data){
         this.status = status;
         this.data = data;
+    }
+
+    public CommonResponse(HttpStatus httpStatus,T data){
+        this.httpStatus = httpStatus;
+        this.data = data;
+    }
+
+    public CommonResponse(HttpStatus httpStatus, ERRORCODE errorcode){
+        this.httpStatus = httpStatus;
+        this.errorcode = errorcode;
     }
 }

@@ -49,11 +49,11 @@ public class PlaceApiController {
         try{
             Slice<PlaceResponseDto> list = placeService.listCafePlace(pageable,keyword,customUserDetails.getMember());
 
-            return new CommonResponse<>(HttpStatus.OK.value(), list);
+            return new CommonResponse<>(HttpStatus.OK, list);
         }catch (Exception e){
             log.info(e.getMessage());
         }
-        return new CommonResponse<>(HttpStatus.OK.value(),placeService.listCafePlace(pageable,keyword,null));
+        return new CommonResponse<>(HttpStatus.OK,placeService.listCafePlace(pageable,keyword,null));
     }
 
     @Operation(summary = "가게 목록 검색", description = "가게 목록페이지에서 가게를 검색을 한다.",responses = {
@@ -71,10 +71,10 @@ public class PlaceApiController {
 
         //검색어가 없는 경우
         if(StringUtils.isBlank(keyword)){
-            return new CommonResponse<>(HttpStatus.OK.value(),ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+            return new CommonResponse<>(HttpStatus.OK,ERRORCODE.NOT_SEARCH_VALUE);
         }
 
-        return new CommonResponse<>(HttpStatus.OK.value(), list);
+        return new CommonResponse<>(HttpStatus.OK, list);
     }
 
     @Operation(summary = "가게 단일 조회", description = "가게 목록에서 가게를 조회를 한다.",responses = {
@@ -86,7 +86,7 @@ public class PlaceApiController {
 
         PlaceResponseDto placeDetail = placeService.findCafePlaceById(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(), placeDetail);
+        return new CommonResponse<>(HttpStatus.OK, placeDetail);
     }
 
     @Operation(summary = "가게 등록", description = "어드민 페이지에서 가게를 등록을 한다.")
@@ -100,9 +100,9 @@ public class PlaceApiController {
         Integer registerResult = placeService.createCafePlace(dto, imageRequestDto);
 
         if(registerResult>0){
-            return new CommonResponse<>(HttpStatus.OK.value(), registerResult);
+            return new CommonResponse<>(HttpStatus.OK, registerResult);
         }else {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "가게 등록에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.PLACE_FAIL);
         }
     }
 
@@ -115,7 +115,7 @@ public class PlaceApiController {
 
         Integer placeUpdateResult = placeService.updateCafePlace(placeId, dto, imageRequestDto);
 
-        return new CommonResponse<>(HttpStatus.OK.value(), placeUpdateResult);
+        return new CommonResponse<>(HttpStatus.OK, placeUpdateResult);
     }
 
     @Operation(summary = "가게 삭제", description = "등록된 가게를 삭제한다.")
@@ -126,7 +126,7 @@ public class PlaceApiController {
 
         placeService.deleteCafePlace(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
+        return new CommonResponse<>(HttpStatus.NO_CONTENT, "Delete O.k");
     }
 
     @Operation(summary = "가게 목록 top5 조회", description = "가게 목록을 조회한다",responses = {
@@ -137,7 +137,7 @@ public class PlaceApiController {
 
         Page<PlaceResponseDto> top5list = placeService.cafePlaceByReviewRateTop5(pageable);
 
-        return new CommonResponse<>(HttpStatus.OK.value(), top5list);
+        return new CommonResponse<>(HttpStatus.OK, top5list);
     }
 
 }

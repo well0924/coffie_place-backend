@@ -53,14 +53,14 @@ public class MemberApiController {
     public CommonResponse<?>loginProc(@RequestBody LoginDto loginDto, HttpSession httpSession){
         log.info("session::::"+httpSession.getAttribute("member"));
 
-        return new CommonResponse<>(HttpStatus.OK.value(),authService.login(loginDto,httpSession));
+        return new CommonResponse<>(HttpStatus.OK,authService.login(loginDto,httpSession));
     }
 
     @PostMapping("/logout")
     public CommonResponse<?>logout(HttpSession httpSession){
         authService.logout(httpSession);
         httpSession.invalidate();
-        return new CommonResponse<>(HttpStatus.OK.value(),"log-out");
+        return new CommonResponse<>(HttpStatus.OK,"log-out");
     }
 
     @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
@@ -71,7 +71,7 @@ public class MemberApiController {
 
         Page<MemberResponse> list = memberService.findAll(pageable);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "회원 검색 api", description = "회원목록에서 검색을 한다.")
@@ -85,10 +85,10 @@ public class MemberApiController {
         Page<MemberResponse> list = memberService.findByAllSearch(SearchType.valueOf(searchType),searchVal,pageable);
 
         if(searchVal==null|| searchVal.isEmpty() ||searchType ==null|| searchType.isEmpty()){
-            return new CommonResponse<>(HttpStatus.OK.value(), ERRORCODE.NOT_SEARCH_VALUE.getMessage());
+            return new CommonResponse<>(HttpStatus.OK, ERRORCODE.NOT_SEARCH_VALUE);
         }
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
@@ -100,7 +100,7 @@ public class MemberApiController {
 
         MemberResponse detail = memberService.findByMember(userIdx);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),detail);
+        return new CommonResponse<>(HttpStatus.OK,detail);
     }
 
     @Operation(summary = "회원가입 api", description = "회원가입페이지에서 회원가입을 한다.")
@@ -111,11 +111,11 @@ public class MemberApiController {
         memberService.memberCreate(dto);
 
         if(HttpStatus.OK.is2xxSuccessful()){
-            return new CommonResponse<>(HttpStatus.OK.value(),"회원가입이 완료되었습니다.");
+            return new CommonResponse<>(HttpStatus.OK,"회원가입이 완료되었습니다.");
         }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원가입에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST, "회원가입에 실패했습니다.");
         }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "서버에 문제가 있습니다.");
         }
     }
 
@@ -133,9 +133,9 @@ public class MemberApiController {
         if(HttpStatus.OK.is2xxSuccessful()){
             return new CommonResponse<>(HttpStatus.OK.value(),"회원정보가 수정되었습니다.");
         }else if(HttpStatus.BAD_REQUEST.is4xxClientError()) {
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원수정에 실패했습니다.(잘못된 요청입니다.)");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST, "회원수정에 실패했습니다.(잘못된 요청입니다.)");
         }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,ERRORCODE.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -149,11 +149,11 @@ public class MemberApiController {
         memberService.memberDelete(userIdx);
 
         if(HttpStatus.OK.is2xxSuccessful()){
-            return new CommonResponse<>(HttpStatus.NO_CONTENT.value(),"Delete O.K");
+            return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.K");
         }else if(HttpStatus.BAD_REQUEST.is4xxClientError()){
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(), "회원삭제에 실패했습니다.(잘못된 요청입니다.)");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST, "회원삭제에 실패했습니다.(잘못된 요청입니다.)");
         }else{
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에 문제가 있습니다.");
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,ERRORCODE.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -169,7 +169,7 @@ public class MemberApiController {
 
         String findUser = memberService.findUserId(userName,userEmail);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),findUser);
+        return new CommonResponse<>(HttpStatus.OK,findUser);
     }
 
     @Operation(summary = "회원 아이디 중복 api", description = "회원가입 페이지에서 아이디 중복기능")
@@ -180,7 +180,7 @@ public class MemberApiController {
 
         boolean result = memberService.memberIdCheck(userId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK,result);
     }
 
     @Operation(summary = "회원 이메일 중복 api",description = "회원가입 화면에서 회원 이메일 중복여부 확인")
@@ -189,7 +189,7 @@ public class MemberApiController {
 
         boolean result = memberService.memberEmailCheck(userEmail);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK,result);
     }
 
     @Operation(summary = "회원비밀번호 변경 api", description = "회원 비밀번호 변경 페이지에서 비밀번호 변경")
@@ -203,7 +203,7 @@ public class MemberApiController {
 
         int updateResult = memberService.updatePassword(id,dto);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),updateResult);
+        return new CommonResponse<>(HttpStatus.OK,updateResult);
     }
 
     @Operation(summary = "회원선택삭제 api", description = "어드민페이지에서 회원 선택삭제하는 기능",responses = {
@@ -217,7 +217,7 @@ public class MemberApiController {
 
         memberService.selectMemberDelete(userId);
 
-        return new CommonResponse<>(HttpStatus.NO_CONTENT.value(),"Delete O.k");
+        return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
     }
 
     @Operation(summary = "회원 검색 자동완성",description = "어드민 페이지에서 회원을 검색할 때 검색어를 자동완성기능",responses = {
@@ -229,7 +229,7 @@ public class MemberApiController {
 
         List<String>list = redisService.memberAutoSearch(userId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "이메일 인증",description = "회원 가입 페이지에서 이메일 인증 하는 기능.")

@@ -44,12 +44,12 @@ public class CommentApiController {
             list = commentService.freeBoardCommentList(boardId);
 
             if(list.isEmpty()){
-                return new CommonResponse<>(ERRORCODE.NOT_REPLY.getErrorCode(),list);
+                return new CommonResponse<>(HttpStatus.OK,ERRORCODE.NOT_REPLY);
             }
         }catch (Exception e){
-            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),list);
+            return new CommonResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,list);
         }
-        return new CommonResponse<>(HttpStatus.OK.value(),list);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "댓글 작성", description = "게시글 목록에서 댓글을 작성한다.", responses = {
@@ -65,9 +65,9 @@ public class CommentApiController {
         Integer writeResult = commentService.createFreeBoardComment(boardId,customUserDetails.getMember(),dto);
 
         if(writeResult !=null && writeResult > 0){
-            return new CommonResponse<>(HttpStatus.OK.value(),writeResult);
+            return new CommonResponse<>(HttpStatus.OK,writeResult);
         }else{
-            return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(),"댓글작성에 실패했습니다.");
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.REPLY_FAIL);
         }
     }
 
@@ -78,7 +78,7 @@ public class CommentApiController {
 
         commentService.deleteFreeBoardComment(replyId,customUserDetails.getMember());
 
-        return new CommonResponse<>(HttpStatus.OK.value(), "Delete O.k");
+        return new CommonResponse<>(HttpStatus.OK, "Delete O.k");
     }
 
     @Operation(summary = "가게 댓글 목록", description = "가게 조회화면에서 댓글목록을 보여준다.",responses={
@@ -89,7 +89,7 @@ public class CommentApiController {
 
         List<placeCommentResponseDto>commentResponseDtoList = commentService.placeCommentList(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),commentResponseDtoList);
+        return new CommonResponse<>(HttpStatus.OK,commentResponseDtoList);
     }
 
     @Operation(summary = "가게댓글 작성", description = "게시글 목록에서 댓글을 작성한다.")
@@ -105,7 +105,7 @@ public class CommentApiController {
         //가게 평점 계산
         commentService.updateStar(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),insertResult);
+        return new CommonResponse<>(HttpStatus.OK,insertResult);
     }
 
     @Operation(summary = "댓글 삭제",description = "게시글 목록에서 댓글을 삭제한다.")
@@ -121,7 +121,7 @@ public class CommentApiController {
         //평점 계산
         commentService.updateStar(placeId);
 
-        return new CommonResponse<>(HttpStatus.OK.value(),"Delete Comment");
+        return new CommonResponse<>(HttpStatus.OK,"Delete Comment");
     }
 
     @Operation(summary = "최근에 작성한 댓글",description = "게시판 댓글과 가게 댓글에서 작성일 순으로 5개를 출력")
@@ -131,6 +131,6 @@ public class CommentApiController {
 
         List<placeCommentResponseDto>result = commentService.recentCommentTop5();
 
-        return new CommonResponse<>(HttpStatus.OK.value(),result);
+        return new CommonResponse<>(HttpStatus.OK,result);
     }
 }
