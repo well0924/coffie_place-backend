@@ -60,6 +60,8 @@ dependencies {
     // Swagger
     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
     implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+    //swagger 접속시 not found 대처
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
     // jackson
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
@@ -95,7 +97,6 @@ dependencies {
 
     //selenium
     implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
-
 
     //thumbnail
     implementation 'net.coobird:thumbnailator:0.4.14'
