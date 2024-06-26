@@ -6,6 +6,7 @@ import com.example.coffies_vol_02.board.repository.BoardRepository;
 import com.example.coffies_vol_02.commnet.domain.Comment;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
+import com.example.coffies_vol_02.config.api.service.KakaoApiSearchService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class FavoritePlaceService {
 
@@ -39,6 +41,8 @@ public class FavoritePlaceService {
     private final PlaceRepository placeRepository;
 
     private final FavoritePlaceRepository favoritePlaceRepository;
+
+    private final KakaoApiSearchService apiSearchService;
 
     /**
      * 위시 리스트 목록
@@ -112,6 +116,7 @@ public class FavoritePlaceService {
      * @see MemberRepository#findByUserId(String) 시큐리티 로그인 인증 메서드
      * @see BoardRepository#findByMember(Member, Pageable) 회원이 작성을 한 글을 마이페이지에서 확인하는 메서드
      **/
+    @Transactional(readOnly = true)
     public Page<BoardResponse> getMyPageBoardList(Pageable pageable, String userId){
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
@@ -130,6 +135,7 @@ public class FavoritePlaceService {
      * @see MemberRepository#findByUserId(String) 회원 시큐리티 로그인 메서드
      * @see CommentRepository#findByMember(Member, Pageable) 로그인한 회원이 작성한 댓글을 확인하는 메서드
      **/
+    @Transactional(readOnly = true)
     public List<placeCommentResponseDto> getMyPageCommnetList(String userId, Pageable pageable){
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.ONLY_USER));
@@ -142,16 +148,17 @@ public class FavoritePlaceService {
     /**
      * 가까운 가게 5곳
      * 회원의 위경도를 기준으로 가까운 가게 5곳을 보여주는 기능
-     * @param lat 경도
-     * @param lon 위도
      * @return result 가게 정보 dto 값
      **/
     @Transactional(readOnly = true)
-    public List<PlaceResponseDto> placeNear(Double lat, Double lon) {
-        List<Place>list = placeRepository.findPlaceByLatLng(lat,lon);
-        return list.stream().map(PlaceResponseDto::new).toList();
+    public List<PlaceResponseDto>findByMemberNearList(Member member){
+        List<String>placeNames = apiSearchService.extractPlaceName(member);
+        return placeRepository.findPlacesByName(placeNames)
+                .stream()
+                .map(place->new PlaceResponseDto(place))
+                .collect(Collectors.toList());
     }
-    
+
     /**
      * 회원이 좋아요를 한 게시글 목록
      * @author 양경빈

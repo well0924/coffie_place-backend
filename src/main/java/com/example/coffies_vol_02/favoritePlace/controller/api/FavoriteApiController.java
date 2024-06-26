@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.favoritePlace.controller.api;
 
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
+import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
@@ -124,8 +125,12 @@ public class FavoriteApiController {
     @GetMapping(path = "/near-list")
     public CommonResponse<?> placeNearList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<PlaceResponseDto> nearList =  favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
-        return new CommonResponse<>(HttpStatus.OK,nearList);
+        if(customUserDetails.getMember()!=null){
+            List<PlaceResponseDto> nearList = favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
+            return new CommonResponse<>(HttpStatus.OK,nearList);
+        }else {
+            return new CommonResponse<>(HttpStatus.OK, ERRORCODE.PLACE_NOT_FOUND);
+        }
     }
 
     @Operation(summary="회원이 좋아요를 한 게시글 목록을 확인하는 기능",responses = {

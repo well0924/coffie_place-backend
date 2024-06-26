@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.testFavoritePlace;
 
-import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.queryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.repository.FavoritePlaceRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({TestQueryDslConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class FavoritePlaceRepositoryTest {
+
     @Autowired
     private FavoritePlaceRepository favoritePlaceRepository;
 

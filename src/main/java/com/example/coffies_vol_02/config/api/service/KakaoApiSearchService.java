@@ -59,7 +59,9 @@ public class KakaoApiSearchService {
         return restTemplate.exchange(uri, HttpMethod.GET, httpEntity, KakaoApiResponseDto.class).getBody();
     }
 
-
+    /**
+     *
+     **/
     @Retryable(
             value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행
             maxAttempts = 3,//재시도 횟수

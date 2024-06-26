@@ -29,6 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/page/mypage")
 public class FavoriteController {
+
     private final FavoritePlaceService favoritePlaceService;
 
     private final MemberService memberService;
@@ -89,10 +90,10 @@ public class FavoriteController {
         MemberResponse memberResponse = memberService.findByMember(customUserDetails.getMember().getId());
         //근처 가게 top5
         if (customUserDetails != null) {
-            near5  = favoritePlaceService.placeNear(memberResponse.memberLat(),memberResponse.memberLng());
+            near5  = favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
         }
         log.info("회원 정보::"+memberResponse);
-
+        log.info("가게 정보::"+near5);
         mv.addObject("near5",near5);
         mv.addObject("member",memberResponse);
         mv.setViewName("/mypage/nearPlaceList");

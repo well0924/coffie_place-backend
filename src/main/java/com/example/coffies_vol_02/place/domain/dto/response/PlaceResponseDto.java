@@ -3,9 +3,12 @@ package com.example.coffies_vol_02.place.domain.dto.response;
 import com.example.coffies_vol_02.config.excel.ExcelColumn;
 import com.example.coffies_vol_02.config.excel.ExcelFileName;
 import com.example.coffies_vol_02.place.domain.Place;
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.annotations.ApiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.io.Serializable;
 
 @ExcelFileName(fileName = "가게 목록")
 @ApiModel(description = "가게 응답 dto",value = "가게 응답 dto")
@@ -14,7 +17,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceResponseDto {
+public class PlaceResponseDto implements Serializable {
     
     @ExcelColumn(headerName = "가게 번호")
     @Schema(description = "가게 번호",type = "Integer")
@@ -70,6 +73,7 @@ public class PlaceResponseDto {
     private String thumbFileImagePath;
 
     @Builder
+    @QueryProjection
     public PlaceResponseDto(Place place){
         this.id = place.getId();
         this.placeAuthor = place.getPlaceAuthor();
