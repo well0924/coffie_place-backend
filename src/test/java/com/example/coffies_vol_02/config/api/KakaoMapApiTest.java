@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.Api;
+package com.example.coffies_vol_02.config.api;
 
 import com.example.coffies_vol_02.config.api.dto.KakaoApiResponseDto;
 import com.example.coffies_vol_02.config.api.service.KakaoApiSearchService;
@@ -13,13 +13,12 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 public class KakaoMapApiTest {
+
     @Autowired
     private KakaoUriBuilderService kakaoUriBuilderService;
 
@@ -74,10 +73,4 @@ public class KakaoMapApiTest {
         assertThat(result.getMetaDto()).isNotNull();
     }
 
-    @Test
-    @DisplayName("회원위경도를 기준으로 해서 가게 목록 가져오기")
-    public void placeRadiusTest(){
-        List<KakaoApiResponseDto>result = new ArrayList<>();
-
-    }
 }
