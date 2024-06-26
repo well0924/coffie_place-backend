@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.testPlace;
 
+import com.example.coffies_vol_02.config.api.service.KakaoApiSearchService;
 import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.factory.PlaceFactory;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
@@ -58,6 +59,9 @@ public class PlaceServiceTest {
 
     @Mock
     private PlaceRepository placeRepository;
+
+    @Mock
+    private KakaoApiSearchService apiSearchService;
 
     @Mock
     private RedisService redisService;
@@ -173,14 +177,18 @@ public class PlaceServiceTest {
     @Test
     @DisplayName("가게 근처 조회-성공")
     public void nearPlaceTest(){
+        //given
         List<PlaceResponseDto>placeResponseDtos = new ArrayList<>();
         placeResponseDtos.add(placeResponseDto);
-
+        List<String>placeNames = new ArrayList<>();
+        placeNames.add(place.getPlaceName());
         //given
-        given(placeRepository.findPlaceByLatLng(member.getMemberLat(),member.getMemberLng())).willReturn(placeList);
+        given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
+        given(placeRepository.findPlacesByName(placeNames)).willReturn(placeList);
+        given(apiSearchService.extractPlaceName(member)).willReturn(List.of(place.getPlaceName()));
 
         //when
-        when(favoritePlaceService.placeNear(member.getMemberLat(),member.getMemberLng())).thenReturn(placeResponseDtos);
+        when(favoritePlaceService.findByMemberNearList(member)).thenReturn(placeResponseDtos);
 
         //then
         assertThat(placeResponseDtos).hasSize(1);
