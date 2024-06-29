@@ -1,10 +1,10 @@
 package com.example.coffies_vol_02.config.redis;
 
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRecentSearchDto;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,8 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -62,15 +60,20 @@ public class RedisConfig {
         // json 형식으로 데이터를 받을 때
         // 값이 깨지지 않도록 직렬화한다.
         // 저장할 클래스가 여러개일 경우 범용 JacksonSerializer인 GenericJackson2JsonRedisSerializer를 이용한다
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+
         //모든 타입 설정
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+
         //String 타입 설정
         redisTemplate.setStringSerializer(new StringRedisSerializer());
+
         //hash타입 설정
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(serializer);
+        redisTemplate.setHashKeySerializer(new GenericJackson2JsonRedisSerializer(String.valueOf(PlaceRecentSearchDto.class)));
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(String.valueOf(PlaceRecentSearchDto.class)));
+
         redisTemplate.setEnableTransactionSupport(true); // transaction 허용
 
         return redisTemplate;

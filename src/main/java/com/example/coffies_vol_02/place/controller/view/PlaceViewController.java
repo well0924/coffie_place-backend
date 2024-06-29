@@ -49,8 +49,7 @@ public class PlaceViewController {
 
             //가게 목록
             list = placeService.listCafePlace(pageable,keyword,customUserDetails.getMember());
-            //가게 검색어 저장 목록
-            keywords = placeService.placeSearchList(customUserDetails.getMember());
+
             log.info("검색어:::"+keywords);
             log.info("placeList:::"+list);
 

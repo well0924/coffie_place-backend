@@ -4,7 +4,6 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.CacheKey;
-import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
@@ -41,8 +40,6 @@ public class PlaceService {
 
     private final PlaceImageRepository placeImageRepository;
 
-    private final RedisService redisService;
-
     /**
      * 가게 목록(무한 슬라이드)
      *
@@ -50,29 +47,10 @@ public class PlaceService {
      * @param pageable   페이징 객체
      * @param member     로그인 인증에 필요한 객체
      * @return Slice<PlaceResponseDto>
-     * @see RedisService#setValues(String, String) 가게 검색어 저장
      * @see PlaceRepository#placeList(Pageable, String) 가게 목록
      **/
     public Slice<PlaceResponseDto> listCafePlace(Pageable pageable,String keyword, Member member) {
-        if (member != null) {
-            log.info(keyword);
-            //로그인이 되었을 경우 가게이름 검색어 저장
-            redisService.setValues(member.getUserId().toString(), keyword);
-            log.info("검색어::"+redisService.getSearchList(member.getId().toString()));
-        }
         return placeRepository.placeList(pageable, keyword);
-    }
-
-    /**
-     * 가게 검색어 저장목록
-     * @param member 회원 객체
-     * @return getSearchList
-     **/
-    public List<String> placeSearchList(Member member) {
-        if (member != null) {
-            return redisService.getSearchList(member.getId().toString());
-        }
-        return null;
     }
 
     /**
@@ -84,14 +62,7 @@ public class PlaceService {
      **/
     @Transactional(readOnly = true)
     public Slice<PlaceResponseDto> searchCafePlace(SearchType searchType, String keyword, Pageable pageable, Member member) {
-        if (member != null) {
-            log.info("회원 번호::"+member.getId().toString());
-            log.info("검색어::"+keyword);
-            log.info(searchType);
-            //검색어 저장
-            redisService.setValues(member.getUserId().toString(), keyword);
-            log.info(redisService.getSearchList(member.getId().toString()));
-        }else if(keyword == null||searchType == null){//키워드가 없는 경우
+        if(keyword == null||searchType == null){//키워드가 없는 경우
             throw new CustomExceptionHandler(ERRORCODE.NOT_SEARCH_VALUE);
         }
         return placeRepository.placeListSearch(searchType,keyword, pageable);

@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.testPlace;
 
-import com.example.coffies_vol_02.commnet.service.CommentService;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.redis.CacheKey;
@@ -9,7 +8,6 @@ import com.example.coffies_vol_02.factory.MemberFactory;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.repository.MemberRepository;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRecentSearchDto;
-import com.example.coffies_vol_02.place.service.PlaceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,12 +55,6 @@ public class PlaceRedisTest {
     @InjectMocks
     RedisService redisService;
 
-    @InjectMocks
-    PlaceService placeService;
-
-    @InjectMocks
-    CommentService commentService;
-
     private Member member;
 
     private PlaceRecentSearchDto dto,dto1,dto2;
@@ -79,17 +71,17 @@ public class PlaceRedisTest {
         member = MemberFactory.memberDto();
 
         dto = PlaceRecentSearchDto.builder()
-                .keyword("test")
+                .name("test")
                 .createdTime(LocalDateTime.now().toString())
                 .build();
 
         dto1 = PlaceRecentSearchDto.builder()
-                .keyword("test1")
+                .name("test1")
                 .createdTime(LocalDateTime.now().toString())
                 .build();
 
         dto2 = PlaceRecentSearchDto.builder()
-                .keyword("test2")
+                .name("test2")
                 .createdTime(LocalDateTime.now().toString())
                 .build();
 
@@ -127,7 +119,7 @@ public class PlaceRedisTest {
         when(redisTemplate.opsForList()).thenReturn(listOperations);
         when(listOperations.leftPush(key,dto)).thenReturn(any());
 
-        redisService.createPlaceNameLog(member.getId(),dto);
+        redisService.createPlaceNameLog(member.getId(),dto.getName());
 
         verify(memberRepository).findById(1);
 
@@ -145,15 +137,12 @@ public class PlaceRedisTest {
         // 테스트할 메서드 호출
         List<PlaceRecentSearchDto> result = redisService.ListPlaceNameLog(1);
 
-        // 결과 검증
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals("test1", result.get(0).getKeyword());
-        assertEquals("test2", result.get(1).getKeyword());
+        assertEquals("test1", result.get(0).getName());
+        assertEquals("test2", result.get(1).getName());
 
-        // Verify that findById and range methods are called with correct arguments
         verify(memberRepository).findById(1);
-
         verify(listOperations).range(anyString(), eq(0L), eq(5L));
     }
 
@@ -170,9 +159,7 @@ public class PlaceRedisTest {
 
         assertEquals(ERRORCODE.NOT_FOUND_MEMBER, exception.getErrorCode());
 
-        // Verify that findById is called with correct argument
         verify(memberRepository).findById(1);
-        // Verify that range method is never called
         verify(listOperations, never()).range(anyString(), eq(0L), eq(5L));
     }
 
@@ -184,9 +171,8 @@ public class PlaceRedisTest {
         when(listOperations.remove(anyString(), anyLong(), any(PlaceRecentSearchDto.class))).thenReturn(1L);
 
         // 테스트할 메서드 호출
-        assertDoesNotThrow(() -> redisService.deletePlaceNameLog(1, dto));
+        assertDoesNotThrow(() -> redisService.deletePlaceNameLog(1));
 
-        // Verify that findById, remove methods are called with correct arguments
         verify(memberRepository).findById(1);
         verify(listOperations).remove(anyString(), eq(1L), any(PlaceRecentSearchDto.class));
     }
@@ -199,14 +185,12 @@ public class PlaceRedisTest {
 
         // 예외가 발생하는지 확인
         CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
-            redisService.deletePlaceNameLog(1, dto);
+            redisService.deletePlaceNameLog(1);
         });
 
         assertEquals(ERRORCODE.NOT_FOUND_MEMBER, exception.getErrorCode());
 
-        // Verify that findById is called with correct argument
         verify(memberRepository).findById(1);
-        // Verify that remove method is never called
         verify(listOperations, never()).remove(anyString(), anyLong(), any(PlaceRecentSearchDto.class));
     }
 
@@ -219,7 +203,7 @@ public class PlaceRedisTest {
 
         // 예외가 발생하는지 확인
         CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
-            redisService.deletePlaceNameLog(1, dto);
+            redisService.deletePlaceNameLog(1);
         });
 
         assertEquals(ERRORCODE.SEARCH_LOG_NOT_EXIST, exception.getErrorCode());
@@ -229,9 +213,4 @@ public class PlaceRedisTest {
         verify(listOperations).remove(anyString(), eq(1L), any(PlaceRecentSearchDto.class));
     }
 
-    @Test
-    @DisplayName("댓글 평점 테스트")
-    public void redisReviewScoreTest(){
-
-    }
 }

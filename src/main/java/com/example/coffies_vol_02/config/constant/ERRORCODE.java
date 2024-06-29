@@ -32,6 +32,7 @@ public enum ERRORCODE{
     NOT_FILE(400,"파일이 존재하지 않습니다."),
     PLACE_FAIL(500,"가게등록에 실패했습니다"),
     PLACE_NOT_FOUND(400,"가게가 존재하지 않습니다."),
+    SEARCH_LOG_NOT_EXIST(400,"가게 검색어가 존재하지 않습니다."),
     NOT_WISHLIST(400,"위시리스트가 없습니다.");
 
     private HttpStatus httpStatus;

@@ -3,8 +3,10 @@ package com.example.coffies_vol_02.place.controller.api;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.request.PlaceRecentSearchDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.service.PlaceService;
@@ -28,6 +30,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
+import java.util.List;
 
 @Log4j2
 @Api(tags = "Place Api Controller", value = "가게 관련 api 컨트롤러")
@@ -38,11 +41,14 @@ public class PlaceApiController {
 
     private final PlaceService placeService;
 
+    private final RedisService redisService;
+
     @Operation(summary = "가게 목록 조회", description = "가게 목록을 조회한다",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
     @GetMapping(path = "/")
-    public CommonResponse<Slice<PlaceResponseDto>>listCafePLace(@ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public CommonResponse<Slice<PlaceResponseDto>>listCafePLace(@ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC)
+                                                                    Pageable pageable,
                                        @Parameter(name = "keyword",description = "가게 검색어 저장", in = ParameterIn.QUERY)
                                        @RequestParam(value = "keyword", required = false) String keyword,
                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -133,11 +139,46 @@ public class PlaceApiController {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
     @GetMapping(path = "/top5list")
-    public CommonResponse<Page<PlaceResponseDto>> placeTop5List(@ApiIgnore @PageableDefault Pageable pageable) {
+    public CommonResponse<Page<PlaceResponseDto>>placeTop5List(@ApiIgnore @PageableDefault Pageable pageable) {
 
         Page<PlaceResponseDto> top5list = placeService.cafePlaceByReviewRateTop5(pageable);
 
         return new CommonResponse<>(HttpStatus.OK, top5list);
     }
 
+    @Operation(summary = "최근 검색 기록: 저장")
+    @PostMapping("/search-log")
+    public CommonResponse<?>createRecentPlaceLog(@ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails
+                                                ,@RequestParam String name){
+
+        if(principalDetails !=null){
+            log.info(name);
+            redisService.createPlaceNameLog(principalDetails.getMember().getId(),name);
+        }
+
+        return new CommonResponse<>(HttpStatus.OK,"save PlaceName");
+    }
+
+    @Operation(summary = "최근 검색 기록: 목록")
+    @GetMapping("/search-logs-list")
+    public CommonResponse<?>recentPlaceNamesList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+
+        if(customUserDetails!=null){
+            List<PlaceRecentSearchDto>recentSearchDtoList = redisService.ListPlaceNameLog(customUserDetails.getMember().getId());
+            return new CommonResponse<>(HttpStatus.OK,recentSearchDtoList);
+        }else{
+            return new CommonResponse<>(HttpStatus.UNAUTHORIZED,"로그인을 해주세요.");
+        }
+    }
+
+    @Operation(summary = "최근 검색 기록: 전체삭제")
+    @DeleteMapping("/search-log")
+    public CommonResponse<?>recentPlaceNamesDelete(@ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails){
+        
+        if(principalDetails != null){
+            log.info("?????");
+            redisService.deletePlaceNameLog(principalDetails.getMember().getId());
+        }
+        return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
+    }
 }
