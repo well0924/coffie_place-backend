@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.testMember;
 
-import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.queryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;

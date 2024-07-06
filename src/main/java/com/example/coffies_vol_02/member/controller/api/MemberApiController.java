@@ -228,7 +228,7 @@ public class MemberApiController {
                                                            @RequestParam(value = "userId") String userId){
 
         List<String>list = redisService.memberAutoSearch(userId);
-
+        log.info(list);
         return new CommonResponse<>(HttpStatus.OK,list);
     }
 

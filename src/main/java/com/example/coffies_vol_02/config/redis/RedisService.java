@@ -112,22 +112,30 @@ public class RedisService {
         HashOperations<String,String,Object>hashOperations = redisTemplates.opsForHash();
 
         List<Member>nameList = memberRepository.findAll();
-
-        Map<String,Object> nameDateMap = nameList.stream().collect(Collectors.toMap(Member::getUserId,Member::getId));
+        log.info(nameList.stream().toList());
+        Map<String,Object> nameDateMap = nameList.stream()
+                .collect(Collectors.toMap(Member::getUserId,Member::getId));
+        log.info(nameDateMap);
         //redisHash 에 저장
         hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
 
-        ScanOptions scanOptions = ScanOptions.scanOptions().match(userId+"*").build();
+        // redisHash에 저장된 데이터 확인
+        Map<String, Object> redisData = hashOperations.entries(CacheKey.USERNAME);
+        log.info("Redis Data: " + redisData);
 
+        //검색조건 설정
+        String matchPattern = "\"" + userId + "*";
+        ScanOptions scanOptions = ScanOptions.scanOptions().match(matchPattern).count(10000).build();
         Cursor<Map.Entry<String,Object>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
 
         List<String> searchList = new ArrayList<>();
 
         while(cursor.hasNext()){
             Map.Entry<String,Object> entry = cursor.next();
+            log.info(entry);
             searchList.add(entry.getKey());
         }
-
+        log.info(searchList);
         return searchList;
     }
 
