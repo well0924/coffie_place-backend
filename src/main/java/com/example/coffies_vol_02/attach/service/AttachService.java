@@ -17,8 +17,10 @@ import java.util.Optional;
 
 @Log4j2
 @Service
+@Transactional
 @AllArgsConstructor
 public class AttachService {
+
     private final AttachRepository attachRepository;
 
     /**
@@ -60,6 +62,7 @@ public class AttachService {
         for (Attach attach : list) {
             attachRepository.delete(attach);
         }
+
         log.info("file service");
         log.info("filelist:"+list);
     }

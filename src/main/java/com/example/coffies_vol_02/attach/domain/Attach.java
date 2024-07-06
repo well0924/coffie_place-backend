@@ -10,28 +10,37 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Getter
-@ToString
 @Proxy(lazy = false)
 @Entity
-@Table(name="tbl_file")
+@Table(name= "tbl_file")
 @NoArgsConstructor
-@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
+@AttributeOverrides({@AttributeOverride(name = "id", column = @Column(name = "id"))})
 public class Attach extends BaseTime implements Serializable {
 
     private Integer id;
-    @Column(nullable = false)
-    private String originFileName; //원본 파일명
-    @Column(nullable = false)
-    private String filePath;  // 파일 저장 경로
-    private Long fileSize; // 파일 크기
 
-    //게시판
+    /**
+     * 원본 파일명
+     **/
+    @Column(nullable = false)
+    private String originFileName;
+
+    /**
+     *  파일 저장 경로
+     **/
+    @Column(nullable = false)
+    private String filePath;
+
+    /**
+     * 파일크기
+     **/
+    private Long fileSize;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "board_id")
     private Board board;
 
-    //공지 게시판
     @Setter
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "notice_id")
@@ -81,12 +90,12 @@ public class Attach extends BaseTime implements Serializable {
     }
 
 
-    //첨부파일 관련 메서드
+    /**
+     * 첨부파일 관련 메서드
+     **/
     public void setBoard(Board board){
         this.board = board;
-        // 게시글에 현재 파일이 존재하지 않는다면
         if(!board.getAttachList().contains(this)){
-            // 파일 추가
             board.getAttachList().add(this);
         }
     }
