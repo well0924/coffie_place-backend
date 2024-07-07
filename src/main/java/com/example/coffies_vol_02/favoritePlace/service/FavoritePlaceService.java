@@ -18,6 +18,7 @@ import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 @Transactional
 @AllArgsConstructor
@@ -52,6 +54,7 @@ public class FavoritePlaceService {
      * @return Page<FavoritePlaceResponseDto>
      * @see FavoritePlaceRepository#favoritePlaceWishList(Pageable, String) 로그인을 한 회원이 마이페이지에서 위시리스트를 확인하는 메서드
      **/
+    @Transactional(readOnly = true)
     public Page<FavoritePlaceResponseDto>MyWishList(Pageable pageable, String userId){
         return favoritePlaceRepository.favoritePlaceWishList(pageable,userId);
     }
@@ -60,12 +63,12 @@ public class FavoritePlaceService {
      * 위시 리스트 중복처리
      * @author 양경빈
      * @param placeId 가게 번호
-     * @param memberId 회원 번호
+     * @param memberId 회원 아이디
      * @return boolean 중복이 되면 true 중복이 아니면 false
-     * @see FavoritePlaceRepository#existsByPlaceIdAndMemberId(Integer, Integer) 위시리스트에서 목록이 있는지를 확인하는 메서드
+     * @see FavoritePlaceRepository#existsByPlaceIdAndMemberUserId(Integer, String)  위시리스트에서 목록이 있는지를 확인하는 메서드
      **/
-    public boolean hasWishPlace(Integer placeId,Integer memberId){
-        return favoritePlaceRepository.existsByPlaceIdAndMemberId(placeId, memberId);
+    public boolean hasWishPlace(Integer placeId,String memberId){
+        return favoritePlaceRepository.existsByPlaceIdAndMemberUserId(placeId, memberId);
     }
 
     /**
@@ -77,12 +80,16 @@ public class FavoritePlaceService {
      * @see PlaceRepository#findById(Object) 가게번호로 가게 단일 조회하는 메서드 조회하는 번호가 없는 경우에는 PLACE_NOT_FOUND 발생
      * @see FavoritePlaceRepository#save(Object) 위시리스트를 저장하는 메서드
      **/
-    public void wishListAdd(Integer memberId,Integer placeId){
-        Optional<Member>member = Optional.of(memberRepository.findById(memberId)
+    public void wishListAdd(String memberId, Integer placeId){
+        Optional<Member>member = Optional.of(memberRepository.findByUserId(memberId)
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER)));
+
+        log.info(member.get());
 
         Optional<Place>place = Optional.ofNullable(placeRepository.findById(placeId)
                 .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND)));
+
+        log.info(place.get());
 
         favoritePlaceRepository.save(FavoritePlace
                 .builder()
