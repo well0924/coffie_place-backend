@@ -137,15 +137,16 @@ layout:decorate="~{layout/leafframe}">
 
 	function Replylist(){
 		let id = $('#board_id').val();
-
+		console.log(id);
 		$.ajax({
-			url:"/api/comment/list/"+id,
+			url:"/api/comment/"+id,
 			type:"GET",
 			dataType:"json",
 			contentType:"application/json; charset=utf-8"
 		}).done(function(resp){
 			let str = "";
-			let count = resp.data.length;
+			console.log(resp);
+			console.log(resp.data);
 
 			if(resp.data.length>0){
 				for(let i = 0; i<resp.data.length;i++){
@@ -205,7 +206,7 @@ layout:decorate="~{layout/leafframe}">
 
 		if(validation()){
 			$.ajax({
-				url:'/api/comment/write/'+boardid,
+				url:'/api/comment/'+boardid,
 				type:'post',
 				data:JSON.stringify(formdate),
 				dataType:'json',
@@ -223,12 +224,12 @@ layout:decorate="~{layout/leafframe}">
 	}
 	//댓글 삭제o.k
 	function deleteReply(replyId){
-
+		console.log(replyId);
 		const IsConfirm = confirm('삭제하겠습니까?');
 
 		if(IsConfirm){
 			$.ajax({
-				url:'/api/comment/delete/'+replyId,
+				url:'/api/comment/'+replyId,
 				type:'delete',
 				dataType:'json',
 				contentType : 'application/json; charset=utf-8'

@@ -12,6 +12,6 @@ public record CommentRequest(
         @NotBlank
         String replyContents,
         @Schema(name = "replyPoint",description = "댓글 평점",type = "Integer")
-        Integer replyPoint) {
+        Double replyPoint) {
 
 }

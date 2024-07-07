@@ -8,15 +8,12 @@ import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentRespon
 import com.example.coffies_vol_02.commnet.repository.CommentRepository;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.config.redis.CacheKey;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +33,8 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     private final PlaceRepository placeRepository;
-    //redis sorted-set
-    private final RedisTemplate<String,String>redisTemplate;
+
+    private final RedisService redisService;
 
     /**
      * 댓글 목록(자유게시판)
@@ -106,7 +103,7 @@ public class CommentService {
         Comment comment = commentRepository
                 .findById(replyId).orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY));
 
-        if(member.getUserId().equals(comment.getReplyWriter())){
+        if(!member.getUserId().equals(comment.getReplyWriter())){
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
@@ -137,8 +134,7 @@ public class CommentService {
      * @see PlaceRepository#findById(Object) 가게를 조회하는 메서드
      * @see CommentRepository#save(Object) 댓글을 저장하는 메서드
      **/
-    @Transactional
-    public Integer createPlaceComment(Integer placeId, CommentRequest dto, Member member){
+    public Integer createPlaceComment(Integer placeId, CommentRequest dto, Member member) throws Exception {
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -153,24 +149,29 @@ public class CommentService {
                 .replyWriter(member.getUserId())
                 .replyContents(dto.replyContents())
                 .replyPoint(dto.replyPoint())
+                .likeCount(0)
                 .member(member)
                 .build();
-
+        //댓글 저장
         commentRepository.save(comment);
-
+        //평점 계산 및 저장
+        double avgRating = calculateAverageComment(placeId);
+        System.out.println("Calculated average rating for store " + placeId + " is " + avgRating);
+        redisService.saveRating(placeId.toString(),comment.getReplyPoint());
         return comment.getId();
     }
 
     /**
      * 가게 댓글 삭제
      * @param replyId 가게 댓글번호
+     * @param placeId 가게 번호
      * @param member  로그인 인증에 필요한 객체
      * @throws CustomExceptionHandler 조회할 가게가 없는 경우,로그인이 인증 안되는 경우,댓글 작성자와 로그인한 회원이 일치하지 않은 경우(NOT_AUTH)
      * @author 양경빈
      * tRepository#findById(Object) 가게댓글을 조회하는 메서드
      * @see CommentRepository#deleteById(Object) 가게댓글을 삭제하는 메서드
-     */
-    public void deletePlaceComment(Integer replyId, Member member){
+     **/
+    public void deletePlaceComment(Integer replyId,Integer placeId ,Member member) throws Exception {
 
         if(member == null){
             throw new CustomExceptionHandler(ERRORCODE.ONLY_USER);
@@ -183,39 +184,12 @@ public class CommentService {
             throw new CustomExceptionHandler(ERRORCODE.NOT_AUTH);
         }
 
+        //댓글 삭제
         commentRepository.deleteById(replyId);
-    }
-
-    /**
-     * 가게 댓글 평점 계산
-     * @author 양경빈
-     * @param placeId 가게 번호
-     * @see CommentRepository#getStarAvgByPlaceId(Integer) 가게 댓글 평점을 계산하는 메서드
-     * @return Double 가게 댓글 평점
-     **/
-    public Double getStarAvgByPlaceId(@Param("id") Integer placeId) throws Exception {
-        return commentRepository.getStarAvgByPlaceId(placeId);
-    }
-
-    /**
-     * 가게 평점 출력
-     * @author 양경빈
-     * @param reviewRate 댓글평점
-     * @param placeId 가게 번호
-     * @see CommentRepository#cafeReviewRate(Double, Integer) 가게 댓글 평점을 출력하는 메서드
-     **/
-    public void cafeReviewRate(@Param("rate")Double reviewRate,@Param("id")Integer placeId){
-        commentRepository.cafeReviewRate(reviewRate,placeId);
-    }
-
-    /**
-     * 가게 댓글 평점 반영
-     * @author 양경빈
-     * @param placeId 가게번호
-     **/
-    public void updateStar(Integer placeId)throws Exception{
-        Double avgStar = getStarAvgByPlaceId(placeId);
-        cafeReviewRate(avgStar, placeId);
+        //평점 계산 및 저장
+        double avgRating = calculateAverageComment(placeId);
+        System.out.println("Calculated average rating for store " + placeId + " is " + avgRating);
+        redisService.saveRating(placeId.toString(),comment.getReplyPoint());
     }
 
     /**
@@ -228,15 +202,26 @@ public class CommentService {
         return commentRepository.findTop5ByOrderByCreatedTimeDesc();
     }
 
-    /**
-     * redis에 댓글의 평점을 update
-     * @author 양경빈
-     * @param placeId 가게 번호 , reviewPoint 댓글 평점
-     **/
-    private void updateCommentRating(Integer placeId,Double reviewPoint){
-        ZSetOperations<String,String>zSetOperations = redisTemplate.opsForZSet();
 
-        String placeIdr = String.valueOf(placeId);
-        zSetOperations.add(CacheKey.COMMENT_RATING_KEY,placeIdr,reviewPoint);
+    /**
+     * 가게 댓글 평점 계산
+     * @param placeId 가게 번호
+     **/
+    private Double calculateAverageComment(Integer placeId) throws Exception {
+
+        List<placeCommentResponseDto>commentResponseList = placeCommentList(placeId);
+
+        if(commentResponseList!=null && !commentResponseList.isEmpty()){
+            double totalRating = 0.0;
+
+            for (placeCommentResponseDto commentResponse : commentResponseList) {
+                totalRating += commentResponse.getReviewPoint();
+            }
+
+            double averageRating = totalRating / commentResponseList.size();
+
+            return Math.round(averageRating * 10) / 10.0;
+        }
+        return 0.0;
     }
 }
