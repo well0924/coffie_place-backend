@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,17 +23,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
+@Log4j2
 @Api(tags = "Favorite api",value = "마이 페이지 관련 api 컨트롤러")
 @RestController
 @AllArgsConstructor
@@ -62,17 +58,19 @@ public class FavoriteApiController {
                                           @Parameter(name = "place-id",description = "가게 번호")
                                           @PathVariable("place-id") Integer placeId,
                                           @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-
-        boolean checkResult = favoritePlaceService.hasWishPlace(placeId,customUserDetails.getMember().getId());
-
-        return new CommonResponse<>(HttpStatus.OK,checkResult);
+        if(customUserDetails.getMember()!=null){
+            boolean checkResult = favoritePlaceService.hasWishPlace(placeId,memberId);
+            log.info(checkResult);
+            return new CommonResponse<>(HttpStatus.OK,checkResult);
+        }
+        return new CommonResponse<>(HttpStatus.UNAUTHORIZED,ERRORCODE.NOT_AUTH);
     }
 
     @Operation(summary = "가게 위시리스트에 추가", description = "가게 조회페이지에서 위시리스트 추가를 누르면 위시리스트가 추가가 된다")
     @PostMapping(path = "/{member-id}/{place-id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>wishListAdd(@Parameter(name = "member-id",description = "회원의 번호",required = true)
-                                        @PathVariable("member-id")Integer memberId,
+                                        @PathVariable("member-id")String memberId,
                                         @Parameter(name = "place-id",description = "가게의 번호",required = true)
                                         @PathVariable("place-id") Integer placeId){
 
@@ -127,6 +125,7 @@ public class FavoriteApiController {
 
         if(customUserDetails.getMember()!=null){
             List<PlaceResponseDto> nearList = favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
+            log.info("근처가게:::"+nearList.stream().toList());
             return new CommonResponse<>(HttpStatus.OK,nearList);
         }else {
             return new CommonResponse<>(HttpStatus.OK, ERRORCODE.PLACE_NOT_FOUND);

@@ -21,8 +21,9 @@ layout:decorate="~{layout/leafframe}">
 				<div class="row">
 					<div class="col-4" th:each ="list:${wishlist}">
 						<div class="card">
-							<input type="hidden" id ="userid" name="memberId" th:value="${list.memberId}">
-							<input type="hidden" id ="favoriteid" name="id" th:value="${list.id}">
+							<input type="hidden" id ="memberId" name="memberId" th:value="${list.memberId}">
+							<input type="hidden" id ="favoriteId" name="id" th:value="${list.id}">
+							<input type="hidden" id ="userId" th:value="${#authentication.name}">
 							<th:block>
 							<img th:if="${list.isTitle}" th:src="${list.thumbFileImagePath}"/>
 							</th:block>
@@ -47,7 +48,7 @@ layout:decorate="~{layout/leafframe}">
 						  		위시리스트가 없습니다.
 					</div>
 				</div>
-					<a th:href="@{/page/main/mainpage}" class="btn btn-primary" style="margin-top: 5px; margin-left: 16px;">메인</a>
+					<a th:href="@{/page/main/main}" class="btn btn-primary" style="margin-top: 5px; margin-left: 16px;">메인</a>
 				</div>
 			</div>
 		</div>	

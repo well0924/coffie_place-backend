@@ -1,22 +1,25 @@
 function deleteWish(){
     const isConfirm = confirm("위시리스트를 삭제하시겠습니까?");
 
-    let favoriteid = $('#favoriteid').val();
+    let favoriteId = $('#favoriteId').val();
+    //로그인한 회원 아이디
+    let userId = $('#userId').val();
 
     if(isConfirm){
 
         $.ajax({
-            url:'/api/mypage/delete/'+favoriteid,
+            url:'/api/my-page/'+favoriteId,
             type:'delete',
             dataType:'json',
             data:null,
             contentType:'application/json; charset = utf-8'
-        }).done(function(resp){
+        }).done(function(){
             alert('삭제되었습니다.');
-            location.href="/page/mypage/page/"+userid;
+            location.href="/page/mypage/page/"+userId;
         });
     }
 }
+
 //회원탈뢰
 function memberDelete(){
     let id = $('#user_id').val();

@@ -72,6 +72,7 @@ public class FavoriteController {
 
         try{
             list = favoritePlaceService.MyWishList(pageable,userId);
+            log.info(list);
         }catch (Exception e){
             e.printStackTrace();
         }

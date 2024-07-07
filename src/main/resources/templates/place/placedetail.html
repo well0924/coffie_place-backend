@@ -226,26 +226,10 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 				position: coords
 			});
 
-			// 인포윈도우로 장소에 대한 설명을 표시합니다
-			var infowindow = new kakao.maps.InfoWindow({
-				content: '<div style="width:150px;text-align:center;padding:6px 0;"></div>'
-			});
-			infowindow.open(map, marker);
-
 			// 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
 			map.setCenter(coords);
 		}
 	})
-	/*var marker = new kakao.maps.Marker({
-		position : markerPosition,
-		text: '텍스트를 표시할 수 있어요!'
-	});
-
-	//지도를 생성
-	var map = new kakao.maps.Map(container, options);
-
-	//맵에 표시한다.
-	marker.setMap(map);*/
 
 	//지도 리사이즈
 	function resizeMap(){
@@ -373,7 +357,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		let placeId = $('#placeid').val();
 
 		$.ajax({
-			url:'/api/mypage/check/'+userid+'/'+placeId,
+			url:'/api/my-page/'+userid+'/'+placeId,
 			type:'get',
 			dataType:'json',
 			contentType:'application/json; charset= utf-8'
@@ -381,12 +365,24 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 			console.log(resp.data);
 			if(resp.data==false){
 				alert("위시리스트에서 추가합니다.");
+				wishListAdd(userid,placeId);
 			}else {
 				alert("이미 위시리스트에 추가되었습니다.");
 			}
 		});
-		console.log(userid);
-		console.log(placeId);
+	}
+
+	//위시리스트 추가
+	function wishListAdd(userId,placeId){
+		$.ajax({
+			url:'/api/my-page/'+userId+'/'+placeId,
+			type:'post',
+			data: {placeId : placeId ,userId : userId },
+			dataType:'json',
+			contentType:'application/json; charset= utf-8'
+		}).done(function (resp){
+			console.log(resp);
+		})
 	}
 
 	//댓글 좋아요 확인 기능
@@ -427,7 +423,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		const formdata = {placeId : placeId,replyId :replyId};
 
 		$.ajax({
-			url:'/api/like/plus/'+placeId+'/'+replyId,
+			url:'/api/like/plus/'+replyId,
 			type:'post',
 			data: JSON.stringify(formdata),
 			dataType:'json',
@@ -450,10 +446,9 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 
 	//댓글 좋아요 취소 기능
 	function CommentLikeMinus(replyId){
-		let placeId = $('#placeid').val();
 
 		$.ajax({
-			url:'/api/like/minus/'+placeId+'/'+replyId,
+			url:'/api/like/minus/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(resp){
