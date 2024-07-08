@@ -69,6 +69,7 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         JPQLQuery<PlaceResponseDto>list = jpaQueryFactory
                 .select(Projections.constructor(PlaceResponseDto.class,place))
                 .from(place)
+                .orderBy(place.reviewRate.desc())
                 .limit(5L)
                 .offset(pageable.getOffset());
         return PageableExecutionUtils.getPage(list.fetch(),pageable,list::fetchCount);

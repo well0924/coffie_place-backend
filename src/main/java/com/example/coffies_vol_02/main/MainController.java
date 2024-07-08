@@ -2,6 +2,7 @@ package com.example.coffies_vol_02.main;
 
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.example.coffies_vol_02.notice.service.NoticeService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -31,6 +33,7 @@ public class MainController {
     private final BoardService boardService;
     private final NoticeService noticeService;
     private final PlaceService placeService;
+    private final RedisService redisService;
 
     @GetMapping("/main")
     public ModelAndView mainPage(@PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
@@ -41,11 +44,10 @@ public class MainController {
         Page<NoticeResponse>noticeList = null;
         Page<PlaceResponseDto>top5 = null;
 
-
         try {
             //평점이 높은 가게 top5
-            top5 =placeService.cafePlaceByReviewRateTop5(pageable);
-
+            top5 = placeService.cafePlaceByReviewRateTop5(pageable);
+            log.info("review List:::"+top5);
             //공지게시글 목록
             noticeList = noticeService.listNoticeBoard(pageable);
             //자유게시글 목록
