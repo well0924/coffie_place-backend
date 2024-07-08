@@ -145,13 +145,27 @@ public class RedisService {
      * @param storeId 가게 번호
      **/
     public void saveRating(String storeId, double rating) {
-        redisTemplate.opsForZSet().add("storeRatings", storeId, rating);
+        redisTemplate.opsForZSet().add("storeRatings::"+storeId, storeId, rating);
         System.out.println("평점 저장::: " + storeId + " with rating " + rating);
+    }
+
+    /**
+     * 가게 댓글 평점 삭제
+     * @param storeId 가게 번호
+     **/
+    public void deleteRating(String storeId) {
+        Long removedCount = redisTemplate.opsForZSet().remove("storeRatings::" + storeId, storeId);
+        if (removedCount != null && removedCount > 0) {
+            System.out.println("평점 삭제::: " + storeId);
+        } else {
+            System.out.println("삭제할 평점이 없습니다: " + storeId);
+        }
     }
 
     /**
      * 평점이 높은 가게 TOP5
      * 가게 댓글 평점을 계산해서 평점이 높은 가게 5개를 나타내는 기능
+     * 추가로 동점자를 고려해서 구현
      **/
     public List<PlaceResponseDto> getTopRatedStores() {
 
@@ -159,10 +173,24 @@ public class RedisService {
 
         List<Place>storeList = new ArrayList<>();
 
+        //redis에 평점이 저장이 안되어있거나 없는 경우
+        if(topStores.isEmpty() || topStores == null){
+            return placeRepository.placeTop5();
+        }
+
         for (String storeId : topStores) {
             placeRepository.findById(Integer.parseInt(storeId))
                     .ifPresent(storeList::add);
         }
+
+        // 동점 처리: 리뷰 평점이 같을 경우 가게 번호를 기준으로 정렬
+        storeList.sort((a, b) -> {
+            int rateComparison = b.getReviewRate().compareTo(a.getReviewRate());
+            if (rateComparison != 0) {
+                return rateComparison;
+            }
+            return a.getId().compareTo(b.getId());
+        });
 
         return storeList.stream().map(PlaceResponseDto::new).collect(Collectors.toList());
     }

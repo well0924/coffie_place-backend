@@ -139,9 +139,9 @@ public class PlaceApiController {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
     @GetMapping(path = "/top5list")
-    public CommonResponse<Page<PlaceResponseDto>>placeTop5List(@ApiIgnore @PageableDefault Pageable pageable) {
+    public CommonResponse<?>placeTop5List() {
 
-        Page<PlaceResponseDto> top5list = placeService.cafePlaceByReviewRateTop5(pageable);
+        List<PlaceResponseDto> top5list = redisService.getTopRatedStores();
 
         return new CommonResponse<>(HttpStatus.OK, top5list);
     }

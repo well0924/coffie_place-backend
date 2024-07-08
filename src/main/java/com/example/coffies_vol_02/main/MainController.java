@@ -42,11 +42,11 @@ public class MainController {
 
         Page<BoardResponse> boardList = null;
         Page<NoticeResponse>noticeList = null;
-        Page<PlaceResponseDto>top5 = null;
+        List<PlaceResponseDto>top5 = new ArrayList<>();
 
         try {
             //평점이 높은 가게 top5
-            top5 = placeService.cafePlaceByReviewRateTop5(pageable);
+            top5 = redisService.getTopRatedStores();
             log.info("review List:::"+top5);
             //공지게시글 목록
             noticeList = noticeService.listNoticeBoard(pageable);

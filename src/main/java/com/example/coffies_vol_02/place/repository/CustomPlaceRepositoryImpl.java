@@ -59,20 +59,19 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
                 .fetch(),pageable,middleQuery::fetchCount);
     }
 
+
     /**
      * 가게 평점 top5
-     * @param pageable 페이징 객체
      * @return Page<PlaceResponseDto>
      **/
     @Override
-    public Page<PlaceResponseDto> placeTop5(Pageable pageable) {
+    public List<PlaceResponseDto> placeTop5() {
         JPQLQuery<PlaceResponseDto>list = jpaQueryFactory
                 .select(Projections.constructor(PlaceResponseDto.class,place))
                 .from(place)
                 .orderBy(place.reviewRate.desc())
-                .limit(5L)
-                .offset(pageable.getOffset());
-        return PageableExecutionUtils.getPage(list.fetch(),pageable,list::fetchCount);
+                .limit(5L);
+        return list.stream().toList();
     }
 
     /**
