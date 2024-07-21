@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config;
+package com.example.coffies_vol_02.config.api;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
