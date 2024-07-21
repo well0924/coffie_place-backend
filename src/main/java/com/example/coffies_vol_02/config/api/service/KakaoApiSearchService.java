@@ -60,7 +60,9 @@ public class KakaoApiSearchService {
     }
 
     /**
-     *
+     * 가게명 추출
+     * @member 회원 객체
+     * @return 추출된 가게이름 (리스트 타입)
      **/
     @Retryable(
             value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행

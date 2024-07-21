@@ -14,6 +14,11 @@ public class KakaoUriBuilderService {
 
     private static final String KAKAO_PLACE_SEARCH_ADDRESS_URL = "https://dapi.kakao.com/v2/local/search/category.json";
 
+    /**
+     * 주소 검색을 위한 url생성
+     * @param address 검색하고자하는 주소
+     * @return URI
+     **/
     public URI buildUriByAddressSearch(String address) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(KAKAO_LOCAL_SEARCH_ADDRESS_URL);
         uriBuilder.queryParam("query", address);
@@ -24,6 +29,13 @@ public class KakaoUriBuilderService {
         return uri;
     }
 
+    /**
+     * 카테고리를 입력해서 검색을 위한 url생성
+     * @param x 위경도에 필요한 x(위도)
+     * @param y 위경도에 필요한 y(경도)
+     * @param page 페이징 값
+     * @return URI
+     **/
     public URI buildUriByCategorySearch(String x, String y, int page){
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(KAKAO_PLACE_SEARCH_ADDRESS_URL);
         log.info(uriBuilder);
