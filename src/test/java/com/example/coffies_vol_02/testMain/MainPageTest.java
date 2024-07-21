@@ -127,7 +127,7 @@ public class MainPageTest {
         given(boardRepository.boardList(pageRequest)).willReturn(boardResponses);
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(response);
         given(placeRepository.placeTop5(pageRequest)).willReturn(Page.empty());
-        given(placeRepository.findPlaceByLatLng(member.getMemberLat(),member.getMemberLng())).willReturn(anyList());
+        //given(placeRepository.findPlaceByLatLng(member.getMemberLat(),member.getMemberLng())).willReturn(anyList());
 
 
         mvc.perform(get("/page/main/main")

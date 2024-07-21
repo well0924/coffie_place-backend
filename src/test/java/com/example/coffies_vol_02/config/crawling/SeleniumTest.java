@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.Crawling;
+package com.example.coffies_vol_02.config.crawling;
 
 import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;

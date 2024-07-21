@@ -10,7 +10,7 @@ public class CommentFactory {
                 .builder()
                 .replyContents("reply test")
                 .replyWriter(MemberFactory.memberDto().getUserId())
-                .replyPoint(3)
+                .replyPoint(3.0)
                 .board(BoardFactory.board())
                 .member(MemberFactory.memberDto())
                 .place(PlaceFactory.place())

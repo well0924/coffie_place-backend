@@ -1,6 +1,6 @@
 package com.example.coffies_vol_02.testNotice;
 
-import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.queryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;

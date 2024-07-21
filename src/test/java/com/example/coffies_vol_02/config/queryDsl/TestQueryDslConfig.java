@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.QueryDsl;
+package com.example.coffies_vol_02.config.queryDsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.boot.test.context.TestConfiguration;

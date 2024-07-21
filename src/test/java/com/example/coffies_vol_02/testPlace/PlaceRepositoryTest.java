@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -28,8 +30,7 @@ public class PlaceRepositoryTest {
     @DisplayName("가게 평점 top5 조회")
     public void Top5ListTest(){
         
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
-        Page<PlaceResponseDto>top5List = placeRepository.placeTop5(pageable);
+        List<PlaceResponseDto> top5List = placeRepository.placeTop5();
 
         log.info("top5List: "+top5List);
 

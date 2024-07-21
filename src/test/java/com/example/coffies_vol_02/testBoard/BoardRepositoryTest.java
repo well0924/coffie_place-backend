@@ -5,7 +5,7 @@ import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.repository.BoardRepository;
-import com.example.coffies_vol_02.config.QueryDsl.TestQueryDslConfig;
+import com.example.coffies_vol_02.config.queryDsl.TestQueryDslConfig;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.like.domain.QLike;
 import com.querydsl.jpa.JPAExpressions;
