@@ -36,7 +36,7 @@ public class CommentApiController {
             @ApiResponse(responseCode = "404",description = "댓글이 없는 경우",content = @Content(schema =@Schema(implementation = CommonResponse.class)))
     })
     @GetMapping("/{board_id}")
-    public CommonResponse<List<placeCommentResponseDto>>listComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
+    public CommonResponse<?>listComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
                                                                     @PathVariable("board_id")Integer boardId){
         List<placeCommentResponseDto> list = new ArrayList<>();
 
@@ -74,7 +74,7 @@ public class CommentApiController {
     @Operation(summary = "댓글 삭제", description = "게시글 목록에서 댓글을 삭제한다.")
     @DeleteMapping("/{reply_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommonResponse<?>deleteComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true) @PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<?>deleteComment(@Parameter(name = "reply_id",description = "댓글의 번호",required = true) @PathVariable("reply_id")Integer replyId,@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
 
         commentService.deleteFreeBoardComment(replyId,customUserDetails.getMember());
 
@@ -102,9 +102,6 @@ public class CommentApiController {
 
         Integer insertResult = commentService.createPlaceComment(placeId,dto,customUserDetails.getMember());
 
-        //가게 평점 계산
-        commentService.updateStar(placeId);
-
         return new CommonResponse<>(HttpStatus.OK,insertResult);
     }
 
@@ -115,11 +112,9 @@ public class CommentApiController {
                                                @PathVariable("place_id")Integer placeId,
                                                @Parameter(name = "reply_id",description = "댓글의 번호",required = true)
                                                @PathVariable("reply_id") Integer replyId,
-                                               @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception {
+                                               @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) throws Exception {
 
-        commentService.deletePlaceComment(replyId,customUserDetails.getMember());
-        //평점 계산
-        commentService.updateStar(placeId);
+        commentService.deletePlaceComment(replyId,placeId,customUserDetails.getMember());
 
         return new CommonResponse<>(HttpStatus.OK,"Delete Comment");
     }

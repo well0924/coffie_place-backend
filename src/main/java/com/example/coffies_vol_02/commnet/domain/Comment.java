@@ -7,6 +7,7 @@ import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
@@ -29,7 +30,10 @@ public class Comment extends BaseTime implements Serializable {
 
     private String replyContents;
 
-    private Integer replyPoint;
+    private Double replyPoint;
+
+    @ColumnDefault("0")
+    private Integer likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
@@ -48,7 +52,7 @@ public class Comment extends BaseTime implements Serializable {
     private Set<CommentLike> likes = new HashSet<>();
 
     @Builder
-    public Comment(Integer id,String replyWriter,String replyContents,Integer replyPoint,Board board,Member member,Place place){
+    public Comment(Integer id,String replyWriter,String replyContents,Double replyPoint,Integer likeCount,Board board,Member member,Place place){
         this.id = id;
         this.board = board;
         this.member = member;
@@ -56,5 +60,20 @@ public class Comment extends BaseTime implements Serializable {
         this.replyPoint = replyPoint;
         this.replyWriter = member.getUserId();
         this.replyContents = replyContents;
+        this.likeCount = 0;
+    }
+
+    /**
+     * 가게 댓글 좋아요 증가
+     **/
+    public  void commentLikeUp(){
+        this.likeCount++;
+    }
+
+    /**
+     * 가게 댓글 좋아요 감소
+     **/
+    public void commentLikeDown(){
+        this.likeCount--;
     }
 }

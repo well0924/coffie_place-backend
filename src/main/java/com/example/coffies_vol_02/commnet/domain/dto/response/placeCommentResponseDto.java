@@ -20,7 +20,7 @@ public class placeCommentResponseDto {
     @Schema(name = "댓글 내용",description = "댓글 내용",type = "String")
     private String replyContents;
     @Schema(name = "댓글 평점",description = "댓글 평점",type = "Integer")
-    private Integer reviewPoint;
+    private Double reviewPoint;
     @Schema(name = "댓글 좋아요",description = "댓글 좋아요",type = "Integer")
     private Integer liked;
     @Schema(name = "댓글 작성일",description = "댓글 작성일")

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.place.controller.view;
 
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.redis.RedisService;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
@@ -33,6 +34,8 @@ public class PlaceViewController {
 
     private final PlaceImageService placeImageService;
 
+    private final RedisService redisService;
+
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable,
                                   @RequestParam(value = "keyword",required = false) String keyword,
@@ -53,13 +56,15 @@ public class PlaceViewController {
             log.info("검색어:::"+keywords);
             log.info("placeList:::"+list);
 
-            //검색에가 있는 경우
+            //검색어가 있는 경우
             log.info(keyword);
             log.info(searchType);
 
             if(keyword != null){
                 list = placeService.searchCafePlace(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
+                redisService.createPlaceNameLog(customUserDetails.getMember().getId(),keyword);
             }
+            keywords = redisService.ListRecentSearchNames(customUserDetails.getMember().getId());
         } catch (Exception e) {
             e.printStackTrace();
         }

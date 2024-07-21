@@ -84,6 +84,25 @@ public class RedisService {
     }
 
     /**
+     * 가게 검색어 목록을 보여주는 기능
+     * @param memberId 회원 번호
+     **/
+    public List<String> ListRecentSearchNames(Integer memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+        String key = CacheKey.PLACE + member.getId();
+        List<PlaceRecentSearchDto> logs = redisTemplates.opsForList().range(key, 0, 5);
+        if (logs.isEmpty()) {
+            throw new CustomExceptionHandler(ERRORCODE.SEARCH_LOG_NOT_EXIST);
+        }
+        List<String> names = new ArrayList<>();
+        for (PlaceRecentSearchDto log : logs) {
+            names.add(log.getName());
+        }
+        return names;
+    }
+
+    /**
      * 가게 검색어 전체삭제
      * @param memberId 회원 번호
      **/
