@@ -1,278 +1,272 @@
 package com.example.coffies_vol_02.config.api.service;
 
-import com.example.coffies_vol_02.config.api.dto.KakaoApiResponseDto;
-import com.example.coffies_vol_02.config.api.dto.KakaoPlaceApiResponseDto;
 import com.example.coffies_vol_02.config.api.dto.PlaceCrawlingDto;
 import com.example.coffies_vol_02.config.api.dto.PlaceDocumentDto;
-import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
-import com.example.coffies_vol_02.member.service.MemberService;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
 import com.example.coffies_vol_02.place.service.PlaceService;
-import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.coobird.thumbnailator.Thumbnails;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.fileupload.util.Streams;
-import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class CrawlingService {
-    private final RestTemplate restTemplate;
-    private final KakaoUriBuilderService kakaoUriBuilderService;
-    private final MemberService memberService;
+
     private final PlaceService placeService;
-    //TODO 파일 리사이징 크기
-    private final int resizeImageWidth = 300;
-    private final int resizeImageHeight = 300;
 
-    private final String filePath = "crawling.csv"; //TODO 파일 저장 경로 나중에 수정해주면 됨 (이렇게 작성하면 프로젝트 최상단 디렉토리에 csv 파일 생성)
-    private final String imageFilePath = System.getProperty("C:\\UploadFile\\coffieplace\\images\\crawling_images"); //TODO 파일 경로 수정해주면 됨 -> 이 경로는 프로젝트 최상단 디렉토리
-    @Value("${kakao.rest.api.key}")
-    private String kakaoRestApiKey;
+    //가게 크롤링
+    public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 
-    /**
-     * kakao map api 검색
-     * @return KakaoApiResponseDto
-     **/
-    @Retryable(
-            value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행
-            maxAttempts = 3,//재시도 횟수
-            backoff = @Backoff(delay = 2000)//재시도 전에 딜레이 시간을 설정(ms)
-    )
-    @Scheduled(cron="0 0 3 * * 6") //매일 새벽 3시에 스케줄러 적용
-    //@Scheduled(cron = "0/2 * * * * ?",zone = "Asia/Seoul")
-    public void crawlingByMember() throws Exception{
+    public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win32 (1)\\chromedriver-win32\\chromedriver.exe";
 
-        Set<URI> uris = new HashSet<>();
-        PageRequest pageable = PageRequest.of(0,5, Sort.by("id").descending());
-        Page<MemberResponse> members = memberService.findAll(pageable);
-        log.info(members.get().collect(Collectors.toList()));
-        for(MemberResponse member : members){
-            if(ObjectUtils.isEmpty(member.memberLat()) || ObjectUtils.isEmpty(member.memberLng())) continue;
-            uris.add(kakaoUriBuilderService.buildUriByCategorySearch(String.valueOf(member.memberLng()), String.valueOf(member.memberLat()), 1)); //중복 없이 모든 회원의 주소값 받아오기
-        }
-        HttpHeaders headers = new HttpHeaders();
+    private static final String DEFAULT_IMAGE_PATH = "C:\\spring_work\\workspace\\CoffiesVol.02\\default_image.png"; // 대체 이미지 URL
 
-        headers.set(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoRestApiKey);
+    private static final int MAX_ATTEMPTS = 3;
 
-        HttpEntity httpEntity = new HttpEntity<>(headers);
+    private static final int WAIT_TIME = 20; // 20초 대기
 
-        List<KakaoPlaceApiResponseDto> results = new ArrayList<>();
+    private static int storeNumber = 1; // 가게 번호 초기화
 
-        for(URI uri : uris) {
-            KakaoPlaceApiResponseDto result = restTemplate.exchange(uri, HttpMethod.GET, httpEntity,
-                    KakaoPlaceApiResponseDto.class).getBody();
-            results.add(result);
-            int maxPage = result.getMetaDto().getPageableCount()/15;
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri.toString());
-            for(int i=2; i<=maxPage; i++){
-                builder.replaceQueryParam("page", i); //다음 페이지에 대해서 요청 보내야함
-                results.add(restTemplate.exchange(builder.build().toUri(), HttpMethod.GET, httpEntity,
-                        KakaoPlaceApiResponseDto.class).getBody());
+
+    public void runCrawlingAndSaveToCSV() {
+        WebDriver driver = null;
+        try {
+            System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("headless");
+            options.addArguments("--start-maximized");
+            options.addArguments("--disable-popup-blocking");
+            options.addArguments("--remote-allow-origins=*");
+
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10)); //암시적 대기 10초
+            driver.get("https://map.kakao.com//");
+
+            String searchKeyword = "강북구 카페";
+            WebElement searchBox = driver.findElement(By.id("search.keyword.query"));
+            searchBox.sendKeys(searchKeyword);
+            searchBox.sendKeys(Keys.RETURN);
+
+            TimeUnit.SECONDS.sleep(2);
+
+            collectStoreInfo(driver);
+
+        } catch (Exception e) {
+            log.error("Error occurred during crawling and CSV generation: {}", e.getMessage());
+        } finally {
+            if (driver != null) {
+                driver.quit();
             }
         }
-        //csv파일 저장하기.
-        saveCSV(results);
     }
 
-    public void firstCheckByNewMember(String longitude, String latitude) throws Exception{
-        if(ObjectUtils.isEmpty(longitude) || ObjectUtils.isEmpty(latitude)) return;
+    private void collectStoreInfo(WebDriver driver) throws InterruptedException, IOException {
+        List<List<String>> dataLines = new ArrayList<>();
+        dataLines.add(List.of("번호", "가게이름", "가게주소", "가게시작시간", "가게종료시간", "전화번호", "메인이미지URL", "서브이미지1URL", "서브이미지2URL", "서브이미지3URL"));
 
-        log.info("firstCheckByNewMember");
-        URI uri = kakaoUriBuilderService.buildUriByCategorySearch(longitude, latitude,1);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoRestApiKey);
-        HttpEntity httpEntity = new HttpEntity<>(headers);
-        List<KakaoPlaceApiResponseDto> results = new ArrayList<>();
-        KakaoPlaceApiResponseDto result = restTemplate.exchange(uri, HttpMethod.GET, httpEntity,
-                KakaoPlaceApiResponseDto.class).getBody();
-        results.add(result);
-        int maxPage = result.getMetaDto().getPageableCount()/15;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri.toString());
-        for(int i=2; i<=maxPage; i++){
-            builder.replaceQueryParam("page", i); //다음 페이지에 대해서 요청 보내야함
-            results.add(restTemplate.exchange(builder.build().toUri(), HttpMethod.GET, httpEntity,
-                    KakaoPlaceApiResponseDto.class).getBody());
-            log.info("resultpage : {}", i);
-        }
-        saveCSV(results);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.getElementById('dimmedLayer').style.display='none';");
+        TimeUnit.SECONDS.sleep(2);
 
-    }
-    private void saveCSV(List<KakaoPlaceApiResponseDto> results) throws Exception{
-        boolean fileExists = Files.exists(Path.of(filePath));
-        if (!fileExists) {
-            Files.createFile(Paths.get(filePath));
-        }
-        try (
-                CSVReader reader = new CSVReader(new FileReader(filePath));
-                CSVWriter writer = new CSVWriter(new FileWriter(filePath, true));) {
+        WebElement option2 = driver.findElement(By.xpath("//*[@id=\"info.main.options\"]/li[2]/a"));
+        option2.click();
+        TimeUnit.SECONDS.sleep(2);
 
-            if (!fileExists) {
-                String[] header = {"ID", "placeName", "phone", "addressName", "roadAddressName", "x", "y", "place_url",
-                        "distance", "start", "close"};
-                writer.writeNext(header);
-            }
-            // 기존 파일에서 중복 체크를 위한 Set 또는 List 초기화
-            List<String> existingIds = new ArrayList<>();
+        WebElement btn = driver.findElement(By.cssSelector(".more"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
-            // 기존 파일의 데이터 읽기
-            String[] nextLine;
-            while ((nextLine = reader.readNext()) != null) {
-                // 각 행의 첫 번째 열(ID)을 중복 체크를 위한 데이터로 저장
-                existingIds.add(nextLine[0]);
-            }
+        boolean hasNextPage = true;
 
-            for (KakaoPlaceApiResponseDto res : results) {
-                // 새로운 데이터 중에서 중복을 제외하고 파일에 추가
-                for (PlaceDocumentDto result : res.getDocumentList()) {
-                    if (!existingIds.contains(String.valueOf(result.getId()))) {
-                        // 중복되지 않는 경우에만 추가
-                        PlaceCrawlingDto linkCrawlingResult = crawlingLink(result.getPlaceUrl());
-                        String[] data = {result.getId(), result.getPlaceName(), result.getPhone(),
-                                result.getAddressName(), result.getRoadAddressName(),
-                                String.valueOf(result.getLongitude()), String.valueOf(result.getLatitude()),
-                                result.getPlaceUrl(), String.valueOf(result.getDistance()),
-                                linkCrawlingResult.getPlaceStart(),
-                                linkCrawlingResult.getPlaceClose()};
-                        writer.writeNext(data);
-                        log.info("save csv : {}", data);
-                        updateDB(result, linkCrawlingResult);
+        initializeCSV();
+
+        while (hasNextPage) {
+            for (int pageNo = 1; pageNo <= 5; pageNo++) {
+
+                int attempt = 0;
+                boolean success = false;
+
+                while (!success & attempt < MAX_ATTEMPTS) {
+                    try {
+                        String xPath = "//*[@id=\"info.search.page.no" + pageNo + "\"]";
+                        WebElement pageElement = new WebDriverWait(driver, Duration.ofSeconds(30L)).until(
+                                ExpectedConditions.elementToBeClickable(By.xpath(xPath)));
+                        pageElement.sendKeys(Keys.ENTER);
+                        Thread.sleep(2000);
+
+                        List<WebElement> storeList = driver.findElements(By.cssSelector(".PlaceItem"));
+                        String originalWindow = driver.getWindowHandle();
+
+                        for (WebElement store : storeList) {
+                            try {
+                                WebElement detailButton = store.findElement(By.cssSelector(".moreview"));
+                                String detailUrl = detailButton.getAttribute("href");
+                                ((JavascriptExecutor) driver).executeScript("window.open(arguments[0]);", detailUrl);
+                                Thread.sleep(2000);
+
+                                Set<String> allWindows = driver.getWindowHandles();
+                                for (String window : allWindows) {
+                                    if (!window.equals(originalWindow)) {
+                                        driver.switchTo().window(window);
+                                        break;
+                                    }
+                                }
+
+                                List<String> storeInfo = new ArrayList<>();
+                                storeInfo.add(String.valueOf(storeNumber++));
+                                String storeName = driver.getTitle().trim().replace(" | 카카오맵", "");
+                                storeInfo.add(storeName);
+
+                                try {
+                                    String storeAddress = driver.findElement(By.cssSelector(".txt_address")).getText();
+                                    storeInfo.add(storeAddress);
+                                } catch (Exception e) {
+                                    storeInfo.add("");
+                                }
+
+                                try {
+                                    StringBuilder storeHours = new StringBuilder();
+                                    List<WebElement> hoursElements = driver.findElements(By.cssSelector(".list_operation > li"));
+                                    for (WebElement element : hoursElements) {
+                                        storeHours.append(element.getText()).append(" ");
+                                    }
+                                    String[] hours = storeHours.toString().trim().split("~");
+                                    String storeStartTime = hours.length > 0 ? hours[0].trim() : "";
+                                    String storeEndTime = hours.length > 1 ? hours[1].trim() : "";
+                                    storeInfo.add(extractTimeFromHours(storeStartTime));
+                                    storeInfo.add(extractTimeFromHours(storeEndTime));
+                                } catch (Exception e) {
+                                    storeInfo.add("");
+                                    storeInfo.add("");
+                                }
+
+                                try {
+                                    String storePhone = driver.findElement(By.cssSelector(".txt_contact")).getText();
+                                    storeInfo.add(storePhone);
+                                } catch (Exception e) {
+                                    storeInfo.add("");
+                                }
+
+                                try {
+                                    WebElement mainImageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
+                                            .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='0']")));
+                                    String mainImageUrl = extractUrlFromStyle(mainImageElement.getAttribute("style"));
+                                    storeInfo.add(mainImageUrl);
+                                } catch (TimeoutException e) {
+                                    for (int i = 0; i < 4; i++) {
+                                        storeInfo.add(DEFAULT_IMAGE_PATH);
+                                    }
+                                }
+
+                                for (int i = 1; i <= 3; i++) {
+                                    try {
+                                        WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
+                                                .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
+                                        String imageUrl = extractUrlFromStyle(imageElement.getAttribute("style"));
+                                        storeInfo.add(imageUrl);
+                                    } catch (TimeoutException e) {
+                                        storeInfo.add(DEFAULT_IMAGE_PATH);
+                                    }
+                                }
+
+                                writeToCSV(storeInfo);
+                                driver.close();
+                                driver.switchTo().window(originalWindow);
+                                Thread.sleep(4000);
+                                success = true;
+                            } catch (Exception e) {
+                                driver.navigate().back();
+                                Thread.sleep(4000);
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        attempt++;
                     }
                 }
+
+                if (attempt >= MAX_ATTEMPTS) {
+                    hasNextPage = false;
+                    break;
+                }
             }
-        }catch(IOException e){
-            e.printStackTrace();
-        }
 
-    }
-
-    private PlaceCrawlingDto crawlingLink(String url) throws Exception{
-        //C:\Users\well4\OneDrive\바탕 화면\chromedriver_win32\chromedriver.exe
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver_win32\\chromedriver.exe"); //TODO chromedriver 수정
-        ChromeOptions chromeOptions = new ChromeOptions();
-
-        chromeOptions.addArguments("--remote-allow-origins=*");
-        chromeOptions.addArguments("--headless");
-        WebDriver driver = new ChromeDriver(chromeOptions);
-
-        driver.get(url);//document 받아오기
-
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            //TODO 최대 10초 대기 -> 알아서 수정, 대기 없으면 이미지 로딩 안 됐을때 못 받아옴
-            By locator = By.cssSelector(".photo_area * .link_photo"); // 대기할 엘리먼트의 식별자로 수정
-            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        }catch(TimeoutException e){
-            //pass
-        }
-
-        List<WebElement> openhour = driver.findElements(By.cssSelector(".location_detail.openhour_wrap .location_present * span.time_operation"));
-        //시간 정보들을 갖고있는 태그를 모두 받아옴
-        PlaceCrawlingDto placeCrawlingDto = new PlaceCrawlingDto();
-        if(!openhour.isEmpty()){
-            //Dto 생성
-            String[] placeTime = openhour.get(0).getText().split(" ~ ");
-            placeCrawlingDto.addPlaceTime(placeTime[0], placeTime[1]);
-        }
-
-        List<WebElement> images = driver.findElements(By.cssSelector(".photo_area * .link_photo"));
-        if(!images.isEmpty()){
-            //Dto 생성
-            for(WebElement element: images){
-                MultipartFile placeImage = photoUrlCrawling(element.getAttribute("style"));
-                placeCrawlingDto.addPlaceImage(placeImage);
+            try {
+                WebElement nextPageBtn = driver.findElement(By.id("info.search.page.next"));
+                if (nextPageBtn.isDisplayed() && nextPageBtn.isEnabled()) {
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", nextPageBtn);
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageBtn);
+                    Thread.sleep(4000);
+                } else {
+                    hasNextPage = false;
+                }
+            } catch (Exception e) {
+                hasNextPage = false;
             }
         }
-        return placeCrawlingDto;
     }
 
-    private MultipartFile photoUrlCrawling(String tag) throws IOException {
-        String pattern = "background-image:\\s*url\\(['\"]?([^'\"]*)['\"]?\\)";
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(tag);
-
-        if(matcher.find()){
-            String thumbnailUrl = "https:"+matcher.group(1);
-            String originalUrl = thumbnailUrl.replaceFirst("C320x320.q50", "R0x420.q50");
-            return getImageUrl(originalUrl);
-        }else{
-            return null;
+    private String extractUrlFromStyle(String style) {
+        int start = style.indexOf("url(") + 4;
+        int end = style.indexOf(")", start);
+        if (start > 3 && end > start) {
+            return style.substring(start, end - 1);
+        } else {
+            return DEFAULT_IMAGE_PATH;
         }
     }
 
-    private MultipartFile getImageUrl(String imageUrl) throws IOException{
-        BufferedImage originalImage = ImageIO.read(new URL(imageUrl));
-        BufferedImage resizedImage = Thumbnails.of(originalImage).size(resizeImageWidth,resizeImageHeight).asBufferedImage();
-        //TODO 리사이징 값 알아서 수정해주면 될듯
-        String fileName = "image"+ UUID.randomUUID()+".png"; //TODO 파일명은 알아서 수정해주면 될 듯
-
-        File outputFile = new File(imageFilePath, fileName);
-        ImageIO.write(resizedImage, "png", outputFile); //파일 생성
-
-        File repository = new File(imageFilePath);
-        // 파일 객체 생성
-        DiskFileItem resource = new DiskFileItem(
-                "file",
-                "image/png",
-                false,
-                fileName,
-                10240,
-                repository
-        ); //TODO 사이즈 최대용량은 알아서 수정해주면 될 듯함
-
-        try (FileInputStream fileInputStream = new FileInputStream(outputFile)) {
-            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                Streams.copy(fileInputStream, outputStream, true);
-                Streams.copy(new ByteArrayInputStream(outputStream.toByteArray()), resource.getOutputStream(), true);
-            }
+    private String extractTimeFromHours(String hours) {
+        Pattern pattern = Pattern.compile("\\d{1,2}:\\d{2}");
+        Matcher matcher = pattern.matcher(hours);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return "";
         }
-
-        return new CommonsMultipartFile(resource);
     }
+
+    private void writeToCSV(List<String> storeInfo) throws IOException {
+        String filePath = "store_info.csv";
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath, true))) {
+            String[] record = storeInfo.toArray(new String[0]);
+            writer.writeNext(record);
+            log.info("CSV 파일에 저장: {}", String.join(",", record));
+        } catch (IOException e) {
+            log.error("CSV 파일 저장 실패: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    private void initializeCSV() {
+        String filePath = "store_info.csv";
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
+            String[] header = {"번호", "가게명", "가게주소", "가게시작시간", "가게종료시간", "가게전화번호", "메인이미지URL", "서브이미지1URL", "서브이미지2URL", "서브이미지3URL"};
+            writer.writeNext(header);
+        } catch (IOException e) {
+            log.error("CSV 파일 초기화 실패: {}", e.getMessage());
+        }
+    }
+
+
+    //DB 갱신
     private void updateDB(PlaceDocumentDto placeDocumentDto, PlaceCrawlingDto placeCrawlingDto) throws Exception {
         PlaceRequestDto placeRequestDto = PlaceRequestDto.builder()
                 .placeName(placeDocumentDto.getPlaceName())
@@ -284,15 +278,13 @@ public class CrawlingService {
                 .placeStart(placeCrawlingDto.getPlaceStart())
                 .placeClose(placeCrawlingDto.getPlaceClose())
                 .build();
-
-        PlaceImageRequestDto placeImageRequestDto = PlaceImageRequestDto.builder().images(placeCrawlingDto.getPlaceImage()).build();
-
-        placeService.placeRegister(placeRequestDto, placeImageRequestDto);
+        log.info(placeRequestDto);
+        PlaceImageRequestDto placeImageRequestDto = PlaceImageRequestDto
+                .builder()
+                .images(placeCrawlingDto.getPlaceImage())
+                .build();
+        log.info(placeImageRequestDto);
+        placeService.createCafePlace(placeRequestDto, placeImageRequestDto);
     }
 
-    @Recover
-    public KakaoApiResponseDto recover(String address, CustomExceptionHandler customExceptionHandler){
-        log.error("All the retries failed. address: {}, error : {}", address, customExceptionHandler.getErrorCode().getMessage());
-        return null;
-    }
 }
