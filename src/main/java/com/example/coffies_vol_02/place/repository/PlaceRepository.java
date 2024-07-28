@@ -27,4 +27,7 @@ public interface PlaceRepository extends JpaRepository<Place, Integer>, CustomPl
      **/
     @Query(value = "select p from Place p where p.placeName in :names ")
     List<Place> findPlacesByName(@Param("names") List<String> names);
+
+    Place findByPlaceName(String placeName);
+
 }

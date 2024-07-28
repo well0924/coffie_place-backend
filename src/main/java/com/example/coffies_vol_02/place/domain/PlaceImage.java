@@ -11,14 +11,11 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
-@ToString
 @Proxy(lazy = false)
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
 @AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "img_id"))})
 public class PlaceImage extends BaseTime implements Serializable {
-
-    private Integer id;
 
     private String fileGroupId;
 
@@ -56,8 +53,7 @@ public class PlaceImage extends BaseTime implements Serializable {
             String storedName,
             String originName,
             String imgUploader,
-            String isTitle){
-
+            String isTitle) {
         this.fileGroupId = fileGroupId;
         this.fileType = fileType;
         this.imgGroup = imgGroup;

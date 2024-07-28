@@ -1,13 +1,17 @@
 package com.example.coffies_vol_02.config.crawling;
 
+import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.FileWriter;
@@ -16,7 +20,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,11 +28,20 @@ import java.util.regex.Pattern;
 @SpringBootTest
 public class SeleniumTest {
 
+    @Autowired
+    private PlaceRepository placeRepository;
+
+    @Autowired
+    private PlaceImageRepository placeImageRepository;
+
     private WebDriver driver;
 
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 
-    public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe";
+    public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win32 (1)\\chromedriver-win32\\chromedriver.exe";
+            //"C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe";
+
+    private static final String DEFAULT_IMAGE_PATH = "C:\\spring_work\\workspace\\CoffiesVol.02\\default_image.png"; // 대체 이미지 URL
 
     private static final int MAX_ATTEMPTS = 3;
 
@@ -36,12 +49,18 @@ public class SeleniumTest {
 
     private static int storeNumber = 1; // 가게 번호 초기화
 
+    private static final Object lock = new Object();
+
+
     @BeforeEach
     public void init() throws Exception {
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         // 2. WebDriver 옵션 설정
         ChromeOptions options = new ChromeOptions();
         options.addArguments("headless"); // 창 숨기는 옵션 추가
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--start-maximized");
         options.addArguments("--disable-popup-blocking");
         options.addArguments("--remote-allow-origins=*");
@@ -71,11 +90,13 @@ public class SeleniumTest {
     }
 
     @Test
-    @DisplayName("가게정보 수집 + csv 파일로 저장하기.")
+    @Disabled
+    @DisplayName("가게정보 수집 + csv 파일로 저장하기.(이미지 포함)")
     public void test8() throws InterruptedException{
 
         List<List<String>> dataLines = new ArrayList<>();
-        dataLines.add(List.of("번호", "가게이름", "가게주소", "가게시작시간", "가게종료시간", "전화번호"));
+        dataLines.add(List.of("번호", "가게이름", "가게주소", "가게시작시간", "가게종료시간", "전화번호", "메인이미지URL", "서브이미지1URL", "서브이미지2URL", "서브이미지3URL"));
+
 
         //장소 탭 클릭 방지.
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -92,7 +113,6 @@ public class SeleniumTest {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
         boolean hasNextPage = true;
-        //int storeCount = 1;
 
         initializeCSV();
 
@@ -192,24 +212,30 @@ public class SeleniumTest {
                                     // 메인 이미지
                                     WebElement mainImageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
                                             .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='0']")));
-                                    String mainImageUrl = extractUrlFromStyle(mainImageElement.getAttribute("style"));
+                                    String mainImageUrl = extractUrlFromStyle(mainImageElement.getAttribute("style"))
+                                            .replace("\"", "");
                                     System.out.println("메인 이미지 URL: " + mainImageUrl);
-
-                                    // 나머지 3장 이미지
-                                    for (int i = 1; i <= 3; i++) {
-                                        try {
-                                            WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
-                                                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
-                                            String imageUrl = extractUrlFromStyle(imageElement.getAttribute("style"));
-                                            System.out.println("이미지 URL: " + imageUrl);
-                                        } catch (TimeoutException e) {
-                                            System.out.println("이미지 URL (data-pidx=" + i + "): 정보 없음");
-                                        }
-                                    }
+                                    //메인 이미지 추가
+                                    storeInfo.add(mainImageUrl);
                                 } catch (TimeoutException e) {
                                     System.out.println("이미지: 정보 없음");
-                                    for (int i = 0; i < 4; i++) {
+                                    storeInfo.add(DEFAULT_IMAGE_PATH);
+                                }
 
+                                // 나머지 3장 이미지
+                                for (int i = 1; i <= 3; i++) {
+                                    try {
+                                        WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
+                                                .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
+                                        String imageUrl = extractUrlFromStyle(imageElement.getAttribute("style"))
+                                                .replace("\"", "");
+                                        System.out.println("이미지 URL: " + imageUrl);
+                                        //서브 이미지 추가
+                                        storeInfo.add(imageUrl);
+                                    } catch (TimeoutException e) {
+                                        //없는 경우 지정된 기본 이미지 저장하기.
+                                        System.out.println("이미지 URL (data-pidx=" + i + "): 정보 없음");
+                                        storeInfo.add(DEFAULT_IMAGE_PATH);
                                     }
                                 }
                                 //csv 파일 저장하기.
@@ -270,7 +296,7 @@ public class SeleniumTest {
         if (start > 3 && end > start) {
             return style.substring(start, end - 1);
         } else {
-            return "";
+            return DEFAULT_IMAGE_PATH;
         }
     }
 
@@ -298,16 +324,17 @@ public class SeleniumTest {
             System.err.println("CSV 파일 저장 실패: " + e.getMessage());
         }
     }
-    
+
     //csv파일 초기화
     private static void initializeCSV() {
         String filePath = "store_info.csv";
         try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
-            String[] header = {"번호", "가게명", "가게주소", "가게시작시간", "가게종료시간", "가게전화번호"};
+            String[] header = {"번호", "가게명", "가게주소", "가게시작시간", "가게종료시간", "가게전화번호", "메인이미지URL", "서브이미지1URL", "서브이미지2URL", "서브이미지3URL"};
             writer.writeNext(header);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }
 

@@ -1,4 +1,4 @@
-package com.example.coffies_vol_02.config.api.dto;
+package com.example.coffies_vol_02.config.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -15,12 +15,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaceCrawlingDto {
+
     @JsonProperty("place_start")
     private String placeStart;
+
     @JsonProperty("place_close")
     private String placeClose;
+
     @JsonProperty("place_image")
     private List<MultipartFile> placeImage = new ArrayList<>();
+
     public void addPlaceTime(String placeStart, String placeClose){
         this.placeStart = placeStart;
         this.placeClose = placeClose;

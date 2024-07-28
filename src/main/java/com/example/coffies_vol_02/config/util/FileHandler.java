@@ -243,6 +243,8 @@ public class FileHandler {
                     log.info(resultCode);
                     if(resultCode) {
                         thumblocalPath = imgPath + dto.getImgGroup()+"/"+dto.getFileType()+"/thumb/"+out.getName();
+                        log.info(thumbFileName);
+                        log.info(thumblocalPath);
                     }else {
                         thumblocalPath = null;
                     }

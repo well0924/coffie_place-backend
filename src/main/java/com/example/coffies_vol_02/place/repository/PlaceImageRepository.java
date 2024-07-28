@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.place.repository;
 
+import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,6 @@ public interface PlaceImageRepository extends JpaRepository<PlaceImage,Integer>,
      * @param originName 저장된 원본 파일명
      **/
     PlaceImage findByOriginName(String originName);
+
+    void deleteByPlace(Place place);
 }

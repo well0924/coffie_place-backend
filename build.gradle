@@ -97,7 +97,6 @@ dependencies {
     // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
     implementation 'org.seleniumhq.selenium:selenium-java:4.23.0'
 
-
     //thumbnail
     implementation 'net.coobird:thumbnailator:0.4.14'
     implementation 'commons-fileupload:commons-fileupload:1.4'

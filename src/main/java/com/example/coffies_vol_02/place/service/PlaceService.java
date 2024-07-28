@@ -16,7 +16,6 @@ import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -75,14 +74,13 @@ public class PlaceService {
      * @author 양경빈
      * @see PlaceRepository#placeTop5(Pageable) 가게 top5 메서드
      **/
-    @Transactional(readOnly = true)
+    /*@Transactional(readOnly = true)
     public Page<PlaceResponseDto> cafePlaceByReviewRateTop5(Pageable pageable) {
         return placeRepository.placeTop5(pageable);
-    }
+    }*/
 
     /**
      * 가게 단일 조회
-     *
      * @param placeId 가게 번호 가게번호가 없는 경우에는 PLACE_NOT_FOUND 발생
      * @return PlaceResponseDto
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
@@ -107,8 +105,8 @@ public class PlaceService {
                 .placeAddr2(detail.getPlaceAddr2())
                 .fileGroupId(detail.getFileGroupId())
                 .reviewRate(detail.getReviewRate())
-                .isTitle(detail.getPlaceImageList().size() == 0 ? null : detail.getPlaceImageList().get(0).getIsTitle())
-                .thumbFileImagePath(detail.getPlaceImageList().size() == 0 ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
+                .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
+                .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
                 .build();
     }
 
@@ -175,7 +173,7 @@ public class PlaceService {
 
         Place place = placeDetail.orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
         //가게 수정
-        place.placeUpadate(dto);
+        place.placeUpdate(dto);
 
         Integer result = place.getId();
         //가게 이미지 업로드

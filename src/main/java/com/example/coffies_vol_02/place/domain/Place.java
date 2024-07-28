@@ -21,8 +21,6 @@ import java.util.List;
 @AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "place_id"))})
 public class Place extends BaseTime {
 
-    private Integer id;
-
     private Double placeLng;
 
     private Double placeLat;
@@ -60,8 +58,7 @@ public class Place extends BaseTime {
     private List<PlaceImage> placeImageList = new ArrayList<>();
     
     @Builder
-    public Place(Integer id, String placeName, String placeAuthor, String placeStart, String placeClose, String placePhone, String placeAddr1, String placeAddr2, String fileGroupId, Double placeLng, Double placeLat, Double reviewRate, List<PlaceImage>placeImages){
-        this.id = id;
+    public Place( String placeName, String placeAuthor, String placeStart, String placeClose, String placePhone, String placeAddr1, String placeAddr2, String fileGroupId, Double placeLng, Double placeLat, Double reviewRate, List<PlaceImage>placeImages){
         this.placeName = placeName;
         this.placeAuthor = placeAuthor;
         this.placeStart = placeStart;
@@ -72,7 +69,8 @@ public class Place extends BaseTime {
         this.fileGroupId = fileGroupId;
         this.placeLng = placeLng;
         this.placeLat = placeLat;
-        this.reviewRate = 0.0;
+        this.reviewRate = reviewRate != null ? reviewRate : 0.0;
+        this.placeImageList = placeImages;
     }
 
     //이미지 첨부
@@ -84,9 +82,7 @@ public class Place extends BaseTime {
     }
     
     //가게 수정
-    public void placeUpadate(PlaceRequestDto dto){
-        this.placeLat = dto.getPlaceLat();
-        this.placeLng = dto.getPlaceLng();
+    public void placeUpdate(PlaceRequestDto dto){
         this.placeStart = dto.getPlaceStart();
         this.placeClose = dto.getPlaceClose();
         this.placeAddr1 = dto.getPlaceAddr1();
