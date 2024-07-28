@@ -44,8 +44,7 @@ public class CrawlingService {
     private final PlaceImageRepository placeImageRepository;
 
     private final FileHandler fileHandler;
-
-    //가게 크롤링
+    
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 
     public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win32 (1)\\chromedriver-win32\\chromedriver.exe";
@@ -59,7 +58,8 @@ public class CrawlingService {
     private static int storeNumber = 1; // 가게 번호 초기화
 
     /**
-     * 가게 정보 크롤링후 + csv 파일 저장
+     * 가게 정보 크롤링후 + csv 파일 저장 + 디비 저장
+     * 스케줄러 (1달에 한번 자정에 실행) 
      **/
     @Scheduled(cron = "0 0 0 1 * ?")
     public void runCrawlingAndSaveToCSV() {
@@ -82,7 +82,7 @@ public class CrawlingService {
             searchBox.sendKeys(Keys.RETURN);
 
             TimeUnit.SECONDS.sleep(2);
-
+            //가게 정보 수집 + csv 파일 + 디비 저장
             collectStoreInfo(driver);
 
         } catch (Exception e) {
@@ -93,11 +93,15 @@ public class CrawlingService {
             }
         }
     }
-
+    
+    /**
+     * 가게 정보 수집 (크롤링 수집)
+     * @param driver 셀레니움 드라이버
+     **/
     private void collectStoreInfo(WebDriver driver) throws InterruptedException {
 
         List<List<String>> dataLines = new ArrayList<>();
-
+        //csv 파일에서 필요한 구분
         dataLines.add(List.of("번호", "가게이름", "가게주소", "가게시작시간", "가게종료시간", "전화번호", "메인이미지URL", "서브이미지1URL", "서브이미지2URL", "서브이미지3URL"));
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -114,9 +118,9 @@ public class CrawlingService {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
         boolean hasNextPage = true;
-
+        //csv 파일 초기화
         initializeCSV();
-
+        
         while (hasNextPage) {
             for (int pageNo = 1; pageNo <= 5; pageNo++) {
                 int attempt = 0;
@@ -180,11 +184,11 @@ public class CrawlingService {
                                     }
 
                                     String[] hours = storeHours.toString().trim().split("~");
-
+                                    //가게 운영 시작시간
                                     String storeStartTime = hours.length > 0 ? hours[0].trim() : "";
-
+                                    //가게 운영 종료시간
                                     String storeEndTime = hours.length > 1 ? hours[1].trim() : "";
-
+                                    //시간 저장
                                     storeInfo.add(extractTimeFromHours(storeStartTime));
                                     storeInfo.add(extractTimeFromHours(storeEndTime));
                                 } catch (Exception e) {
@@ -193,7 +197,9 @@ public class CrawlingService {
                                 }
 
                                 try {
+                                    //가게 전화번호
                                     String storePhone = driver.findElement(By.cssSelector(".txt_contact")).getText();
+                                    //가게 전화번호 저장
                                     storeInfo.add(storePhone);
                                 } catch (Exception e) {
                                     storeInfo.add("");
@@ -202,25 +208,27 @@ public class CrawlingService {
                                 try {
                                     WebElement mainImageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
                                             .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='0']")));
+                                    //메인 이미지 추출 & 저장
                                     String mainImageUrl = extractUrlFromStyle(mainImageElement.getAttribute("style")).replace("\"", "");
                                     storeInfo.add(mainImageUrl);
-                                } catch (TimeoutException e) {
+                                } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지를 사용
                                     for (int i = 0; i < 4; i++) {
                                         storeInfo.add(ensureProtocol(DEFAULT_IMAGE_PATH));
                                     }
                                 }
-
+                                //나머지 이미지 3장
                                 for (int i = 1; i <= 3; i++) {
                                     try {
                                         WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
                                                 .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
+                                        //나머지 이미지 추출 & 저장
                                         String imageUrl = extractUrlFromStyle(imageElement.getAttribute("style")).replace("\"", "");
                                         storeInfo.add(imageUrl);
-                                    } catch (TimeoutException e) {
+                                    } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지 사용
                                         storeInfo.add(ensureProtocol(DEFAULT_IMAGE_PATH));
                                     }
                                 }
-
+                                //csv 파일 작성
                                 writeToCSV(storeInfo);
                                 driver.close();
 
@@ -266,6 +274,10 @@ public class CrawlingService {
         processCsvAndSaveToDatabase("store_info.csv");
     }
 
+    /**
+     * CSS 스타일 문자열에서 URL을 추출
+     * @param style 스타일 문자열
+     **/
     private String extractUrlFromStyle(String style) {
         int start = style.indexOf("url(") + 4;
         int end = style.indexOf(")", start);
@@ -277,6 +289,10 @@ public class CrawlingService {
         }
     }
 
+    /**
+     * 가게 시간 추출(정규식을 사용)
+     * @param hours 가게 시간
+     **/
     private String extractTimeFromHours(String hours) {
         Pattern pattern = Pattern.compile("\\d{1,2}:\\d{2}");
         Matcher matcher = pattern.matcher(hours);
@@ -287,7 +303,11 @@ public class CrawlingService {
             return "";
         }
     }
-
+    
+    /**
+     * csv 파일 작성
+     * @param storeInfo 크롤링으로 모인 가게정보
+     **/
     private void writeToCSV(List<String> storeInfo) throws IOException {
         String filePath = "store_info.csv";
 
@@ -300,7 +320,10 @@ public class CrawlingService {
             throw e;
         }
     }
-
+    
+    /**
+     * csv 파일 초기화 
+     **/
     private void initializeCSV() {
         String filePath = "store_info.csv";
 
@@ -312,7 +335,10 @@ public class CrawlingService {
         }
     }
 
-    //csv파일을 읽고 디비에 저장하기.
+    /**
+     * csv파일을 읽고 디비에 저장하기.
+     * @param csvFilePath csv 파일 경로
+     **/
     @Transactional
     public void processCsvAndSaveToDatabase(String csvFilePath) {
 
@@ -322,6 +348,7 @@ public class CrawlingService {
             csvReader.readNext(); // 헤더 스킵
 
             while ((values = csvReader.readNext()) != null) {
+                //csv파일을 읽으면서 디비 저장
                 saveOrUpdatePlaceAndImages(values);
             }
         } catch (IOException e) {
@@ -331,7 +358,10 @@ public class CrawlingService {
         }
     }
 
-    //디비에 저장(가게명을 확인하면서 가게저장하기.
+    /**
+     * 디비에 저장 (가게를 확인후 있으면 수정, 없으면 추가)
+     * @param csvLine csv파일에 구분항목
+     **/
     @Transactional
     public void saveOrUpdatePlaceAndImages(String[] csvLine) throws Exception {
         String placeName = csvLine[1];
@@ -354,7 +384,7 @@ public class CrawlingService {
             placeRepository.save(place);
         }
 
-        //이미지 처리.
+        //이미지 저장
         List<PlaceImage> placeImages = createPlaceImages(csvLine);
 
         for (PlaceImage placeImage : placeImages) {
@@ -362,17 +392,27 @@ public class CrawlingService {
             placeImageRepository.save(placeImage);
         }
     }
-
+    
+    /**
+     * 이미지 생성(+리사이징)
+     * @param csvLine csv파일에 이미지 관련 열(메인이미지 URL,서브이미지 URL)
+     * @return List<PlaceImage> 가게이미지들
+     **/
     private List<PlaceImage> createPlaceImages(String[] csvLine) throws Exception {
         List<PlaceImage> placeImages = new ArrayList<>();
 
         // 메인이미지 URL 처리
         String mainImageUrl = ensureProtocol(csvLine[6]);
         log.info("mainUrl::"+mainImageUrl);
+
+        //URL을 MultipartFile로 전환
         List<MultipartFile> mainImages = downloadImagesFromUrls(Collections.singletonList(mainImageUrl));
         log.info("이미지처리::"+mainImages);
+
+        //이미지 업로드
         List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
         log.info("이미지 업로드??:"+mainPlaceImages);
+
         // 리사이징 적용 (메인이미지: 360x360)
         for (PlaceImage image : mainPlaceImages) {
             String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
@@ -382,19 +422,24 @@ public class CrawlingService {
 
         placeImages.addAll(mainPlaceImages);
 
-        // 서브이미지 URL 처리
+        //서브이미지 URL 처리
         List<String> subImageUrls = Arrays.asList(ensureProtocol(csvLine[7]), ensureProtocol(csvLine[8]), ensureProtocol(csvLine[9]));
         log.info("subimages::"+subImageUrls);
+
+        //서브이미지 URL에서 MultipartFile로 전환
         List<MultipartFile> subImages = downloadImagesFromUrls(subImageUrls);
 
+        //이미지 업로드
         List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
         log.info(subPlaceImages);
+
         // 리사이징 적용 (서브이미지: 120x120)
         for (PlaceImage image : subPlaceImages) {
             String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
             log.info("resizeing:::"+resizedImagePath);
             image.setThumbFileImagePath(resizedImagePath);
         }
+
         placeImages.addAll(subPlaceImages);
 
         return placeImages;
@@ -422,52 +467,18 @@ public class CrawlingService {
                 .placePhone(csvLine[5])
                 .build();
     }
-
-    /*private List<MultipartFile> downloadImagesFromUrls(List<String> imageUrls) throws Exception {
-        List<MultipartFile> imageFiles = new ArrayList<>();
-        for (String imageUrl : imageUrls) {
-            URL url = new URL(imageUrl);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            connection.connect();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            try (InputStream inputStream = connection.getInputStream()) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    baos.write(buffer, 0, bytesRead);
-                }
-            }
-
-            byte[] imageBytes = baos.toByteArray();
-
-            String fileName = UUID.randomUUID() + ".jpg";
-
-            String contentType = connection.getContentType();
-
-            DiskFileItem fileItem = new DiskFileItem(fileName, contentType, false, fileName, imageBytes.length, new File(System.getProperty("java.io.tmpdir")));
-
-            try (InputStream input = new ByteArrayInputStream(imageBytes)) {
-                OutputStream os = fileItem.getOutputStream();
-                IOUtils.copy(input, os);
-            }
-
-            MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-            imageFiles.add(multipartFile);
-        }
-        return imageFiles;
-    }*/
-
+    
+    /**
+     * 이미지 URL을 MultipartFile로 전환
+     * @param urls 이미지 URL (List)
+     * @return images (List<MultipartFile>)
+     **/
     private List<MultipartFile> downloadImagesFromUrls(List<String> urls) throws Exception {
         List<MultipartFile> images = new ArrayList<>();
 
         for (String urlString : urls) {
             URL url = new URL(urlString);
+
             if (url.getProtocol().equals("file")) {
                 // 파일 URL 처리
                 File file = new File(url.toURI());
@@ -496,7 +507,13 @@ public class CrawlingService {
         return images;
     }
 
+    /**
+     * File을 MultipartFile로 변환
+     * @param file 파일
+     * @return MultipartFile
+     **/
     public static MultipartFile convertFileToMultipartFile(File file) throws IOException {
+
         DiskFileItem fileItem = new DiskFileItem(
                 "file",
                 Files.probeContentType(file.toPath()),
@@ -513,7 +530,15 @@ public class CrawlingService {
         return new CommonsMultipartFile(fileItem);
     }
 
+    /**
+     * ByteArray를 MultipartFile로 변환
+     * @param bytes ㅇ
+     * @param contentType 컨텐츠 타입
+     * @param fileName 파일명
+     * @return MultipartFile
+     **/
     public static MultipartFile convertByteArrayToMultipartFile(byte[] bytes, String fileName, String contentType) throws IOException {
+
         DiskFileItem fileItem = new DiskFileItem(
                 "file",
                 contentType,
@@ -530,6 +555,10 @@ public class CrawlingService {
         return new CommonsMultipartFile(fileItem);
     }
 
+    /**
+     * csv 파일에 있는 이미지 URL 추출
+     * @param url 이미지 URL
+     **/
     private String ensureProtocol(String url) {
         // 경로 구분자를 통일
         String normalizedUrl = url.replace("\\", "/");
@@ -554,8 +583,7 @@ public class CrawlingService {
                 !normalizedUrl.startsWith("https://") &&
                 !normalizedUrl.startsWith("file:///C") &&
                 !normalizedUrl.equalsIgnoreCase(normalizedDefaultImagePath)&&
-                normalizedUrl.equalsIgnoreCase(normalizedDefaultImagePath)&&
-                !DEFAULT_IMAGE_PATH.startsWith("//")) {
+                normalizedUrl.equalsIgnoreCase(normalizedDefaultImagePath)) {
             log.info("이미지.");
             return "http:" + normalizedUrl;
         }else{

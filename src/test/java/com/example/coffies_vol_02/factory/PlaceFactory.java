@@ -18,7 +18,6 @@ public class PlaceFactory {
     public static Place place(){
         return  Place
                 .builder()
-                .id(1)
                 .placeLng(123.3443)
                 .placeLat(23.34322)
                 .placeAddr1("xxxx시 xx구")
