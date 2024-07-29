@@ -2,12 +2,11 @@ package com.example.coffies_vol_02.board.domain.dto.response;
 
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
-import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -43,6 +42,7 @@ public record BoardResponse(
 
 ) implements Serializable {
 
+        @Builder
         @QueryProjection
         public BoardResponse(Board board){
                 this(
@@ -62,4 +62,5 @@ public record BoardResponse(
                         board.getUpdatedTime()
                 );
         }
+
 }
