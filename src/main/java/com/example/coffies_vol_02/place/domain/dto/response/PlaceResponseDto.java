@@ -22,7 +22,7 @@ public class PlaceResponseDto implements Serializable {
     @ExcelColumn(headerName = "가게 번호")
     @Schema(description = "가게 번호",type = "Integer")
     private Integer id;
-    
+
     @ExcelColumn(headerName = "가게 위도")
     @Schema(description = "가게 위도",type = "Double")
     private Double placeLng;
@@ -63,12 +63,12 @@ public class PlaceResponseDto implements Serializable {
     @Schema(description = "가게 영업종료시간",type = "String")
     private String placeClose;
 
-    @Schema(description = "파일 그룹아이디",type = "String")
-    private String fileGroupId;
     @Schema(description = "이미지 고정 여부",type = "String")
     private String isTitle;
+
     @Schema(description = "원본 이미지 경로",type = "String")
     private String imgPath;
+
     @Schema(description = "섬네일 이미지 경로",type = "String")
     private String thumbFileImagePath;
 
@@ -86,7 +86,6 @@ public class PlaceResponseDto implements Serializable {
         this.placeStart = place.getPlaceStart();
         this.placeClose = place.getPlaceClose();
         this.placePhone = place.getPlacePhone();
-        this.fileGroupId = place.getFileGroupId();
         this.isTitle = place.getPlaceImageList().size()== 0 ? null : place.getPlaceImageList().get(0).getIsTitle();
         this.thumbFileImagePath = place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath();
     }

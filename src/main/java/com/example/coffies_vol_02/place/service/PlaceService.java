@@ -103,7 +103,6 @@ public class PlaceService {
                 .placeClose(detail.getPlaceClose())
                 .placeAddr1(detail.getPlaceAddr1())
                 .placeAddr2(detail.getPlaceAddr2())
-                .fileGroupId(detail.getFileGroupId())
                 .reviewRate(detail.getReviewRate())
                 .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
                 .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())

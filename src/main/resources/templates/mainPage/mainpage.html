@@ -20,7 +20,7 @@
 						<div class="card shadow">
 							<!-- 이미지 출력부분 -->
 							<th:block th:each= "imagelist : ${top5}">
-								<img th:if= "${top5.fileGroupId}==${imagelist.fileGroupId}" th:src="${imagelist.thumbFileImagePath}">
+								<img th:src="${imagelist.thumbFileImagePath}">
 							</th:block>
 							<img>
 							<div class="col-12">

@@ -154,9 +154,10 @@ public class PlaceApiController {
         if(principalDetails !=null){
             log.info(name);
             redisService.createPlaceNameLog(principalDetails.getMember().getId(),name);
+            return new CommonResponse<>(HttpStatus.OK,"save PlaceName");
+        }else{
+            return new CommonResponse<>(HttpStatus.UNAUTHORIZED,"로그인을 해주세요.");
         }
-
-        return new CommonResponse<>(HttpStatus.OK,"save PlaceName");
     }
 
     @Operation(summary = "최근 검색 기록: 목록")
@@ -178,7 +179,22 @@ public class PlaceApiController {
         if(principalDetails != null){
             log.info("?????");
             redisService.deletePlaceNameLog(principalDetails.getMember().getId());
+            return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
+        }else {
+            return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인을 해주세요.");
         }
-        return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
+    }
+
+    @Operation(summary = "최근 검색 기록: 개별삭제")
+    @DeleteMapping("/search-log/{name}")
+    public CommonResponse<?>deleteRecentPlaceLogByName(@PathVariable("name")String placeName,
+                                                       @ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails) {
+
+        if(principalDetails != null){
+            redisService.deletePlaceNameLogByName(principalDetails.getMember().getId(),placeName);
+            return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
+        }else {
+            return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인을 해주세요.");
+        }
     }
 }

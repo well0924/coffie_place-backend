@@ -93,7 +93,7 @@ public class PlaceRedisTest {
     @DisplayName("geo radius test")
     public void test1(){
 
-        GeoResults<?> mockGeoResults = new GeoResults<Object>(Collections.emptyList());
+        GeoResults<?> mockGeoResults = new GeoResults<>(Collections.emptyList());
 
         // Mocking GeoOperations.radius method
         when(geoOperations.radius(eq("CafeStore"), any(Circle.class)))
@@ -153,9 +153,7 @@ public class PlaceRedisTest {
         when(memberRepository.findById(1)).thenReturn(Optional.empty());
 
         // 예외가 발생하는지 확인
-        CustomExceptionHandler exception = Assertions.assertThrows(CustomExceptionHandler.class, () -> {
-            redisService.ListPlaceNameLog(1);
-        });
+        CustomExceptionHandler exception = Assertions.assertThrows(CustomExceptionHandler.class, () -> redisService.ListPlaceNameLog(1));
 
         assertEquals(ERRORCODE.NOT_FOUND_MEMBER, exception.getErrorCode());
 
@@ -164,7 +162,7 @@ public class PlaceRedisTest {
     }
 
     @Test
-    @DisplayName("가게 검색어 삭제 기능 테스트 - 성공")
+    @DisplayName("가게 검색어 전체삭제 기능 테스트 - 성공")
     public void testDeletePlaceNameLogSuccess() {
         // Mock 데이터 설정
         when(memberRepository.findById(1)).thenReturn(Optional.of(member));
@@ -178,15 +176,13 @@ public class PlaceRedisTest {
     }
 
     @Test
-    @DisplayName("가게 검색어 삭제 기능 테스트 - 회원 미존재")
+    @DisplayName("가게 검색어 전체삭제 기능 테스트 - 회원 미존재")
     public void testDeletePlaceNameLogMemberNotFound() {
         // Mock 데이터 설정 - 회원이 존재하지 않는 경우
         when(memberRepository.findById(1)).thenReturn(Optional.empty());
 
         // 예외가 발생하는지 확인
-        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
-            redisService.deletePlaceNameLog(1);
-        });
+        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> redisService.deletePlaceNameLog(1));
 
         assertEquals(ERRORCODE.NOT_FOUND_MEMBER, exception.getErrorCode());
 
@@ -195,16 +191,14 @@ public class PlaceRedisTest {
     }
 
     @Test
-    @DisplayName("가게 검색어 삭제 기능 테스트 - 검색어 미존재")
+    @DisplayName("가게 검색어 전체삭제 기능 테스트 - 검색어 미존재")
     public void testDeletePlaceNameLogSearchLogNotExist() {
         // Mock 데이터 설정
         when(memberRepository.findById(1)).thenReturn(Optional.of(member));
         when(listOperations.remove(anyString(), anyLong(), any(PlaceRecentSearchDto.class))).thenReturn(0L);
 
         // 예외가 발생하는지 확인
-        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
-            redisService.deletePlaceNameLog(1);
-        });
+        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> redisService.deletePlaceNameLog(1));
 
         assertEquals(ERRORCODE.SEARCH_LOG_NOT_EXIST, exception.getErrorCode());
 
@@ -212,5 +206,112 @@ public class PlaceRedisTest {
         verify(memberRepository).findById(1);
         verify(listOperations).remove(anyString(), eq(1L), any(PlaceRecentSearchDto.class));
     }
+    
+    @Test
+    @DisplayName("가게 검색어 개별삭제  기능 테스트 - 성공")
+    public void testDeletePlaceNameLogByName(){
+        //Mock 데이터 설정
+        Integer memberId = 1;
+        String key = CacheKey.PLACE + memberId;
+        //개별 검색어 로그
+        PlaceRecentSearchDto searchDto1 = new PlaceRecentSearchDto("Place1", "2024-07-28T10:15:30");
+        PlaceRecentSearchDto searchDto2 = new PlaceRecentSearchDto("TestPlace", "2024-07-28T10:15:30");
+        PlaceRecentSearchDto searchDto3 = new PlaceRecentSearchDto("Place3", "2024-07-28T10:15:30");
 
+        List<PlaceRecentSearchDto> searchLogs = new ArrayList<>();
+        searchLogs.add(searchDto1);
+        searchLogs.add(searchDto2);
+        searchLogs.add(searchDto3);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(listOperations.range(key, 0, -1)).thenReturn(searchLogs);
+
+        // When
+        redisService.deletePlaceNameLogByName(memberId, "TestPlace");
+
+        // Then
+        verify(listOperations, times(1)).remove(key, 1, searchDto2);
+    }
+
+    @Test
+    @DisplayName("가게 검색어 개별삭제  기능 테스트 - 회원이 없는 경우")
+    public void testDeletePlaceNameLogByName_MemberNotFound() {
+        // Given
+        Integer memberId = 1;
+        String searchName = "TestPlace";
+
+        when(memberRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        // When / Then
+        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
+            redisService.deletePlaceNameLogByName(memberId, searchName);
+        });
+
+        assertEquals(ERRORCODE.NOT_FOUND_MEMBER, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("가게 검색어 개별삭제  기능 테스트 - 검색어가 없는 경우")
+    public void testDeletePlaceNameLogByName_SearchLogNotExist() {
+        // Given
+        Integer memberId = 1;
+        String searchName = "TestPlace";
+        String key = CacheKey.PLACE + memberId;
+
+        List<PlaceRecentSearchDto> searchLogs = new ArrayList<>();
+
+        when(memberRepository.findById(anyInt())).thenReturn(Optional.of(member));
+        when(listOperations.range(key, 0, -1)).thenReturn(searchLogs);
+
+        // When / Then
+        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
+            redisService.deletePlaceNameLogByName(memberId, searchName);
+        });
+
+        assertEquals(ERRORCODE.SEARCH_LOG_NOT_EXIST, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("가게 검색어 개별삭제  기능 테스트 -검색어가 없는 경우")
+    public void testDeletePlaceNameLogByName_SearchNameNotExist() {
+        // Given
+        Integer memberId = 1;
+        String searchName = "TestPlace";
+        String key = CacheKey.PLACE + memberId;
+
+        PlaceRecentSearchDto searchDto1 = new PlaceRecentSearchDto("Place1", "2024-07-28T10:15:30");
+        PlaceRecentSearchDto searchDto3 = new PlaceRecentSearchDto("Place3", "2024-07-28T10:15:30");
+
+        List<PlaceRecentSearchDto> searchLogs = new ArrayList<>();
+        searchLogs.add(searchDto1);
+        searchLogs.add(searchDto3);
+
+        when(memberRepository.findById(anyInt())).thenReturn(Optional.of(member));
+        when(listOperations.range(key, 0, -1)).thenReturn(searchLogs);
+
+        // When / Then
+        CustomExceptionHandler exception = assertThrows(CustomExceptionHandler.class, () -> {
+            redisService.deletePlaceNameLogByName(memberId, searchName);
+        });
+
+        assertEquals(ERRORCODE.SEARCH_LOG_NOT_EXIST, exception.getErrorCode());
+    }
+    
+    @Test
+    @DisplayName("가게 댓글 삽입 테스트")
+    public void insertCommentRateTest(){
+        
+    }
+
+    @Test
+    @DisplayName("가게 댓글 삭제 테스트")
+    public void deleteCommentRateTest(){
+
+    }
+
+    @Test
+    @DisplayName("댓글의 평점이 높은가게 top5 보여주기.")
+    public void topRatedStoresTest(){
+
+    }
 }

@@ -11,27 +11,63 @@
     <link rel="stylesheet" th:href="@{/css/placelist.css}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
-        .invisible{
+        .invisible {
             display: none;
         }
-        #suggestion_box {
-            margin-top: 1px;
+        #recent_searches {
             background: white;
-            padding: 0 10px;
-            border: 1px solid black;
-            width: 220px;
-            margin-left: 392px;
+            width: 100%; /* 검색바와 동일한 너비 설정 */
+            max-width: 600px; /* 최대 너비 설정 */
+            border: 1px solid #ddd;
+            margin-top: 5px;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: absolute; /* 검색바의 아래쪽에 위치하도록 설정 */
+            top: 100%; /* 검색바 바로 아래에 위치 */
+            left: 0;
         }
-
-        #suggested_items{
-            height: 100px;
-            width: 208px;
-            overflow: auto;
+        .recent-search-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 5px 10px;
         }
-        /* 마우스 올리면 색 변화 */
-        .item:hover{
-            color: #fff;
-            background-color: lightgreen;
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .search-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 600px; /* 최대 너비 설정 */
+            position: relative; /* 검색어 목록을 검색바 바로 아래에 위치하도록 설정 */
+        }
+        .search-bar select,
+        .search-bar input,
+        .search-bar button {
+            margin-right: 10px; /* 요소들 사이에 여백 추가 */
+        }
+        .search-bar input {
+            flex-grow: 1; /* 입력창이 남은 공간을 채우도록 설정 */
+            min-width: 200px; /* 입력창의 최소 너비 설정 */
+        }
+        .row {
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        .btn {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -42,15 +78,22 @@
             <div class="card-body">
                 <h4 class="card-title" style="text-align: center;">카페 검색</h4>
                 <!--search bar-->
-                <div class="form-inline" style="display: flex; justify-content: center;">
-                    <select id="searchType" class="form-control" name="searchType">
-                        <option>선택</option>
-                        <option th:value="placeName">가게이름</option>
-                        <option th:value="placeAddress">주소</option>
-                        <option th:value="all">전체</option>
-                    </select>
-                    <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요"/>
-                    <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
+                <div class="search-container">
+                    <div class="search-bar">
+                        <select id="searchType" class="form-control" name="searchType">
+                            <option>선택</option>
+                            <option th:value="placeName">가게이름</option>
+                            <option th:value="placeAddress">주소</option>
+                            <option th:value="all">전체</option>
+                        </select>
+                        <input class="form-control" type="text" id="autocomplete" name="keyword" placeholder="검색어를 입력하세요" onfocus="loadRecentSearches()"/>
+                        <button id="btnSearch" class="btn btn-primary" onclick="placeSearch()">Search</button>
+                        <!--최근 검색어 목록-->
+                        <div id="recent_searches" class="invisible">
+                            <div id="recent_search_items"></div>
+                            <button class="btn btn-danger" onclick="deleteAllRecentSearches()">전체 삭제</button>
+                        </div>
+                    </div>
                     <!--sorted select-->
                     <div class="row" style="width:500px;margin-left:82%;margin-bottom: 2px">
                         <div>
@@ -64,16 +107,9 @@
                 <!--search end-->
                 <a th:href="@{/api/file/place-download}" class="btn btn-primary"
                    style="margin-bottom: 5px;" sec:authorize="hasRole('ROLE_ADMIN')">가게목록출력</a>
-                <button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeregister()"
+                <button class="btn btn-primary" style="margin-bottom: 5px;" onclick="placeRegister()"
                         sec:authorize="hasRole('ROLE_ADMIN')">가게 등록
                 </button>
-                <div id="suggestion_box" class = "invisible">
-                    <div id = "suggested_items">
-                        <div th:each="key : ${keywords}">
-                            [[${key}]]
-                        </div>
-                    </div>
-                </div>
                 <!--place List-->
                 <div id="placeList"/>
                 <div class="row" style="margin-top:10px">
@@ -105,7 +141,7 @@
     </div>
     <script type="text/javascript" th:inline="javascript">
         //가게 등록화면 이동
-        function placeregister() {
+        function placeRegister() {
             location.href = '/page/place/placeregister';
         }
 
@@ -117,52 +153,67 @@
             location.href = '/page/place/list?keyword=' + keyword + '&searchType=' + searchType;
         }
 
-        $("#autocomplete").mouseover(function() {
-            /*<![CDATA[*/
-            const items = /*[[${keyword}]]*/;
-            console.log(items);
-            if (items.length > 0) {
-                const recommendBox = document.querySelector("#suggestion_box");
-
-                // invisible을 지워준다.
-                recommendBox.classList.remove('invisible');
-                const input_name = document.getElementById("autocomplete");
-
-                // 기존 검색 추천 데이터 지우고, 새로 넣어주기 안 그러면 계속 추가됨
-                recommendBox.innerHTML = "";
-
-                const suggestedItems = document.createElement('div')
-                suggestedItems.id = "suggested_items"
-
-                recommendBox.appendChild(suggestedItems);
-
-                // item별 리스트
-
-
-                // for문 돌면서 item 추가
-                for (const i in items) {
-
-                    const player_content = document.createTextNode(items[i]);
-                    const suggestedItem = document.createElement('div');
-                    suggestedItem.className = "item"
-
-                    suggestedItem.addEventListener('click', function(e){
-                        document.getElementById("autocomplete").value = this.textContent.split(' ')[0];
+        // 최근 검색어 불러오기
+        function loadRecentSearches() {
+            $.ajax({
+                url: '/api/place/search-logs-list',
+                method: 'GET',
+                success: function(response) {
+                    const recentSearches = response.data;
+                    const recentSearchItems = document.getElementById('recent_search_items');
+                    recentSearchItems.innerHTML = '';
+                    recentSearches.forEach(search => {
+                        const searchItem = document.createElement('div');
+                        searchItem.className = 'recent-search-item';
+                        searchItem.innerHTML = `
+                            <span>${search.name}</span>
+                            <span class="delete-btn" onclick="deleteRecentSearch('${search.name}')">x</span>
+                        `;
+                        recentSearchItems.appendChild(searchItem);
                     });
-
-                    suggestedItem.appendChild(player_content);
-                    suggestedItems.appendChild(suggestedItem);
+                    document.getElementById('recent_searches').classList.remove('invisible');
                 }
-            }
-            /*]]>*/
-        })
+            });
+        }
 
-        document.addEventListener("click", e => {
-            const closestKeywords = e.target.closest("#suggestion_box") // 부모 요소 중에 keywords 클래스를 가진 부모가 있는지 확인
-            if(!closestKeywords) {
-                const recommendBox = document.querySelector("#suggestion_box");
-                recommendBox.classList.add('invisible');
+        // 특정 검색어 삭제
+        function deleteRecentSearch(name) {
+            $.ajax({
+                url: `/api/place/search-log/${name}`,
+                method: 'DELETE',
+                success: function() {
+                    loadRecentSearches();
+                }
+            });
+        }
+
+        // 전체 검색어 삭제
+        function deleteAllRecentSearches() {
+            $.ajax({
+                url: '/api/place/search-log',
+                method: 'DELETE',
+                success: function() {
+                    document.getElementById('recent_search_items').innerHTML = '';
+                    document.getElementById('recent_searches').classList.add('invisible');
+                }
+            });
+        }
+
+        // 최근 검색어 목록 외부 클릭 시 숨기기
+        document.addEventListener('click', function(event) {
+            const recentSearches = document.getElementById('recent_searches');
+            const autocomplete = document.getElementById('autocomplete');
+
+            if (!recentSearches.classList.contains('invisible') && !autocomplete.contains(event.target) &&
+                !recentSearches.contains(event.target)) {
+
+                recentSearches.classList.add('invisible');
             }
+        });
+
+        // 최근 검색어 목록을 클릭할 때 숨기지 않도록 이벤트 중지
+        document.getElementById('recent_searches').addEventListener('click', function(event) {
+            event.stopPropagation();
         });
     </script>
 </th:block>

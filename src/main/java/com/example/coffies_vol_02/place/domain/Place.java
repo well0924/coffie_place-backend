@@ -43,8 +43,6 @@ public class Place extends BaseTime {
     //가게운영 종료시간
     private String placeClose;
 
-    private String fileGroupId;
-    
     //가게정보가 삭제가 되면 가게 댓글이 삭제가 된다.
     @BatchSize(size = 1000)
     @JsonIgnore
@@ -66,7 +64,6 @@ public class Place extends BaseTime {
         this.placePhone = placePhone;
         this.placeAddr1 = placeAddr1;
         this.placeAddr2 = placeAddr2;
-        this.fileGroupId = fileGroupId;
         this.placeLng = placeLng;
         this.placeLat = placeLat;
         this.reviewRate = reviewRate != null ? reviewRate : 0.0;
