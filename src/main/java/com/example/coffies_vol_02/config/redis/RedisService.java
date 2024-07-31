@@ -121,6 +121,38 @@ public class RedisService {
     }
 
     /**
+     * 특정 검색어 삭제
+     * @param memberId 회원 번호
+     * @param name 삭제할 검색어
+     **/
+    public void deletePlaceNameLogByName(Integer memberId, String name) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_FOUND_MEMBER));
+
+        String key = CacheKey.PLACE + member.getId();
+
+        List<PlaceRecentSearchDto> logs = redisTemplates.opsForList().range(key, 0, -1);
+
+        if (logs.isEmpty()) {
+            throw new CustomExceptionHandler(ERRORCODE.SEARCH_LOG_NOT_EXIST);
+        }
+
+        PlaceRecentSearchDto targetLog = null;
+        for (PlaceRecentSearchDto log : logs) {
+            if (log.getName().equals(name)) {
+                targetLog = log;
+                break;
+            }
+        }
+
+        if (targetLog != null) {
+            redisTemplates.opsForList().remove(key, 1, targetLog);
+        } else {
+            throw new CustomExceptionHandler(ERRORCODE.SEARCH_LOG_NOT_EXIST);
+        }
+    }
+
+    /**
      *  회원 이름 자동완성기능
      * @author 양경빈
      * @param userId 회원 아이디
@@ -131,10 +163,16 @@ public class RedisService {
         HashOperations<String,String,Object>hashOperations = redisTemplates.opsForHash();
 
         List<Member>nameList = memberRepository.findAll();
+
         log.info(nameList.stream().toList());
-        Map<String,Object> nameDateMap = nameList.stream()
-                .collect(Collectors.toMap(Member::getUserId,Member::getId));
+
+        Map<String,Object> nameDateMap = nameList
+                .stream()
+                .collect(Collectors
+                        .toMap(Member::getUserId,Member::getId));
+
         log.info(nameDateMap);
+
         //redisHash 에 저장
         hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
 
@@ -144,8 +182,15 @@ public class RedisService {
 
         //검색조건 설정
         String matchPattern = "\"" + userId + "*";
-        ScanOptions scanOptions = ScanOptions.scanOptions().match(matchPattern).count(10000).build();
-        Cursor<Map.Entry<String,Object>> cursor= hashOperations.scan(CacheKey.USERNAME, scanOptions);
+
+        ScanOptions scanOptions = ScanOptions
+                .scanOptions()
+                .match(matchPattern)
+                .count(10000)
+                .build();
+
+        Cursor<Map.Entry<String,Object>> cursor = hashOperations
+                .scan(CacheKey.USERNAME, scanOptions);
 
         List<String> searchList = new ArrayList<>();
 
@@ -154,6 +199,7 @@ public class RedisService {
             log.info(entry);
             searchList.add(entry.getKey());
         }
+
         log.info(searchList);
         return searchList;
     }
@@ -211,6 +257,9 @@ public class RedisService {
             return a.getId().compareTo(b.getId());
         });
 
-        return storeList.stream().map(PlaceResponseDto::new).collect(Collectors.toList());
+        return storeList
+                .stream()
+                .map(PlaceResponseDto::new)
+                .collect(Collectors.toList());
     }
 }
