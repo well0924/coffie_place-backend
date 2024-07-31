@@ -19,7 +19,7 @@ import java.util.Set;
 @Proxy(lazy = false)
 @Entity
 @ToString(exclude = {"member","board","place","likes"})
-@Table(name = "tbl_board_reply")
+@Table(name = "tbl_reply")
 @NoArgsConstructor
 @AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "id"))})
 public class Comment extends BaseTime implements Serializable {
@@ -31,7 +31,7 @@ public class Comment extends BaseTime implements Serializable {
     private String replyContents;
 
     private Double replyPoint;
-
+    //가게 댓글 좋아요
     @ColumnDefault("0")
     private Integer likeCount;
 
