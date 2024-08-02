@@ -409,18 +409,22 @@ public class CrawlingService {
         List<MultipartFile> mainImages = downloadImagesFromUrls(Collections.singletonList(mainImageUrl));
         log.info("이미지처리::"+mainImages);
 
-        //이미지 업로드
-        List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
-        log.info("이미지 업로드??:"+mainPlaceImages);
+        if(!mainImages.isEmpty()){
+            //이미지 업로드
+            List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
+            log.info("이미지 업로드??:"+mainPlaceImages);
 
-        // 리사이징 적용 (메인이미지: 360x360)
-        for (PlaceImage image : mainPlaceImages) {
-            String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
-            log.info("resizing:::"+resizedImagePath);
-            image.setThumbFileImagePath(resizedImagePath);
+            // 리사이징 적용 (메인이미지: 360x360)
+            for (PlaceImage image : mainPlaceImages) {
+                image.setIsTitle("Y");
+                String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
+                log.info("resizing:::"+resizedImagePath);
+                image.setThumbFileImagePath(resizedImagePath);
+            }
+            placeImages.addAll(mainPlaceImages);
+        }else {
+            log.warn("Main image URL is invalid: {}", mainImageUrl);
         }
-
-        placeImages.addAll(mainPlaceImages);
 
         //서브이미지 URL 처리
         List<String> subImageUrls = Arrays.asList(ensureProtocol(csvLine[7]), ensureProtocol(csvLine[8]), ensureProtocol(csvLine[9]));
@@ -429,18 +433,20 @@ public class CrawlingService {
         //서브이미지 URL에서 MultipartFile로 전환
         List<MultipartFile> subImages = downloadImagesFromUrls(subImageUrls);
 
-        //이미지 업로드
-        List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
-        log.info(subPlaceImages);
-
-        // 리사이징 적용 (서브이미지: 120x120)
-        for (PlaceImage image : subPlaceImages) {
-            String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
-            log.info("resizeing:::"+resizedImagePath);
-            image.setThumbFileImagePath(resizedImagePath);
+        if(!subImageUrls.isEmpty()) {
+            //이미지 업로드
+            List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
+            log.info(subPlaceImages);
+            // 리사이징 적용 (서브이미지: 120x120)
+            for (PlaceImage image : subPlaceImages) {
+                String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
+                log.info("resizeing:::"+resizedImagePath);
+                image.setThumbFileImagePath(resizedImagePath);
+            }
+            placeImages.addAll(subPlaceImages);
+        }else {
+            log.warn("Sub image URL is invalid: {}", mainImageUrl);
         }
-
-        placeImages.addAll(subPlaceImages);
 
         return placeImages;
     }
@@ -449,7 +455,7 @@ public class CrawlingService {
         List<PlaceImage> placeImages = new ArrayList<>();
         return Place.builder()
                 .placeName(csvLine[1])
-                .placeAddr1(csvLine[2])
+                .placeAddr(csvLine[2])
                 .placeStart(csvLine[3])
                 .placeClose(csvLine[4])
                 .placePhone(csvLine[5])
@@ -461,13 +467,13 @@ public class CrawlingService {
     private PlaceRequestDto createPlaceRequestDto(String[] csvLine) {
         return PlaceRequestDto.builder()
                 .placeName(csvLine[1])
-                .placeAddr1(csvLine[2])
+                .placeAddr(csvLine[2])
                 .placeStart(csvLine[3])
                 .placeClose(csvLine[4])
                 .placePhone(csvLine[5])
                 .build();
     }
-    
+
     /**
      * 이미지 URL을 MultipartFile로 전환
      * @param urls 이미지 URL (List)
@@ -477,30 +483,41 @@ public class CrawlingService {
         List<MultipartFile> images = new ArrayList<>();
 
         for (String urlString : urls) {
-            URL url = new URL(urlString);
 
-            if (url.getProtocol().equals("file")) {
-                // 파일 URL 처리
-                File file = new File(url.toURI());
-                MultipartFile multipartFile = convertFileToMultipartFile(file);
-                images.add(multipartFile);
-            } else {
-                // HTTP URL 처리
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setDoOutput(true);
-                connection.connect();
+            URL url;
 
-                try (InputStream input = connection.getInputStream();
-                     ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-                    byte[] buffer = new byte[4096];
-                    int n;
-                    while ((n = input.read(buffer)) != -1) {
-                        output.write(buffer, 0, n);
-                    }
-                    MultipartFile multipartFile = convertByteArrayToMultipartFile(output.toByteArray(), url.getFile(), connection.getContentType());
+            try{
+
+                url = new URL(urlString);
+
+                if (url.getProtocol().equals("file")) {
+                    // 파일 URL 처리
+                    File file = new File(url.toURI());
+                    MultipartFile multipartFile = convertFileToMultipartFile(file);
                     images.add(multipartFile);
+                } else {
+                    // HTTP URL 처리
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setDoOutput(true);
+                    connection.connect();
+
+                    try (InputStream input = connection.getInputStream();
+                         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                        byte[] buffer = new byte[4096];
+                        int n;
+                        while ((n = input.read(buffer)) != -1) {
+                            output.write(buffer, 0, n);
+                        }
+                        MultipartFile multipartFile = convertByteArrayToMultipartFile(output.toByteArray(), url.getFile(), connection.getContentType());
+                        images.add(multipartFile);
+                    }
                 }
+            }catch (Exception e) {
+                // 오류 발생 시 기본 이미지 추가
+                File defaultImageFile = new File("C:/spring_work/workspace/CoffiesVol.02/default_image.png");
+                MultipartFile defaultMultipartFile = convertFileToMultipartFile(defaultImageFile);
+                images.add(defaultMultipartFile);
             }
         }
 

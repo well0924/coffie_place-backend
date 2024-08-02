@@ -24,8 +24,10 @@ import java.util.UUID;
 @Log4j2
 @Component
 public class FileHandler {
+
     @Value("${server.file.upload}")
     private String filePath;
+
     @Value("/istatic/images/")
     private String imgPath;
 

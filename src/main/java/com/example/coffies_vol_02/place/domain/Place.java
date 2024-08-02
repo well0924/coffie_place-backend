@@ -16,22 +16,16 @@ import java.util.List;
 @Table(name = "tbl_place",indexes = {
         @Index(name = "place_index1",columnList = "placeName"),
         @Index(name = "place_index4",columnList = "placeAuthor"),
-        @Index(name = "place_index2",columnList = "placeAddr1")})
+        @Index(name = "place_index2",columnList = "placeAddr")})
 @NoArgsConstructor
 @AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "place_id"))})
 public class Place extends BaseTime {
-
-    private Double placeLng;
-
-    private Double placeLat;
 
     private Double reviewRate;
 
     private String placeName;
 
-    private String placeAddr1;
-
-    private String placeAddr2;
+    private String placeAddr;
 
     private String placePhone;
 
@@ -56,16 +50,13 @@ public class Place extends BaseTime {
     private List<PlaceImage> placeImageList = new ArrayList<>();
     
     @Builder
-    public Place( String placeName, String placeAuthor, String placeStart, String placeClose, String placePhone, String placeAddr1, String placeAddr2, String fileGroupId, Double placeLng, Double placeLat, Double reviewRate, List<PlaceImage>placeImages){
+    public Place( String placeName, String placeAuthor, String placeStart, String placeClose, String placePhone, String placeAddr, Double reviewRate, List<PlaceImage>placeImages){
         this.placeName = placeName;
         this.placeAuthor = placeAuthor;
         this.placeStart = placeStart;
         this.placeClose = placeClose;
         this.placePhone = placePhone;
-        this.placeAddr1 = placeAddr1;
-        this.placeAddr2 = placeAddr2;
-        this.placeLng = placeLng;
-        this.placeLat = placeLat;
+        this.placeAddr = placeAddr;
         this.reviewRate = reviewRate != null ? reviewRate : 0.0;
         this.placeImageList = placeImages;
     }
@@ -82,8 +73,7 @@ public class Place extends BaseTime {
     public void placeUpdate(PlaceRequestDto dto){
         this.placeStart = dto.getPlaceStart();
         this.placeClose = dto.getPlaceClose();
-        this.placeAddr1 = dto.getPlaceAddr1();
-        this.placeAddr2 = dto.getPlaceAddr2();
+        this.placeAddr = dto.getPlaceAddr();
         this.placePhone = dto.getPlacePhone();
         this.placeName = dto.getPlaceName();
     }

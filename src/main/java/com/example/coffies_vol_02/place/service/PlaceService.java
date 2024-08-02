@@ -68,18 +68,6 @@ public class PlaceService {
     }
 
     /**
-     * 가게 top5 (평점이 높은 순)
-     * @param pageable 페이징 객체
-     * @return Page<PlaceResponseDto>
-     * @author 양경빈
-     * @see PlaceRepository#placeTop5(Pageable) 가게 top5 메서드
-     **/
-    /*@Transactional(readOnly = true)
-    public Page<PlaceResponseDto> cafePlaceByReviewRateTop5(Pageable pageable) {
-        return placeRepository.placeTop5(pageable);
-    }*/
-
-    /**
      * 가게 단일 조회
      * @param placeId 가게 번호 가게번호가 없는 경우에는 PLACE_NOT_FOUND 발생
      * @return PlaceResponseDto
@@ -87,6 +75,7 @@ public class PlaceService {
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
     @Cacheable(value = CacheKey.PLACE,key = "#placeId")
+    @Transactional(readOnly = true)
     public PlaceResponseDto findCafePlaceById(Integer placeId) {
 
         Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
@@ -94,15 +83,12 @@ public class PlaceService {
         return PlaceResponseDto
                 .builder()
                 .id(detail.getId())
-                .placeLat(detail.getPlaceLat())
-                .placeLng(detail.getPlaceLng())
                 .placeAuthor(detail.getPlaceAuthor())
                 .placePhone(detail.getPlacePhone())
                 .placeStart(detail.getPlaceStart())
                 .placeName(detail.getPlaceName())
                 .placeClose(detail.getPlaceClose())
-                .placeAddr1(detail.getPlaceAddr1())
-                .placeAddr2(detail.getPlaceAddr2())
+                .placeAddr(detail.getPlaceAddr())
                 .reviewRate(detail.getReviewRate())
                 .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
                 .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
@@ -117,20 +103,15 @@ public class PlaceService {
      * @see FileHandler#placeImagesUpload(List) 가게 이미지를 등록하는 메서드                       
      * @return placeId 가게 번호
      **/
-    @Transactional
     public Integer createCafePlace(PlaceRequestDto dto, PlaceImageRequestDto imageRequestDto) throws Exception {
         Place place = Place
                 .builder()
-                .placeLat(dto.getPlaceLat())
-                .placeLng(dto.getPlaceLng())
                 .placeName(dto.getPlaceName())
                 .placePhone(dto.getPlacePhone())
                 .placeStart(dto.getPlaceStart())
                 .placeClose(dto.getPlaceClose())
                 .placeAuthor(dto.getPlaceAuthor())
-                .placeAddr1(dto.getPlaceAddr1())
-                .placeAddr2(dto.getPlaceAddr2())
-                .fileGroupId(dto.getFileGroupId())
+                .placeAddr(dto.getPlaceAddr())
                 .reviewRate(dto.getReviewRate())
                 .build();
 
@@ -262,7 +243,7 @@ public class PlaceService {
         placeImage = imageList.get(i);
 
         if (i == 0) {
-            placeImage.setIsTitle("1");
+            placeImage.setIsTitle("Y");
             resize = fileHandler.ResizeImage(placeImage, 360, 360);
         } else {
             resize = fileHandler.ResizeImage(placeImage, 120, 120);

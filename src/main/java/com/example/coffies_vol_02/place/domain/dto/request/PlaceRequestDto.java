@@ -18,22 +18,13 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class PlaceRequestDto {
 
-    @Schema
-    private Double placeLng;
-
-    @Schema
-    private Double placeLat;
-
-    @Schema
+    @Schema(type = "String",description = "가게명")
     @NotBlank(message = "가게이름을 입력해주세요.")
     private String placeName;
 
-    @Schema
+    @Schema(type = "String",description = "가게 주소")
     @NotBlank(message = "주소를 입력해주세요.")
-    private String placeAddr1;
-
-    @Schema
-    private String placeAddr2;
+    private String placeAddr;
 
     @Schema
     @NotBlank(message = "가게 전화번호를 입력해주세요.")

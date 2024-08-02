@@ -18,16 +18,12 @@ public class PlaceFactory {
     public static Place place(){
         return  Place
                 .builder()
-                .placeLng(123.3443)
-                .placeLat(23.34322)
-                .placeAddr1("xxxx시 xx구")
-                .placeAddr2("ㅁㄴㅇㄹ")
+                .placeAddr("xxxx시 xx구")
                 .placeStart("09:00")
                 .placeClose("18:00")
                 .placeAuthor("admin")
                 .placePhone("010-3444-3654")
                 .reviewRate(0.0)
-                .fileGroupId("place_fre353")
                 .placeName("릴렉스")
                 .placeImages(placeImages)
                 .build();
@@ -51,15 +47,11 @@ public class PlaceFactory {
     public static PlaceRequestDto placeRequestDto(){
         return PlaceRequestDto
                 .builder()
-                .placeLat(place().getPlaceLat())
-                .placeLng(place().getPlaceLng())
                 .placeName(place().getPlaceName())
                 .placePhone(place().getPlacePhone())
                 .placeStart(place().getPlaceStart())
                 .placeClose(place().getPlaceClose())
-                .placeAddr1(place().getPlaceAddr1())
-                .placeAddr2(place().getPlaceAddr2())
-                .fileGroupId(place().getFileGroupId())
+                .placeAddr(place().getPlaceAddr())
                 .placeAuthor(place().getPlaceAuthor())
                 .reviewRate(place().getReviewRate())
                 .build();
@@ -68,20 +60,16 @@ public class PlaceFactory {
     public static PlaceResponseDto placeResponseDto(){
         return new PlaceResponseDto(
                 place().getId(),
-                place().getPlaceLng(),
-                place().getPlaceLat(),
                 place().getReviewRate(),
                 place().getPlaceName(),
-                place().getPlaceAddr1(),
-                place().getPlaceAddr2(),
+                place().getPlaceAddr(),
                 place().getPlacePhone(),
                 place().getPlaceAuthor(),
                 place().getPlaceStart(),
                 place().getPlaceClose(),
-                place().getFileGroupId(),
-                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getIsTitle(),
-                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getImgPath(),
-                place().getPlaceImageList().size() == 0 ? null : place().getPlaceImageList().get(0).getThumbFileImagePath());
+                place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getIsTitle(),
+                place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getImgPath(),
+                place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getThumbFileImagePath());
     }
 
     public static PlaceImageRequestDto placeImageRequestDto(){

@@ -10,7 +10,6 @@ public class FavoritePlaceFactory {
                 .id(1)
                 .place(PlaceFactory.place())
                 .member(MemberFactory.memberDto())
-                .fileGroupId(PlaceFactory.place().getFileGroupId())
                 .build();
     }
     public static FavoritePlaceResponseDto favoritePlaceResponseDto(){

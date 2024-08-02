@@ -32,6 +32,5 @@ public class FavoritePlace {
         this.id = id;
         this.place = place;
         this.member = member;
-        this.fileGroupId = place.getFileGroupId();
     }
 }

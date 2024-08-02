@@ -29,8 +29,10 @@ public class PlaceImage extends BaseTime implements Serializable {
 
     private String thumbFileImagePath;
 
+    @Column(length = 1000)
     private String storedName;
 
+    @Column(length = 1000)
     private String originName;
 
     private String imgUploader;

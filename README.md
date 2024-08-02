@@ -13,7 +13,7 @@
 - scale-out을 고려해서 대용량 트래픽을 고려한 서버 구조 설계
 - 성능 테스트 및 모니터링으로 프로젝트의 신뢰성을 높이기
 - github Actions를 사용해서 CI/CD구축하기
-- 깃 커밋 컨벤션에 따른 커밋 메시지 편의고려하기
+- **깃 커밋 컨벤션에 따른 커밋 메시지 편의고려하기**
 
 ### 제작인원
 
@@ -41,11 +41,10 @@
     - **이메일 인증기능 비동기처리**
     - **Redis로 회원 아이디 및 가게이름 자동완성**
     - **회원 계정 정지기능**
-    - **외부 api호출시 실패 방지를 위해서 @Retry를 적용**
-    - **가게 api 호출후 크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장(api 호출 문제로 api사용을 안하고 크롤링으로 대체)**
+    - **외부 api호출시 실패 방지를 위해서 @Retryable을 적용**
+    - **크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장(api 호출 문제로 api사용을 안하고 크롤링으로 대체)후 디비에 저장**
     - **Redis Sorted Set을 활용해서 가게 평점 top5 를 구현**
     - **가게 최근 검색어 기능구현**
-    - **회원 아이디 자동완성(Redis의 scan을 사용)**
     - **Redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어**
     - **Scale-out을 고려해서 redis Session을 Session Storage로 적용**
     - docker-compose를 사용
@@ -113,7 +112,7 @@
 
 ### ERD
 
-![프로젝트 ERD](https://github.com/well0924/coffie_placeVol.02/assets/89343159/085c6641-e14f-45a0-8113-f4f317c5a218)
+![coffies@localhost](https://github.com/user-attachments/assets/d757b9af-bc49-4164-9a06-f5fa15dd76a0)
 
 
 ### Api 명세서
@@ -135,16 +134,10 @@
 - **[Redis 캐시와 세션을 분리하기.](https://codingweb.tistory.com/195)**
 
 
-- **Redisson을 활용한 게시글 좋아요/조회수 댓글 좋아요 동시성 제어**
+- **[@Retryable을 사용해서 재시도 설정](https://codingweb.tistory.com/199)**
 
 
-- Selenium 크롤링 속도를 개선
+- **[Redis Keys 대신 Scan을 사용해서 성능향상](https://codingweb.tistory.com/200)**
 
 
-- MariaDB Master/Slave를 사용
-
-
-- **회원 아이디 자동완성기능을 Redis scan을 사용해서 개선** 
-
-
-
+- **[Redisson 분산락을 활용해서 동시성 제어]()**

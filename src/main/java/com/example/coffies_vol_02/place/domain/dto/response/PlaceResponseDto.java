@@ -23,14 +23,6 @@ public class PlaceResponseDto implements Serializable {
     @Schema(description = "가게 번호",type = "Integer")
     private Integer id;
 
-    @ExcelColumn(headerName = "가게 위도")
-    @Schema(description = "가게 위도",type = "Double")
-    private Double placeLng;
-
-    @ExcelColumn(headerName = "가게 경도")
-    @Schema(description = "가게 경도",type = "Double")
-    private Double placeLat;
-
     @ExcelColumn(headerName = "가게 평점")
     @Schema(description = "가게 평점",type = "Double")
     private Double reviewRate;
@@ -39,13 +31,9 @@ public class PlaceResponseDto implements Serializable {
     @Schema(description = "가게 이름",type = "String")
     private String placeName;
 
-    @ExcelColumn(headerName = "가게 주소1")
-    @Schema(description = "가게 주소1",type = "String")
-    private String placeAddr1;
-
-    @ExcelColumn(headerName = "가게 주소2")
-    @Schema(description = "가게 주소2",type = "String")
-    private String placeAddr2;
+    @ExcelColumn(headerName = "가게 주소")
+    @Schema(description = "가게 주소",type = "String")
+    private String placeAddr;
 
     @ExcelColumn(headerName = "가게 전화번호")
     @Schema(description = "가게 전화번호",type = "String")
@@ -77,11 +65,8 @@ public class PlaceResponseDto implements Serializable {
     public PlaceResponseDto(Place place){
         this.id = place.getId();
         this.placeAuthor = place.getPlaceAuthor();
-        this.placeLat = place.getPlaceLat();
-        this.placeLng = place.getPlaceLng();
-        this.placeAddr1 = place.getPlaceAddr1();
+        this.placeAddr = place.getPlaceAddr();
         this.reviewRate= place.getReviewRate();
-        this.placeAddr2 = place.getPlaceAddr2();
         this.placeName = place.getPlaceName();
         this.placeStart = place.getPlaceStart();
         this.placeClose = place.getPlaceClose();
