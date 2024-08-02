@@ -29,18 +29,22 @@ public class CsvDBTest {
 
     private static final String TEST_CSV_FILE_PATH = "C:\\spring_work\\workspace\\CoffiesVol.02\\store_info_test.csv";
 
+    private static final String CSV_FILE_PATH = "C:\\spring_work\\workspace\\CoffiesVol.02\\store_info.csv";
+
     @BeforeEach
     void setUp() throws IOException {
-        File csvFile = new File(TEST_CSV_FILE_PATH);
+
+        File csvFile = new File(CSV_FILE_PATH);
+
         if (!csvFile.exists()) {
-            throw new IOException("CSV 파일이 존재하지 않습니다: " + TEST_CSV_FILE_PATH);
+            throw new IOException("CSV 파일이 존재하지 않습니다: " + CSV_FILE_PATH);
         }
     }
 
     @Test
     @DisplayName("csv파일을 디비에 저장.")
     void testProcessCsvAndSaveToDatabase() {
-        crawlingService.processCsvAndSaveToDatabase(TEST_CSV_FILE_PATH);
+        crawlingService.processCsvAndSaveToDatabase(CSV_FILE_PATH);
     }
 
 }
