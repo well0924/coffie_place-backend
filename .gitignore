@@ -1,4 +1,4 @@
-COFFIES_README.md
+README.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
