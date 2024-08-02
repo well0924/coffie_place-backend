@@ -1,74 +1,10 @@
-server:
-  file:
-    upload: C:\\UploadFile\\
-  port: 8082
-  servlet:
-    session:
-      cookie:
-        name: JSESSIONID
-
 spring:
-  session:
-    redis:
-      namespace: board:session
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: well414965@gmail.com
-    password: vmal mght qppp sbod
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-  redis:
-    host: localhost
-    port: '6379'
-  thymeleaf:
-    cache: 'true'
-    prefix: file:src/main/resources/templates/
-    check-template-location: 'true'
-    suffix: .html
-    servlet:
-      content-type: text/html
-    mode: HTML
-    encoding: UTF-8
-  main:
-    allow-bean-definition-overriding: 'true'
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    hikari:
-      data-source-properties:
-        useServerPrepStmts: 'true'
-        cachePrepStmts: 'true'
-        prepStmtCacheSize: '250'
-        prepStmtCacheSqlLimit: '2048'
-      idle-timeout: '10000'
-      maximum-pool-size: '50'
-      connection-timeout: '60000'
-      minimum-idle: '10'
-    password: roots
-    username: root
-    url: jdbc:mariadb://localhost:3309/coffies?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MariaDB103Dialect
-    show-sql: true
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 20MB
-  mvc:
-    path-match:
-      matching-strategy: ant_path_matcher
+  config:
+    import:
+      - classpath:/application-common.yml
+      - classpath:/application-dev.yml
+      - classpath:/application-local.yml
+  profiles:
+    include: local, common
 
-#kakao map rest api
-kakao:
-  rest:
-    api:
-      key: 5fa5c981cd5398d22e4576996d9ccb4f
+
