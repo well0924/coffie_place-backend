@@ -23,15 +23,22 @@ public class CacheKey {
 
     public static final String LIKES = "LIKES";
 
-    public static final int LIKES_EXPIRED_SEC = 60* 10;
+    public static final int LIKES_EXPIRED_SEC = 60 * 10;
 
     public static final String NOTICE_BOARD = "NOTICE_BOARD";
 
-    public static final int NOTICE_BOARD_EXPIRE_SEC = 60 *10; // 10 minutes
+    public static final int NOTICE_BOARD_EXPIRE_SEC = 60 * 10; // 10 minutes
 
     public static final String PLACE = "PLACE";
 
-    public static final int PLACE_EXPIRED_SEC = 60*10;
+    public static final int PLACE_EXPIRED_SEC = 60 * 60 * 24 * 30; // 1 month
 
     public static final String COMMENT_RATING_KEY = "COMMENT";
+
+    public static final int COMMENT_RATING_EXPIRE_SEC = 60 * 1000;
+
+    public static final String PLACE_IMAGE = "PLACE_IMAGE";
+
+    public static final int PLACE_IMAGE_EXPIRE_SEC = 60 * 60 * 24 * 30; // 1 month
+
 }

@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.config.util;
 
 
+import com.example.coffies_vol_02.config.redis.CrawlingCacheService;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
@@ -56,6 +57,8 @@ public class CrawlingService {
     private static final int WAIT_TIME = 20; // 20초 대기
 
     private static int storeNumber = 1; // 가게 번호 초기화
+
+    private final CrawlingCacheService crawlingCacheService;
 
     /**
      * 가게 정보 크롤링후 + csv 파일 저장 + 디비 저장
@@ -364,33 +367,65 @@ public class CrawlingService {
      **/
     @Transactional
     public void saveOrUpdatePlaceAndImages(String[] csvLine) throws Exception {
+        String placeId = csvLine[0]; // CSV 파일에서 가게 ID를 가져옴
         String placeName = csvLine[1];
 
+        // 캐시에서 가게 정보 조회
+        boolean isPlace = crawlingCacheService.isPlaceCached(placeId);
+        Map<Object, Object> cachedPlace = crawlingCacheService.getCachedPlace(placeName);
+
+        // 가게 여부 확인
         Place existingPlace = placeRepository.findByPlaceName(placeName);
 
         Place place;
 
-        //가게가 존재하면 수정 아니면 추가.
-        if (existingPlace != null) {
-            log.info("수정");
-            place = existingPlace;
-            PlaceRequestDto placeRequestDto = createPlaceRequestDto(csvLine);
-            place.placeUpdate(placeRequestDto);
-            placeRepository.save(place);
+//        //디비&Redis에 저장된 가게가 있는 경우에는 스킵
+//        if (existingPlace != null && isPlace == true && cachedPlace != null) {
+//            log.info("수정");
+//            place = existingPlace;
+//            PlaceRequestDto placeRequestDto = createPlaceRequestDto(csvLine);
+//            //가게 수정
+//            place.placeUpdate(placeRequestDto);
+//            placeRepository.save(place);
+//        } else { //가게가 존재하지 않는 경우 캐싱 + 디비 저장
+//            log.info("추가.");
+//            // 가게가 존재하지 않으면 추가
+//            place = createPlace(csvLine);
+//            //캐시저장
+//            cachePlace(place);
+//            placeRepository.save(place);
+//        }
+
+        if (cachedPlace != null && !cachedPlace.isEmpty()) {
+            log.info("캐시된 가게 정보를 사용하여 업데이트합니다.");
+            PlaceRequestDto placeRequestDto = createPlaceRequestDtoFromCache(cachedPlace);
+            place = placeRepository.findByPlaceName(placeName);
+
+            if (place != null) {
+                place.placeUpdate(placeRequestDto);
+            } else {
+                place = createPlaceFromDto(placeRequestDto);
+                placeRepository.save(place);
+            }
         } else {
-            log.info("추가.");
-            // 가게가 존재하지 않으면 추가
+            log.info("캐시된 정보가 없어 새로 추가합니다.");
             place = createPlace(csvLine);
             placeRepository.save(place);
+
+            // 캐시 갱신
+            crawlingCacheService.cachePlace(placeName, convertPlaceToMap(place));
         }
 
         //이미지 저장
         List<PlaceImage> placeImages = createPlaceImages(csvLine);
 
         for (PlaceImage placeImage : placeImages) {
+
+
             placeImage.setPlace(place);
             placeImageRepository.save(placeImage);
         }
+
     }
     
     /**
@@ -404,74 +439,72 @@ public class CrawlingService {
         // 메인이미지 URL 처리
         String mainImageUrl = ensureProtocol(csvLine[6]);
         log.info("mainUrl::"+mainImageUrl);
+        //가게 이미지 키값 PLACE_IMAGE:가게번호
+        String mainImageId = csvLine[0];
 
-        //URL을 MultipartFile로 전환
-        List<MultipartFile> mainImages = downloadImagesFromUrls(Collections.singletonList(mainImageUrl));
-        log.info("이미지처리::"+mainImages);
+        //Redis에 캐싱이 된 이미지가 있는지를 확인.
+        if(crawlingCacheService.isImageCached(mainImageId) && crawlingCacheService.getCachingPlaceImage(mainImageId)!=null){
+            log.info("이미지가 이미 있습니다.");
+        } else {//캐싱된 이미지가 없는 경우
+            //URL을 MultipartFile로 전환
+            List<MultipartFile> mainImages = downloadImagesFromUrls(Collections.singletonList(mainImageUrl));
+            log.info("이미지처리::"+mainImages);
 
-        if(!mainImages.isEmpty()){
-            //이미지 업로드
-            List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
-            log.info("이미지 업로드??:"+mainPlaceImages);
+            if(!mainImages.isEmpty()){
+                //이미지 업로드
+                List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
+                log.info("이미지 업로드??:"+mainPlaceImages);
 
-            // 리사이징 적용 (메인이미지: 360x360)
-            for (PlaceImage image : mainPlaceImages) {
-                image.setIsTitle("Y");
-                String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
-                log.info("resizing:::"+resizedImagePath);
-                image.setThumbFileImagePath(resizedImagePath);
+                // 리사이징 적용 (메인이미지: 360x360)
+                for (PlaceImage image : mainPlaceImages) {
+                    image.setIsTitle("Y");
+                    String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
+                    log.info("resizing:::"+resizedImagePath);
+                    image.setThumbFileImagePath(resizedImagePath);
+                }
+                placeImages.addAll(mainPlaceImages);
+                //이미지 캐싱
+                crawlingCacheService.cacheImage(mainImageId,mainImageUrl);
+            }else {
+                log.warn("Main image URL is invalid: {}", mainImageUrl);
             }
-            placeImages.addAll(mainPlaceImages);
-        }else {
-            log.warn("Main image URL is invalid: {}", mainImageUrl);
         }
 
         //서브이미지 URL 처리
         List<String> subImageUrls = Arrays.asList(ensureProtocol(csvLine[7]), ensureProtocol(csvLine[8]), ensureProtocol(csvLine[9]));
         log.info("subimages::"+subImageUrls);
 
-        //서브이미지 URL에서 MultipartFile로 전환
-        List<MultipartFile> subImages = downloadImagesFromUrls(subImageUrls);
+        for (int i = 0; i < subImageUrls.size(); i++) {
+            //이미지 url 추출
+            String subImageUrl = subImageUrls.get(i);
+            //이미지 캐싱 여부
+            if(crawlingCacheService.isImageCached(csvLine[0])){
+                log.info("이미 캐싱이 되어있습니다.");
+            } else {
+                //서브이미지 URL에서 MultipartFile로 전환
+                List<MultipartFile> subImages = downloadImagesFromUrls(subImageUrls);
 
-        if(!subImageUrls.isEmpty()) {
-            //이미지 업로드
-            List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
-            log.info(subPlaceImages);
-            // 리사이징 적용 (서브이미지: 120x120)
-            for (PlaceImage image : subPlaceImages) {
-                String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
-                log.info("resizeing:::"+resizedImagePath);
-                image.setThumbFileImagePath(resizedImagePath);
+                if(!subImageUrls.isEmpty()) {
+                    //이미지 업로드
+                    List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
+                    log.info(subPlaceImages);
+
+                    // 리사이징 적용 (서브이미지: 120x120)
+                    for (PlaceImage image : subPlaceImages) {
+                        String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
+                        log.info("resizeing:::"+resizedImagePath);
+                        image.setThumbFileImagePath(resizedImagePath);
+                    }
+                    placeImages.addAll(subPlaceImages);
+                    //서브 이미지 캐싱
+                    crawlingCacheService.cacheImage(csvLine[0],subImageUrl);
+                }else {
+                    log.warn("Sub image URL is invalid: {}", mainImageUrl);
+                }
             }
-            placeImages.addAll(subPlaceImages);
-        }else {
-            log.warn("Sub image URL is invalid: {}", mainImageUrl);
         }
 
         return placeImages;
-    }
-
-    private Place createPlace(String[] csvLine) {
-        List<PlaceImage> placeImages = new ArrayList<>();
-        return Place.builder()
-                .placeName(csvLine[1])
-                .placeAddr(csvLine[2])
-                .placeStart(csvLine[3])
-                .placeClose(csvLine[4])
-                .placePhone(csvLine[5])
-                .placeAuthor("well4149")
-                .placeImages(placeImages)
-                .build();
-    }
-
-    private PlaceRequestDto createPlaceRequestDto(String[] csvLine) {
-        return PlaceRequestDto.builder()
-                .placeName(csvLine[1])
-                .placeAddr(csvLine[2])
-                .placeStart(csvLine[3])
-                .placeClose(csvLine[4])
-                .placePhone(csvLine[5])
-                .build();
     }
 
     /**
@@ -606,5 +639,89 @@ public class CrawlingService {
         }else{
             return "file:///" + normalizedDefaultImagePath.replace(" ", "%20");
         }
+    }
+
+    /**
+     * 가게저장 dto
+     * @param csvLine CSV파일의 각 열
+     **/
+    private Place createPlace(String[] csvLine) {
+        List<PlaceImage> placeImages = new ArrayList<>();
+        return Place.builder()
+                .placeName(csvLine[1])
+                .placeAddr(csvLine[2])
+                .placeStart(csvLine[3])
+                .placeClose(csvLine[4])
+                .placePhone(csvLine[5])
+                .placeAuthor("well4149")
+                .placeImages(placeImages)
+                .build();
+    }
+
+    /**
+     * 가게 수정에 필요한 dto
+     * @param csvLine CSV파일에서 가게정보의 열
+     * @return PlaceRequestDto
+     **/
+    private PlaceRequestDto createPlaceRequestDto(String[] csvLine) {
+        return PlaceRequestDto.builder()
+                .placeName(csvLine[1])
+                .placeAddr(csvLine[2])
+                .placeStart(csvLine[3])
+                .placeClose(csvLine[4])
+                .placePhone(csvLine[5])
+                .build();
+    }
+
+    /**
+     * 캐시에 사용될 가게생성 dto
+     * @param cachedPlace 가게정보를 redis의 hash타입으로 저장
+     **/
+    private PlaceRequestDto createPlaceRequestDtoFromCache(Map<Object, Object> cachedPlace) {
+        return PlaceRequestDto.builder()
+                .placeName((String) cachedPlace.get("placeName"))
+                .placeAddr((String) cachedPlace.get("placeAddr"))
+                .placeStart((String) cachedPlace.get("placeStart"))
+                .placeClose((String) cachedPlace.get("placeClose"))
+                .placePhone((String) cachedPlace.get("placePhone"))
+                .build();
+    }
+
+
+    private Place createPlaceFromDto(PlaceRequestDto placeRequestDto) {
+        return Place.builder()
+                .placeName(placeRequestDto.getPlaceName())
+                .placeAddr(placeRequestDto.getPlaceAddr())
+                .placeStart(placeRequestDto.getPlaceStart())
+                .placeClose(placeRequestDto.getPlaceClose())
+                .placePhone(placeRequestDto.getPlacePhone())
+                .placeAuthor("well4149")
+                .build();
+    }
+
+
+    private Map<String, String> convertPlaceToMap(Place place) {
+        Map<String, String> placeMap = new HashMap<>();
+        placeMap.put("placeName", place.getPlaceName());
+        placeMap.put("placeAddr", place.getPlaceAddr());
+        placeMap.put("placeStart", place.getPlaceStart());
+        placeMap.put("placeClose", place.getPlaceClose());
+        placeMap.put("placePhone", place.getPlacePhone());
+        return placeMap;
+    }
+
+    /**
+     * 가게 캐시 저장
+     * @param place 가게 객체
+     **/
+    private void cachePlace(Place place) {
+        Map<String, String> placeInfo = new HashMap<>();
+        placeInfo.put("placeName", place.getPlaceName());
+        placeInfo.put("placeAddress", place.getPlaceAddr());
+        placeInfo.put("placeStartTime", place.getPlaceStart());
+        placeInfo.put("placeEndTime", place.getPlaceClose());
+        placeInfo.put("placePhone", place.getPlacePhone());
+        //가게 정보 캐시저장
+        crawlingCacheService.cachePlace(String.valueOf(place.getId()), placeInfo);
     }
 }
