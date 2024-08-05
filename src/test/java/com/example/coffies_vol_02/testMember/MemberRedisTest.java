@@ -123,5 +123,5 @@ public class MemberRedisTest {
         System.out.println("SCAN-based search time: " + (endTime - startTime) + " ns");
         System.out.println("Number of keys found: " + searchList.size());
     }
-    
+
 }
