@@ -153,7 +153,7 @@ public class RedisService {
     }
 
     /**
-     *  회원 이름 자동완성기능
+     *  회원 이름 자동완성기능(scan)
      * @author 양경빈
      * @param userId 회원 아이디
      * @return searchList 회원 검색에 필요한 목록들
@@ -164,22 +164,12 @@ public class RedisService {
 
         List<Member>nameList = memberRepository.findAll();
 
-        log.info(nameList.stream().toList());
-
         Map<String,Object> nameDateMap = nameList
                 .stream()
                 .collect(Collectors
                         .toMap(Member::getUserId,Member::getId));
-
-        log.info(nameDateMap);
-
         //redisHash 에 저장
         hashOperations.putAll(CacheKey.USERNAME,nameDateMap);
-
-        // redisHash에 저장된 데이터 확인
-        Map<String, Object> redisData = hashOperations.entries(CacheKey.USERNAME);
-        log.info("Redis Data: " + redisData);
-
         //검색조건 설정
         String matchPattern = "\"" + userId + "*";
 
@@ -196,13 +186,45 @@ public class RedisService {
 
         while(cursor.hasNext()){
             Map.Entry<String,Object> entry = cursor.next();
-            log.info(entry);
             searchList.add(entry.getKey());
         }
+        return searchList;
+    }
 
+    /**
+     * 회원 이름 자동완성 기능 (keys)
+     * @param userId 회원 아이디
+     * @return searchList 회원 검색에 필요한 목록들
+     **/
+    public List<String> memberAutoSearchKeys(String userId) {
+
+        HashOperations<String, String, Object> hashOperations = redisTemplates.opsForHash();
+
+        // 데이터베이스에서 회원 정보 조회
+        List<Member> nameList = memberRepository.findAll();
+
+        // Redis에 회원 정보 저장
+        Map<String, Object> nameDateMap = nameList.stream()
+                .collect(Collectors.toMap(Member::getUserId, Member::getId));
+        hashOperations.putAll(CacheKey.USERNAME, nameDateMap);
+        log.info(userId);
+        // Redis에서 모든 키 검색
+        Set<String> allKeys = hashOperations.keys(CacheKey.USERNAME);
+        //log.info(allKeys);
+        List<String> searchList = new ArrayList<>();
+
+        // userId로 시작하는 키 필터링
+        for (String key : allKeys) {
+            if (key.startsWith(userId)) {
+                log.info(key);
+                searchList.add(key);
+                log.info(key);
+            }
+        }
         log.info(searchList);
         return searchList;
     }
+
 
     /**
      * 가게 댓글 평점 저장
