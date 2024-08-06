@@ -23,53 +23,28 @@ public class MemberRedisTest {
     private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
     private RedisService redisService;
+
+    private HashOperations<String, String, Object> hashOperations;
 
     @BeforeEach
     public void setup(){
         // Redis 클리어
         redisTemplate.getConnectionFactory().getConnection().flushAll();
+        hashOperations = redisTemplate.opsForHash();
+        redisTemplate.delete(redisTemplate.keys(CacheKey.USERNAME + "*"));  // Redis 초기화
 
-        // 데이터베이스에 더미 회원 추가
-//        List<Member> members = IntStream.range(0, TEST_MEMBER_COUNT)
-//                .mapToObj(i -> Member.builder()
-//                        .id(i)
-//                        .userId("user" + i)
-//                        .password("password" + i)
-//                        .memberName("name" + i)
-//                        .userPhone("phone" + i)
-//                        .userGender("gender" + i)
-//                        .userAge("age" + i)
-//                        .userEmail("email" + i)
-//                        .userAddr1("addr1" + i)
-//                        .userAddr2("addr2" + i)
-//                        .enabled(true)
-//                        .accountNonLocked(true)
-//                        .failedAttempt(0)
-//                        .lockTime(null)
-//                        .memberLng(i * 0.1)
-//                        .memberLat(i * 0.1)
-//                        .role(Role.ROLE_USER)
-//                        .memberStatus(MemberStatus.NON_USER_LOCK)
-//                        .build())
-//                .collect(Collectors.toList());
-//        memberRepository.saveAll(members);
-        //List<Member>members = memberRepository.findAll();
-        // Redis에 회원 데이터 저장
-//        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-//        Map<String, String> memberMap = members.stream()
-//                .collect(Collectors.toMap(Member::getUserId, member -> member.getId().toString()));
-//
-//        hashOperations.putAll("usernames", memberMap);
+        // 테스트 데이터 설정
+        for (int i = 0; i < 10000; i++) {
+            String userId = "user" + i;
+            String memberId = "member" + i;
+            hashOperations.put(CacheKey.USERNAME, userId, memberId);
+        }
     }
 
     @AfterEach
     public void tearDown() {
-        redisTemplate.getConnectionFactory().getConnection().flushAll();
-        memberRepository.deleteAll();
+       // redisTemplate.getConnectionFactory().getConnection().flushAll();
     }
 
     @Test
