@@ -1,7 +1,6 @@
 package com.example.coffies_vol_02.config.crawling;
 
-import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
-import com.example.coffies_vol_02.place.repository.PlaceRepository;
+import com.example.coffies_vol_02.config.util.CrawlingService;
 import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;
@@ -28,18 +27,11 @@ import java.util.regex.Pattern;
 @SpringBootTest
 public class SeleniumTest {
 
-    @Autowired
-    private PlaceRepository placeRepository;
-
-    @Autowired
-    private PlaceImageRepository placeImageRepository;
-
     private WebDriver driver;
 
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 
     public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win32 (1)\\chromedriver-win32\\chromedriver.exe";
-            //"C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe";
 
     private static final String DEFAULT_IMAGE_PATH = "C:\\spring_work\\workspace\\CoffiesVol.02\\default_image.png"; // 대체 이미지 URL
 
@@ -49,8 +41,8 @@ public class SeleniumTest {
 
     private static int storeNumber = 1; // 가게 번호 초기화
 
-    private static final Object lock = new Object();
-
+    @Autowired
+    private CrawlingService crawlingService;
 
     @BeforeEach
     public void init() throws Exception {
@@ -287,6 +279,11 @@ public class SeleniumTest {
 
         }
 
+    }
+
+    @Test
+    public void crawlingServiceTest(){
+        crawlingService.runCrawlingAndSaveToCSV();
     }
 
     // CSS 스타일 문자열에서 URL을 추출
