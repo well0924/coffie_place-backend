@@ -118,27 +118,24 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		<h2>가게조회</h2>
 			<!--placeimage(main)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:if="${list.isTitle.toString().equals('1')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
+				<img th:if="${list.isTitle.toString().equals('Y')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		<hr>
 			<!-- placedetail -->
 			<input type="hidden" id="userid" name="userId" th:value="${#authentication.name}">
-			<input type="hidden" id ="placeaddr" name="placeAddr1" th:value="${detail.placeAddr1}">
+			<input type="hidden" id ="placeaddr" name="placeAddr" th:value="${detail.placeAddr}">
 			<input type="hidden" id="placeid" name ="id" th:value="${detail.id}">
-			<input type="hidden" id="placelng" name ="placeLng" th:value="${detail.placeLng}">
-			<input type="hidden" id="placelat" name ="placeLat" th:value="${detail.placeLat}">
 			<input type="hidden" id="placename" name="placeName" th:value="${detail.placeName}">
 			<input type="hidden" id="placephone" name="placePhone" th:value="${detail.placePhone}">
-			<input type="hidden" id="filegroupid" name ="fileGroupId" th:value="${detail.fileGroupId}">
 			<ul>
 				<li>가게이름:[[${detail.placeName}]]</li>
 				<li>전화번호:[[${detail.placePhone}]]</li>
-				<li>가게주소:[[${detail.placeAddr1}]]</li>
+				<li>가게주소:[[${detail.placeAddr}]]</li>
 				<li>영업시간:[[${detail.placeStart}]]~[[${detail.placeClose}]]</li>
 			</ul>
 			<!--placeimage(smallsize)-->
 			<th:block th:each="list:${imagelist}">
-				<img th:unless="${list.isTitle.toString().equals('1')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
+				<img th:unless="${list.isTitle.toString().equals('Y')}" th:src="${list.thumbFileImagePath}" onclick="fnImgPop(this.src)"/>
 			</th:block>
 		</br>
 		</br>
@@ -194,10 +191,6 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 	var placeAddr1 = $('#placeaddr').val();
 	var placeLat = '37.6426557894829';
 	var placeLang = '127.01963902071';
-
-	console.log(placeLat);
-	console.log(placeLang);
-	console.log(placeAddr1);
 
 	//지도의 중심좌표
 	var container = document.getElementById('map'),
