@@ -3,7 +3,7 @@ package com.example.coffies_vol_02.place.service;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.config.redis.CacheKey;
+import com.example.coffies_vol_02.config.redis.CrawlingCacheService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
@@ -15,7 +15,6 @@ import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,8 @@ public class PlaceService {
     private final PlaceImageService placeImageService;
 
     private final PlaceImageRepository placeImageRepository;
+
+    private final CrawlingCacheService crawlingCacheService;
 
     /**
      * 가게 목록(무한 슬라이드)
@@ -74,25 +75,28 @@ public class PlaceService {
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
-    @Cacheable(value = CacheKey.PLACE,key = "#placeId")
     @Transactional(readOnly = true)
     public PlaceResponseDto findCafePlaceById(Integer placeId) {
+        //캐싱이 된 경우
+        if(crawlingCacheService.getCachedPlace(String.valueOf(placeId))!=null){
+            return (PlaceResponseDto) crawlingCacheService.getCachedPlace(String.valueOf(placeId));
+        }else {
+            Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
 
-        Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
-
-        return PlaceResponseDto
-                .builder()
-                .id(detail.getId())
-                .placeAuthor(detail.getPlaceAuthor())
-                .placePhone(detail.getPlacePhone())
-                .placeStart(detail.getPlaceStart())
-                .placeName(detail.getPlaceName())
-                .placeClose(detail.getPlaceClose())
-                .placeAddr(detail.getPlaceAddr())
-                .reviewRate(detail.getReviewRate())
-                .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
-                .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
-                .build();
+            return PlaceResponseDto
+                    .builder()
+                    .id(detail.getId())
+                    .placeAuthor(detail.getPlaceAuthor())
+                    .placePhone(detail.getPlacePhone())
+                    .placeStart(detail.getPlaceStart())
+                    .placeName(detail.getPlaceName())
+                    .placeClose(detail.getPlaceClose())
+                    .placeAddr(detail.getPlaceAddr())
+                    .reviewRate(detail.getReviewRate())
+                    .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
+                    .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
+                    .build();
+        }
     }
 
     /**
