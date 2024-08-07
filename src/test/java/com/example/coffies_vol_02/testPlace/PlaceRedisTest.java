@@ -296,22 +296,4 @@ public class PlaceRedisTest {
 
         assertEquals(ERRORCODE.SEARCH_LOG_NOT_EXIST, exception.getErrorCode());
     }
-    
-    @Test
-    @DisplayName("가게 댓글 삽입 테스트")
-    public void insertCommentRateTest(){
-        
-    }
-
-    @Test
-    @DisplayName("가게 댓글 삭제 테스트")
-    public void deleteCommentRateTest(){
-
-    }
-
-    @Test
-    @DisplayName("댓글의 평점이 높은가게 top5 보여주기.")
-    public void topRatedStoresTest(){
-
-    }
 }
