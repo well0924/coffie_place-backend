@@ -102,15 +102,6 @@ public class LikeService {
      **/
     public void commentLikePlus(Integer replyId,Member member){
         String key = CacheKey.LIKES;
-//        Optional<Comment>commentDetail = Optional
-//                .ofNullable(commentRepository
-//                        .findById(replyId)
-//                        .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_REPLY)));
-//
-//        if(!hasCommentLike(member,commentDetail
-//                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY)))){
-//            commentLikeRepository.save(new CommentLike(member,commentDetail.get()));
-//        }
         redissonService.placeCommentLikeUp(key, member.getId(), replyId);
     }
 
@@ -122,17 +113,6 @@ public class LikeService {
      **/
     public void commentLikeMinus(Integer replyId,Member member){
         String key = CacheKey.LIKES;
-//        Optional<Comment>commentDetail = Optional
-//                .ofNullable(commentRepository
-//                        .findById(replyId)
-//                        .orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.NOT_REPLY)));
-//
-//        Optional<CommentLike>commentLike = Optional.of(commentLikeRepository
-//                .findByMemberAndComment(member, commentDetail
-//                        .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.NOT_REPLY)))
-//                .orElseThrow(()->new CustomExceptionHandler(ERRORCODE.LIKE_NOT_FOUND)));
-//
-//        commentLikeRepository.delete(commentLike.get());
         redissonService.placeCommentLikeDown(key,member.getId(),replyId);
     }
 

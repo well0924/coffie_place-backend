@@ -48,7 +48,7 @@ public class Comment extends BaseTime implements Serializable {
     private Place place;
 
     @BatchSize(size = 1000)
-    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<CommentLike> likes = new HashSet<>();
 
     @Builder
