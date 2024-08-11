@@ -9,6 +9,7 @@ import org.springframework.util.unit.DataUnit;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -20,6 +21,7 @@ import java.util.logging.Filter;
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
+
     @Value("/istatic/images/")
     private String imgStatic;
 
@@ -34,6 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         return (Filter) encodingFilter;
     }
+
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
@@ -41,10 +44,12 @@ public class WebConfig implements WebMvcConfigurer {
         factory.setMaxRequestSize(DataSize.of(30, DataUnit.MEGABYTES));
         return factory.createMultipartConfig();
     }
+
     @Bean
     public MultipartResolver multipartResolver(){
         return new StandardServletMultipartResolver();
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
@@ -80,5 +85,17 @@ public class WebConfig implements WebMvcConfigurer {
         WebMvcConfigurer
                 .super
                 .addResourceHandlers(registry);
+    }
+
+    //next.js cors 설정
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
