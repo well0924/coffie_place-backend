@@ -23,7 +23,7 @@ function updateboard(){
     }
 
     $.ajax({
-        url:'/api/board/update/'+id,
+        url:'/api/board/'+id,
         type:'put',
         data:formdate,
         processData: false,
@@ -42,7 +42,7 @@ function deleteboard(){
     let id = $('#board_id').val();
 
     $.ajax({
-        url:'/api/board/delete/'+id,
+        url:'/api/board/'+id,
         type:'delete',
         dataType:'json',
         contentType :'application/json; charset=utf-8',

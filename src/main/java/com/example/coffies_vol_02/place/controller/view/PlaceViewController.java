@@ -63,8 +63,8 @@ public class PlaceViewController {
             if(keyword != null){
                 list = placeService.searchCafePlace(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
                 redisService.createPlaceNameLog(customUserDetails.getMember().getId(),keyword);
+                keywords = redisService.ListRecentSearchNames(customUserDetails.getMember().getId());
             }
-            keywords = redisService.ListRecentSearchNames(customUserDetails.getMember().getId());
         } catch (Exception e) {
             e.printStackTrace();
         }

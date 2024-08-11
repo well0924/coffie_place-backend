@@ -69,7 +69,7 @@ public class FavoriteApiController {
     @Operation(summary = "가게 위시리스트에 추가", description = "가게 조회페이지에서 위시리스트 추가를 누르면 위시리스트가 추가가 된다")
     @PostMapping(path = "/{member-id}/{place-id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<?>wishListAdd(@Parameter(name = "member-id",description = "회원의 번호",required = true)
+    public CommonResponse<String>wishListAdd(@Parameter(name = "member-id",description = "회원의 아이디",required = true)
                                         @PathVariable("member-id")String memberId,
                                         @Parameter(name = "place-id",description = "가게의 번호",required = true)
                                         @PathVariable("place-id") Integer placeId){

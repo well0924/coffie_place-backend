@@ -122,19 +122,10 @@ public class RedissonService {
         CommentLike existingLike = commentLikeRepository
                 .findByMemberAndComment(member, comment).orElse(null);
 
-        log.info(existingLike.toString());
-        log.info(existingLike.getComment().getId());
-        log.info(existingLike.getMember().getId());
-
         if (existingLike != null) {
-            log.info("들어왔음??");
             Comment commentEntity = comment;
-            log.info("comment:::"+commentEntity.getLikeCount());
-
             if (commentEntity.getLikeCount() > 0) {
                 commentEntity.commentLikeDown();
-                log.info("like Count ::" + commentEntity.getLikeCount());
-                log.info("likeId::::"+existingLike.getId());
                 commentLikeRepository.deleteByCommentLike(existingLike.getId());
             } else {
                 log.info("Comment like count is already zero and cannot be decreased further");
@@ -144,9 +135,7 @@ public class RedissonService {
         } else {
             log.info("Member {} has not liked comment {}", memberId, commentId);
         }
-        log.info(existingLike);
-        commentLikeRepository.delete(existingLike);  // 기존의 CommentLike 객체 삭제
-        commentLikeRepository.flush();
+
         log.info(existingLike);
     }
 }

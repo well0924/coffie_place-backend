@@ -36,7 +36,7 @@ function writeboard(){
     }
 
     $.ajax({
-        url:'/api/board/write',
+        url:'/api/board/',
         type:'post',
         data:formdate,
         processData: false,
