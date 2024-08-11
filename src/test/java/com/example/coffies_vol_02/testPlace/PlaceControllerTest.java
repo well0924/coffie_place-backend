@@ -43,16 +43,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PlaceControllerTest {
+
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private MockMvc mvc;
+
     @Mock
     private MemberRepository memberRepository;
+
     @Mock
     private PlaceRepository placeRepository;
+
     @Mock
     private PlaceImageRepository placeImageRepository;
+
     @MockBean
     private PlaceService placeService;
 
