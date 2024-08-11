@@ -188,9 +188,9 @@ public class FavoritePlaceServiceTest {
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         given(favoritePlaceRepository.save(favoritePlace)).willReturn(favoritePlace);
         //when
-        favoritePlaceService.wishListAdd(member.getId(),place.getId());
+        favoritePlaceService.wishListAdd(member.getUserId(),place.getId());
         //then
-        boolean result = favoritePlaceService.hasWishPlace(place.getId(),member.getId());
+        boolean result = favoritePlaceService.hasWishPlace(place.getId(),member.getUserId());
         assertThat(result).isFalse();
     }
     

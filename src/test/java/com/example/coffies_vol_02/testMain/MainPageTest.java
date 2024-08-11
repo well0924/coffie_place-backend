@@ -18,6 +18,7 @@ import com.example.coffies_vol_02.notice.repository.NoticeBoardRepository;
 import com.example.coffies_vol_02.notice.service.NoticeService;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -76,10 +76,6 @@ public class MainPageTest {
 
     private Member member;
 
-    private Board board;
-
-    private NoticeBoard noticeBoard;
-
     private Place place;
 
     private PlaceImage placeImage;
@@ -87,6 +83,8 @@ public class MainPageTest {
     BoardResponse boardResponseDto;
 
     NoticeResponse responseDto;
+
+    PlaceResponseDto placeResponseDto;
 
     private CustomUserDetails customUserDetails;
 
@@ -99,8 +97,6 @@ public class MainPageTest {
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
         member = MemberFactory.memberDto();
-        board = BoardFactory.board();
-        noticeBoard = NoticeFactory.noticeBoard();
         place = PlaceFactory.place();
         placeImage = PlaceFactory.placeImage();
         boardResponseDto = BoardFactory.boardResponse();
@@ -116,17 +112,18 @@ public class MainPageTest {
 
         List<BoardResponse>boardList = new ArrayList<>();
         List<NoticeResponse>noticeList = new ArrayList<>();
+        List<PlaceResponseDto>top5List = new ArrayList<>();
 
         boardList.add(boardResponseDto);
         noticeList.add(responseDto);
-
+        top5List.add(placeResponseDto);
         Page<BoardResponse>boardResponses = boardService.listFreeBoard(pageRequest);
         Page<NoticeResponse>response =  noticeService.listNoticeBoard(pageRequest);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(boardRepository.boardList(pageRequest)).willReturn(boardResponses);
         given(noticeBoardRepository.findAllList(pageRequest)).willReturn(response);
-        given(placeRepository.placeTop5(pageRequest)).willReturn(Page.empty());
+        given(placeRepository.placeTop5()).willReturn(top5List);
         //given(placeRepository.findPlaceByLatLng(member.getMemberLat(),member.getMemberLng())).willReturn(anyList());
 
 

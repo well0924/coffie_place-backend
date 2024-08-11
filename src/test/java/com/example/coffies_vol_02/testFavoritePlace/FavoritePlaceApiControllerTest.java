@@ -204,9 +204,9 @@ public class FavoritePlaceApiControllerTest {
     public void wishListCheckTest()throws Exception{
         given(memberRepository.findById(eq(member.getId()))).willReturn(Optional.of(member));
         given(placeRepository.findById(eq(place.getId()))).willReturn(Optional.of(place));
-        given(favoritePlaceRepository.existsByPlaceIdAndMemberId(eq(place.getId()),eq(member.getId()))).willReturn(false);
+        given(favoritePlaceRepository.existsByPlaceIdAndMemberUserId(eq(place.getId()),eq(member.getUserId()))).willReturn(false);
 
-        when(favoritePlaceService.hasWishPlace(eq(place.getId()),eq(member.getId()))).thenReturn(false);
+        when(favoritePlaceService.hasWishPlace(eq(place.getId()),eq(member.getUserId()))).thenReturn(false);
 
         mvc.perform(get("/api/mypage/check/{member_id}/{place_id}",member.getUserId(),place.getId())
                 .with(user(customUserDetails))
@@ -226,7 +226,7 @@ public class FavoritePlaceApiControllerTest {
         given(placeRepository.findById(eq(place.getId()))).willReturn(Optional.of(place));
         given(favoritePlaceRepository.save(eq(favoritePlace))).willReturn(favoritePlace);
 
-        doNothing().when(favoritePlaceService).wishListAdd(eq(member.getId()),eq(place.getId()));
+        doNothing().when(favoritePlaceService).wishListAdd(eq(member.getUserId()),eq(place.getId()));
 
         mvc.perform(post("/api/mypage/{member_id}/{place_id}",member.getId(),place.getId())
                 .with(user(customUserDetails))
@@ -235,7 +235,7 @@ public class FavoritePlaceApiControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print());
 
-        verify(favoritePlaceService).wishListAdd(eq(member.getId()),eq(place.getId()));
+        verify(favoritePlaceService).wishListAdd(eq(member.getUserId()),eq(place.getId()));
     }
 
     @Test
