@@ -84,7 +84,7 @@ public class CommentApiController {
     @Operation(summary = "가게 댓글 목록", description = "가게 조회화면에서 댓글목록을 보여준다.",responses={
             @ApiResponse(responseCode = "200",description = "가게 댓글의 목록을 정상적으로 보여준다.", content = @Content(mediaType = "application/json",schema = @Schema(implementation = placeCommentResponseDto.class)))
     })
-    @GetMapping("/place/list/{place_id}")
+    @GetMapping("/place/{place_id}")
     public CommonResponse<List<placeCommentResponseDto>>listPlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true) @PathVariable("place_id") Integer placeId)throws Exception{
 
         List<placeCommentResponseDto>commentResponseDtoList = commentService.placeCommentList(placeId);
@@ -93,7 +93,7 @@ public class CommentApiController {
     }
 
     @Operation(summary = "가게댓글 작성", description = "게시글 목록에서 댓글을 작성한다.")
-    @PostMapping("/place/write/{place_id}")
+    @PostMapping("/place/{place_id}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Integer>createPlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true)
                                                     @PathVariable("place_id") Integer placeId,
@@ -106,7 +106,7 @@ public class CommentApiController {
     }
 
     @Operation(summary = "댓글 삭제",description = "게시글 목록에서 댓글을 삭제한다.")
-    @DeleteMapping("/place/delete/{place_id}/{reply_id}")
+    @DeleteMapping("/place/{place_id}/{reply_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public CommonResponse<?>deletePlaceComment(@Parameter(name = "place_id",description = "가게의 번호",required = true)
                                                @PathVariable("place_id")Integer placeId,

@@ -236,7 +236,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 		let placeId = $('#placeid').val();
 
 		$.ajax({
-			url:'/api/comment/place/list/'+placeId,
+			url:'/api/comment/place/'+placeId,
 			type:'get',
 			dataType:'json'
 		}).done(function(data){
@@ -303,7 +303,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 
 		if(validation()){
 			$.ajax({
-				url:'/api/comment/place/write/'+placeId,
+				url:'/api/comment/place/'+placeId,
 				type:'post',
 				dataType:'json',
 				data: JSON.stringify(formdate),
@@ -325,7 +325,7 @@ layout:decorate="~{layout/leafframe}" lang="kr">
 	//댓글 삭제 o.k
 	function deleteReply(replyId,placeId){
 		$.ajax({
-			url:'/api/comment/place/delete/'+placeId+'/'+replyId,
+			url:'/api/comment/place/'+placeId+'/'+replyId,
 			type:'delete',
 			dataType:'json'
 		}).done(function(data){
