@@ -48,7 +48,7 @@ public class BoardViewController {
             if(searchVal!=null){
                 boardList = boardService.searchFreeBoard(SearchType.toType(searchType),searchVal,pageable);
             }
-            log.info(boardList.hasPrevious());
+
         }catch (Exception e){
             e.printStackTrace();
         }

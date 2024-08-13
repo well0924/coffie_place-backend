@@ -48,7 +48,7 @@ public class BoardApiController {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
     @GetMapping(path = "/")
-    public CommonResponse<?>listFreeBoard(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
+    public CommonResponse<Page<BoardResponse>>listFreeBoard(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
         Page<BoardResponse> list = boardService.listFreeBoard(pageable);
         //게시글이 없는 경우

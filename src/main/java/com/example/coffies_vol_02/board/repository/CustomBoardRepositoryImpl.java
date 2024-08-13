@@ -14,12 +14,15 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
+
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,18 +93,23 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     @Override
     public Page<BoardResponse> findAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
 
-        List<BoardResponse> boardSearchResult = new ArrayList<>();
-        //검색시 목록
-        List<Board> result = boardSearchList(searchType,searchVal,pageable);
-        //검색시 게시물 갯수
-        int resultCount = searchResultCount(searchType,searchVal,pageable);
+        JPQLQuery<BoardResponse>list = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class,QBoard.board))
+                .from(QBoard.board);
 
-        for (Board board : result) {
-            BoardResponse responseDto = new BoardResponse(board);
-            boardSearchResult.add(responseDto);
-        }
+        JPQLQuery<BoardResponse>middleQuery = switch (searchType){
+            case t -> list.where(boardTitleEq(searchVal));
+            case a -> list.where(boardAuthorEq(searchVal));
+            case c -> list.where(boardContentsEq(searchVal));
+            //case c, w, t, p, a -> null;
+            default -> list.where(boardTitleEq(searchVal).or(boardAuthorEq(searchVal).or(boardContentsEq(searchVal))));
+        };
 
-        return new PageImpl<>(boardSearchResult, pageable, resultCount);
+        return PageableExecutionUtils.getPage(middleQuery
+                        .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch(),pageable,middleQuery::fetchCount);
     }
 
     /**
@@ -143,56 +151,6 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
         return new PageImpl<>(result,pageable,count);
     }
 
-    /**
-     * 게시글 검색 목록
-     * @param searchVal 검색어
-     * @param pageable 페이징 객체
-     * @return List<Board>
-     **/
-    private List<Board> boardSearchList(SearchType searchType,String searchVal,Pageable pageable){
-        return jpaQueryFactory
-                .select(qBoard)
-                .from(qBoard)
-                .join(qBoard.member,qMember).fetchJoin()
-                .where(switch (searchType){
-                    case t -> boardTitleEq(searchVal);
-                    case c -> boardContentsEq(searchVal);
-                    case w -> boardAuthorEq(searchVal);
-                    case i, e, n, a, p -> throw new IllegalStateException("Unexpected value: " + searchType);
-                    case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
-                })
-                .orderBy(getAllOrderSpecifiers(pageable.getSort())
-                        .toArray(OrderSpecifier[]::new))
-                .distinct()
-                .fetch();
-    }
-
-    /**
-     * 게시글 검색 총 갯수
-     * @param searchVal 검색어
-     * @param pageable 페이징 객체
-     * @return BoardCount(int) 게시글 갯수
-     **/
-    private int searchResultCount(SearchType searchType,String searchVal,Pageable pageable){
-        return jpaQueryFactory
-                .select(QBoard.board.count())
-                .from(QBoard.board)
-                .where(switch (searchType){
-                    //switch 문 (java 14)
-                    case t -> boardTitleEq(searchVal);
-                    case c -> boardContentsEq(searchVal);
-                    case w -> boardAuthorEq(searchVal);
-                    case i, a, p, n, e -> throw new IllegalStateException("Unexpected value: " + searchType);
-                    case all -> boardContentsEq(searchVal).and(boardContentsEq(searchVal)).and(boardAuthorEq(searchVal));
-                })
-                .orderBy(getAllOrderSpecifiers(pageable.getSort())
-                        .toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .size();
-    }
-    
     //좋아요를 한 게시글 목록
     private List<Board>likeBoard(int userIdx){
         return jpaQueryFactory.select(qBoard)

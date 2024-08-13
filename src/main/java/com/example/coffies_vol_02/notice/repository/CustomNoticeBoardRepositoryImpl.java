@@ -1,15 +1,24 @@
 package com.example.coffies_vol_02.notice.repository;
 
+import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
 import com.example.coffies_vol_02.notice.domain.dto.response.NoticeResponse;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.QList;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -69,65 +78,21 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
     @Override
     public Page<NoticeResponse> findAllSearchList(SearchType searchType, String searchVal, Pageable pageable) {
 
-        List<NoticeResponse>searchResult = new ArrayList<>();
-
-        List<NoticeBoard> result = noticeBoardList(searchType,searchVal,pageable);
-
-        int searchCount = searchResultCount(searchType,searchVal);
-
-        for(NoticeBoard noticeBoard:result){
-            NoticeResponse responseDto = new NoticeResponse(noticeBoard);
-            searchResult.add(responseDto);
-        }
-
-        return new PageImpl<>(searchResult,pageable,searchCount);
-    }
-
-    /**
-     *  공지게시글 검색 목록
-     * @param searchVal 검색어
-     * @param pageable 페이징 객체
-     * @return List<NoticeBoard>
-     **/
-    List<NoticeBoard>noticeBoardList(SearchType searchType,String searchVal,Pageable pageable){
-        return jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard)
-                .from(QNoticeBoard.noticeBoard)
-                .where(switch (searchType){
-                    case t -> noticeTitleEq(searchVal);
-                    case c -> noticeContentsEq(searchVal);
-                    case w -> noticeAuthorEq(searchVal);
-                    case a,p,i,e,n -> null;
-                    case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
-                })
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
-                        QNoticeBoard.noticeBoard.id.desc())
-                .offset(pageable.getOffset())
+        JPQLQuery<NoticeResponse> list = jpaQueryFactory
+                .select(Projections.constructor(NoticeResponse.class, QNoticeBoard.noticeBoard))
+                .from(QNoticeBoard.noticeBoard);
+        JPQLQuery<NoticeResponse> middleQuery = switch (searchType){
+            case t -> list.where(noticeTitleEq(searchVal));
+            case a -> list.where(noticeAuthorEq(searchVal));
+            case c -> list.where(noticeContentsEq(searchVal));
+            //case c, w, t, p, a -> null;
+            default -> list.where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal).or(noticeContentsEq(searchVal))));
+        };
+        return PageableExecutionUtils.getPage(middleQuery
+                        .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    /**
-     * 공지게시글 검색 목록 수
-     * @param searchVal 검색어
-     * @return int 검색 게시글 갯수
-     **/
-    int searchResultCount(SearchType searchType,String searchVal){
-        return jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard.count())
-                .from(QNoticeBoard.noticeBoard)
-                .where(switch (searchType){
-                    case t -> noticeTitleEq(searchVal);
-                    case c -> noticeContentsEq(searchVal);
-                    case w -> noticeAuthorEq(searchVal);
-                    case a,p,i,n,e -> null;
-                    case all -> noticeTitleEq(searchVal).and(noticeTitleEq(searchVal).and(noticeContentsEq(searchVal)));
-                })
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
-                        QNoticeBoard.noticeBoard.id.desc())
-                .fetch()
-                .size();
-
+                .offset(pageable.getOffset())
+                .fetch(),pageable,middleQuery::fetchCount);
     }
 
     BooleanBuilder noticeContentsEq(String searchVal){
@@ -148,5 +113,26 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         } catch (Exception e) {
             return new BooleanBuilder();
         }
+    }
+
+    /**
+     * 동적정렬
+     * @param sort 페이징객체에서 정렬을 하는 객체
+     * @return List<OrderSpecifier>orders 정렬된 목록 값 기본값은 오름차순
+     **/
+    private List<OrderSpecifier> getAllOrderSpecifiers(Sort sort) {
+        List<OrderSpecifier>orders =  new ArrayList<>();
+
+        sort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+
+            String prop = order.getProperty();
+
+            PathBuilder<Board> orderByExpression =  new PathBuilder<>(Board.class,"board");
+
+            orders.add(new OrderSpecifier(direction,orderByExpression.get(prop)));
+        });
+
+        return orders;
     }
 }

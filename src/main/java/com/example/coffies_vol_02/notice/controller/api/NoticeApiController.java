@@ -39,7 +39,7 @@ public class NoticeApiController {
     @Operation(summary = "공지 게시판 목록", description = "공지게시판 페이지에서 목록을 보여준다.",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = NoticeResponse.class)))
     })
-    @GetMapping(value = "/",params = {"page"})
+    @GetMapping(value = "/")
     public CommonResponse<Page<NoticeResponse>>noticeBoard(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
         Page<NoticeResponse> list = noticeService.listNoticeBoard(pageable);
