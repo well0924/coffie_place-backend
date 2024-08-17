@@ -70,15 +70,11 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
                 .distinct()
                 .fetch();
 
-        int totalCount = jpaQueryFactory
-                .select(QBoard.board.id)
+        long totalCount = jpaQueryFactory
+                .select(QBoard.board.id.count())
                 .from(QBoard.board)
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .distinct()
-                .fetch()
-                .size();
+                .join(QBoard.board.member, qMember)
+                .fetchOne();
 
         return new PageImpl<>(boardList,pageable,totalCount);
     }

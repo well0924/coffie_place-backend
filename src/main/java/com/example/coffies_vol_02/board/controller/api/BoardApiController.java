@@ -1,6 +1,7 @@
 package com.example.coffies_vol_02.board.controller.api;
 
 import com.example.coffies_vol_02.board.domain.dto.request.BoardRequest;
+import com.example.coffies_vol_02.board.domain.dto.response.BoardNextPreviousInterface;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.board.service.BoardService;
 import com.example.coffies_vol_02.config.constant.SearchType;
@@ -61,7 +62,7 @@ public class BoardApiController {
     @Operation(summary = "자유 게시글 검색", description = "자유게시판에서 게시물을 검색하는 컨트롤러", responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
-    @GetMapping(path = "/search",params = {"id","searchType","searchVal"})
+    @GetMapping(path = "/search")
     public CommonResponse<?>searchFreeBoardList(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable,
             @Parameter(description = "게시물 검색 타입",in = ParameterIn.QUERY)
@@ -93,6 +94,16 @@ public class BoardApiController {
         }
 
         return new CommonResponse<>(HttpStatus.OK,detail);
+    }
+
+    @Operation(summary = "자유 게시글 이전글/다음글 조회", description = "자유게시판에서 게시글을 단일 조회시 이전글/다음글을 보여주는 컨트롤러",responses = {
+            @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
+    })
+    @Secured({"ROLE_ADMIN","ROLE_USER"})
+    @GetMapping("/previous-next/{id}")
+    public CommonResponse<?>findByPreviousNextBoard(@Parameter(description = "게시글 번호", required = true) @PathVariable("id")Integer boardId) {
+        List<BoardNextPreviousInterface> list = boardService.boardNextPrevious(boardId);
+        return new CommonResponse<>(HttpStatus.OK,list);
     }
 
     @Operation(summary = "게시글 작성", description = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.",responses = {

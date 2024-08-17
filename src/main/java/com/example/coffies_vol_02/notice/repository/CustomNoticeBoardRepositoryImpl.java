@@ -51,15 +51,9 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
                 .distinct()
                 .fetch();
 
-        int count = jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard.count())
-                .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
-                        QNoticeBoard.noticeBoard.id.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch()
-                .size();
+        Long count = jpaQueryFactory
+                .select(QNoticeBoard.noticeBoard.id.count())
+                .from(QNoticeBoard.noticeBoard).fetchOne();
 
         for(NoticeBoard noticeBoard:result){
             NoticeResponse responseDto = new NoticeResponse(noticeBoard);
@@ -81,6 +75,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
         JPQLQuery<NoticeResponse> list = jpaQueryFactory
                 .select(Projections.constructor(NoticeResponse.class, QNoticeBoard.noticeBoard))
                 .from(QNoticeBoard.noticeBoard);
+
         JPQLQuery<NoticeResponse> middleQuery = switch (searchType){
             case t -> list.where(noticeTitleEq(searchVal));
             case a -> list.where(noticeAuthorEq(searchVal));
@@ -128,7 +123,7 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
 
             String prop = order.getProperty();
 
-            PathBuilder<Board> orderByExpression =  new PathBuilder<>(Board.class,"board");
+            PathBuilder<NoticeBoard> orderByExpression =  new PathBuilder<>(NoticeBoard.class,"noticeBoard");
 
             orders.add(new OrderSpecifier(direction,orderByExpression.get(prop)));
         });
