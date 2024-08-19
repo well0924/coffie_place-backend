@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.notice.repository;
 
-import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.notice.domain.NoticeBoard;
 import com.example.coffies_vol_02.notice.domain.QNoticeBoard;
@@ -9,7 +8,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QList;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
@@ -41,25 +39,23 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
     @Override
     public Page<NoticeResponse> findAllList(Pageable pageable) {
 
-        List<NoticeResponse>noticeList =  new ArrayList<>();
-
-        List<NoticeBoard>result = jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard)
+        JPQLQuery<NoticeResponse> query = jpaQueryFactory
+                .select(Projections.constructor(NoticeResponse.class, QNoticeBoard.noticeBoard))
                 .from(QNoticeBoard.noticeBoard)
-                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(),
-                        QNoticeBoard.noticeBoard.id.desc())
-                .distinct()
+                .orderBy(QNoticeBoard.noticeBoard.isFixed.desc(), QNoticeBoard.noticeBoard.id.desc())
+                .distinct();
+
+        List<NoticeResponse> noticeList = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         Long count = jpaQueryFactory
-                .select(QNoticeBoard.noticeBoard.id.count())
-                .from(QNoticeBoard.noticeBoard).fetchOne();
+                .select(QNoticeBoard.noticeBoard.count())
+                .from(QNoticeBoard.noticeBoard)
+                .fetchOne();
 
-        for(NoticeBoard noticeBoard:result){
-            NoticeResponse responseDto = new NoticeResponse(noticeBoard);
-            noticeList.add(responseDto);
-        }
-        return new PageImpl<>(noticeList,pageable,count);
+        return new PageImpl<>(noticeList, pageable, count != null ? count : 0);
     }
 
     /**
@@ -71,24 +67,34 @@ public class CustomNoticeBoardRepositoryImpl implements CustomNoticeBoardReposit
      **/
     @Override
     public Page<NoticeResponse> findAllSearchList(SearchType searchType, String searchVal, Pageable pageable) {
-
-        JPQLQuery<NoticeResponse> list = jpaQueryFactory
+        JPQLQuery<NoticeResponse> query = jpaQueryFactory
                 .select(Projections.constructor(NoticeResponse.class, QNoticeBoard.noticeBoard))
-                .from(QNoticeBoard.noticeBoard);
+                .from(QNoticeBoard.noticeBoard)
+                .where(buildSearchPredicate(searchType, searchVal));
 
-        JPQLQuery<NoticeResponse> middleQuery = switch (searchType){
-            case t -> list.where(noticeTitleEq(searchVal));
-            case a -> list.where(noticeAuthorEq(searchVal));
-            case c -> list.where(noticeContentsEq(searchVal));
-            //case c, w, t, p, a -> null;
-            default -> list.where(noticeTitleEq(searchVal).or(noticeAuthorEq(searchVal).or(noticeContentsEq(searchVal))));
-        };
-        return PageableExecutionUtils.getPage(middleQuery
-                        .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch(),pageable,middleQuery::fetchCount);
+        return PageableExecutionUtils.getPage(
+                query.orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
+                pageable,
+                query::fetchCount
+        );
     }
+
+    private BooleanBuilder buildSearchPredicate(SearchType searchType, String searchVal) {
+        BooleanBuilder builder = new BooleanBuilder();
+        switch (searchType) {
+            case t -> builder.and(noticeTitleEq(searchVal));
+            case a -> builder.and(noticeAuthorEq(searchVal));
+            case c -> builder.and(noticeContentsEq(searchVal));
+            default -> builder.and(noticeTitleEq(searchVal)
+                    .or(noticeAuthorEq(searchVal))
+                    .or(noticeContentsEq(searchVal)));
+        }
+        return builder;
+    }
+
 
     BooleanBuilder noticeContentsEq(String searchVal){
         return nullSafeBuilder(()-> QNoticeBoard.noticeBoard.noticeContents.contains(searchVal));

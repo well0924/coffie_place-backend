@@ -13,6 +13,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -40,23 +41,38 @@ public class CustomMemberRepositoryImpl implements CustomMemberRepository{
      **/
     @Override
     public Page<MemberResponse> findByAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
-        JPQLQuery<MemberResponse>list = jpaQueryFactory
-                .select(Projections.constructor(MemberResponse.class,QMember.member))
-                .from(QMember.member);
+        JPQLQuery<MemberResponse> query = jpaQueryFactory
+                .select(Projections.constructor(MemberResponse.class, QMember.member))
+                .from(QMember.member)
+                .where(buildSearchPredicate(searchType, searchVal));
 
-        JPQLQuery<MemberResponse>middleQuery = switch (searchType){
-            case e -> list.where(memberEmail(searchVal));
-            case i -> list.where(userId(searchVal));
-            case n -> list.where(memberName(searchVal));
-            //case c, w, t, p, a -> null;
-            default -> list.where(memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal))));
-        };
-
-        return PageableExecutionUtils.getPage(middleQuery
+        List<MemberResponse> members = query
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch(),pageable,middleQuery::fetchCount);
+                .fetch();
+
+        long total = PageableExecutionUtils.getPage(members, pageable, query::fetchCount).getTotalElements();
+
+        return new PageImpl<>(members, pageable, total);
+    }
+
+    /**
+     * 검색 조건 빌더
+     *
+     * @param searchType 검색 타입
+     * @param searchVal 검색어
+     * @return BooleanBuilder 검색 조건
+     */
+    private BooleanBuilder buildSearchPredicate(SearchType searchType, String searchVal) {
+        BooleanBuilder builder = new BooleanBuilder();
+        switch (searchType) {
+            case e -> builder.and(memberEmail(searchVal));
+            case i -> builder.and(userId(searchVal));
+            case n -> builder.and(memberName(searchVal));
+            default -> builder.and(memberEmail(searchVal).or(memberName(searchVal).or(userId(searchVal))));
+        }
+        return builder;
     }
 
     //검색 조건 회원 이름

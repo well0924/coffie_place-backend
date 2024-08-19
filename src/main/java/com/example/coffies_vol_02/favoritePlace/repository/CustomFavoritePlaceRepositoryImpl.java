@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.favoritePlace.repository;
 
-import com.example.coffies_vol_02.favoritePlace.domain.FavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.QFavoritePlace;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.member.domain.QMember;
@@ -8,7 +7,9 @@ import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.QPlace;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,35 +39,29 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
      **/
     @Override
     public Page<FavoritePlaceResponseDto> favoritePlaceWishList(Pageable pageable, String userId) {
-        List<FavoritePlaceResponseDto>favoritePlaceDtoList = new ArrayList<>();
-
-        List<FavoritePlace> wishList = jpaQueryFactory
-                .select(QFavoritePlace.favoritePlace)
+        // 위시리스트 페이징 쿼리
+        JPQLQuery<FavoritePlaceResponseDto> query = jpaQueryFactory
+                .select(Projections.constructor(FavoritePlaceResponseDto.class,
+                        QFavoritePlace.favoritePlace.id,
+                        QPlace.place.placeName,
+                        QPlace.place.placeAddr,
+                        QMember.member.userId))
                 .from(QFavoritePlace.favoritePlace)
-                .join(QFavoritePlace.favoritePlace.member, QMember.member).fetchJoin()
-                .join(QFavoritePlace.favoritePlace.place, QPlace.place).fetchJoin()
+                .join(QFavoritePlace.favoritePlace.member, QMember.member)
+                .join(QFavoritePlace.favoritePlace.place, QPlace.place)
                 .where(QFavoritePlace.favoritePlace.member.userId.eq(userId))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .distinct()
-                .fetch();
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new));
 
-        for(FavoritePlace favoritePlace : wishList){
-            FavoritePlaceResponseDto result = new FavoritePlaceResponseDto(favoritePlace);
-            favoritePlaceDtoList.add(result);
-        }
-
-        int wishListSize = jpaQueryFactory
-                .select(QFavoritePlace.favoritePlace)
-                .from(QFavoritePlace.favoritePlace)
-                .where(QFavoritePlace.favoritePlace.member.userId.eq(userId))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+        // 페이징 처리와 데이터 조회
+        List<FavoritePlaceResponseDto> favoritePlaceDtoList = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .distinct()
-                .fetch()
-                .size();
+                .fetch();
 
-        return new PageImpl<>(favoritePlaceDtoList,pageable,wishListSize);
+        // 위시리스트 총 개수 조회
+        long wishListSize = query.fetchCount();
+
+        return new PageImpl<>(favoritePlaceDtoList, pageable, wishListSize);
     }
 
 

@@ -1,0 +1,89 @@
+version: '3'
+
+services:
+  #mariadb
+  database:
+    container_name: maria-db
+    image: mariadb:10.11.2
+    environment:
+      MARIADB_DATABASE: test
+      MARIADB_USER: "root"
+      MARIADB_ROOT_PASSWORD: "root"
+      MARIADB_HOST: '%'
+      TZ: 'Asian/Seoul'
+    ports:
+      - "3307:3306"
+    restart: always
+    networks:
+      - compose
+  #redis cache     -
+  redis-cache:
+    container_name: redis-cache
+    image: redis:latest
+    command: redis-server --port 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - compose
+  #redis session
+  redis-session:
+    container_name: redis-session
+    image: redis:latest
+    command: redis-server --port 6380
+    ports:
+      - "6380:6379"
+    networks:
+      - compose
+  #server1
+  application1:
+    container_name: application-1
+    restart: always
+    build: .
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://maria-db:3306/test
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    depends_on:
+      - database
+      - redis-cache
+      - redis-session
+    networks:
+      - compose
+  #server2
+  application2:
+    container_name: application-2
+    restart: always
+    build: .
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://maria-db:3306/test
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    depends_on:
+      - database
+      - redis-cache
+      - redis-session
+    networks:
+      - compose
+  #server3
+  application3:
+    container_name: application-3
+    restart: always
+    build: .
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://maria-db:3306/test
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    depends_on:
+      - database
+      - redis-cache
+      - redis-session
+    networks:
+      - compose
+networks:
+  compose:
