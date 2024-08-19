@@ -13,7 +13,6 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.*;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -41,22 +40,23 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      **/
     @Override
     public Slice<PlaceResponseDto> placeListSearch(SearchType searchType, String keyword, Pageable pageable) {
+        JPQLQuery<PlaceResponseDto> query = jpaQueryFactory
+                .select(Projections.constructor(PlaceResponseDto.class, place))
+                .from(place)
+                .where(buildSearchPredicate(searchType, keyword));
 
-        JPQLQuery<PlaceResponseDto>placeList = jpaQueryFactory
-                .select(Projections.constructor(PlaceResponseDto.class,place))
-                .from(place);
-
-        JPQLQuery<PlaceResponseDto>middleQuery = switch (searchType) {
-            case all -> placeList.where(placeName(keyword).or(placeAdder(keyword)));
-            case p -> placeList.where(placeName(keyword));
-            case a -> placeList.where(placeAdder(keyword));
-            case t, c, w, i, e, n -> null;
-        };
-
-        return PageableExecutionUtils.getPage(middleQuery
-                .limit(pageable.getPageSize())
+        List<PlaceResponseDto> placeList = query
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
-                .fetch(),pageable,middleQuery::fetchCount);
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = placeList.size() > pageable.getPageSize();
+        if (hasNext) {
+            placeList.remove(placeList.size() - 1); // Remove the extra element if there is a next page
+        }
+
+        return new SliceImpl<>(placeList, pageable, hasNext);
     }
 
 
@@ -66,12 +66,12 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      **/
     @Override
     public List<PlaceResponseDto> placeTop5() {
-        JPQLQuery<PlaceResponseDto>list = jpaQueryFactory
-                .select(Projections.constructor(PlaceResponseDto.class,place))
+        return jpaQueryFactory
+                .select(Projections.constructor(PlaceResponseDto.class, place))
                 .from(place)
                 .orderBy(place.reviewRate.desc())
-                .limit(5L);
-        return list.stream().toList();
+                .limit(5)
+                .fetch();
     }
 
     /**
@@ -81,29 +81,34 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
      **/
     @Override
     public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
-        List<Place>placelist = jpaQueryFactory
-                .select(place)
-                .from(place)
+        List<Place> placeList = jpaQueryFactory
+                .selectFrom(place)
                 .where(placeName(keyword).or(placeAdder(keyword)))
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize()+1).fetch();//limit보다 한개를 더 들고 온다.
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
 
-        //total page개수를 가져오지 않는다는 점이 page와 다른점
-        List<PlaceResponseDto>result = new ArrayList<>();
-
-        for(Place place : placelist){
-            PlaceResponseDto placeResponseDto = new PlaceResponseDto(place);
-            result.add(placeResponseDto);
+        List<PlaceResponseDto> result = new ArrayList<>();
+        for (Place place : placeList) {
+            result.add(new PlaceResponseDto(place));
         }
 
-        boolean hasNext= false;
-
-        if (result.size() > pageable.getPageSize()) {
-            result.remove(pageable.getPageSize());
-            hasNext = true;
+        boolean hasNext = result.size() > pageable.getPageSize();
+        if (hasNext) {
+            result.remove(result.size() - 1); // Remove the extra element if there is a next page
         }
 
-        return new SliceImpl<>(result,pageable,hasNext);
+        return new SliceImpl<>(result, pageable, hasNext);
+    }
+
+    private BooleanBuilder buildSearchPredicate(SearchType searchType, String keyword) {
+        BooleanBuilder builder = new BooleanBuilder();
+        switch (searchType) {
+            case p -> builder.and(placeName(keyword));
+            case a -> builder.and(placeAdder(keyword));
+            default -> builder.and(placeName(keyword).or(placeAdder(keyword)));
+        }
+        return builder;
     }
 
     //가게 이름 조건

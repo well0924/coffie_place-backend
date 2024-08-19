@@ -3,8 +3,6 @@ package com.example.coffies_vol_02.board.repository;
 import com.example.coffies_vol_02.board.domain.Board;
 import com.example.coffies_vol_02.board.domain.QBoard;
 import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
-import com.example.coffies_vol_02.board.domain.dto.response.QBoardResponse;
-import com.example.coffies_vol_02.commnet.domain.QComment;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.like.domain.QLike;
 import com.example.coffies_vol_02.member.domain.QMember;
@@ -39,13 +37,10 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
 
     private final QLike qLike;
 
-    private final QComment qComment;
-
     public CustomBoardRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
         this.qBoard = QBoard.board;
         this.qMember = QMember.member;
-        this.qComment = QComment.comment;
         this.qLike = QLike.like;
     }
 
@@ -58,23 +53,25 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     @Override
     public Page<BoardResponse> boardList(Pageable pageable) {
 
-        List<BoardResponse>boardList;
-        boardList = jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class,qBoard))
+        List<BoardResponse> boardList = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
                 .from(qBoard)
-                .join(QBoard.board.member,qMember).fetchJoin()
-                .groupBy(QBoard.board.id)
+                .join(qBoard.member, qMember).fetchJoin()
+                .groupBy(qBoard.id)
                 .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .distinct()
                 .fetch();
 
-        long totalCount = jpaQueryFactory
-                .select(QBoard.board.id.count())
-                .from(QBoard.board)
-                .join(QBoard.board.member, qMember)
+        Long totalCount = jpaQueryFactory
+                .select(qBoard.id.count())
+                .from(qBoard)
+                .join(qBoard.member, qMember)
                 .fetchOne();
+
+        //NullPointException 예방
+        totalCount = (totalCount != null) ? totalCount : 0L;
 
         return new PageImpl<>(boardList,pageable,totalCount);
     }
@@ -89,23 +86,26 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     @Override
     public Page<BoardResponse> findAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
 
-        JPQLQuery<BoardResponse>list = jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class,QBoard.board))
-                .from(QBoard.board);
+        JPQLQuery<BoardResponse> list = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
+                .from(qBoard)
+                .join(qBoard.member, qMember);
 
-        JPQLQuery<BoardResponse>middleQuery = switch (searchType){
+        JPQLQuery<BoardResponse> middleQuery = switch (searchType) {
             case t -> list.where(boardTitleEq(searchVal));
             case a -> list.where(boardAuthorEq(searchVal));
             case c -> list.where(boardContentsEq(searchVal));
-            //case c, w, t, p, a -> null;
             default -> list.where(boardTitleEq(searchVal).or(boardAuthorEq(searchVal).or(boardContentsEq(searchVal))));
         };
 
-        return PageableExecutionUtils.getPage(middleQuery
-                        .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch(),pageable,middleQuery::fetchCount);
+        return PageableExecutionUtils.getPage(
+                middleQuery.orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
+                pageable,
+                middleQuery::fetchCount
+        );
     }
 
     /**
@@ -118,10 +118,10 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public BoardResponse boardDetail(int boardId) {
 
         return jpaQueryFactory
-                .select(new QBoardResponse(qBoard))
+                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
                 .from(qBoard)
-                .join(qBoard.member,qMember).fetchJoin()
-                .where(QBoard.board.id.eq(boardId))
+                .join(qBoard.member, qMember).fetchJoin()
+                .where(qBoard.id.eq(boardId))
                 .distinct()
                 .fetchOne();
     }
@@ -134,38 +134,25 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
      **/
     @Override
     public Page<BoardResponse> likedBoardDetailList(int userIdx,Pageable pageable) {
-        List<BoardResponse>result = new ArrayList<>();
-
-        List<Board>like = likeBoard(userIdx);
-
-        int count = likeBoardCount(userIdx);
-
-        for(Board board : like){
-            BoardResponse response = new BoardResponse(board);
-            result.add(response);
-        }
-        return new PageImpl<>(result,pageable,count);
-    }
-
-    //좋아요를 한 게시글 목록
-    private List<Board>likeBoard(int userIdx){
-        return jpaQueryFactory.select(qBoard)
+        List<BoardResponse> result = jpaQueryFactory
+                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
                 .from(qBoard)
-                .innerJoin(qLike)
-                .on(qBoard.id.eq(qLike.board.id))
+                .innerJoin(qLike).on(qBoard.id.eq(qLike.board.id))
                 .where(qLike.member.id.eq(userIdx))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
-    }
-    
-    //좋아요를 한 게시글 수
-    private int likeBoardCount(int userIdx){
-        return jpaQueryFactory.select(QBoard.board)
-                .from(QBoard.board)
-                .innerJoin(QLike.like)
-                .on(QBoard.board.id.eq(QLike.like.board.id))
-                .where(QLike.like.member.id.eq(userIdx))
-                .fetch()
-                .size();
+
+        Long count = jpaQueryFactory
+                .select(qBoard.count())
+                .from(qBoard)
+                .innerJoin(qLike).on(qBoard.id.eq(qLike.board.id))
+                .where(qLike.member.id.eq(userIdx))
+                .fetchOne();
+        //NullPointException 예방
+        count = (count != null) ? count : 0L;
+
+        return new PageImpl<>(result, pageable, count);
     }
 
     BooleanBuilder boardContentsEq(String searchVal){
