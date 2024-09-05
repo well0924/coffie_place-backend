@@ -37,16 +37,42 @@ import java.util.stream.Collectors;
 public class FileApiController {
 
     private final PlaceRepository placeRepository;
+
     private final AttachService attachService;
+
+    @Operation(summary = "자유 게시판 첨부파일 목록", description = "자유 게시글에 첨부된 파일목록을 보여준다.", responses = {
+            @ApiResponse(responseCode = "204")
+    })
+    @GetMapping("/board/{board_id}")
+    public ResponseEntity<List<AttachDto>>BoardAttachFileList(@Parameter(description = "자유 게시글 번호" , required = true)
+                                                              @PathVariable("board_id")Integer boardId) throws Exception {
+        List<AttachDto>boardAttachList = attachService.boardfilelist(boardId);
+        return ResponseEntity
+                .ok(boardAttachList);
+    }
+
+    @Operation(summary = "공지 게시판 첨부파일 목록", description = "공지 게시글에서 첨부된 파일목록을 보여준다.", responses = {
+            @ApiResponse(responseCode = "204")
+    })
+    @GetMapping("/notice/{notice_id}")
+    public ResponseEntity<List<AttachDto>>noticeAttachFileList(@Parameter(description = "공지게시글 번호", required = true)
+                                                               @PathVariable("notice_id")Integer noticeId) throws Exception {
+        List<AttachDto>noticeAttachList = attachService.noticefilelist(noticeId);
+        return ResponseEntity.ok(noticeAttachList);
+    }
 
     @Operation(summary = "자유게시판 첨부파일 다운로드", description = "자유게시판에서 첨부파일을 다운로드한다.",responses = {
             @ApiResponse(responseCode = "204")
     })
-    @GetMapping("/{file-name}")
+    @GetMapping("/board/download/{file-name}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Resource>BoardFileDownload(@Parameter(description = "첨부파일명",required = true) @PathVariable("file-name")String fileName) throws IOException {
+    public ResponseEntity<Resource>BoardFileDownload(@Parameter(description = "첨부파일명",required = true)
+                                                     @PathVariable("file-name")String fileName) throws IOException {
+
         AttachDto getFile = attachService.getFreeBoardFile(fileName);
+
         Path path = Paths.get(getFile.getFilePath());
+
         Resource resource = new InputStreamResource(Files.newInputStream(path));
 
         return ResponseEntity.ok()
@@ -59,11 +85,14 @@ public class FileApiController {
     @Operation(summary = "공지게시판 첨부파일 다운로드",description = "공지게시판에서 첨부파일을 다운로드한다.",responses = {
             @ApiResponse(responseCode = "204")
     })
-    @GetMapping("/notice/{file-name}")
+    @GetMapping("/notice/download/{file-name}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Resource>NoticeFileDownload(@Parameter(description = "첨부파일명",required = true) @PathVariable("file-name")String fileName) throws IOException {
+
         AttachDto getFile = attachService.getNoticeBoardFile(fileName);
+
         Path path = Paths.get(getFile.getFilePath());
+
         Resource resource = new InputStreamResource(Files.newInputStream(path));
 
         return ResponseEntity.ok()
@@ -72,15 +101,24 @@ public class FileApiController {
                         "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
                 .body(resource);
     }
+
     @Operation(summary = "가게 목록 엑셀 다운로드",description = "가게 목록을 엑셀파일로 다운로드한다.",responses = {
             @ApiResponse(responseCode = "204")
     })
     @GetMapping("/place-download")
     public DownloadResponseDto<?> getPlaceListDownload(HttpServletRequest req, HttpServletResponse res) throws Exception {
+
         List<Place>list = placeRepository.findAll();
-        List<PlaceResponseDto>result = list.stream().map(place->new PlaceResponseDto(place)).collect(Collectors.toList());
+
+        List<PlaceResponseDto>result = list
+                .stream()
+                .map(place->new PlaceResponseDto(place))
+                .collect(Collectors.toList());
+
         ExcelService<PlaceResponseDto>excelList = new ExcelService<>(result,PlaceResponseDto.class);
+
         excelList.downloadExcel(res);
+
         return new DownloadResponseDto<>();
     }
 }
