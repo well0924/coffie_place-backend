@@ -43,7 +43,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setStatus(HttpServletResponse.SC_OK);
 
         CustomUserDetails  customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        
+
         Member member = customUserDetails.getMember();
 
         try {
@@ -55,8 +55,25 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
             //로그인을 한 세션을 지우는 메서드
             clearAuthenticationAttributes(request);
-            //권한별 페이지 이동
-            redirectStrategy(request, response, authentication);
+
+            //ajax 로그인 처리
+            if(isAjaxRequest(request)){
+                // Ajax 요청에 대한 처리
+                log.info("ajax");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json;charset=UTF-8");
+                String sessionId = request.getSession().getId(); // 세션 ID 가져오기
+                response.getWriter().write("{\"httpStatus\": \"OK\", \"message\": \"로그인 성공\", \"sessionId\": \"" + sessionId + "\", \"redirectUrl\": \"" + getRedirectUrl(authentication) + "\"}");
+                response.getWriter().flush();
+            } else {
+                // 일반 요청의 경우
+                log.info("form");
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json;charset=UTF-8");
+                String sessionId = request.getSession().getId(); // 세션 ID 가져오기
+                response.getWriter().write("{\"httpStatus\": \"OK\", \"message\": \"로그인 성공\", \"sessionId\": \"" + sessionId + "\", \"redirectUrl\": \"" + getRedirectUrl(authentication) + "\"}");
+                response.getWriter().flush();
+            }
         } catch (Exception e) {
             log.info(e.getMessage());
         }
@@ -81,7 +98,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         SavedRequest savedRequest = requestCache.getRequest(request, response);
 
         if(savedRequest != null) {
-            redirectStratgy.sendRedirect(request, response, DEFAULT_URL);
+            redirectStratgy.sendRedirect(request, response, savedRequest.getRedirectUrl());
         }else {
             Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
             //권한이 ADMIN이면 어드민 페이지로 이동
@@ -94,4 +111,21 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
+    // Ajax 요청인지 확인
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
+
+    //권한에 따른 분기 처리
+    private String getRedirectUrl (Authentication authentication){
+        Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        //권한이 ADMIN이면 어드민 페이지로 이동
+        if(roles.contains("ROLE_ADMIN")) {
+            return ADMIN_URL;
+            //권한이 USER이면 메인 페이지로 이동
+        }else if(roles.contains("ROLE_USER")) {
+            return DEFAULT_URL;
+        }
+        return DEFAULT_URL;
+    }
 }

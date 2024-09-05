@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -103,6 +104,7 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeRequests()
+            .antMatchers("/api/member/login","/api/member/logout","/api/member/").permitAll()
             .antMatchers("/**").permitAll()
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest()
@@ -114,11 +116,10 @@ public class SecurityConfig {
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/")
                 .sessionRegistry(sessionRegistry())
-                .expiredSessionStrategy(securitySessionExpiredStrategy));
-        //.addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .expiredSessionStrategy(securitySessionExpiredStrategy))
+        .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer
-                    .loginPage("/page/login/loginPage")
                     .usernameParameter("userId")
                     .passwordParameter("password")
                     .loginProcessingUrl("/api/member/login")
@@ -130,7 +131,8 @@ public class SecurityConfig {
             .logout(logout ->logout
                     .logoutUrl("/api/member/logout")
                     .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID"));
+                    .deleteCookies("JSESSIONID")
+                    .logoutSuccessUrl("/page/main/main"));
         return http.build();
     }
 

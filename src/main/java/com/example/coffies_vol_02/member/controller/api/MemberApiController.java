@@ -51,20 +51,23 @@ public class MemberApiController {
     @Operation(summary = "회원 로그인 api", description = "redis session을 활용해서 로그인")
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
     public CommonResponse<?>loginProc(@RequestBody LoginDto loginDto, HttpSession httpSession){
+        log.info("로그인??");
+        String sessionId = authService.login(loginDto,httpSession);
+        log.info(sessionId);
         log.info("session::::"+httpSession.getAttribute("member"));
-
-        return new CommonResponse<>(HttpStatus.OK,authService.login(loginDto,httpSession));
+        return new CommonResponse<>(HttpStatus.OK,sessionId);
     }
 
+    @Operation(summary = "회원 로그아웃 api", description = "redis session을 활용해서 로그아웃")
     @PostMapping("/logout")
-    public CommonResponse<?>logout(HttpSession httpSession){
+    public CommonResponse<String>logout(HttpSession httpSession){
         authService.logout(httpSession);
         httpSession.invalidate();
         return new CommonResponse<>(HttpStatus.OK,"log-out");
     }
 
     @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
-    @GetMapping(path = "/list")
+    @GetMapping(path = "/")
     @ResponseStatus(HttpStatus.OK)
     public CommonResponse<Page<MemberResponse>> memberList(
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC,size = 5) Pageable pageable){
@@ -75,7 +78,7 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원 검색 api", description = "회원목록에서 검색을 한다.")
-    @GetMapping(path = "/list/search")
+    @GetMapping(path = "/search")
     @ResponseStatus(HttpStatus.OK)
     public CommonResponse<?>memberSearch(@ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC) Pageable pageable,
                                         @RequestParam(value = "searchType",required = false) String searchType,
@@ -92,7 +95,7 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원 단일 조회 api", description = "회원을 단일 조회한다.")
-    @GetMapping(path = "/detail/{user-idx}")
+    @GetMapping(path = "/{user-idx}")
     @ResponseStatus(HttpStatus.OK)
     public CommonResponse<MemberResponse>findMember(
             @Parameter(name = "user-idx",description = "회원의 번호",required = true,in = ParameterIn.PATH)
@@ -104,7 +107,7 @@ public class MemberApiController {
     }
 
     @Operation(summary = "회원가입 api", description = "회원가입페이지에서 회원가입을 한다.")
-    @PostMapping("/join")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<?>memberCreate(@Valid @RequestBody MemberRequest dto, BindingResult bindingResult){
 

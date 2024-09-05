@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,22 +30,24 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         Member user = (Member) request.getSession().getAttribute("member");
-        
-        //처음 로그인을 한 경우
-        if(request.getRequestURI().equals(LOGIN_URL)&& Objects.isNull(user)){
-            log.info("login !!");
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-        //인증 정보가 있는경우
-        if(!Objects.isNull(user)) {
-            GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().toString()); // 사용자 권한
-            log.info(authority);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(authority)); // 현재 사용자의 인증 정보
-            log.info(authentication);
-            log.info("filter member data:::"+user);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(request.getRequestURI().equals(LOGIN_URL)){
+            log.info("login !!");
+            try{
+                //인증 정보가 있는경우
+                if(!Objects.isNull(user)) {
+                    GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().toString()); // 사용자 권한
+                    log.info(authority);
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(authority)); // 현재 사용자의 인증 정보
+                    log.info(authentication);
+                    log.info("filter member data:::"+user);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    //인증 성공시 successHandler 작동
+                }
+            } catch (AuthenticationException e) {
+                e.getMessage();
+                return;
+            }
         }
         filterChain.doFilter(request,response);
     }

@@ -42,13 +42,12 @@ public class RedisConfig {
      * 내장 혹은 외부의 Redis를 연결
      */
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
+    public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisHost);
         redisStandaloneConfiguration.setPort(redisPort);
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
-
     /**
      * RedisTemplate 설정
     **/
@@ -126,10 +125,8 @@ public class RedisConfig {
     //redisson 설정
     @Bean
     public RedissonClient redissonClient() {
-        RedissonClient redisson = null;
         Config config = new Config();
         config.useSingleServer().setAddress(REDISSON_HOST_PREFIX + redisHost + ":" + redisPort);
-        redisson = Redisson.create(config);
-        return redisson;
+        return Redisson.create(config);
     }
 }
