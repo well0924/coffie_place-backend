@@ -33,7 +33,7 @@ function noticewrite(){
     }
 
     $.ajax({
-        url:'/api/notice/write',
+        url:'/api/notice/',
         type:'post',
         data:formDate,
         processData: false,

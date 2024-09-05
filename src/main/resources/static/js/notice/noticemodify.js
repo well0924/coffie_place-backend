@@ -26,7 +26,7 @@ function noticeupdate(){
     formDate.append("updateDto",new Blob([JSON.stringify(noticeDate)], {type: "application/json"}));
 
     $.ajax({
-        url:'/api/notice/update/'+id,
+        url:'/api/notice/'+id,
         type:'put',
         data:formDate,
         processData: false,
@@ -46,7 +46,7 @@ function noticedelete(){
     let id=$('#noticeid').val();
 
     $.ajax({
-        url:'/api/notice/delete/'+id,
+        url:'/api/notice/'+id,
         type:'delete',
         data:null,
         contentType:'application/json; charset=utf-8'

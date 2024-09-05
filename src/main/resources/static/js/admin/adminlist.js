@@ -71,7 +71,7 @@ function selectDelete(){
 
     if(confirmAlert){
         $.ajax({
-            url:'/api/member/selectdelete',
+            url:'/api/member/select-delete',
             type:'post',
             dataType:'json',
             data:JSON.stringify(MemberArray),

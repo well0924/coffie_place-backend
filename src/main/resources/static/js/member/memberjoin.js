@@ -241,7 +241,7 @@ function memberjoin(){
     };
 
     $.ajax({
-        url:'/api/member/join',
+        url:'/api/member/',
         type:'post',
         data: JSON.stringify(dateForm),
         dataType:'json',

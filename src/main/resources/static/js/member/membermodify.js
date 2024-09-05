@@ -229,7 +229,7 @@ function memberupdate(){
     }
 
     $.ajax({
-        url:'/api/admin/update/'+id,
+        url:'/api/member/'+id,
         type:'put',
         data:JSON.stringify(form),
         dataType:'json',
@@ -254,7 +254,7 @@ function memberdelete(){
 
     if(isConfirm){
         $.ajax({
-            url:'/api/admin/delete/'+id,
+            url:'/api/member/'+id,
             type:'delete',
             dataType:'json',
             data:null

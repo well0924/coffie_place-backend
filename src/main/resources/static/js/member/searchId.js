@@ -64,5 +64,5 @@ function findId(){
 }
 
 function changepwd(){
-    location.href='/page/login/pwdchange';
+    location.href='/page/login/pwd-change';
 }
