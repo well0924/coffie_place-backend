@@ -54,7 +54,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public Page<BoardResponse> boardList(Pageable pageable) {
 
         List<BoardResponse> boardList = jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
+                .select(Projections.constructor(BoardResponse.class, qBoard))
                 .from(qBoard)
                 .join(qBoard.member, qMember).fetchJoin()
                 .groupBy(qBoard.id)
@@ -87,7 +87,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public Page<BoardResponse> findAllSearch(SearchType searchType, String searchVal, Pageable pageable) {
 
         JPQLQuery<BoardResponse> list = jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
+                .select(Projections.constructor(BoardResponse.class, qBoard))
                 .from(qBoard)
                 .join(qBoard.member, qMember);
 
@@ -118,7 +118,7 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository{
     public BoardResponse boardDetail(int boardId) {
 
         return jpaQueryFactory
-                .select(Projections.constructor(BoardResponse.class, qBoard.id, qBoard.boardTitle, qBoard.boardContents, qBoard.createdTime, qMember.userId))
+                .select(Projections.constructor(BoardResponse.class, qBoard))
                 .from(qBoard)
                 .join(qBoard.member, qMember).fetchJoin()
                 .where(qBoard.id.eq(boardId))

@@ -42,10 +42,7 @@ public class CustomFavoritePlaceRepositoryImpl implements CustomFavoritePlaceRep
         // 위시리스트 페이징 쿼리
         JPQLQuery<FavoritePlaceResponseDto> query = jpaQueryFactory
                 .select(Projections.constructor(FavoritePlaceResponseDto.class,
-                        QFavoritePlace.favoritePlace.id,
-                        QPlace.place.placeName,
-                        QPlace.place.placeAddr,
-                        QMember.member.userId))
+                        QFavoritePlace.favoritePlace))
                 .from(QFavoritePlace.favoritePlace)
                 .join(QFavoritePlace.favoritePlace.member, QMember.member)
                 .join(QFavoritePlace.favoritePlace.place, QPlace.place)
