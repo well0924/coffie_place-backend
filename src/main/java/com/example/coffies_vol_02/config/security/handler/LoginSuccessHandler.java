@@ -68,11 +68,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             } else {
                 // 일반 요청의 경우
                 log.info("form");
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json;charset=UTF-8");
-                String sessionId = request.getSession().getId(); // 세션 ID 가져오기
-                response.getWriter().write("{\"httpStatus\": \"OK\", \"message\": \"로그인 성공\", \"sessionId\": \"" + sessionId + "\", \"redirectUrl\": \"" + getRedirectUrl(authentication) + "\"}");
-                response.getWriter().flush();
+                redirectStrategy(request,response,authentication);
             }
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -100,14 +96,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         if(savedRequest != null) {
             redirectStratgy.sendRedirect(request, response, savedRequest.getRedirectUrl());
         }else {
-            Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-            //권한이 ADMIN이면 어드민 페이지로 이동
-            if(roles.contains("ROLE_ADMIN")) {
-                redirectStratgy.sendRedirect(request, response,ADMIN_URL);
-            //권한이 USER이면 메인 페이지로 이동
-            }else if(roles.contains("ROLE_USER")) {
-                redirectStratgy.sendRedirect(request, response,DEFAULT_URL);
-            }
+             getRedirectUrl(authentication);
         }
     }
 
