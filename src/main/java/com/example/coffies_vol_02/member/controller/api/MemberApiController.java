@@ -32,6 +32,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Api(tags = "Member api",value = "회원 관련 api 컨트롤러")
 @Log4j2
@@ -245,10 +246,12 @@ public class MemberApiController {
 
     @Operation(summary = "비밀번호 재설정 이메일 인증",description = "비밀번호 재설정 페이지에서 이메일 인증으로 인증 이메일을 보내는 기능")
     @PostMapping("/temporary-email")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?>temporaryEmail(@RequestParam(value = "userEmail") String userEmail)throws Exception{
-        emailService.sendTemporaryPasswordMessage(userEmail);
-        return ResponseEntity.ok(true);
+        CompletableFuture<String> tmpPwFuture = emailService.sendTemporaryPasswordMessage(userEmail);
+        String tmpPw = tmpPwFuture.get();
+        log.info(tmpPw);
+        return ResponseEntity.ok(tmpPw);
     }
 
 }

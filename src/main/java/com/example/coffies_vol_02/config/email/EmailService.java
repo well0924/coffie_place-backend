@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.config.email;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +13,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 @Log4j2
 @Service
@@ -98,7 +98,7 @@ public class EmailService {
      * @exception MessagingException 메시지를 보내는데 문제가 있는 경우 exception
      * @exception UnsupportedEncodingException 인코딩에 문제가 있는경우 exception
      **/
-    public MimeMessage createPasswordMessage(String userEmail)throws MessagingException, UnsupportedEncodingException {
+    public MimeMessage createPasswordMessage(String userEmail ,String ePw)throws MessagingException, UnsupportedEncodingException {
         log.info("보내는 대상 : "+ userEmail);
         log.info("인증 번호 : " + ePw);
 
@@ -129,15 +129,17 @@ public class EmailService {
      * @exception UnsupportedEncodingException 인코딩이 안되는 경우의 Exception
      **/
     @Async
-    public String sendTemporaryPasswordMessage(String userEmail)throws MessagingException,UnsupportedEncodingException {
-        MimeMessage message = createPasswordMessage(userEmail);
+    public CompletableFuture<String> sendTemporaryPasswordMessage(String userEmail)throws MessagingException,UnsupportedEncodingException {
 
+        String ePw = createKey();
+        MimeMessage message = createPasswordMessage(userEmail,ePw);
+        log.info(ePw);
         try{
             javaMailSender.send(message); // 메일 발송
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
-        return ePw; // 메일로 보냈던 인증 코드를 서버로 리턴
+        return CompletableFuture.completedFuture(ePw); // 메일로 보냈던 인증 코드를 서버로 리턴
     }
 }
