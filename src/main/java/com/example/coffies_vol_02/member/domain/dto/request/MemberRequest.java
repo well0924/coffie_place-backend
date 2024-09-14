@@ -71,7 +71,6 @@ public record MemberRequest(
                 .failedAttempt(0)
                 .enabled(true)
                 .accountNonLocked(true)
-                .lockTime(LocalDateTime.now())
                 .memberStatus(MemberStatus.NON_USER_LOCK)
                 .build();
     }

@@ -36,7 +36,7 @@ public class CommentApiController {
             @ApiResponse(responseCode = "404",description = "댓글이 없는 경우",content = @Content(schema =@Schema(implementation = CommonResponse.class)))
     })
     @GetMapping("/{board_id}")
-    public CommonResponse<?>listComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
+    public CommonResponse<List<placeCommentResponseDto>>listComment(@Parameter(name = "board_id",description = "게시글의 번호",required = true)
                                                                     @PathVariable("board_id")Integer boardId){
         List<placeCommentResponseDto> list = new ArrayList<>();
 

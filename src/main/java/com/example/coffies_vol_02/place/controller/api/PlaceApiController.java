@@ -138,7 +138,7 @@ public class PlaceApiController {
     @Operation(summary = "가게 목록 top5 조회", description = "가게 목록을 조회한다",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
-    @GetMapping(path = "/top5list")
+    @GetMapping("/top5list")
     public CommonResponse<?>placeTop5List() {
 
         List<PlaceResponseDto> top5list = redisService.getTopRatedStores();

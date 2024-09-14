@@ -58,12 +58,11 @@ public class NoticeApiController {
             @RequestParam(value = "searchVal") String searchVal,
             @ApiIgnore @PageableDefault(sort = "id",direction = Sort.Direction.DESC, size = 5) Pageable pageable){
 
-        Page<NoticeResponse> list = noticeService.searchNoticeBoard(SearchType.valueOf(searchType),searchVal,pageable);
-
         //검색시 결과가 없는 경우
         if(StringUtils.isBlank(searchVal)||StringUtils.isBlank(searchType)){
             return new CommonResponse<>(HttpStatus.OK, ERRORCODE.NOT_SEARCH_VALUE);
         }
+        Page<NoticeResponse> list = noticeService.searchNoticeBoard(SearchType.valueOf(searchType),searchVal,pageable);
 
         return new CommonResponse<>(HttpStatus.OK,list);
     }

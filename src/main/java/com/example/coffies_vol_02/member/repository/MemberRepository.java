@@ -48,7 +48,7 @@ public interface MemberRepository extends JpaRepository<Member,Integer>,CustomMe
     @Transactional
     @Modifying
     @Query("delete from Member m where m.userId in :ids")
-    void deleteAllByUserId(List<String>ids);
+    void deleteAllByUserId(@Param("ids") List<String>ids);
 
 
     /**
