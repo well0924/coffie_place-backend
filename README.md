@@ -10,9 +10,9 @@
 - **Mybatis에서 JPA로 컨버팅하기**
 - **JUnit5,Mockito를 사용해서 테스트 코드를 작성**
 - **Redis를 다양한 방식으로 활용해보기**
-- scale-out을 고려해서 대용량 트래픽을 고려한 서버 구조 설계
+- **scale-out을 고려해서 대용량 트래픽을 고려한 서버 구조 설계**
 - 성능 테스트 및 모니터링으로 프로젝트의 신뢰성을 높이기
-- github Actions를 사용해서 CI/CD구축하기
+- Docker-compose,github Actions를 사용해서 CI/CD구축하기
 - **깃 커밋 컨벤션에 따른 커밋 메시지 편의고려하기**
 
 ### 제작인원
@@ -43,11 +43,12 @@
     - **회원 계정 정지기능**
     - **외부 api호출시 실패 방지를 위해서 @Retryable을 적용**
     - **크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장(api 호출 문제로 api사용을 안하고 크롤링으로 대체)후 디비에 저장**
+    - 크롤링시 가게정보를 저장시 Redis캐싱 처리 + 스케줄러 사용.
     - **Redis Sorted Set을 활용해서 가게 평점 top5 를 구현**
     - **가게 최근 검색어 기능구현**
     - **Redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어**
     - **Scale-out을 고려해서 redis Session을 Session Storage로 적용**
-    - docker-compose를 사용
+    - docker-compose를 사용해서 서버,디비,Redis에 적용
 
 ### 기술 스택
   
@@ -140,4 +141,4 @@
 - **[Redis Keys 대신 Scan을 사용해서 성능향상](https://codingweb.tistory.com/200)**
 
 
-- **[Redisson 분산락을 활용해서 동시성 제어]()**
+- **[Redisson 분산락을 활용해서 동시성 제어](https://codingweb.tistory.com/203)**
