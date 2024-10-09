@@ -8,7 +8,9 @@ import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRecentSearchDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
+import com.example.coffies_vol_02.place.service.PlaceImageService;
 import com.example.coffies_vol_02.place.service.PlaceService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +42,8 @@ import java.util.List;
 public class PlaceApiController {
 
     private final PlaceService placeService;
+
+    private final PlaceImageService placeImageService;
 
     private final RedisService redisService;
 
@@ -93,6 +97,15 @@ public class PlaceApiController {
         PlaceResponseDto placeDetail = placeService.findCafePlaceById(placeId);
 
         return new CommonResponse<>(HttpStatus.OK, placeDetail);
+    }
+
+    @Operation(summary = "가게 이미지 목록", description = "가게정보에서 필요한 이미지 목록")
+    @GetMapping("/image-list/{place-id}")
+    public CommonResponse<?> findCafePlaceImageList(@Parameter(name = "place-id",description = "가게 생성번호",required = true,in = ParameterIn.PATH) @PathVariable("place-id")Integer placeId) throws Exception {
+
+        List<PlaceImageResponseDto>placeImageList = placeImageService.placeImageResponseDtoList(placeId);
+
+        return new CommonResponse<>(HttpStatus.OK,placeImageList);
     }
 
     @Operation(summary = "가게 등록", description = "어드민 페이지에서 가게를 등록을 한다.")
