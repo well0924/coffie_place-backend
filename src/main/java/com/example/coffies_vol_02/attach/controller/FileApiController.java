@@ -65,41 +65,23 @@ public class FileApiController {
             @ApiResponse(responseCode = "204")
     })
     @GetMapping("/board/download/{file-name}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Resource>BoardFileDownload(@Parameter(description = "첨부파일명",required = true)
                                                      @PathVariable("file-name")String fileName) throws IOException {
 
         AttachDto getFile = attachService.getFreeBoardFile(fileName);
 
-        Path path = Paths.get(getFile.getFilePath());
-
-        Resource resource = new InputStreamResource(Files.newInputStream(path));
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
-                .body(resource);
+        return getResourceResponseEntity(getFile);
     }
 
     @Operation(summary = "공지게시판 첨부파일 다운로드",description = "공지게시판에서 첨부파일을 다운로드한다.",responses = {
             @ApiResponse(responseCode = "204")
     })
     @GetMapping("/notice/download/{file-name}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Resource>NoticeFileDownload(@Parameter(description = "첨부파일명",required = true) @PathVariable("file-name")String fileName) throws IOException {
 
         AttachDto getFile = attachService.getNoticeBoardFile(fileName);
 
-        Path path = Paths.get(getFile.getFilePath());
-
-        Resource resource = new InputStreamResource(Files.newInputStream(path));
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
-                .body(resource);
+        return getResourceResponseEntity(getFile);
     }
 
     @Operation(summary = "가게 목록 엑셀 다운로드",description = "가게 목록을 엑셀파일로 다운로드한다.",responses = {
@@ -120,5 +102,34 @@ public class FileApiController {
         excelList.downloadExcel(res);
 
         return new DownloadResponseDto<>();
+    }
+
+    private ResponseEntity<Resource> getResourceResponseEntity(AttachDto getFile) {
+        if (getFile == null) {
+            return ResponseEntity.notFound().build(); // 파일이 없을 경우 404 반환
+        }
+
+        Path path = Paths.get(getFile.getFilePath());
+
+        if (!Files.exists(path)) {
+            return ResponseEntity.notFound().build(); // 파일이 존재하지 않을 경우 404 반환
+        }
+
+        try {
+            String mimeType = Files.probeContentType(path);
+            if (mimeType == null) {
+                mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE; // 기본 MIME 타입
+            }
+
+            Resource resource = new InputStreamResource(Files.newInputStream(path));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType)) // MIME 타입을 동적으로 설정
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + URLEncoder.encode(getFile.getOriginFileName(), "UTF-8") + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null); // 파일을 열 수 없을 경우 500 반환
+        }
     }
 }
