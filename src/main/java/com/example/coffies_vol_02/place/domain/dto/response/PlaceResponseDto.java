@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ExcelFileName(fileName = "가게 목록")
 @ApiModel(description = "가게 응답 dto",value = "가게 응답 dto")
@@ -73,5 +76,6 @@ public class PlaceResponseDto implements Serializable {
         this.placePhone = place.getPlacePhone();
         this.isTitle = place.getPlaceImageList().size()== 0 ? null : place.getPlaceImageList().get(0).getIsTitle();
         this.thumbFileImagePath = place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getThumbFileImagePath();
+        this.imgPath = place.getPlaceImageList().size() == 0 ? null : place.getPlaceImageList().get(0).getImgPath();
     }
 }

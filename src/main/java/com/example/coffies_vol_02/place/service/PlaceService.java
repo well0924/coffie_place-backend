@@ -2,14 +2,16 @@ package com.example.coffies_vol_02.place.service;
 
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.constant.SearchType;
+import com.example.coffies_vol_02.config.crawling.CrawlingCacheService;
+import com.example.coffies_vol_02.config.crawling.dto.PlaceCache;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
-import com.example.coffies_vol_02.config.redis.CrawlingCacheService;
 import com.example.coffies_vol_02.config.util.FileHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
+import com.example.coffies_vol_02.place.domain.dto.response.PlaceImageResponseDto;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
 import com.example.coffies_vol_02.place.repository.PlaceRepository;
@@ -38,7 +40,7 @@ public class PlaceService {
 
     private final PlaceImageRepository placeImageRepository;
 
-    private final CrawlingCacheService crawlingCacheService;
+    private final CrawlingCacheService cacheService;
 
     /**
      * 가게 목록(무한 슬라이드)
@@ -69,34 +71,68 @@ public class PlaceService {
     }
 
     /**
-     * 가게 단일 조회
+     * 가게 단일 조회 (Redis 캐싱 적용)
      * @param placeId 가게 번호 가게번호가 없는 경우에는 PLACE_NOT_FOUND 발생
      * @return PlaceResponseDto
      * @throws CustomExceptionHandler 가게 조회시 가게번호가 없는 경우
      * @see PlaceRepository#findById(Object) 가게 번호로 가게를 단일 조회하는 메서드
      **/
-    @Transactional(readOnly = true)
-    public PlaceResponseDto findCafePlaceById(Integer placeId) {
-        //캐싱이 된 경우
-        if(crawlingCacheService.getCachedPlace(String.valueOf(placeId))!=null){
-            return (PlaceResponseDto) crawlingCacheService.getCachedPlace(String.valueOf(placeId));
-        }else {
-            Place detail = placeRepository.findById(placeId).orElseThrow(() -> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
-
-            return PlaceResponseDto
-                    .builder()
-                    .id(detail.getId())
-                    .placeAuthor(detail.getPlaceAuthor())
-                    .placePhone(detail.getPlacePhone())
-                    .placeStart(detail.getPlaceStart())
-                    .placeName(detail.getPlaceName())
-                    .placeClose(detail.getPlaceClose())
-                    .placeAddr(detail.getPlaceAddr())
-                    .reviewRate(detail.getReviewRate())
-                    .isTitle(detail.getPlaceImageList().isEmpty() ? null : detail.getPlaceImageList().get(0).getIsTitle())
-                    .thumbFileImagePath(detail.getPlaceImageList().isEmpty() ? null :  detail.getPlaceImageList().get(0).getThumbFileImagePath())
+    public PlaceResponseDto findCafePlaceById(Integer placeId) throws Exception {
+        // 캐시에서 가게 정보 조회
+        PlaceRequestDto cachedPlace = cacheService.getCachedPlace(String.valueOf(placeId));
+        log.info(cachedPlace);
+        // 캐시에 가게 정보가 있으면 캐시에서 반환
+        if (cachedPlace != null) {
+            log.info("Cached place found for placeId: {}", placeId);
+            List<PlaceImageResponseDto> imageList = placeImageService.placeImageResponseDtoList(placeId);
+            log.info(imageList.size());
+            return PlaceResponseDto.builder()
+                    .id(placeId)
+                    .placeAuthor(cachedPlace.getPlaceAuthor())
+                    .placePhone(cachedPlace.getPlacePhone())
+                    .placeStart(cachedPlace.getPlaceStart())
+                    .placeName(cachedPlace.getPlaceName())
+                    .placeClose(cachedPlace.getPlaceClose())
+                    .placeAddr(cachedPlace.getPlaceAddr())
+                    .reviewRate(cachedPlace.getReviewRate())
+                    .imgPath(imageList.size()==0? null: imageList.get(0).getImgPath())
+                    .isTitle(imageList.size()==0? null: imageList.get(0).getIsTitle())
+                    .thumbFileImagePath(imageList.size()==0? null:imageList.get(0).getThumbFileImagePath())
                     .build();
         }
+
+        // 캐시에 없으면 DB에서 조회 후 캐싱
+        Place place = placeRepository
+                .findById(placeId)
+                .orElseThrow(()-> new CustomExceptionHandler(ERRORCODE.PLACE_NOT_FOUND));
+
+        PlaceCache placeCache = PlaceCache.builder()
+                .placeId(String.valueOf(place.getId()))
+                .placeName(place.getPlaceName())
+                .placeAddr(place.getPlaceAddr())
+                .placeStart(place.getPlaceStart())
+                .placeClose(place.getPlaceClose())
+                .placePhone(place.getPlacePhone())
+                .placeAuthor(place.getPlaceAuthor())
+                .build();
+
+        List<PlaceImageResponseDto> imageList = placeImageService.placeImageResponseDtoList(placeId);
+        // 캐시에 가게 정보 저장
+        cacheService.cachePlace(placeCache);
+
+        return  PlaceResponseDto
+                .builder()
+                .id(place.getId())
+                .placeAuthor(place.getPlaceAuthor())
+                .placePhone(place.getPlacePhone())
+                .placeStart(place.getPlaceStart())
+                .placeName(place.getPlaceName())
+                .placeClose(place.getPlaceClose())
+                .placeAddr(place.getPlaceAddr())
+                .reviewRate(place.getReviewRate())
+                .isTitle(place.getPlaceImageList().isEmpty() ? null : place.getPlaceImageList().get(0).getIsTitle())
+                .thumbFileImagePath(place.getPlaceImageList().isEmpty() ? null :  place.getPlaceImageList().get(0).getThumbFileImagePath())
+                .build();
     }
 
     /**

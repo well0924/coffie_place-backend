@@ -49,6 +49,9 @@ public class PlaceImageResponseDto {
     @ApiModelProperty(name = "메인 이미지 여부",dataType = "String")
     private String isTitle;
 
+    @ApiModelProperty(name = "가게 번호",dataType = "Integer")
+    private Integer placeId;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdTime;
 
@@ -68,5 +71,6 @@ public class PlaceImageResponseDto {
         this.storedName = placeImage.getStoredName();
         this.imgUploader = placeImage.getImgUploader();
         this.isTitle = placeImage.getIsTitle();
+        this.placeId = placeImage.getPlace().getId();
     }
 }

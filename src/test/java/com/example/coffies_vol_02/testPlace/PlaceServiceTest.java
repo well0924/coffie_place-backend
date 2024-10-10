@@ -106,7 +106,7 @@ public class PlaceServiceTest {
         filelist.add(placeImage);
         fileHandler.placeImagesUpload(PlaceFactory.placeImageRequestDto().getImages());
         placeRequestDto = PlaceFactory.placeRequestDto();
-        placeResponseDto = PlaceFactory.placeResponseDto();
+        placeResponseDto = PlaceFactory.placeResponseDto(place);
         placeImageRequestDto = PlaceFactory.placeImageRequestDto();
         placeImageResponseDto = PlaceFactory.placeImageResponseDto();
         detailefileList.add(placeImageResponseDto);
@@ -137,7 +137,7 @@ public class PlaceServiceTest {
 
     @Test
     @DisplayName("가게 조회-성공")
-    public void placeDetailTest(){
+    public void placeDetailTest() throws Exception {
         //given
         given(placeRepository.findById(anyInt())).willReturn(Optional.of(place));
         //when

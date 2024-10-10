@@ -147,9 +147,9 @@ public class FileHandler {
 
                     String thumbFileName = "file_"+System.nanoTime()+"_thumb."+ext;
 
-                    String fullPath = filePath+"coffieplace"+"\\"+"images"+"\\"+new_file_name;
-                    String localPath = imgPath+"coffieplace"+"/"+"images"+"/"+thumbFileName;
-                    String path = filePath+"coffieplace"+"\\"+"images"+"\\thumb\\"+thumbFileName;
+                    String fullPath = filePath+"coffieplace"+File.separator+File.separator+"images"+File.separator+File.separator+new_file_name;
+                    String localPath = imgPath+"coffieplace"+File.separator+"images"+File.separator+thumbFileName;
+                    String path = filePath+"coffieplace"+File.separator+File.separator+"images"+File.separator+File.separator+"thumb"+File.separator+File.separator+thumbFileName;
                     File file = new File(fullPath);
 
                     // 디렉터리가 존재하지 않을 경우
@@ -204,7 +204,7 @@ public class FileHandler {
 
         String defaultFolder = filePath+dto.getImgGroup()+File.separator+File.separator+dto.getFileType();
 
-        String originFilePath = defaultFolder+"\\"+dto.getOriginName();
+        String originFilePath = defaultFolder+File.separator+File.separator+dto.getOriginName();
 
         File file = new File(originFilePath);
 
@@ -229,7 +229,7 @@ public class FileHandler {
 
                 BufferedImage resizeImage = scaleImage.filter(originImage,null);
 
-                String fullPath = defaultFolder+File.separator+File.separator + "thumb"+File.separator+File.separator+ thumbFileName;
+                String fullPath = defaultFolder+File.separator+File.separator + "thumb" +File.separator+File.separator+ thumbFileName;
 
                 File out = new File(fullPath);
 
@@ -244,7 +244,7 @@ public class FileHandler {
                     resultCode = ImageIO.write(resizeImage, ext, out);
                     log.info(resultCode);
                     if(resultCode) {
-                        thumblocalPath = imgPath + dto.getImgGroup()+"/"+dto.getFileType()+"/thumb/"+out.getName();
+                        thumblocalPath = imgPath + dto.getImgGroup()+File.separator+dto.getFileType()+File.separator+"thumb"+File.separator+out.getName();
                         log.info(thumbFileName);
                         log.info(thumblocalPath);
                     }else {

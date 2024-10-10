@@ -92,7 +92,7 @@ public class PlaceApiController {
     })
     @GetMapping(path = "/{place-id}")
     public CommonResponse<PlaceResponseDto> findCafePlaceById(@Parameter(name = "place-id",description = "가게 생성번호",required = true,in = ParameterIn.PATH)
-                                                        @PathVariable("place-id") Integer placeId) {
+                                                        @PathVariable("place-id") Integer placeId) throws Exception {
 
         PlaceResponseDto placeDetail = placeService.findCafePlaceById(placeId);
 

@@ -24,4 +24,9 @@ public interface PlaceImageRepository extends JpaRepository<PlaceImage,Integer>,
     PlaceImage findByOriginName(String originName);
 
     void deleteByPlace(Place place);
+
+    boolean existsByPlaceAndStoredName(Place place, String StoredFileName);
+
+    PlaceImage findByPlaceAndStoredName(Place place, String StoredFileName);
+
 }

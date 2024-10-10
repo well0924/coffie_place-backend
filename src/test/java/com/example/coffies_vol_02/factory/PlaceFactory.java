@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceFactory {
+
     public static List<PlaceImage> placeImages = new ArrayList<>();
 
     public static Place place(){
@@ -57,19 +58,21 @@ public class PlaceFactory {
                 .build();
     }
 
-    public static PlaceResponseDto placeResponseDto(){
+    public static PlaceResponseDto placeResponseDto(Place place) {
+
         return new PlaceResponseDto(
-                place().getId(),
-                place().getReviewRate(),
-                place().getPlaceName(),
-                place().getPlaceAddr(),
-                place().getPlacePhone(),
-                place().getPlaceAuthor(),
-                place().getPlaceStart(),
-                place().getPlaceClose(),
+                place.getId(),
+                place.getReviewRate(),
+                place.getPlaceName(),
+                place.getPlaceAddr(),
+                place.getPlacePhone(),
+                place.getPlaceAuthor(),
+                place.getPlaceStart(),
+                place.getPlaceClose(),
                 place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getIsTitle(),
                 place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getImgPath(),
-                place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getThumbFileImagePath());
+                place().getPlaceImageList().isEmpty() ? null : place().getPlaceImageList().get(0).getThumbFileImagePath()
+        );
     }
 
     public static PlaceImageRequestDto placeImageRequestDto(){
