@@ -27,12 +27,6 @@ public interface BoardRepository extends JpaRepository<Board,Integer>,CustomBoar
     Page<Board> findByMember(Member member, Pageable pageable);
 
     /**
-     * 게시글 조회수 확인
-     **/
-    @Query(value = "select b.readCount from Board b where b.id = :id")
-    Integer ReadCount(@Param("id") Integer id);
-
-    /**
      * 게시글 조회수 증가.
      **/
     @Transactional
