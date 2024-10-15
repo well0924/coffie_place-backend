@@ -1,17 +1,15 @@
 package com.example.coffies_vol_02.config.crawling.dto;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash(value = "PLACE_IMAGE",timeToLive = 3600)
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceImageCache {
-    @Id
+public class PlaceImageCache implements Serializable {
     private String imageId; // 이미지 ID
     private String placeId; // 가게 ID
     private String imageUrl; // 이미지 URL

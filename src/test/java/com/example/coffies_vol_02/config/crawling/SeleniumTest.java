@@ -1,6 +1,5 @@
 package com.example.coffies_vol_02.config.crawling;
 
-import com.example.coffies_vol_02.config.util.CrawlingService;
 import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;

@@ -99,7 +99,7 @@ public class PlaceApiControllerTest {
         placeImageRequestDto = PlaceFactory.placeImageRequestDto();
         placeImageResponseDto = PlaceFactory.placeImageResponseDto();
         placeRequestDto = PlaceFactory.placeRequestDto();
-        placeResponseDto = PlaceFactory.placeResponseDto();
+        placeResponseDto = PlaceFactory.placeResponseDto(place);
         customUserDetails = (CustomUserDetails)testCustomUserDetailsService.loadUserByUsername(member.getUserId());
     }
 

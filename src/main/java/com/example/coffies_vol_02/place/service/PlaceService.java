@@ -116,7 +116,6 @@ public class PlaceService {
                 .placeAuthor(place.getPlaceAuthor())
                 .build();
 
-        List<PlaceImageResponseDto> imageList = placeImageService.placeImageResponseDtoList(placeId);
         // 캐시에 가게 정보 저장
         cacheService.cachePlace(placeCache);
 

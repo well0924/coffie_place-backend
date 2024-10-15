@@ -45,18 +45,19 @@ public class CrawlingCacheService {
                 .builder()
                 .imageId(placeImage.getId().toString())
                 .placeId(placeImage.getPlace().getId().toString()) // Place ID
-                .imageUrl(placeImage.getThumbFileImagePath()) // 이미지 URL
+                .thumbFileImagePath(placeImage.getThumbFileImagePath())
+                .imageUrl(placeImage.getImgPath()) // 이미지 URL
                 .fileGroupId(placeImage.getFileGroupId())
-                .fileType(placeImage.getFileType())
-                .imgGroup(placeImage.getImgGroup())
+                .fileType("images")
+                .imgGroup("coffieplace")
                 .thumbFilePath(placeImage.getThumbFilePath())
                 .thumbFileImagePath(placeImage.getThumbFileImagePath())
                 .storedName(placeImage.getStoredName())
                 .originName(placeImage.getOriginName())
-                .imgUploader(placeImage.getImgUploader())
+                .imgUploader("well4149")
                 .isTitle(placeImage.getIsTitle())
                 .build();
-
+        log.info(imageCache);
         // 캐시 저장 (직렬화하여 문자열로 저장)
         try {
             String imageCacheJson = new ObjectMapper().writeValueAsString(imageCache);

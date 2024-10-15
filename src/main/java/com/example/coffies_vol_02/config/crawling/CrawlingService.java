@@ -1,53 +1,33 @@
 package com.example.coffies_vol_02.config.crawling;
 
-import com.example.coffies_vol_02.config.crawling.dto.PlaceCache;
-import com.example.coffies_vol_02.config.util.FileHandler;
-import com.example.coffies_vol_02.place.domain.Place;
-import com.example.coffies_vol_02.place.domain.PlaceImage;
-import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
-import com.example.coffies_vol_02.place.repository.PlaceImageRepository;
-import com.example.coffies_vol_02.place.repository.PlaceRepository;
-
-import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
 import java.time.Duration;
 import java.util.*;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class CrawlingService {
 
-    private final CrawlingCacheService crawlingCacheService;
+    private final CrawlingPlaceService crawlingPlaceService;
 
-    private final PlaceRepository placeRepository;
+    private final CrawlingStoreService crawlingStoreService;
 
-    private final PlaceImageRepository placeImageRepository;
-
-    private final FileHandler fileHandler;
-    
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
 
     public static String WEB_DRIVER_PATH = "C:\\Users\\well4\\OneDrive\\바탕 화면\\chromedriver-win32 (1)\\chromedriver-win32\\chromedriver.exe";
@@ -67,6 +47,7 @@ public class CrawlingService {
     @Scheduled(cron = "0 0 0 1 * ?")
     public void runCrawlingAndSaveToCSV() {
         WebDriver driver = null;
+
         try {
             System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
             ChromeOptions options = new ChromeOptions();
@@ -123,7 +104,7 @@ public class CrawlingService {
         boolean hasNextPage = true;
         //csv 파일 초기화
         initializeCSV();
-        
+
         while (hasNextPage) {
             for (int pageNo = 1; pageNo <= 5; pageNo++) {
                 int attempt = 0;
@@ -131,132 +112,22 @@ public class CrawlingService {
 
                 while (!success & attempt < MAX_ATTEMPTS) {
                     try {
-                        String xPath = "//*[@id=\"info.search.page.no" + pageNo + "\"]";
-                        WebElement pageElement = new WebDriverWait(driver, Duration.ofSeconds(30L)).until(
-                                ExpectedConditions.elementToBeClickable(By.xpath(xPath)));
-
-                        pageElement.sendKeys(Keys.ENTER);
-
-                        Thread.sleep(2000);
-
-                        List<WebElement> storeList = driver.findElements(By.cssSelector(".PlaceItem"));
-
-                        String originalWindow = driver.getWindowHandle();
-
-                        for (WebElement store : storeList) {
-                            try {
-                                WebElement detailButton = store.findElement(By.cssSelector(".moreview"));
-
-                                String detailUrl = detailButton.getAttribute("href");
-
-                                ((JavascriptExecutor) driver).executeScript("window.open(arguments[0]);", detailUrl);
-
-                                Thread.sleep(2000);
-
-                                Set<String> allWindows = driver.getWindowHandles();
-
-                                for (String window : allWindows) {
-                                    if (!window.equals(originalWindow)) {
-                                        driver.switchTo().window(window);
-                                        break;
-                                    }
-                                }
-
-                                List<String> storeInfo = new ArrayList<>();
-
-                                storeInfo.add(String.valueOf(storeNumber++));
-
-                                String storeName = driver.getTitle().trim().replace(" | 카카오맵", "");
-
-                                storeInfo.add(storeName);
-
-                                try {
-                                    String storeAddress = driver.findElement(By.cssSelector(".txt_address")).getText();
-                                    storeInfo.add(storeAddress);
-                                } catch (Exception e) {
-                                    storeInfo.add("");
-                                }
-
-                                try {
-                                    StringBuilder storeHours = new StringBuilder();
-
-                                    List<WebElement> hoursElements = driver.findElements(By.cssSelector(".list_operation > li"));
-
-                                    for (WebElement element : hoursElements) {
-                                        storeHours.append(element.getText()).append(" ");
-                                    }
-
-                                    String[] hours = storeHours.toString().trim().split("~");
-                                    //가게 운영 시작시간
-                                    String storeStartTime = hours.length > 0 ? hours[0].trim() : "";
-                                    //가게 운영 종료시간
-                                    String storeEndTime = hours.length > 1 ? hours[1].trim() : "";
-                                    //시간 저장
-                                    storeInfo.add(extractTimeFromHours(storeStartTime));
-                                    storeInfo.add(extractTimeFromHours(storeEndTime));
-                                } catch (Exception e) {
-                                    storeInfo.add("");
-                                    storeInfo.add("");
-                                }
-
-                                try {
-                                    //가게 전화번호
-                                    String storePhone = driver.findElement(By.cssSelector(".txt_contact")).getText();
-                                    //가게 전화번호 저장
-                                    storeInfo.add(storePhone);
-                                } catch (Exception e) {
-                                    storeInfo.add("");
-                                }
-
-                                try {
-                                    WebElement mainImageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
-                                            .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='0']")));
-                                    //메인 이미지 추출 & 저장
-                                    String mainImageUrl = extractUrlFromStyle(mainImageElement.getAttribute("style"));
-                                    storeInfo.add(mainImageUrl);
-                                } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지를 사용
-                                    for (int i = 0; i < 4; i++) {
-                                        storeInfo.add(ensureProtocol(DEFAULT_IMAGE_PATH));
-                                    }
-                                }
-                                //나머지 이미지 3장
-                                for (int i = 1; i <= 3; i++) {
-                                    try {
-                                        WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
-                                                .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
-                                        //나머지 이미지 추출 & 저장
-                                        String imageUrl = extractUrlFromStyle(imageElement.getAttribute("style"));
-                                        storeInfo.add(imageUrl);
-                                    } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지 사용
-                                        storeInfo.add(ensureProtocol(DEFAULT_IMAGE_PATH));
-                                    }
-                                }
-                                //csv 파일 작성
-                                writeToCSV(storeInfo);
-                                driver.close();
-
-                                driver.switchTo().window(originalWindow);
-
-                                Thread.sleep(4000);
-
-                                success = true;
-                            } catch (Exception e) {
-                                driver.navigate().back();
-                                Thread.sleep(4000);
-                            }
-                        }
+                        clickAndScrap(driver, pageNo);
+                        success = true; // 성공적으로 클릭 및 스크랩이 완료되면 true로 설정
                     } catch (Exception e) {
                         attempt++;
+                        System.out.println("Attempt " + attempt + " failed for page: " + pageNo);
+                        if (attempt >= MAX_ATTEMPTS) {
+                            System.out.println("Max attempts reached for page: " + pageNo);
+                            hasNextPage = false;
+                            break;
+                        }
+                        TimeUnit.SECONDS.sleep(2000); // 재시도 간 대기 시간
                     }
-                }
-                if (attempt >= MAX_ATTEMPTS) {
-                    hasNextPage = false;
-                    break;
                 }
             }
 
             try {
-
                 WebElement nextPageBtn = driver.findElement(By.id("info.search.page.next"));
 
                 if (nextPageBtn.isDisplayed() && nextPageBtn.isEnabled()) {
@@ -271,8 +142,151 @@ public class CrawlingService {
                 hasNextPage = false;
             }
         }
-        //크롤링 후 디비에 저장
-        processCsvAndSaveToDatabase("store_info.csv");
+        //크롤링+csv파일 작성후 디비에 저장
+        crawlingStoreService.processCsvAndSaveToDatabase("store_info.csv");
+    }
+
+    /**
+     * 특정 페이지의 가게 정보를 수집하고 저장하는 메서드.
+     * @param driver 셀레니움 WebDriver
+     * @param pageNo 가게 정보가 있는 페이지 번호
+     * @throws InterruptedException 스레드 인터럽트 예외
+     * 주어진 메서드가 TimeoutException 또는 NoSuchElementException 발생 시 재시도하도록 설정합니다.
+     * 최대 재시도 횟수는 MAX_ATTEMPTS로 설정되며,
+     * 각 재시도 사이에 2000밀리초의 대기 시간을 갖습니다.
+     */
+    @Retryable(value = {TimeoutException.class, NoSuchElementException.class},
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = 2000))
+    private void clickAndScrap(WebDriver driver, int pageNo) throws InterruptedException {
+        String xPath = "//*[@id=\"info.search.page.no" + pageNo + "\"]";
+        WebElement pageElement = new WebDriverWait(driver, Duration.ofSeconds(30L))
+                .until(ExpectedConditions.elementToBeClickable(By.xpath(xPath)));
+
+        pageElement.sendKeys(Keys.ENTER);
+        Thread.sleep(2000);
+
+        List<WebElement> storeList = driver.findElements(By.cssSelector(".PlaceItem"));
+        String originalWindow = driver.getWindowHandle();
+
+        for(WebElement store  : storeList) {
+            scrapeStoreInfo(driver,store,originalWindow);
+        }
+    }
+
+    /**
+     * 가게 정보를 수집하는 메서드.
+     * @param driver 셀레니움 WebDriver
+     * @param store 가게 정보를 담고 있는 WebElement
+     * @param originalWindow 원래 창의 핸들
+     * @throws InterruptedException 스레드 인터럽트 예외
+     * 주어진 메서드가 TimeoutException 또는 NoSuchElementException 발생 시 재시도하도록 설정합니다.
+     * 최대 재시도 횟수는 MAX_ATTEMPTS로 설정되며,
+     * 각 재시도 사이에 2000밀리초의 대기 시간을 갖습니다.
+     */
+    @Retryable(value = {TimeoutException.class, NoSuchElementException.class},
+            maxAttempts = MAX_ATTEMPTS,
+            backoff = @Backoff(delay = 2000))
+    private void scrapeStoreInfo(WebDriver driver, WebElement store, String originalWindow) throws InterruptedException {
+        try {
+            WebElement detailButton = store.findElement(By.cssSelector(".moreview"));
+
+            String detailUrl = detailButton.getAttribute("href");
+
+            ((JavascriptExecutor) driver).executeScript("window.open(arguments[0]);", detailUrl);
+
+            Thread.sleep(2000);
+
+            Set<String> allWindows = driver.getWindowHandles();
+
+            for (String window : allWindows) {
+                if (!window.equals(originalWindow)) {
+                    driver.switchTo().window(window);
+                    break;
+                }
+            }
+
+            List<String> storeInfo = new ArrayList<>();
+
+            storeInfo.add(String.valueOf(storeNumber++));
+
+            String storeName = driver.getTitle().trim().replace(" | 카카오맵", "");
+
+            storeInfo.add(storeName);
+
+            try {
+                String storeAddress = driver.findElement(By.cssSelector(".txt_address")).getText();
+                storeInfo.add(storeAddress);
+            } catch (Exception e) {
+                storeInfo.add("");
+            }
+
+            try {
+                StringBuilder storeHours = new StringBuilder();
+
+                List<WebElement> hoursElements = driver.findElements(By.cssSelector(".list_operation > li"));
+
+                for (WebElement element : hoursElements) {
+                    storeHours.append(element.getText()).append(" ");
+                }
+
+                String[] hours = storeHours.toString().trim().split("~");
+                //가게 운영 시작시간
+                String storeStartTime = hours.length > 0 ? hours[0].trim() : "";
+                //가게 운영 종료시간
+                String storeEndTime = hours.length > 1 ? hours[1].trim() : "";
+                //시간 저장
+                storeInfo.add(crawlingPlaceService.extractTimeFromHours(storeStartTime));
+                storeInfo.add(crawlingPlaceService.extractTimeFromHours(storeEndTime));
+            } catch (Exception e) {
+                storeInfo.add("");
+                storeInfo.add("");
+            }
+
+            try {
+                //가게 전화번호
+                String storePhone = driver.findElement(By.cssSelector(".txt_contact")).getText();
+                //가게 전화번호 저장
+                storeInfo.add(storePhone);
+            } catch (Exception e) {
+                storeInfo.add("");
+            }
+
+            try {
+                WebElement mainImageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='0']")));
+                //메인 이미지 추출 & 저장
+                String mainImageUrl = crawlingPlaceService.extractUrlFromStyle(mainImageElement.getAttribute("style"));
+                storeInfo.add(mainImageUrl);
+            } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지를 사용
+                for (int i = 0; i < 4; i++) {
+                    storeInfo.add(crawlingPlaceService.ensureProtocol(DEFAULT_IMAGE_PATH));
+                }
+            }
+            //나머지 이미지 3장
+            for (int i = 1; i <= 3; i++) {
+                try {
+                    WebElement imageElement = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME))
+                            .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".link_photo[data-pidx='" + i + "']")));
+                    //나머지 이미지 추출 & 저장
+                    String imageUrl = crawlingPlaceService.extractUrlFromStyle(imageElement.getAttribute("style"));
+                    storeInfo.add(imageUrl);
+                } catch (TimeoutException e) {//이미지가 없는 경우 기본 이미지 사용
+                    storeInfo.add(crawlingPlaceService.ensureProtocol(DEFAULT_IMAGE_PATH));
+                }
+            }
+            //csv 파일 작성
+            writeToCSV(storeInfo);
+            driver.close();
+
+            driver.switchTo().window(originalWindow);
+
+            Thread.sleep(4000);
+
+        } catch (Exception e) {
+            driver.navigate().back();
+            Thread.sleep(4000);
+        }
     }
 
     /**
@@ -281,6 +295,16 @@ public class CrawlingService {
      **/
     private void writeToCSV(List<String> storeInfo) throws IOException {
         String filePath = "store_info.csv";
+
+        // 5개의 비이미지 정보(번호, 가게이름, 가게주소, 가게시작시간, 가게종료시간) 뒤의 이미지를 4개로 제한 (메인이미지 1개, 서브이미지 3개)
+        final int nonImageInfoCount = 5;
+        final int maxImageCount = 4; // 메인이미지 1개, 서브이미지 3개
+        int totalImageCount = storeInfo.size() - nonImageInfoCount;
+
+        // 이미지가 4개 이상인 경우 초과된 이미지를 제거
+        if (totalImageCount > maxImageCount) {
+            storeInfo = new ArrayList<>(storeInfo.subList(0, nonImageInfoCount + maxImageCount));
+        }
 
         try (CSVWriter writer = new CSVWriter(new FileWriter(filePath, true))) {
             String[] record = storeInfo.toArray(new String[0]);
@@ -304,373 +328,6 @@ public class CrawlingService {
         } catch (IOException e) {
             log.error("CSV 파일 초기화 실패: {}", e.getMessage());
         }
-    }
-
-    /**
-     * csv파일을 읽고 디비에 저장하기.
-     * @param csvFilePath csv 파일 경로
-     **/
-    @Transactional
-    public void processCsvAndSaveToDatabase(String csvFilePath) {
-
-        try (CSVReader csvReader = new CSVReader(new FileReader(csvFilePath))) {
-            String[] values;
-
-            csvReader.readNext(); // 헤더 스킵
-
-            while ((values = csvReader.readNext()) != null) {
-                //csv파일을 읽으면서 디비 저장
-                saveOrUpdatePlaceAndImages(values);
-            }
-        } catch (IOException e) {
-            log.error("Error occurred while reading CSV file: {}", e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * 디비에 저장 (가게를 확인후 있으면 수정, 없으면 추가)
-     * Redis를 사용해서 캐싱을 사용(가게정보는 PLACE:가게번호 , 가게이미지URL은 PLACEIMAGE:가게번호 로 redis에 저장)
-     * @param csvLine csv파일에 구분항목
-     **/
-    @Transactional
-    public void saveOrUpdatePlaceAndImages(String[] csvLine) throws Exception {
-        //가게 번호,이름,이미지 url
-        String placeName = csvLine[1];
-        // 가게 여부 확인
-        Place existingPlace = placeRepository.findByPlaceName(placeName);
-        Place place;
-        //가게가 있는데 수정할 사항이  있으면 수정
-        if (existingPlace != null) {
-            place = existingPlace;
-            PlaceRequestDto placeRequestDto = PlaceRequestDto.fromCsv(csvLine);
-            place.placeUpdate(placeRequestDto);
-        } else { //없는 경우에는 저장
-            place = createPlace(csvLine);
-            placeRepository.save(place);
-        }
-        //가게 정보를 캐싱
-        PlaceCache placeCache = buildPlaceCache(place);
-        log.info(placeCache);
-        //캐시 저장
-        crawlingCacheService.cachePlace(placeCache);
-        //이미지 생성 및 리사이징
-        List<PlaceImage> placeImages = createPlaceImages(csvLine,place);
-        //이미지 저장
-        for (PlaceImage placeImage : placeImages) {
-            savePlaceImage(place,placeImage);
-        }
-
-    }
-
-    private PlaceCache buildPlaceCache(Place place) {
-        return PlaceCache.builder()
-                .placeId(place.getId().toString())
-                .placeName(place.getPlaceName())
-                .placeAddr(place.getPlaceAddr())
-                .placeStart(place.getPlaceStart())
-                .placeClose(place.getPlaceClose())
-                .placePhone(place.getPlacePhone())
-                .placeAuthor(place.getPlaceAuthor())
-                .build();
-    }
-
-    private void savePlaceImage(Place place, PlaceImage placeImage) {
-        // 가게와 이미지의 조합을 검사하여 중복 여부 확인
-        String storedNameInDb = placeImage.getStoredName();
-
-        // ?fname= 뒤에 있는 부분만 비교하도록 처리
-        String dbFnamePart = extractFnamePart(storedNameInDb);
-
-        boolean imageExists = placeImageRepository.existsByPlaceAndStoredName(place, dbFnamePart);
-        log.info("thumbnailImageDuplicated:::" + imageExists);
-
-        if (!imageExists) {
-            placeImage.setPlace(place);
-            placeImageRepository.save(placeImage);
-            crawlingCacheService.cacheImage(placeImage);
-            log.info("Cached image: {}", placeImage);
-        } else {
-            log.warn("Duplicate image found for place {}, not saving: {}", place.getId(), placeImage.getThumbFileImagePath());
-        }
-    }
-
-    private String extractFnamePart(String url) {
-        int fnameIndex = url.indexOf("?fname=");
-        if (fnameIndex != -1) {
-            return url.substring(fnameIndex);
-        }
-        return url; // ?fname=이 없으면 전체 URL 반환
-    }
-
-    /**
-     * 이미지 생성(+리사이징)
-     * @param csvLine csv파일에 이미지 관련 열(메인이미지 URL,서브이미지 URL)
-     * @return List<PlaceImage> 가게이미지들
-     **/
-    private List<PlaceImage> createPlaceImages(String[] csvLine,Place place) throws Exception {
-        List<PlaceImage> placeImages = new ArrayList<>();
-        List<PlaceImage> imagesToSave = new ArrayList<>();
-
-        // 메인이미지 URL 처리
-        String mainImageUrl = ensureProtocol(csvLine[6]);
-        log.info("mainUrl::"+mainImageUrl);
-
-        //URL을 MultipartFile로 전환
-        List<MultipartFile> mainImages = downloadImagesFromUrls(Collections.singletonList(mainImageUrl));
-        log.info("이미지처리::"+mainImages);
-
-        if(!mainImages.isEmpty()){
-            // 중복 여부 확인
-            if (!placeImageRepository.existsByPlaceAndStoredName(place, extractFnamePart(mainImageUrl))) {
-                // 이미지 업로드
-                List<PlaceImage> mainPlaceImages = fileHandler.placeImagesUpload(mainImages);
-                log.info("이미지 업로드??:" + mainPlaceImages);
-
-                // 리사이징 적용 (메인이미지: 360x360)
-                for (PlaceImage image : mainPlaceImages) {
-                    image.setIsTitle("Y");
-                    String resizedImagePath = fileHandler.ResizeImage(image, 360, 360);
-                    log.info("resizing:::" + resizedImagePath);
-                    image.setThumbFileImagePath(resizedImagePath);
-
-                    imagesToSave.add(image); // 중복되지 않으면 새로운 리스트에 추가
-                }
-            } else {
-                log.warn("Main image already exists in the database: {}", mainImageUrl);
-                // 중복된 이미지를 캐싱
-                PlaceImage existingMainImage = placeImageRepository.findByPlaceAndStoredName(place, extractFnamePart(mainImageUrl));
-                if (existingMainImage != null) {
-                    crawlingCacheService.cacheImage(existingMainImage);
-                    log.info("Cached existing main image: {}", existingMainImage);
-                }
-            }
-        } else {
-            log.warn("Main image URL is invalid: {}", mainImageUrl);
-        }
-
-        //서브이미지 URL 처리
-        List<String> subImageUrls = Arrays.asList(ensureProtocol(csvLine[7]), ensureProtocol(csvLine[8]), ensureProtocol(csvLine[9]));
-        log.info("subimages::"+subImageUrls);
-
-        for (int i = 0; i < subImageUrls.size(); i++) {
-            String subImageUrl = subImageUrls.get(i);
-            //서브이미지 URL에서 MultipartFile로 전환
-            List<MultipartFile> subImages = downloadImagesFromUrls(Collections.singletonList(subImageUrl));
-
-            if(!subImages.isEmpty()) {
-                // 중복 여부 확인
-                if (!placeImageRepository.existsByPlaceAndStoredName(place, extractFnamePart(subImageUrl))) {
-                    // 이미지 업로드
-                    List<PlaceImage> subPlaceImages = fileHandler.placeImagesUpload(subImages);
-                    log.info("subImages" + i + "::::" + subPlaceImages);
-
-                    // 리사이징 적용 (서브이미지: 120x120)
-                    for (PlaceImage image : subPlaceImages) {
-                        String resizedImagePath = fileHandler.ResizeImage(image, 120, 120);
-                        log.info("resizing:::" + resizedImagePath);
-                        image.setThumbFileImagePath(resizedImagePath);
-
-                        imagesToSave.add(image); // 중복되지 않으면 새로운 리스트에 추가
-                    }
-                } else {
-                    log.warn("Sub image already exists in the database: {}", subImageUrl);
-                    // 중복된 서브이미지를 캐싱
-                    PlaceImage existingSubImage = placeImageRepository.findByPlaceAndStoredName(place, extractFnamePart(subImageUrl));
-                    if (existingSubImage != null) {
-                        crawlingCacheService.cacheImage(existingSubImage);
-                        log.info("Cached existing sub image: {}", existingSubImage);
-                    }
-                }
-            }else {
-                log.warn("Sub image URL is invalid: {}", mainImageUrl);
-            }
-        }
-        // 최종적으로 중복되지 않는 이미지만 placeImages에 추가
-        placeImages.addAll(imagesToSave);
-        return placeImages;
-    }
-
-    /**
-     * 이미지 URL을 MultipartFile로 전환
-     * @param urls 이미지 URL (List)
-     * @return images (List<MultipartFile>)
-     **/
-    private List<MultipartFile> downloadImagesFromUrls(List<String> urls) throws Exception {
-        List<MultipartFile> images = new ArrayList<>();
-
-        for (String urlString : urls) {
-
-            URL url;
-
-            try{
-
-                url = new URL(urlString);
-
-                if (url.getProtocol().equals("file")) {
-                    // 파일 URL 처리
-                    File file = new File(url.toURI());
-                    MultipartFile multipartFile = convertFileToMultipartFile(file);
-                    images.add(multipartFile);
-                } else {
-                    // HTTP URL 처리
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setDoOutput(true);
-                    connection.connect();
-
-                    try (InputStream input = connection.getInputStream();
-                         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-                        byte[] buffer = new byte[4096];
-                        int n;
-                        while ((n = input.read(buffer)) != -1) {
-                            output.write(buffer, 0, n);
-                        }
-                        MultipartFile multipartFile = convertByteArrayToMultipartFile(output.toByteArray(), url.getFile(), connection.getContentType());
-                        images.add(multipartFile);
-                    }
-                }
-            }catch (Exception e) {
-                // 오류 발생 시 기본 이미지 추가
-                File defaultImageFile = new File("C:/spring_work/workspace/CoffiesVol.02/default_image.png");
-                MultipartFile defaultMultipartFile = convertFileToMultipartFile(defaultImageFile);
-                images.add(defaultMultipartFile);
-            }
-        }
-
-        return images;
-    }
-
-    /**
-     * File을 MultipartFile로 변환
-     * @param file 파일
-     * @return MultipartFile
-     **/
-    public static MultipartFile convertFileToMultipartFile(File file) throws IOException {
-
-        DiskFileItem fileItem = new DiskFileItem(
-                "file",
-                Files.probeContentType(file.toPath()),
-                false,
-                file.getName(),
-                (int) file.length(),
-                file.getParentFile()
-        );
-
-        try (FileInputStream input = new FileInputStream(file)) {
-            IOUtils.copy(input, fileItem.getOutputStream());
-        }
-
-        return new CommonsMultipartFile(fileItem);
-    }
-
-    /**
-     * ByteArray를 MultipartFile로 변환
-     * @param bytes ㅇ
-     * @param contentType 컨텐츠 타입
-     * @param fileName 파일명
-     * @return MultipartFile
-     **/
-    public static MultipartFile convertByteArrayToMultipartFile(byte[] bytes, String fileName, String contentType) throws IOException {
-
-        DiskFileItem fileItem = new DiskFileItem(
-                "file",
-                contentType,
-                false,
-                fileName,
-                bytes.length,
-                null
-        );
-
-        try (ByteArrayInputStream input = new ByteArrayInputStream(bytes)) {
-            IOUtils.copy(input, fileItem.getOutputStream());
-        }
-
-        return new CommonsMultipartFile(fileItem);
-    }
-
-    /**
-     * csv 파일에 있는 이미지 URL 추출
-     * @param url 이미지 URL
-     **/
-    private String ensureProtocol(String url) {
-        // 경로 구분자를 통일
-        String normalizedUrl = url.replace("\\", "/");
-        String normalizedDefaultImagePath = DEFAULT_IMAGE_PATH.replace("\\", "/");
-
-        log.info("Normalized URL: " + normalizedUrl);
-        log.info("Normalized Default Image Path: " + normalizedDefaultImagePath);
-
-        // 기본 이미지 경로를 파일 URL로 변환
-        if (normalizedUrl.equalsIgnoreCase(normalizedDefaultImagePath)) {
-            log.info("기본 이미지 경로 사용.");
-            return "file:///" + normalizedDefaultImagePath.replace(" ", "%20");
-        }
-
-        // URL이 //로 시작하면 http://를 추가
-        if (normalizedUrl.startsWith("//")) {
-            return "http:" + normalizedUrl;
-        }
-
-        // HTTP 프로토콜이 없는 경우 추가 (기본 이미지가 아닌 경우)
-        if (!normalizedUrl.startsWith("http://") &&
-                !normalizedUrl.startsWith("https://") &&
-                !normalizedUrl.startsWith("file:///")) {
-            log.info("HTTP 프로토콜이 추가되었습니다.");
-            return "http://" + normalizedUrl;
-        }
-
-        // URL이 이미 http:// 또는 https://로 시작하는 경우 그대로 반환
-        return normalizedUrl;
-    }
-
-    /**
-     * CSS 스타일 문자열에서 URL을 추출
-     * @param style 스타일 문자열
-     **/
-    private String extractUrlFromStyle(String style) {
-        int start = style.indexOf("url(") + 4;
-        int end = style.indexOf(")", start);
-
-        if (start > 3 && end > start) {
-            String extractedUrl = style.substring(start, end).replace("\"", "").trim();
-            return extractedUrl;
-        } else {
-            return ensureProtocol(DEFAULT_IMAGE_PATH);  // 기본 이미지 경로 사용
-        }
-    }
-
-    /**
-     * 가게 시간 추출(정규식을 사용)
-     * @param hours 가게 시간
-     **/
-    private String extractTimeFromHours(String hours) {
-        Pattern pattern = Pattern.compile("\\d{1,2}:\\d{2}");
-        Matcher matcher = pattern.matcher(hours);
-
-        if (matcher.find()) {
-            return matcher.group();
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * 가게저장 dto
-     * @param csvLine CSV파일의 각 열
-     **/
-    private Place createPlace(String[] csvLine) {
-        List<PlaceImage> placeImages = new ArrayList<>();
-        return Place.builder()
-                .placeName(csvLine[1])
-                .placeAddr(csvLine[2])
-                .placeStart(csvLine[3])
-                .placeClose(csvLine[4])
-                .placePhone(csvLine[5])
-                .placeAuthor("well4149")
-                .placeImages(placeImages)
-                .build();
     }
 
 }

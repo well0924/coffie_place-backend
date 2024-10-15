@@ -86,7 +86,7 @@ public class PlaceControllerTest {
         place = PlaceFactory.place();
         placeImage = PlaceFactory.placeImage();
         placeImages.add(placeImage);
-        placeResponseDto = PlaceFactory.placeResponseDto();
+        placeResponseDto = PlaceFactory.placeResponseDto(place);
         customUserDetails = (CustomUserDetails) testCustomUserDetailsService.loadUserByUsername(MemberFactory.memberDto().getUserId());
     }
 

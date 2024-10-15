@@ -11,11 +11,14 @@ import java.io.Serializable;
 @Entity
 @Getter
 @Setter
-@Proxy(lazy = false)
+//@Proxy(lazy = false)
 @Table(name = "tbl_place_imge")
 @NoArgsConstructor
-@AttributeOverrides({@AttributeOverride(name = "id",column = @Column(name = "img_id"))})
 public class PlaceImage extends BaseTime implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     private String fileGroupId;
 
@@ -66,13 +69,14 @@ public class PlaceImage extends BaseTime implements Serializable {
         this.storedName = storedName;
         this.imgUploader = imgUploader;
         this.isTitle = isTitle;
+        setPlace(place);
     }
 
     //가게 이미지 추가
     public void setPlace(Place place){
         this.place = place;
-        if(!place.getPlaceImageList().contains(this)){
-            place.getPlaceImageList().add(this);
+        if (place != null && !place.getPlaceImageList().contains(this)) {
+            place.getPlaceImageList().add(this);  // Place 객체에 이미지 추가
         }
     }
 }
