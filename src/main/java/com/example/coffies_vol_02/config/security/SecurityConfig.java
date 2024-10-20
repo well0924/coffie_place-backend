@@ -100,11 +100,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+        //api 분기점 설정
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/api/member/login","/api/member/logout","/api/member/").permitAll()
             .antMatchers("/**").permitAll()
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .anyRequest()
@@ -112,27 +111,13 @@ public class SecurityConfig {
         //세션 설정
         http.sessionManagement(session -> session.sessionFixation(SessionManagementConfigurer
                         .SessionFixationConfigurer::changeSessionId)
-                .maximumSessions(1)
+                .maximumSessions(1)//세션 최대수
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/")
                 .sessionRegistry(sessionRegistry())
                 .expiredSessionStrategy(securitySessionExpiredStrategy))
-        .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(new AuthenticationFilter(loginSuccessHandler(),loginFailHandler()), UsernamePasswordAuthenticationFilter.class);
 
-        http.formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer
-                    .usernameParameter("userId")
-                    .passwordParameter("password")
-                    .loginProcessingUrl("/api/member/login")
-                    .successHandler(loginSuccessHandler())
-                    .failureHandler(loginFailHandler()));
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .rememberMe(AbstractHttpConfigurer::disable)
-            .logout(logout ->logout
-                    .logoutUrl("/api/member/logout")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
-                    .logoutSuccessUrl("/page/main/main"));
         return http.build();
     }
 

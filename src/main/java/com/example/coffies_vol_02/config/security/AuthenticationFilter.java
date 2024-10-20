@@ -1,6 +1,8 @@
 package com.example.coffies_vol_02.config.security;
 
 
+import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
+import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
 import com.example.coffies_vol_02.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -26,6 +28,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final static String LOGIN_URL = "/api/member/login";
 
+    private final LoginSuccessHandler loginSuccessHandler;
+
+    private final LoginFailHandler loginFailHandler;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -43,9 +49,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     log.info("filter member data:::"+user);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     //인증 성공시 successHandler 작동
+                    loginSuccessHandler.onAuthenticationSuccess(request,response,authentication);
+                } else {
+                    throw new AuthenticationException("User is null") {};
                 }
             } catch (AuthenticationException e) {
                 e.getMessage();
+                //인증 실패시 loginFailHandler 작동
+                loginFailHandler.onAuthenticationFailure(request,response,e);
                 return;
             }
         }

@@ -25,9 +25,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+import org.springframework.session.Session;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -49,6 +51,8 @@ public class MemberApiController {
 
     private final RedisService redisService;
 
+    private final FindByIndexNameSessionRepository<? extends Session> sessionRepository;
+
     @Operation(summary = "회원 로그인 api", description = "redis session을 활용해서 로그인")
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
     public CommonResponse<?>loginProc(@RequestBody LoginDto loginDto, HttpSession httpSession){
@@ -65,6 +69,22 @@ public class MemberApiController {
         authService.logout(httpSession);
         httpSession.invalidate();
         return new CommonResponse<>(HttpStatus.OK,"log-out");
+    }
+
+    @Operation(summary = "현재 회원 조회", description = "redis 로그인을 통해서 현재 유저의 정보를 보여주는 api")
+    @GetMapping("/current-user")
+    public CommonResponse<?>loginState(@RequestParam(value = "sessionId") String sessionId) {
+        // 세션 ID로 세션 조회
+        Session session = sessionRepository.findById(sessionId);
+
+        // 세션이 없거나 세션에 유저 정보가 없을 경우
+        if (session == null || session.getAttribute("member") == null) {
+            return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인된 사용자가 없습니다.");
+        }
+
+        Object member = session.getAttribute("member");
+
+        return new CommonResponse<>(HttpStatus.OK,member);
     }
 
     @Operation(summary = "회원 목록 api", description = "회원전체 목록을 출력한다.")
