@@ -278,7 +278,7 @@ public class RedisService {
             }
             return a.getId().compareTo(b.getId());
         });
-
+        log.info("storeList:::::"+storeList);
         return storeList
                 .stream()
                 .map(PlaceResponseDto::new)

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -84,11 +85,14 @@ public class BoardApiController {
     })
     @Secured({"ROLE_ADMIN","ROLE_USER"})
     @GetMapping(path = "/{board-id}")
-    public CommonResponse<?>findFreeBoardById(@Parameter(description = "게시글 단일조회에 필요한 게시글 번호",required = true,in = ParameterIn.PATH)
-                                      @PathVariable("board-id") Integer boardId){
+    public CommonResponse<?>findFreeBoardById(
+                                        HttpSession session,
+                                        @Parameter(description = "게시글 단일조회에 필요한 게시글 번호",required = true,in = ParameterIn.PATH)
+                                        @PathVariable("board-id") Integer boardId){
 
         BoardResponse detail = boardService.findFreeBoard(boardId);
-
+        Object member = session.getAttribute("member");
+        log.info("session member:::"+member);
         if(detail == null){
             throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND);
         }

@@ -30,16 +30,16 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private RedirectStrategy redirectStratgy = new DefaultRedirectStrategy();
 
-    private static final String DEFAULT_URL= "/page/main/main";
+    private static final String DEFAULT_URL= "/";
 
-    private static final String ADMIN_URL="/page/admin/adminlist";
+    private static final String ADMIN_URL="/admin/";
 
     @Autowired
     private MemberService memberService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-
+        log.info("success Handler!!");
         response.setStatus(HttpServletResponse.SC_OK);
 
         CustomUserDetails  customUserDetails = (CustomUserDetails) authentication.getPrincipal();

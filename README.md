@@ -43,12 +43,17 @@
     - **회원 계정 정지기능**
     - **외부 api호출시 실패 방지를 위해서 @Retryable을 적용**
     - **크롤링으로 가게정보 가져오는 방식 -> CSV 파일로 가게를 저장(api 호출 문제로 api사용을 안하고 크롤링으로 대체)후 디비에 저장**
-    - 크롤링시 가게정보를 저장시 Redis캐싱 처리 + 스케줄러 사용.
+    - **크롤링시 가게정보를 저장시 Redis캐싱 처리 + 스케줄러 사용.**
     - **Redis Sorted Set을 활용해서 가게 평점 top5 를 구현**
     - **가게 최근 검색어 기능구현**
     - **Redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어**
     - **Scale-out을 고려해서 redis Session을 Session Storage로 적용**
-    - docker-compose를 사용해서 서버,디비,Redis에 적용
+    - docker-compose를 사용해서 서버,디비,Redis에 적용.
+    - 크롤링 처리 Spring Batch를 사용해서 병렬처리.
+    - nginx에서 ssl인증서 적용.
+    - githubAction 을 사용해서 CI/CD 구축하기.
+    - AWS에서 RDS Replication하기.
+    - promethus/granfana로 모니터링하기.
 
 ### 기술 스택
   
@@ -142,3 +147,4 @@
 
 
 - **[Redisson 분산락을 활용해서 동시성 제어](https://codingweb.tistory.com/203)**
+

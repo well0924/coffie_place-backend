@@ -47,7 +47,8 @@ public class CsvDBTest {
     @DisplayName("가게 정보 캐싱 & 조회")
     void testPlaceCaching() {
         // 가게 정보를 캐싱하는 테스트
-        PlaceCache placeCache = PlaceCache.builder()
+        PlaceCache placeCache = PlaceCache
+                .builder()
                 .placeId("1")
                 .placeName("Test Cafe")
                 .placeAddr("123 Test St")

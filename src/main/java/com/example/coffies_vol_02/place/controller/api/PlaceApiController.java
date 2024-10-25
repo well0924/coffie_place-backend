@@ -155,7 +155,7 @@ public class PlaceApiController {
     public CommonResponse<?>placeTop5List() {
 
         List<PlaceResponseDto> top5list = redisService.getTopRatedStores();
-
+        log.info("list:::"+top5list.stream().toList());
         return new CommonResponse<>(HttpStatus.OK, top5list);
     }
 

@@ -76,7 +76,7 @@ public class MemberApiController {
     public CommonResponse<?>loginState(@RequestParam(value = "sessionId") String sessionId) {
         // 세션 ID로 세션 조회
         Session session = sessionRepository.findById(sessionId);
-
+        System.out.println(session);
         // 세션이 없거나 세션에 유저 정보가 없을 경우
         if (session == null || session.getAttribute("member") == null) {
             return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인된 사용자가 없습니다.");
@@ -273,5 +273,4 @@ public class MemberApiController {
         log.info(tmpPw);
         return ResponseEntity.ok(tmpPw);
     }
-
 }

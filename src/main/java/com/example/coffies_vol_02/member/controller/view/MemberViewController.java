@@ -49,6 +49,13 @@ public class MemberViewController {
         return mv;
     }
 
+    @GetMapping("/pwd-change")
+    public ModelAndView resetPasswordPage() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("/login/passwordReset");
+        return mv;
+    }
+
     @GetMapping("/modify/{id}")
     public ModelAndView memberModifyPage(@PathVariable("id")Integer useridx){
         ModelAndView mv = new ModelAndView();

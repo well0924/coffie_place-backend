@@ -17,10 +17,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
@@ -47,8 +48,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfiguration) throws Exception {
-        return authConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -57,7 +58,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LoginSuccessHandler loginSuccessHandler(){
+    public AuthenticationSuccessHandler loginSuccessHandler(){
         return new LoginSuccessHandler();
     }
 
@@ -109,14 +110,17 @@ public class SecurityConfig {
                 .anyRequest()
                 .authenticated();
         //세션 설정
-        http.sessionManagement(session -> session.sessionFixation(SessionManagementConfigurer
+        http.sessionManagement(session -> session
+                        .sessionFixation(SessionManagementConfigurer
                         .SessionFixationConfigurer::changeSessionId)
                 .maximumSessions(1)//세션 최대수
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/")
                 .sessionRegistry(sessionRegistry())
                 .expiredSessionStrategy(securitySessionExpiredStrategy))
-        .addFilterBefore(new AuthenticationFilter(loginSuccessHandler(),loginFailHandler()), UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
 
         return http.build();
     }
