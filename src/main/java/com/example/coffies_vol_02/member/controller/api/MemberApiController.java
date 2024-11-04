@@ -5,6 +5,7 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.email.EmailService;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.redis.RedisService;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.member.domain.dto.request.LoginDto;
 import com.example.coffies_vol_02.member.domain.dto.request.MemberRequest;
 import com.example.coffies_vol_02.member.domain.dto.response.MemberResponse;
@@ -25,15 +26,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-import org.springframework.session.Session;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 @Api(tags = "Member api",value = "회원 관련 api 컨트롤러")
@@ -51,15 +50,14 @@ public class MemberApiController {
 
     private final RedisService redisService;
 
-    private final FindByIndexNameSessionRepository<? extends Session> sessionRepository;
-
     @Operation(summary = "회원 로그인 api", description = "redis session을 활용해서 로그인")
     @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
     public CommonResponse<?>loginProc(@RequestBody LoginDto loginDto, HttpSession httpSession){
         log.info("로그인??");
         String sessionId = authService.login(loginDto,httpSession);
         log.info(sessionId);
-        log.info("session::::"+httpSession.getAttribute("member"));
+        log.info("userId::::"+ ((Member)httpSession.getAttribute("member")).getUserId());
+        log.info("userRole::::"+ ((Member)httpSession.getAttribute("member")).getRole());
         return new CommonResponse<>(HttpStatus.OK,sessionId);
     }
 
@@ -73,17 +71,15 @@ public class MemberApiController {
 
     @Operation(summary = "현재 회원 조회", description = "redis 로그인을 통해서 현재 유저의 정보를 보여주는 api")
     @GetMapping("/current-user")
-    public CommonResponse<?>loginState(@RequestParam(value = "sessionId") String sessionId) {
+    public CommonResponse<?>loginState(HttpSession session) {
         // 세션 ID로 세션 조회
-        Session session = sessionRepository.findById(sessionId);
-        System.out.println(session);
-        // 세션이 없거나 세션에 유저 정보가 없을 경우
-        if (session == null || session.getAttribute("member") == null) {
-            return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인된 사용자가 없습니다.");
-        }
-
+        String result;
         Object member = session.getAttribute("member");
-
+        if(Objects.isNull(member)){
+            result = "로그인 정보가 없습니다.";
+        } else {
+            result = ((Member)member).getUserId();
+        }
         return new CommonResponse<>(HttpStatus.OK,member);
     }
 

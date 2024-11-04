@@ -4,6 +4,7 @@ import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.like.service.LikeService;
+import com.example.coffies_vol_02.member.domain.Member;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Api(tags = "Like Api Controller",value = "좋아요 api 컨트롤러")
@@ -30,10 +32,10 @@ public class LikeApiController {
                                             @PathVariable("board-id")Integer boardId,
                                             @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        if(customUserDetails.getMember()!=null){
+        if(customUserDetails.getMember()!=null) {
             likeService.boardLikePlus(boardId, customUserDetails.getMember().getId());
             return new CommonResponse<>(HttpStatus.OK,"게시글에 좋아요가 추가되었습니다.");
-        }else {
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.LIKE_FAIL);
         }
     }
@@ -45,12 +47,13 @@ public class LikeApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public CommonResponse<String>minusBoardLike(@Parameter(name = "board-id",description = "게시글의 번호",required = true)
                                                  @PathVariable("board-id")Integer boardId,
-                                                 @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                                 @ApiIgnore HttpSession session){
+        Member member = (Member)session.getAttribute("member");
 
-        if(customUserDetails.getMember()!=null){
-            likeService.boardLikeMinus(boardId,customUserDetails.getMember().getId());
+        if(member != null) {
+            likeService.boardLikeMinus(boardId,member.getId());
             return new CommonResponse<>(HttpStatus.OK,"좋아요가 취소되었습니다.");
-        }else{
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.LIKE_FAIL);
         }
     }
@@ -59,23 +62,30 @@ public class LikeApiController {
     @GetMapping(path = "/board/{board-id}")
     public CommonResponse<List<String>>countBoardLike(@Parameter(name ="board-id",description = "게시글의 번호",required = true)
                                                       @PathVariable("board-id")Integer boardId,
-                                                      @ApiIgnore CustomUserDetails customUserDetails){
+                                                      @ApiIgnore HttpSession session){
 
-        List<String>resultDate = likeService.likeCount(boardId,customUserDetails.getMember());
+        Member member = (Member)session.getAttribute("member");
 
-        return new CommonResponse<>(HttpStatus.OK,resultDate);
+        if(member != null) {
+            List<String>resultDate = likeService.likeCount(boardId,member);
+            return new CommonResponse<>(HttpStatus.OK,resultDate);
+        }
+
+        return new CommonResponse<>(HttpStatus.UNAUTHORIZED,ERRORCODE.NOT_AUTH);
     }
 
     @Operation(summary = "댓글 좋아요 +1",description = "가게 댓글에 좋아요를 하면 좋아요를 추가한다.")
     @PostMapping(path = "/comment/plus/{reply-id}")
     public CommonResponse<String>plusCommentLike(@Parameter(name ="reply-id",description = "댓글의 번호",required = true)
                                                  @PathVariable("reply-id")Integer replyId,
-                                                 @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                                 @ApiIgnore HttpSession session){
 
-        if(customUserDetails.getMember()!=null){
-            likeService.commentLikePlus(replyId,customUserDetails.getMember());
-            return new CommonResponse<>(HttpStatus.OK,"");
-        }else{
+        Member member = (Member)session.getAttribute("member");
+
+        if(member != null) {
+            likeService.commentLikePlus(replyId,member);
+            return new CommonResponse<>(HttpStatus.OK,"like plus");
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST, ERRORCODE.LIKE_FAIL);
         }
     }
@@ -84,12 +94,13 @@ public class LikeApiController {
     @DeleteMapping(path = "/comment/minus/{reply-id}")
     public CommonResponse<?>minusCommentLike(@Parameter(name ="reply-id",description = "댓글의 번호",required = true)
                                              @PathVariable("reply-id")Integer replyId,
-                                             @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                             @ApiIgnore HttpSession session){
+        Member member = (Member)session.getAttribute("member");
 
-        if(customUserDetails.getMember()!=null){
-            likeService.commentLikeMinus(replyId,customUserDetails.getMember());
-            return new CommonResponse<>(HttpStatus.OK,"");
-        }else{
+        if(member != null) {
+            likeService.commentLikeMinus(replyId,member);
+            return new CommonResponse<>(HttpStatus.OK,"like minus");
+        } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST.value(),ERRORCODE.LIKE_FAIL);
         }
     }
@@ -98,10 +109,13 @@ public class LikeApiController {
     @GetMapping(path = "/comment/{reply-id}")
     public CommonResponse<List<String>>commentLikeCount(@Parameter(name ="reply-id",description = "댓글의 번호",required = true)
                                                         @PathVariable("reply-id")Integer replyId,
-                                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                                        @ApiIgnore HttpSession session){
+        Member member = (Member)session.getAttribute("member");
 
-        List<String>resultDate = likeService.likeCommentCount(replyId,customUserDetails.getMember());
-
-        return new CommonResponse<>(HttpStatus.OK,resultDate);
+        if(member != null) {
+            List<String>resultDate = likeService.likeCommentCount(replyId,member);
+            return new CommonResponse<>(HttpStatus.OK,resultDate);
+        }
+        return new CommonResponse<>(HttpStatus.UNAUTHORIZED,ERRORCODE.NOT_AUTH);
     }
 }

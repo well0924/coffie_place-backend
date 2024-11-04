@@ -9,6 +9,8 @@ import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.member.service.AuthService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,12 +29,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
@@ -83,7 +84,6 @@ public class BoardApiController {
     @Operation(summary = "자유 게시글 단일 조회", description = "자유게시판에서 게시글을 단일 조회하는 컨트롤러",responses = {
             @ApiResponse(responseCode = "200",description = "정상적으로 응답하는 경우",content = @Content(mediaType = "application/json",schema = @Schema(implementation = BoardResponse.class)))
     })
-    @Secured({"ROLE_ADMIN","ROLE_USER"})
     @GetMapping(path = "/{board-id}")
     public CommonResponse<?>findFreeBoardById(
                                         HttpSession session,
@@ -91,11 +91,8 @@ public class BoardApiController {
                                         @PathVariable("board-id") Integer boardId){
 
         BoardResponse detail = boardService.findFreeBoard(boardId);
-        Object member = session.getAttribute("member");
+        Member member = ((Member) session.getAttribute("member"));
         log.info("session member:::"+member);
-        if(detail == null){
-            throw new CustomExceptionHandler(ERRORCODE.BOARD_NOT_FOUND);
-        }
 
         return new CommonResponse<>(HttpStatus.OK,detail);
     }
@@ -113,17 +110,18 @@ public class BoardApiController {
     @Operation(summary = "게시글 작성", description = "자유게시판 글작성화면에서 게시글 작성 및 파일첨부를 할 수 있다.",responses = {
             @ApiResponse(responseCode = "201",description = "게시글이 정상적으로 작성이 되는 경우",content = @Content(mediaType = "MULTIPART_FORM_DATA_VALUE"))
     })
-    @PostMapping(path="/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path="/")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Integer>createFreeBoard(@RequestBody(description = "자유게시판 요청 dto",required = true)
+    public CommonResponse<?>createFreeBoard(    @RequestBody(description = "자유게시판 요청 dto",required = true)
                                                 @Valid @RequestPart(value = "boardDto") BoardRequest dto,
                                                 @Parameter(name = "files",description = "자유게시판 첨부파일")
-                                                @RequestPart(value = "files") List<MultipartFile> files,
+                                                @RequestPart(value = "files",required = false) List<MultipartFile> files,
                                                 BindingResult bindingResult,
-                                                @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
+                                                HttpSession session)throws Exception {
 
-        Integer writeResult = boardService.createFreeBoard(dto,files,customUserDetails.getMember());
-
+        Member member = ((Member) session.getAttribute("member"));
+        Integer writeResult = boardService.createFreeBoard(dto,files, member);
+        log.info(writeResult);
         if (writeResult > 0) {
             return new CommonResponse<>(HttpStatus.CREATED, writeResult);
         } else {
@@ -142,9 +140,10 @@ public class BoardApiController {
                                               @RequestPart(value = "updateDto") BoardRequest dto,
                                               @Parameter(name = "files",description = "자유게시판 첨부파일")
                                               @RequestPart(value = "files")List<MultipartFile>files,
-                                              @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
+                                              HttpSession httpSession)throws Exception{
 
-        Integer updateResult = boardService.updateFreeBoard(boardId,dto,customUserDetails.getMember(),files);
+        Member member = ((Member) httpSession.getAttribute("member"));
+        Integer updateResult = boardService.updateFreeBoard(boardId,dto,member,files);
 
         if (updateResult > 0) {
             return new CommonResponse<>(HttpStatus.OK, updateResult);
@@ -158,10 +157,9 @@ public class BoardApiController {
     })
     @DeleteMapping(path = "/{board-id}")
     public CommonResponse<?>deleteFreeBoard(@Parameter(description = "자유게시글의 게시글 번호",required = true,in=ParameterIn.PATH)
-                                        @PathVariable("board-id")Integer boardId,
-                                        @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails)throws Exception{
-
-        boardService.deleteFreeBoard(boardId,customUserDetails.getMember());
+                                        @PathVariable("board-id")Integer boardId,HttpSession session)throws Exception{
+        Member member = (Member)session.getAttribute("member");
+        boardService.deleteFreeBoard(boardId,member);
 
         return new CommonResponse<>(HttpStatus.OK.value(),"Delete O.k");
     }
@@ -175,9 +173,10 @@ public class BoardApiController {
                                                       @PathVariable("board-id")Integer boardId,
                                                       @Parameter(description = "게시글 비밀번호",required = true,in = ParameterIn.PATH)
                                                       @PathVariable("password") String password,
-                                                      @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                                      HttpSession session){
 
-        BoardResponse result = boardService.passwordCheck(password,boardId,customUserDetails.getMember());
+        Member member = (Member)session.getAttribute("member");
+        BoardResponse result = boardService.passwordCheck(password,boardId,member);
 
         return new CommonResponse<>(HttpStatus.OK,result);
     }

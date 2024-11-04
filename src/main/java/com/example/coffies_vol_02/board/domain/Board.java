@@ -69,13 +69,14 @@ public class Board extends BaseTime implements Serializable {
     private List<Attach>attachList = new ArrayList<>();
 
     @Builder
-    public Board(Integer id, String boardContents, String boardAuthor, String boardTitle, Integer readCount, String passWd, String fileGroupId, Member member){
+    public Board(Integer id, String boardContents, String boardAuthor, String boardTitle, Integer readCount, String passWd,Integer likeCount, String fileGroupId, Member member){
         this.id = id;
         this.boardTitle = boardTitle;
         this.boardAuthor = member.getUserId();
         this.boardContents = boardContents;
         this.readCount = readCount;
         this.passWd = passWd;
+        this.likeCount = 0;
         this.fileGroupId = fileGroupId;
         this.member = member;
         this.getCreatedTime();

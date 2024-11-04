@@ -3,6 +3,7 @@ package com.example.coffies_vol_02.config.security;
 import com.example.coffies_vol_02.config.security.auth.CustomUserDetailService;
 import com.example.coffies_vol_02.config.security.handler.LoginFailHandler;
 import com.example.coffies_vol_02.config.security.handler.LoginSuccessHandler;
+import com.example.coffies_vol_02.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -105,23 +106,22 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/**").permitAll()
+            .antMatchers("/api/member/login").permitAll()
             .antMatchers(PERMIT_URL_ARRAY).permitAll()
-                .anyRequest()
-                .authenticated();
+            .antMatchers("/api/member/logout").hasAnyRole("ADMIN","USER")
+            .anyRequest()
+            .authenticated();
         //세션 설정
-        http.sessionManagement(session -> session
-                        .sessionFixation(SessionManagementConfigurer
-                        .SessionFixationConfigurer::changeSessionId)
+        http.sessionManagement(session ->
+                session
+                        .sessionFixation(sessionFixationConfigurer->sessionFixationConfigurer.migrateSession())
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .maximumSessions(1)//세션 최대수
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/")
                 .sessionRegistry(sessionRegistry())
                 .expiredSessionStrategy(securitySessionExpiredStrategy))
-        .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-
+                .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

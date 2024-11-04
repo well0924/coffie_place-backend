@@ -4,9 +4,9 @@ import com.example.coffies_vol_02.board.domain.dto.response.BoardResponse;
 import com.example.coffies_vol_02.commnet.domain.dto.response.placeCommentResponseDto;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
 import com.example.coffies_vol_02.favoritePlace.domain.dto.FavoritePlaceResponseDto;
 import com.example.coffies_vol_02.favoritePlace.service.FavoritePlaceService;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Log4j2
@@ -57,8 +56,10 @@ public class FavoriteApiController {
                                           @PathVariable("member-id")String memberId,
                                           @Parameter(name = "place-id",description = "가게 번호")
                                           @PathVariable("place-id") Integer placeId,
-                                          @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        if(customUserDetails.getMember()!=null){
+                                          @ApiIgnore HttpSession session){
+
+        Member member = (Member)session.getAttribute("member");
+        if(member != null) {
             boolean checkResult = favoritePlaceService.hasWishPlace(placeId,memberId);
             log.info(checkResult);
             return new CommonResponse<>(HttpStatus.OK,checkResult);
@@ -110,7 +111,7 @@ public class FavoriteApiController {
     @GetMapping(path = "/comment/{id}")
     public CommonResponse<List<placeCommentResponseDto>>MyComment(@Parameter(name = "id",description = "회원의 아이디",required = true)
                                                                   @PathVariable("id") String userId,
-                                                                  @ApiIgnore @PageableDefault Pageable pageable){
+                                                                  @ApiIgnore @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
 
         List<placeCommentResponseDto>list = favoritePlaceService.getMyPageCommnetList(userId,pageable);
 
@@ -121,14 +122,14 @@ public class FavoriteApiController {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
     @GetMapping(path = "/near-list")
-    public CommonResponse<?> placeNearList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
-        if(customUserDetails.getMember()!=null){
-            List<PlaceResponseDto> nearList = favoritePlaceService.findByMemberNearList(customUserDetails.getMember());
+    public CommonResponse<?> placeNearList(@ApiIgnore HttpSession session) {
+        Member member = (Member)session.getAttribute("member");
+        if(member != null){
+            List<PlaceResponseDto> nearList = favoritePlaceService.findByMemberNearList(member);
             log.info("근처가게:::"+nearList.stream().toList());
             return new CommonResponse<>(HttpStatus.OK,nearList);
         }else {
-            return new CommonResponse<>(HttpStatus.OK, ERRORCODE.PLACE_NOT_FOUND);
+            return new CommonResponse<>(HttpStatus.BAD_REQUEST, ERRORCODE.PLACE_NOT_FOUND);
         }
     }
 
@@ -138,11 +139,16 @@ public class FavoriteApiController {
     @GetMapping("/like/{user-id}")
     public CommonResponse<?>likeBoardList(@Parameter(name = "id",description = "회원의 아이디",required = true)
                                           @PathVariable("user-id")String userId,
-                                          @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails,Pageable pageable){
+                                          @ApiIgnore HttpSession session,
+                                          @ApiIgnore @PageableDefault(size = 5,sort = "id",direction = Sort.Direction.DESC) Pageable pageable){
 
-        Page<BoardResponse>result = favoritePlaceService.likedBoardList(customUserDetails.getMember().getId(),pageable);
+        Member member = (Member)session.getAttribute("member");
 
-        return new CommonResponse<>(HttpStatus.OK,result);
+        if(member != null) {
+            Page<BoardResponse>result = favoritePlaceService.likedBoardList(member.getId(), pageable);
+            return new CommonResponse<>(HttpStatus.OK,result);
+        }
+        return new CommonResponse<>(HttpStatus.UNAUTHORIZED, ERRORCODE.NOT_AUTH);
     }
 
 }

@@ -85,6 +85,7 @@ dependencies {
     // redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.18.0'
     //redis-session
+    implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.session:spring-session-data-redis'
 
     // spring retry
