@@ -13,5 +13,5 @@ public interface CustomPlaceRepository {
     //가게 평점 top5
     List<PlaceResponseDto> placeTop5();
     //가게 목록 (무한 스크롤)
-    Slice<PlaceResponseDto>placeList(Pageable pageable,String keyword);
+    Slice<PlaceResponseDto>placeList(Pageable pageable, Integer placeId);
 }

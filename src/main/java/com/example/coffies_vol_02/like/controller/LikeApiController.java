@@ -29,11 +29,11 @@ public class LikeApiController {
     @Operation(summary = "게시글 좋아요 +1",description = "게시글 조회 페이지에서 좋아요기능을 추가합니다.")
     @PostMapping(path = "/plus/{board-id}")
     public CommonResponse<String>plusBoardLike(@Parameter(name = "board-id",description = "게시글의 번호",required = true)
-                                            @PathVariable("board-id")Integer boardId,
-                                            @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
-        if(customUserDetails.getMember()!=null) {
-            likeService.boardLikePlus(boardId, customUserDetails.getMember().getId());
+                                                @PathVariable("board-id")Integer boardId,
+                                                @ApiIgnore HttpSession session) {
+        Member member = (Member)session.getAttribute("member");
+        if(member!=null) {
+            likeService.boardLikePlus(boardId,member.getId());
             return new CommonResponse<>(HttpStatus.OK,"게시글에 좋아요가 추가되었습니다.");
         } else {
             return new CommonResponse<>(HttpStatus.BAD_REQUEST,ERRORCODE.LIKE_FAIL);

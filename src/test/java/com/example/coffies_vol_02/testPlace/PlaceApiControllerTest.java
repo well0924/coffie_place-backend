@@ -117,12 +117,12 @@ public class PlaceApiControllerTest {
         Slice<PlaceResponseDto> sliceDto = new SliceImpl<>(placelist,pageRequest,false);
 
         given(memberRepository.findByUserId(member.getUserId())).willReturn(Optional.of(member));
-        given(placeRepository.placeList(pageRequest,place.getPlaceName())).willReturn(sliceDto);
+        given(placeRepository.placeList(pageRequest,place.getPlaceName(),null)).willReturn(sliceDto);
        // given(redisService.getSearchList(place.getPlaceName())).willReturn(listName);
-        given(placeService.listCafePlace(pageRequest,place.getPlaceName(),customUserDetails.getMember())).willReturn(sliceDto);
+        given(placeService.listCafePlace(pageRequest,place.getPlaceName(),null)).willReturn(sliceDto);
 
         //when
-        when(placeService.listCafePlace(pageRequest,place.getPlaceName(),customUserDetails.getMember())).thenReturn(sliceDto);
+        when(placeService.listCafePlace(pageRequest,place.getPlaceName(),null)).thenReturn(sliceDto);
 
         mvc.perform(get("/api/place/list")
                         .characterEncoding(StandardCharsets.UTF_8)

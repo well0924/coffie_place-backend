@@ -39,8 +39,7 @@ public class PlaceViewController {
     @GetMapping("/list")
     public ModelAndView placeList(Pageable pageable,
                                   @RequestParam(value = "keyword",required = false) String keyword,
-                                  @RequestParam(value = "searchType",required = false) String searchType,
-                                  @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                                  @RequestParam(value = "placeId",required = false) Integer placeId) {
 
         ModelAndView mv = new ModelAndView();
 
@@ -51,25 +50,24 @@ public class PlaceViewController {
         try {
 
             //가게 목록
-            list = placeService.listCafePlace(pageable,keyword,customUserDetails.getMember());
+            list = placeService.listCafePlace(pageable,placeId);
 
-            log.info("검색어:::"+keywords);
+            /*log.info("검색어:::"+keywords);
             log.info("placeList:::"+list);
 
             //검색어가 있는 경우
             log.info(keyword);
-            log.info(searchType);
 
             if(keyword != null){
                 list = placeService.searchCafePlace(SearchType.toType(searchType), keyword, pageable, customUserDetails.getMember());
                 redisService.createPlaceNameLog(customUserDetails.getMember().getId(),keyword);
                 keywords = redisService.ListRecentSearchNames(customUserDetails.getMember().getId());
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        mv.addObject("searchType",searchType);
+        //mv.addObject("searchType",searchType);
         mv.addObject("placelist", list);
         mv.addObject("keyword", keyword);
         mv.addObject("keywords", keywords);

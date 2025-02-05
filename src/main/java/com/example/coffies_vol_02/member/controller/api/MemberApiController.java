@@ -77,8 +77,10 @@ public class MemberApiController {
         Object member = session.getAttribute("member");
         if(Objects.isNull(member)){
             result = "로그인 정보가 없습니다.";
+            log.info(result);
         } else {
             result = ((Member)member).getUserId();
+            log.info(result);
         }
         return new CommonResponse<>(HttpStatus.OK,member);
     }

@@ -2,9 +2,12 @@ package com.example.coffies_vol_02.place.repository;
 
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.domain.PlaceImage;
 import com.example.coffies_vol_02.place.domain.QPlace;
+import com.example.coffies_vol_02.place.domain.QPlaceImage;
 import com.example.coffies_vol_02.place.domain.dto.response.PlaceResponseDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -19,6 +22,7 @@ import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Repository
 public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
@@ -27,9 +31,12 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     private final QPlace place;
 
+    private final QPlaceImage placeImage;
+
     public CustomPlaceRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
         this.place = QPlace.place;
+        this.placeImage = QPlaceImage.placeImage;
     }
 
     /**
@@ -75,30 +82,54 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
     }
 
     /**
-     * 가게목록 무한스크롤
+     * 가게목록 무한스크롤 (no-offset)
      * @param pageable 페이징 객체
      * @return Slice<PlaceResponseDto>
      **/
     @Override
-    public Slice<PlaceResponseDto> placeList(Pageable pageable,String keyword) {
-        List<Place> placeList = jpaQueryFactory
-                .selectFrom(place)
-                .where(placeName(keyword).or(placeAdder(keyword)))
-                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize() + 1)
+    public Slice<PlaceResponseDto> placeList(Pageable pageable, Integer placeId) {
+        List<Tuple> tuples = jpaQueryFactory
+                .select(place, placeImage) // Place와 PlaceImage 조회
+                .from(place)
+                .innerJoin(place.placeImageList, placeImage)
+                .where(placeImage.isTitle.eq("Y").and(rtPlaceId(placeId))) // 키워드 조건 추가
+                .orderBy(getAllOrderSpecifiers(pageable.getSort()).toArray(OrderSpecifier[]::new)) // 정렬
+                .limit(pageable.getPageSize() + 1) // 페이징
                 .fetch();
 
-        List<PlaceResponseDto> result = new ArrayList<>();
-        for (Place place : placeList) {
-            result.add(new PlaceResponseDto(place));
-        }
+        List<PlaceResponseDto> result = tuples
+                .stream()
+                .map(tuple -> {
+                    Place p = tuple.get(place);
+                    PlaceImage img = tuple.get(placeImage);
+
+                    return PlaceResponseDto.builder()
+                            .id(p.getId())
+                            .placeName(p.getPlaceName())
+                            .placeAddr(p.getPlaceAddr())
+                            .reviewRate(p.getReviewRate())
+                            .placeAuthor(p.getPlaceAuthor())
+                            .placeStart(p.getPlaceStart())
+                            .placeClose(p.getPlaceClose())
+                            .placePhone(p.getPlacePhone())
+                            .isTitle(img != null ? img.getIsTitle() : null) // 이미지 고정 여부
+                            .thumbFileImagePath(img != null ? img.getThumbFileImagePath() : null) // 섬네일 이미지 경로
+                            .imgPath(img != null ? img.getImgPath() : null) // 원본 이미지 경로
+                            .build();
+                }).collect(Collectors.toList());
 
         boolean hasNext = result.size() > pageable.getPageSize();
+
         if (hasNext) {
             result.remove(result.size() - 1); // Remove the extra element if there is a next page
         }
 
         return new SliceImpl<>(result, pageable, hasNext);
+    }
+
+
+    private BooleanExpression rtPlaceId(Integer placeId) {
+        return placeId != null ? place.id.gt(placeId) : null;
     }
 
     private BooleanBuilder buildSearchPredicate(SearchType searchType, String keyword) {

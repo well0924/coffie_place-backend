@@ -45,14 +45,14 @@ public class PlaceService {
     /**
      * 가게 목록(무한 슬라이드)
      *
-     * @param keyword    가게검색어
+     * @param placeId    가게 마지막 번호
      * @param pageable   페이징 객체
-     * @param member     로그인 인증에 필요한 객체
      * @return Slice<PlaceResponseDto>
-     * @see PlaceRepository#placeList(Pageable, String) 가게 목록
+     * @see PlaceRepository#placeList(Pageable,Integer) 가게 목록
      **/
-    public Slice<PlaceResponseDto> listCafePlace(Pageable pageable,String keyword, Member member) {
-        return placeRepository.placeList(pageable, keyword);
+    @Transactional(readOnly = true)
+    public Slice<PlaceResponseDto> listCafePlace(Pageable pageable,Integer placeId) {
+        return placeRepository.placeList(pageable,placeId);
     }
 
     /**

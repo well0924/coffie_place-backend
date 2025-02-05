@@ -4,7 +4,7 @@ import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.config.exception.Dto.CommonResponse;
 import com.example.coffies_vol_02.config.constant.ERRORCODE;
 import com.example.coffies_vol_02.config.redis.RedisService;
-import com.example.coffies_vol_02.config.security.auth.CustomUserDetails;
+import com.example.coffies_vol_02.member.domain.Member;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceImageRequestDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRecentSearchDto;
 import com.example.coffies_vol_02.place.domain.dto.request.PlaceRequestDto;
@@ -27,10 +27,11 @@ import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -50,20 +51,20 @@ public class PlaceApiController {
     @Operation(summary = "가게 목록 조회", description = "가게 목록을 조회한다",responses = {
             @ApiResponse(responseCode = "200",content = @Content(mediaType = "application/json",schema = @Schema(implementation = PlaceResponseDto.class)))
     })
-    @GetMapping(path = "/")
-    public CommonResponse<Slice<PlaceResponseDto>>listCafePLace(@ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.DESC)
+    @GetMapping
+    public CommonResponse<Slice<PlaceResponseDto>>listCafePLace(@ApiIgnore @PageableDefault(sort = "id", direction = Sort.Direction.ASC)
                                                                     Pageable pageable,
-                                       @Parameter(name = "keyword",description = "가게 검색어 저장", in = ParameterIn.QUERY)
-                                       @RequestParam(value = "keyword", required = false) String keyword,
-                                       @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                                       @Parameter(name = "placeId",description = "무한스크롤에 필요한 가게 번호")
+                                       @RequestParam(value = "placeId", required = false) Integer placeId) {
         try{
-            Slice<PlaceResponseDto> list = placeService.listCafePlace(pageable,keyword,customUserDetails.getMember());
+            log.info("placeId::"+placeId);
+            Slice<PlaceResponseDto> list = placeService.listCafePlace(pageable,placeId);
 
             return new CommonResponse<>(HttpStatus.OK, list);
         }catch (Exception e){
             log.info(e.getMessage());
         }
-        return new CommonResponse<>(HttpStatus.OK,placeService.listCafePlace(pageable,keyword,null));
+        return new CommonResponse<>(HttpStatus.OK,placeService.listCafePlace(pageable,placeId));
     }
 
     @Operation(summary = "가게 목록 검색", description = "가게 목록페이지에서 가게를 검색을 한다.",responses = {
@@ -72,12 +73,12 @@ public class PlaceApiController {
     @GetMapping(path = "/search")
     public CommonResponse<?> searchCafePLace(@Parameter(name = "searchType",description = "가게 검색타입",required = true)
                                              @RequestParam(value = "searchType",required = false) String searchType,
-                                             @Parameter(name = "placeKeyword",description = "redis에 저장된 검색어",in = ParameterIn.QUERY)
-                                             @RequestParam(value = "placeKeyword",required = false) String keyword,
+                                             @Parameter(name = "searchVal",description = "redis에 저장된 검색어",in = ParameterIn.QUERY)
+                                             @RequestParam(value = "searchVal",required = false) String keyword,
                                              @ApiIgnore @PageableDefault(sort = "id", size=5 ,direction = Sort.Direction.DESC) Pageable pageable,
-                                             @ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
-        Slice<PlaceResponseDto> list = placeService.searchCafePlace(SearchType.toType(searchType),keyword, pageable, customUserDetails.getMember());
+                                             @ApiIgnore HttpSession session) {
+        Member member = getSessionUser(session);
+        Slice<PlaceResponseDto> list = placeService.searchCafePlace(SearchType.toType(searchType),keyword, pageable, member);
 
         //검색어가 없는 경우
         if(StringUtils.isBlank(keyword)){
@@ -161,12 +162,13 @@ public class PlaceApiController {
 
     @Operation(summary = "최근 검색 기록: 저장")
     @PostMapping("/search-log")
-    public CommonResponse<?>createRecentPlaceLog(@ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails
+    public CommonResponse<?>createRecentPlaceLog(@ApiIgnore HttpSession httpSession
                                                 ,@RequestParam String name){
+        Member member  = getSessionUser(httpSession);
 
-        if(principalDetails !=null){
+        if(member !=null){
             log.info(name);
-            redisService.createPlaceNameLog(principalDetails.getMember().getId(),name);
+            redisService.createPlaceNameLog(member.getId(),name);
             return new CommonResponse<>(HttpStatus.OK,"save PlaceName");
         }else{
             return new CommonResponse<>(HttpStatus.UNAUTHORIZED,"로그인을 해주세요.");
@@ -175,10 +177,10 @@ public class PlaceApiController {
 
     @Operation(summary = "최근 검색 기록: 목록")
     @GetMapping("/search-logs-list")
-    public CommonResponse<?>recentPlaceNamesList(@ApiIgnore @AuthenticationPrincipal CustomUserDetails customUserDetails){
-
-        if(customUserDetails!=null){
-            List<PlaceRecentSearchDto>recentSearchDtoList = redisService.ListPlaceNameLog(customUserDetails.getMember().getId());
+    public CommonResponse<?>recentPlaceNamesList(@ApiIgnore HttpSession httpSession){
+        Member member = getSessionUser(httpSession);
+        if(member!=null){
+            List<PlaceRecentSearchDto>recentSearchDtoList = redisService.ListPlaceNameLog(member.getId());
             return new CommonResponse<>(HttpStatus.OK,recentSearchDtoList);
         }else{
             return new CommonResponse<>(HttpStatus.UNAUTHORIZED,"로그인을 해주세요.");
@@ -187,11 +189,11 @@ public class PlaceApiController {
 
     @Operation(summary = "최근 검색 기록: 전체삭제")
     @DeleteMapping("/search-log")
-    public CommonResponse<?>recentPlaceNamesDelete(@ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails){
-        
-        if(principalDetails != null){
+    public CommonResponse<?>recentPlaceNamesDelete(@ApiIgnore HttpSession httpSession){
+        Member member = getSessionUser(httpSession);
+        if(member != null){
             log.info("?????");
-            redisService.deletePlaceNameLog(principalDetails.getMember().getId());
+            redisService.deletePlaceNameLog(member.getId());
             return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
         }else {
             return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인을 해주세요.");
@@ -200,14 +202,19 @@ public class PlaceApiController {
 
     @Operation(summary = "최근 검색 기록: 개별삭제")
     @DeleteMapping("/search-log/{name}")
-    public CommonResponse<?>deleteRecentPlaceLogByName(@PathVariable("name")String placeName,
-                                                       @ApiIgnore @AuthenticationPrincipal CustomUserDetails principalDetails) {
+    public CommonResponse<?>deleteRecentPlaceLogByName(@PathVariable("name") String placeName,
+                                                       @ApiIgnore HttpSession httpSession) {
+        Member member = getSessionUser(httpSession);
 
-        if(principalDetails != null){
-            redisService.deletePlaceNameLogByName(principalDetails.getMember().getId(),placeName);
+        if(member != null){
+            redisService.deletePlaceNameLogByName(member.getId(),placeName);
             return new CommonResponse<>(HttpStatus.NO_CONTENT,"Delete O.k");
         }else {
             return new CommonResponse<>(HttpStatus.UNAUTHORIZED, "로그인을 해주세요.");
         }
+    }
+
+    private static Member getSessionUser(HttpSession httpSession) {
+        return (Member) httpSession.getAttribute("member");
     }
 }

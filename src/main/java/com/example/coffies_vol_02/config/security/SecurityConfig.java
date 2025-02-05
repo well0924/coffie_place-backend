@@ -18,7 +18,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -115,7 +114,7 @@ public class SecurityConfig {
         http.sessionManagement(session ->
                 session
                         .sessionFixation(sessionFixationConfigurer->sessionFixationConfigurer.migrateSession())
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 .maximumSessions(1)//세션 최대수
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/")
