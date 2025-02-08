@@ -77,4 +77,8 @@ public class Place extends BaseTime {
         this.placePhone = dto.getPlacePhone();
         this.placeName = dto.getPlaceName();
     }
+
+    public void updateReviewRate(Double newRate) {
+        this.reviewRate = newRate;
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.coffies_vol_02.place.repository;
 
+import com.example.coffies_vol_02.commnet.domain.QComment;
 import com.example.coffies_vol_02.config.constant.SearchType;
 import com.example.coffies_vol_02.place.domain.Place;
 import com.example.coffies_vol_02.place.domain.PlaceImage;
@@ -33,10 +34,13 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
 
     private final QPlaceImage placeImage;
 
+    private final QComment comment;
+
     public CustomPlaceRepositoryImpl(EntityManager em){
         this.jpaQueryFactory = new JPAQueryFactory(em);
         this.place = QPlace.place;
         this.placeImage = QPlaceImage.placeImage;
+        this.comment = QComment.comment;
     }
 
     /**
@@ -76,6 +80,8 @@ public class CustomPlaceRepositoryImpl implements CustomPlaceRepository{
         return jpaQueryFactory
                 .select(Projections.constructor(PlaceResponseDto.class, place))
                 .from(place)
+                .join(comment)
+                .on(place.id.eq(comment.place.id))
                 .orderBy(place.reviewRate.desc())
                 .limit(5)
                 .fetch();

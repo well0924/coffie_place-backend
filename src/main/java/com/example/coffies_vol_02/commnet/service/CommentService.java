@@ -157,6 +157,7 @@ public class CommentService {
         //평점 계산 및 저장
         double avgRating = calculateAverageComment(placeId);
         System.out.println("Calculated average rating for store " + placeId + " is " + avgRating);
+        detail.get().updateReviewRate(avgRating);
         redisService.saveRating(placeId.toString(),comment.getReplyPoint());
         return comment.getId();
     }
@@ -190,6 +191,7 @@ public class CommentService {
         redisService.deleteRating(placeId.toString());
         // 평점 계산 및 저장
         double avgRating = calculateAverageComment(placeId);
+        comment.getPlace().updateReviewRate(avgRating);
         System.out.println("Calculated average rating for store " + placeId + " is " + avgRating);
         redisService.saveRating(placeId.toString(), avgRating);
     }
