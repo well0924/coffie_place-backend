@@ -42,6 +42,7 @@ public class PlaceImageService {
         if (!mainImages.isEmpty()) {
             placeImageDtos.addAll(mainImages.stream()
                     .map(imageUrl -> PlaceImageResponseDto.builder()
+                            .thumbFileImagePath(imageUrl.getThumbFileImagePath())
                             .imgPath(imageUrl.getImageUrl())
                             .isTitle("Y") // 메인 이미지로 설정
                             .build())
@@ -52,6 +53,7 @@ public class PlaceImageService {
         if (!subImages.isEmpty()) {
             placeImageDtos.addAll(subImages.stream()
                     .map(imageUrl -> PlaceImageResponseDto.builder()
+                            .thumbFileImagePath(imageUrl.getThumbFileImagePath())
                             .imgPath(imageUrl.getImageUrl())
                             .isTitle("N") // 서브 이미지로 설정
                             .build())
