@@ -48,7 +48,7 @@
     - **가게 최근 검색어 기능구현**
     - **Redisson을 사용해서 게시글의 좋아요,조회수 댓글 좋아요에 동시성 제어**
     - **Scale-out을 고려해서 redis Session을 Session Storage로 적용**
-    - docker-compose를 사용해서 서버,디비,Redis에 적용.
+    - **docker-compose를 사용해서 서버,디비,Redis에 적용.**
     - 크롤링 처리 Spring Batch를 사용해서 병렬처리.
     - nginx에서 ssl인증서 적용.
     - githubAction 을 사용해서 CI/CD 구축하기.
@@ -69,13 +69,6 @@
 #### DB
 
 - mariaDB
-
-#### Frontend
-
-- Theymleaf 3.0.15
-- Jquery 3.6.0
-- Bootstrap 4.6.0
-- Fontawesome 5.15.3
 
 #### TEST
 
@@ -114,7 +107,7 @@
 
 ### 아키텍쳐
 
-![회원 가게 정보 가져오기 drawio](https://github.com/well0924/coffie_placeVol.02/assets/89343159/b80163a1-24b1-46f6-80f8-b5f1ba9ed2d7)
+![Image](https://github.com/user-attachments/assets/a2ca7db2-fd44-4ede-b6b3-7192fe909e94)
 
 ### ERD
 
