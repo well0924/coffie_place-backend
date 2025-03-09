@@ -8,9 +8,11 @@ import com.example.coffies_vol_02.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -19,10 +21,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -37,10 +37,12 @@ public class KakaoApiSearchService {
     private String kakaoRestApiKey;
 
     /**
-     * kakao map api 검색
-     * @param address 가게검색주소
-     * @return KakaoApiResponseDto
-     **/
+     * 카카오 API 요청 (캐싱 적용)
+     * - 동일한 주소에 대해 Redis 캐시 적용하여 API 요청 최소화
+     * - API 실패 시 @Retryable로 재시도
+     * - 재시도 후에도 실패하면 @Recover로 대체 데이터 제공
+     */
+    @Cacheable(value = "addressCache", key = "#address", unless = "#result == null")
     @Retryable(
             value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행
             maxAttempts = 3,//재시도 횟수
@@ -64,53 +66,44 @@ public class KakaoApiSearchService {
      * @member 회원 객체
      * @return 추출된 가게이름 (리스트 타입)
      **/
+    @Cacheable(value = "placeCache", key = "#member.memberLat + ',' + #member.memberLng", unless = "#result == null")
     @Retryable(
             value = {RuntimeException.class},//api가 호출이 되지 않은 경우에 runtimeException을 실행
             maxAttempts = 3,//재시도 횟수
             backoff = @Backoff(delay = 2000)//재시도 전에 딜레이 시간을 설정(ms)
     )
     public List<String>extractPlaceName(Member member){
-        Set<URI> uris = new HashSet<>();
-
-        int page =1;
-        uris.add(kakaoUriBuilderService.buildUriByCategorySearch(
+        URI uri = kakaoUriBuilderService.buildUriByCategorySearch(
                 String.valueOf(member.getMemberLng()),
                 String.valueOf(member.getMemberLat()),
-                page));
+                1);
 
         HttpHeaders headers = new HttpHeaders();
-
         headers.set(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoRestApiKey);
+        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
-        HttpEntity<Object> httpEntity = new HttpEntity<>(headers);
+        ResponseEntity<KakaoPlaceApiResponseDto> response = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, KakaoPlaceApiResponseDto.class);
+        KakaoPlaceApiResponseDto result = response.getBody();
 
-        List<KakaoPlaceApiResponseDto> results = new ArrayList<>();
-
-        for(URI uri : uris){
-            KakaoPlaceApiResponseDto result = restTemplate.exchange(uri, HttpMethod.GET, httpEntity,
-                    KakaoPlaceApiResponseDto.class).getBody();
-            results.add(result);
-
-            for (PlaceDocumentDto document : result.getDocumentList()) {
-                log.info("placeName::::" + document.getPlaceName());
-            }
+        if (result == null || result.getDocumentList() == null) {
+            log.warn("Failed to fetch place names. Returning fallback list.");
+            return List.of("Fallback Place 1", "Fallback Place 2");
         }
 
-        List<String> placeNames = new ArrayList<>();
-
-        for (KakaoPlaceApiResponseDto result : results) {
-            for (PlaceDocumentDto document : result.getDocumentList()) {
-                placeNames.add(document.getPlaceName());
-                log.info("placeName::::" + document.getPlaceName());
-            }
-        }
-
-        return placeNames;
+        return result.getDocumentList().stream()
+                .map(PlaceDocumentDto::getPlaceName)
+                .collect(Collectors.toList());
     }
 
     @Recover
-    public KakaoApiResponseDto recover(String address, CustomExceptionHandler customExceptionHandler){
-        log.error("All the retries failed. address: {}, error : {}", address, customExceptionHandler.getErrorCode().getMessage());
-        return null;
+    public KakaoApiResponseDto recover(CustomExceptionHandler e, String address) {
+        log.error("All retries failed. Using fallback response. Address: {}, Error: {}", address, e.getErrorCode().getMessage());
+        return getFallbackResponse();
+    }
+
+    private KakaoApiResponseDto getFallbackResponse() {
+        KakaoApiResponseDto fallbackResponse = new KakaoApiResponseDto();
+        fallbackResponse.setDocumentList(Collections.emptyList());
+        return fallbackResponse;
     }
 }
