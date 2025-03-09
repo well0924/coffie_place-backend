@@ -1,14 +1,18 @@
 package com.example.coffies_vol_02.config.api.service;
 
+import com.example.coffies_vol_02.config.api.dto.DocumentDto;
 import com.example.coffies_vol_02.config.api.dto.KakaoApiResponseDto;
 import com.example.coffies_vol_02.config.api.dto.KakaoPlaceApiResponseDto;
 import com.example.coffies_vol_02.config.api.dto.PlaceDocumentDto;
 import com.example.coffies_vol_02.config.exception.Handler.CustomExceptionHandler;
 import com.example.coffies_vol_02.member.domain.Member;
+import com.example.coffies_vol_02.place.domain.Place;
+import com.example.coffies_vol_02.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,7 +35,11 @@ public class KakaoApiSearchService {
 
     private final RestTemplate restTemplate;
 
+    private final RedisTemplate redisTemplate;
+
     private final KakaoUriBuilderService kakaoUriBuilderService;
+
+    private final PlaceRepository placeRepository;
 
     @Value("${kakao.rest.api.key}")
     private String kakaoRestApiKey;
@@ -98,6 +106,26 @@ public class KakaoApiSearchService {
     @Recover
     public KakaoApiResponseDto recover(CustomExceptionHandler e, String address) {
         log.error("All retries failed. Using fallback response. Address: {}, Error: {}", address, e.getErrorCode().getMessage());
+
+        KakaoApiResponseDto cachedResponse = (KakaoApiResponseDto) redisTemplate.opsForValue().get("addressCache::" + address);
+        if (cachedResponse != null) {
+            log.info(" Redis 캐싱된 데이터 반환: {}", address);
+            return cachedResponse;
+        }
+
+        // DB에서 기존 가게 데이터를 조회
+        List<Place> places = placeRepository.findPlacesByName(Collections.singletonList(address));
+        if (!places.isEmpty()) {
+            log.info(" DB에서 조회한 데이터 반환: {}", address);
+
+            // DB 데이터 → KakaoApiResponseDto로 변환
+            List<DocumentDto> documents = places.stream()
+                    .map(DocumentDto::new) // Place → DocumentDto 변환
+                    .collect(Collectors.toList());
+
+            return new KakaoApiResponseDto(documents);
+        }
+        //모드 방법이 실패한 경우 빈 리스트를 출력.
         return getFallbackResponse();
     }
 

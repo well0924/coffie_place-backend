@@ -15,11 +15,12 @@ public interface PlaceRepository extends JpaRepository<Place, Integer>, CustomPl
      * @param lat 회원의 위도
      * @param lon 회원의 경도
      * @return List<Place>
+     *
     @Query(value = "SELECT * FROM " +
             "tbl_place tp " +
             "WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(tp.place_lat)) * cos(radians(tp.place_lng) - radians(:lon)) + sin(radians(:lat)) * sin(radians(tp.place_lat)))) <= 3 " +
             "ORDER BY distance LIMIT 5" ,nativeQuery = true)
-    List<Place> findPlaceByLatLng(@Param("lat") Double lat,@Param("lon") Double lon);*/
+    List<Place> findPlacesByMemberLocation(@Param("lat") Double lat,@Param("lon") Double lon);
 
     /**
      * 가게명과 일치하는 가게 출력하기.

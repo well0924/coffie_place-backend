@@ -159,10 +159,10 @@ public class FavoritePlaceService {
      **/
     @Transactional(readOnly = true)
     public List<PlaceResponseDto>findByMemberNearList(Member member){
-        List<String>placeNames = apiSearchService.extractPlaceName(member);
+        List<String> placeNames = apiSearchService.extractPlaceName(member);
         return placeRepository.findPlacesByName(placeNames)
                 .stream()
-                .map(place->new PlaceResponseDto(place))
+                .map(PlaceResponseDto::new)
                 .collect(Collectors.toList());
     }
 

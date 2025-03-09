@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Builder
 @ToString
-@AllArgsConstructor
+@RequiredArgsConstructor
 @NoArgsConstructor
 public class PlaceDocumentDto {
 
